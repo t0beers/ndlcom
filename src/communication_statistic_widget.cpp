@@ -80,7 +80,7 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
 
     if(firstPacket)
     {
-        counterReceived[mapKey] = 0;
+        counterReceived[mapKey] = 1;
         counterMissed[mapKey] = 0;
         lastTimeReceived[mapKey] = timestamp;
         lastFrameCounter[mapKey] = header.mCounter;
