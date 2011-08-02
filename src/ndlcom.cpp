@@ -29,10 +29,12 @@ NDLCom::NDLCom::NDLCom(QWidget* parent) : RepresentationMapper(parent)
     actionDisconnectAll = new QAction("Disconnect All",this);
     actionDisconnectAll->setObjectName("actionDisconnectAll");
     actionDisconnectAll->setIcon(QIcon(":/NDLCom/images/disconnect.png"));
+    actionDisconnectAll->setShortcuts(QKeySequence::Close);
     actionDisconnectAll->setToolTip("Disconnect all exsting data connections");
 
     actionConnectSerial = new QAction("Connect Serial",this);
     actionConnectSerial->setObjectName("actionConnectSerial");
+    actionConnectSerial->setShortcuts(QKeySequence::Open);
     actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",0));
 
     actionConnectUdp = new QAction("Connect UDP",this);
