@@ -48,13 +48,14 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
     if (connectDialog.exec()==QDialog::Accepted)
     {
         QString hostname = connectDialog.getHostname();
-        int port = connectDialog.getRecvport();
+        int sendport = connectDialog.getSendport();
 
         mpTransmitSocket = new ::UdpCom::UdpCom();
 
-        mpTransmitSocket->setTarget(hostname.toStdString().c_str(), port);
+        mpTransmitSocket->setTarget(hostname.toStdString().c_str(), sendport);
 
         mpReceiveThread = new ReceiveThread(this);
+        mpReceiveThread->setRecvPort(connectDialog.getRecvport());
 
         /* create and start new thread, which will execute it's run() function. */
         connect(mpReceiveThread, SIGNAL(dataReceived(const QByteArray&)),
@@ -62,7 +63,7 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
 
         mpReceiveThread->start();
 
-        setStatusString("UDP ["+hostname+QString(":")+QString::number(port)+QString("]"));
+        setStatusString("UDP ["+hostname+QString(":")+QString::number(sendport)+QString("]"));
 
         emit connected();
     }

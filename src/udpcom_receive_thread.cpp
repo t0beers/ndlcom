@@ -11,7 +11,7 @@ void NDLCom::UdpCom::ReceiveThread::run(void)
 {
     ::UdpCom::UdpCom mUdpCom;
     int r;
-    r = mUdpCom.bind("0.0.0.0", 34000);
+    r = mUdpCom.bind("0.0.0.0", mPort);
     assert(r);
     r = mUdpCom.setBlocking(false);
     assert(r);
@@ -36,5 +36,10 @@ void NDLCom::UdpCom::ReceiveThread::run(void)
 void NDLCom::UdpCom::ReceiveThread::stop()
 {
     mContinueLoop = false;
+}
+
+void NDLCom::UdpCom::ReceiveThread::setRecvPort(int port)
+{
+    mPort = port;
 }
 

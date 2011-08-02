@@ -23,10 +23,12 @@ namespace NDLCom
 	ReceiveThread(NDLCom::UdpCom* wrapper): QThread(wrapper), mpWrapper(wrapper) {};
 	~ReceiveThread() {};
         NDLCom::UdpCom* mpWrapper;
-	void run(void);
+        void run(void);
         void stop(void);
+        void setRecvPort(int);
     private:
         bool mContinueLoop;
+        int mPort;
     signals:
         void dataReceived(const QByteArray&);
     };
