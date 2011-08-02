@@ -15,9 +15,14 @@
 #include <QDebug>
 #include <QMainWindow>
 
+/* Q_INIT_RESOURCE is not allowed to be used inside a namespace
+ * see http://doc.trolltech.com/4.7/qdir.html#Q_INIT_RESOURCE */
+inline void initMyResource() { Q_INIT_RESOURCE(NDLCom); }
+
 NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
 {
-    Q_INIT_RESOURCE(NDLCom);
+    /* init the ressources, like icons, with this quick hack */
+    initMyResource();
 
     /* create all object we need */
     NDLCom* mpNdlcom = new NDLCom(this);
