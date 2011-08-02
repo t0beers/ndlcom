@@ -70,8 +70,11 @@ QString NDLCom::MessageTraffic::formatMessage(const ::NDLCom::Message &msg)
               + QString::number(hdr->mCounter)
               + QString(" dataLength: ")
               + QString::number(hdr->mDataLen)
-              + QString(" Bytes")
-              + QString(" [") + QDateTime::fromMSecsSinceEpoch(time_ms).toString("HH:mm:ss-zzz") + QString("]");
+              + QString(" Bytes");
+
+#if QT_VERSION >= 0x040700
+    newline += QString(" [") + QDateTime::fromMSecsSinceEpoch(time_ms).toString("HH:mm:ss-zzz") + QString("]");
+#endif
 
     return newline;
 }
