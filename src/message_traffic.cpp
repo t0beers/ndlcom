@@ -56,7 +56,6 @@ QString NDLCom::MessageTraffic::formatMessage(const ::NDLCom::Message &msg)
 
     QString newline;
 
-    long int time_ms = msg.mTimestamp.tv_sec*1000.0 + msg.mTimestamp.tv_nsec/1000000.0 + 0.5;
     newline = QString("New telegram: ")
               + repr
               + QString(", sent from ")
@@ -73,6 +72,7 @@ QString NDLCom::MessageTraffic::formatMessage(const ::NDLCom::Message &msg)
               + QString(" Bytes");
 
 #if QT_VERSION >= 0x040700
+    long int time_ms = msg.mTimestamp.tv_sec*1000.0 + msg.mTimestamp.tv_nsec/1000000.0 + 0.5;
     newline += QString(" [") + QDateTime::fromMSecsSinceEpoch(time_ms).toString("HH:mm:ss-zzz") + QString("]");
 #endif
 
