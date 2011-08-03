@@ -41,9 +41,7 @@ NDLCom::Composer::Composer(QWidget* parent) : QWidget(parent)
 
     /* we will have to QComboBox with all known Devices, sorted by Id, to be selected as receiver/sender */
     /* skipping id 0, its not used (broadcast) */
-    mpUi->senders->addItem(QString("Broadcast"));
-    mpUi->receivers->addItem(QString("Broadcast"));
-    for (int id = 1;id<255;id++)
+    for (int id = 0;id<=255;id++)
     {
         if (representationsNamesGetDeviceName(id))
         {
@@ -52,6 +50,8 @@ NDLCom::Composer::Composer(QWidget* parent) : QWidget(parent)
             mpUi->receivers->addItem(name);
         }
     }
+    mpUi->senderId->setValue(representationsNamesGetDeviceId("PC"));
+    mpUi->receiverId->setValue(representationsNamesGetDeviceId("BROADCAST"));
 }
 
 /* sending a message */

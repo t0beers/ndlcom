@@ -7,6 +7,7 @@
     <file>images/ndlcom.png</file>
     <file>images/parser.png</file>
     <file>images/pause.png</file>
+    <file>images/resume.png</file>
     <file>images/serial_traffic.png</file>
     <file>images/telegram.png</file>
   </qresource>

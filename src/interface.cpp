@@ -197,7 +197,7 @@ void NDLCom::Interface::on_actionPauseResume_toggled(bool state)
     if (state)
     {
         actionPauseResume->setText("Resume");
-        actionPauseResume->setIcon(QIcon(":/serialcom/images/resume.png"));
+        actionPauseResume->setIcon(QIcon(":/NDLCom/images/resume.png"));
         actionPauseResume->setStatusTip("Resume Datatraffic");
 
         emit transferRate("paused");
@@ -206,7 +206,7 @@ void NDLCom::Interface::on_actionPauseResume_toggled(bool state)
     else
     {
         actionPauseResume->setText("Pause");
-        actionPauseResume->setIcon(QIcon(":/serialcom/images/pause.png"));
+        actionPauseResume->setIcon(QIcon(":/NDLCom/images/pause.png"));
         actionPauseResume->setStatusTip("Pause Datatraffic");
         emit resumed();
     }

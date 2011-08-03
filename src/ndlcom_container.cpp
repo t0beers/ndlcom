@@ -79,18 +79,20 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
             main->addDockWidget(Qt::LeftDockWidgetArea, dock);
     }
 
-    /* showing current live-traffic in a seperate widget */
+    /* showing current live-traffic in a seperate widget (Gui->world and world->Gui) */
     connect(mpNdlcom, SIGNAL(internal_txMessage(const ::NDLCom::Message&)),
             trfk,     SLOT(sentMessage(const ::NDLCom::Message&)));
     connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
             trfk,     SLOT(receivedMessage(const ::NDLCom::Message&)));
-    /* the composer maybe wants to send a message to the outside world */
+    /* the composer maybe wants to send a message to the outside world. so connecting to same slot
+     * as other (external) widgets would do. */
     connect(comp,     SIGNAL(txMessage(const ::NDLCom::Message&)),
             mpNdlcom, SLOT(txMessage(const ::NDLCom::Message&)));
     /* allow statistics about received messages */
     connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
             comm,     SLOT(rxMessage(const ::NDLCom::Message&)));
-    /* let data out. incoming data is sent from NDLCom::NDLComContainer::txMessage() to ndlcom directly via a function call */
+    /* gui->world: let data out. incoming data is sent from NDLCom::NDLComContainer::txMessage()
+     * (here) to ndlcom directly via a function call */
     connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
             this,     SLOT(slot_rxMessage(const ::NDLCom::Message&)));
 
@@ -100,13 +102,14 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
      * class, when viewed from outside */
 }
 
-/* SLOT just a receiving wrapper, sending data via function-call to ndlcom */
+/* Gui->world, SLOT just a receiving wrapper, sending data via function-call to ndlcom */
 void NDLCom::NDLComContainer::txMessage(const ::NDLCom::Message& msg)
 {
+    qDebug() << "1";
     emit mpNdlcom->txMessage(msg);
 }
 
-/* private SLOT sending data to the rest of the gui */
+/* world->Gui, private SLOT sending data to the rest of the gui */
 void NDLCom::NDLComContainer::slot_rxMessage(const ::NDLCom::Message& msg)
 {
     emit rxMessage(msg);
