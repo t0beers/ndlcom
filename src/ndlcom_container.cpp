@@ -80,14 +80,24 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
     }
 
     /* showing current live-traffic in a seperate widget */
-    connect(mpNdlcom, SIGNAL(signal_txMessage(const ::NDLCom::Message&)), trfk,     SLOT(sentMessage(const ::NDLCom::Message&)));
-    connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),        trfk,     SLOT(receivedMessage(const ::NDLCom::Message&)));
+    connect(mpNdlcom, SIGNAL(internal_txMessage(const ::NDLCom::Message&)),
+            trfk,     SLOT(sentMessage(const ::NDLCom::Message&)));
+    connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
+            trfk,     SLOT(receivedMessage(const ::NDLCom::Message&)));
     /* the composer maybe wants to send a message to the outside world */
-    connect(comp,     SIGNAL(txMessage(const ::NDLCom::Message&)),        mpNdlcom, SLOT(txMessage(const ::NDLCom::Message&)));
+    connect(comp,     SIGNAL(txMessage(const ::NDLCom::Message&)),
+            mpNdlcom, SLOT(txMessage(const ::NDLCom::Message&)));
     /* allow statistics about received messages */
-    connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),        comm,     SLOT(rxMessage(const ::NDLCom::Message&)));
+    connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
+            comm,     SLOT(rxMessage(const ::NDLCom::Message&)));
     /* let data out. incoming data is sent from NDLCom::NDLComContainer::txMessage() to ndlcom directly via a function call */
-    connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),        this,     SLOT(slot_rxMessage(const ::NDLCom::Message&)));
+    connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
+            this,     SLOT(slot_rxMessage(const ::NDLCom::Message&)));
+
+    /* connection of signals for RepresentationsMapper is done in it's contructor. since it the
+     * father-class of NDLCom. this is a stupid solution, which hopefully will be changed in the
+     * future. the nice part is, that doing this the signals seems to be emitted from the same
+     * class, when viewed from outside */
 }
 
 /* SLOT just a receiving wrapper, sending data via function-call to ndlcom */

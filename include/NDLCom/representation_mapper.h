@@ -55,6 +55,9 @@ namespace NDLCom
     signals:
         /** this signal is emitted from the derived class (NDLCom, ndlcom.cpp), not here!!! */
         void rxMessage(const ::NDLCom::Message&);
+        /** this signal is emitted from the derived class. it contains packages sent from
+         * gui-internal, to be received again...? */
+        void internal_txMessage(const ::NDLCom::Message&);
         /** for specialized modules: correctly detected packages. should remove some load. */
         /* please keep this list alphabetically sorted! */
         void rxRepresentation(const ProtocolHeader&, const Representations::AccelerometerConfig&);

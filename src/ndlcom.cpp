@@ -169,7 +169,7 @@ void NDLCom::NDLCom::txMessage(const ::NDLCom::Message& msg)
     }
 
     /* just for other widgets who wanna see the traffic, like NDLCom::MessageTraffic */
-    emit signal_txMessage(msg);
+    emit internal_txMessage(msg);
 }
 
 /* _all_ received messages go through this slot! Message which are not addressed at us will be forwarded */

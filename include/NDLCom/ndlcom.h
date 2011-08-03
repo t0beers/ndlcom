@@ -84,9 +84,6 @@ namespace NDLCom
         /** printing the number of current connections into the "new connection" icon */
         QIcon printNumberOnIcon(QString, int);
 
-    signals:/* private */
-        void signal_txMessage(const ::NDLCom::Message&);
-
     private slots:
         void slot_rxMessage(const ::NDLCom::Message&);
         void connected();
