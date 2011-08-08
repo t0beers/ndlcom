@@ -23,6 +23,7 @@ namespace Representations
     class ForceTorque;
     class JointAngles;
     class MemoryData;
+    class Ping;
     class RawData;
     class RegisterDescriptionResponse;
     class RegisterValueResponse;
@@ -69,6 +70,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::ForceTorque&);
         void rxRepresentation(const ProtocolHeader&, const Representations::JointAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::MemoryData&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::Ping&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RegisterDescriptionResponse&, const QByteArray&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RegisterValueResponse&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_channelData&);

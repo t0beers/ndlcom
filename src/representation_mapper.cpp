@@ -25,6 +25,7 @@
 #include "representations/force_torque.h"
 #include "representations/joint_angles.h"
 #include "representations/memory.h"
+#include "representations/ping.h"
 #include "representations/register.h"
 #include "representations/sensor_array.h"
 #include "representations/telemetry_values.h"
@@ -46,6 +47,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::ForceTorque>("Representations::ForceTorque");
     qRegisterMetaType<Representations::JointAngles>("Representations::JointAngles");
     qRegisterMetaType<Representations::MemoryData>("Representations::MemoryData");
+    qRegisterMetaType<Representations::Ping>("Representations::Ping");
     qRegisterMetaType<Representations::RegisterDescriptionResponse>("Representations::RegisterDescriptionResponse>");
     qRegisterMetaType<Representations::RegisterValueResponse>("RegisterValueResponse");
     qRegisterMetaType<Representations::SensorArray_channelData>("Representations::mIdSensorArray_channelData");
@@ -139,6 +141,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_MemoryData:
                     emit rxRepresentation(msg.mHdr, *(Representations::MemoryData*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsPing:
+                    emit rxRepresentation(msg.mHdr, *(Representations::Ping*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_RegisterValueResponse:
                     emit rxRepresentation(msg.mHdr, *(Representations::RegisterValueResponse*)repreData);
