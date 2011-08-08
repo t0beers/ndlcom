@@ -35,11 +35,11 @@ NDLCom::NDLCom::NDLCom(QWidget* parent) : RepresentationMapper(parent)
     actionConnectSerial = new QAction("Connect Serial",this);
     actionConnectSerial->setObjectName("actionConnectSerial");
     actionConnectSerial->setShortcuts(QKeySequence::Open);
-    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",0));
+    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
 
     actionConnectUdp = new QAction("Connect UDP",this);
     actionConnectUdp->setObjectName("actionConnectUdp");
-    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",0));
+    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
 
     /* setting up Ui */
     mpUi = new Ui::NDLCom();
@@ -53,6 +53,10 @@ NDLCom::NDLCom::NDLCom(QWidget* parent) : RepresentationMapper(parent)
     /* to be able to provide all disconnect-actions grouped together, we ned a menu */
     mpDisconnect = new QMenu("Disconnect");
     mpDisconnect->addAction(actionDisconnectAll);
+
+    /* for counting active interfaces */
+    mRunningSerial = 0;
+    mRunningUdp = 0;
 }
 
 NDLCom::NDLCom::~NDLCom()
@@ -61,7 +65,7 @@ NDLCom::NDLCom::~NDLCom()
 }
 
 /* another sexy hack: showing the numbre of active interfaces in the actionConnect*-actions */
-QIcon NDLCom::NDLCom::printNumberOnIcon(QString icon, int number)
+QIcon NDLCom::NDLCom::printNumberOnIcon(QString icon, int number, QColor color)
 {
     /* we don't paint zeros... */
     if (number == 0)
@@ -71,7 +75,7 @@ QIcon NDLCom::NDLCom::printNumberOnIcon(QString icon, int number)
     QPixmap pix(icon);
     QPainter painter;
     painter.begin(&pix);
-    painter.setPen(QColor("#6dca00"));
+    painter.setPen(color);
     painter.setFont(QFont("", 14, -1, false));
     painter.drawText(QPoint(0,20), QString::number(number));
     painter.end();
@@ -108,8 +112,11 @@ void NDLCom::NDLCom::on_actionDisconnectAll_triggered()
         delete runningInterfaces.takeFirst();
     }
     /* update the icons */
-    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",runningInterfaces.count()));
-    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",runningInterfaces.count()));
+    mRunningUdp = 0;
+    mRunningSerial = 0;
+    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
+    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
+    actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png"));
 }
 
 /* what should we do on a successfull connect? */
@@ -137,8 +144,17 @@ void NDLCom::NDLCom::connected()
         qWarning() << "NDLCom::NDLCom::connected() someone called, though he is not an NDLCom::Interface";
 
     /* update the icons */
-    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",runningInterfaces.count()));
-    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",runningInterfaces.count()));
+    if (qobject_cast<Serialcom*>(QObject::sender()))
+        actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
+                                                       ++mRunningSerial,
+                                                       QColor("#6dca00")));
+    if (qobject_cast<UdpCom*>(QObject::sender()))
+        actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
+                                                    ++mRunningUdp,
+                                                    QColor("#6dca00")));
+
+    actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png",
+                                                    mRunningUdp+mRunningSerial));
 }
 
 /* what should we do after loosing a connection */
@@ -155,8 +171,17 @@ void NDLCom::NDLCom::disconnected()
         qWarning() << "NDLCom::NDLCom::disconnected() someone called, tough he is not an NDLCom::Interface";
 
     /* update the icons */
-    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",runningInterfaces.count()));
-    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",runningInterfaces.count()));
+    if (qobject_cast<Serialcom*>(QObject::sender()))
+        actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
+                                                       --mRunningSerial,
+                                                       QColor("#6dca00")));
+    if (qobject_cast<UdpCom*>(QObject::sender()))
+        actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
+                                                    --mRunningUdp,
+                                                    QColor("#6dca00")));
+
+    actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png",
+                                                    mRunningUdp+mRunningSerial));
 }
 
 /* _all_ messages from the GUI to external devices go through this slot */

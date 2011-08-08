@@ -12,6 +12,7 @@
 #include <QList>
 #include <QVBoxLayout>
 #include <QDockWidget>
+#include <QColor>
 
 #include "NDLCom/representation_mapper.h"
 
@@ -82,7 +83,11 @@ namespace NDLCom
         /** ... */
         Ui::NDLCom* mpUi;
         /** printing the number of current connections into the "new connection" icon */
-        QIcon printNumberOnIcon(QString, int);
+        QIcon printNumberOnIcon(QString, int number = 0, QColor color = Qt::black);
+
+        /** these two are used two counter the number of active interfaces for display in the icons */
+        int mRunningUdp;
+        int mRunningSerial;
 
     private slots:
         void slot_rxMessage(const ::NDLCom::Message&);
