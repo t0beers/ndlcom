@@ -97,7 +97,7 @@ NDLCom::Interface::~Interface()
 }
 
 /* little hack for niceness! */
-QString sizeToString(int size)
+QString NDLCom::Interface::sizeToString(int size)
 {
     int bytes = 1;
     int kbytes = 1024*bytes;
@@ -136,6 +136,11 @@ void NDLCom::Interface::on_mpTimer_timeout()
     mTxBytes_last = mTxBytes;
 
     emit transferRate(string);
+
+    emit rxRate(mRxRate_last);
+    emit txRate(mTxRate_last);
+    emit rxBytes(mRxBytes);
+    emit txBytes(mTxBytes);
 }
 
 /* append current interface-type, like "/dev/ttyUSB0" to all QAction */

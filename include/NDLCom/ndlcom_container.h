@@ -99,6 +99,8 @@ namespace NDLCom
     signals:
         /** data coming from the hardware */
         void rxMessage(const ::NDLCom::Message&);
+        /** current datarates and amounts of all interfaces */
+        void status(QString, double);
     public slots:
         /** data going to the hardware */
         void txMessage(const ::NDLCom::Message&);
@@ -108,6 +110,11 @@ namespace NDLCom
     private slots:
         /** used for internal receiving of signals, to be able to echo them */
         void slot_rxMessage(const ::NDLCom::Message&);
+        /** wrapper signals/slot stubs... */
+        void slot_rxRate(double);
+        void slot_txRate(double);
+        void slot_rxBytes(double);
+        void slot_txBytes(double);
     };
 };
 

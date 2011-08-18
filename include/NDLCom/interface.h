@@ -141,9 +141,18 @@ namespace NDLCom
         /** used to show current raw-traffic of a Interface in a seperate window */
         QWidget* mpTrafficWindow;
 
+        /* little helper function */
+        QString sizeToString(int size);
+
     signals:/*private*/
         /** current data rate, transformed as a string */
         void transferRate(QString);
+
+        /** allows some bookkeeping of data-traffic by higher-level widgets */
+        void rxRate(double);
+        void txRate(double);
+        void rxBytes(double);
+        void txBytes(double);
 
     private slots:
         /** updating the statusstring is done automagically... */

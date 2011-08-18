@@ -75,6 +75,14 @@ namespace NDLCom
         void txMessage(const ::NDLCom::Message&);
 
     signals:
+        /** current status (transferred data and rates) of all interfaces */
+        void transferRate(const QString);
+
+        /** current datarates and amounts of all interfaces */
+        void rxRate(double);
+        void txRate(double);
+        void rxBytes(double);
+        void txBytes(double);
 
     private:
 
@@ -89,13 +97,31 @@ namespace NDLCom
         int mRunningUdp;
         int mRunningSerial;
 
+        /** for displaying overall data-rate. will keep transferred bytes forever. will remove
+         * current rates for disconnected devices */
+        QMap<void*, double> mMapRxRate;
+        QMap<void*, double> mMapTxRate;
+        QMap<void*, double> mMapRxBytes;
+        QMap<void*, double> mMapTxBytes;
+
+        /* to update als summarize the received transfer rates from all interfaces this timer */
+        QTimer* mpGuiTimer;
+
+        /* little helper function... */
+        QString sizeToString(int size);
+
     private slots:
         void slot_rxMessage(const ::NDLCom::Message&);
+        void slot_rxRate(double);
+        void slot_txRate(double);
+        void slot_rxBytes(double);
+        void slot_txBytes(double);
         void connected();
         void disconnected();
         void on_actionConnectSerial_triggered();
         void on_actionConnectUdp_triggered();
         void on_actionDisconnectAll_triggered();
+        void on_mpGuiTimer_timeout();
     };
 };
 

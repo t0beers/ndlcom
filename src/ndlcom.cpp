@@ -41,6 +41,11 @@ NDLCom::NDLCom::NDLCom(QWidget* parent) : RepresentationMapper(parent)
     actionConnectUdp->setObjectName("actionConnectUdp");
     actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
 
+    mpGuiTimer = new QTimer(this);
+    mpGuiTimer->setObjectName("mpGuiTimer");
+    mpGuiTimer->setInterval(100);/*10Hz*/
+    mpGuiTimer->start();
+
     /* setting up Ui */
     mpUi = new Ui::NDLCom();
     mpUi->setupUi(this);
@@ -139,6 +144,12 @@ void NDLCom::NDLCom::connected()
 
         /* we wrap all received signals by the interfaces in our private slot */
         connect(inter, SIGNAL(rxMessage(const ::NDLCom::Message&)), this, SLOT(slot_rxMessage(const ::NDLCom::Message&)));
+
+        /* we wann keep book */
+        connect(inter, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
+        connect(inter, SIGNAL(txRate(double)),  this, SLOT(slot_txRate(double)));
+        connect(inter, SIGNAL(rxBytes(double)), this, SLOT(slot_rxBytes(double)));
+        connect(inter, SIGNAL(txBytes(double)), this, SLOT(slot_txBytes(double)));
     }
     else
         qWarning() << "NDLCom::NDLCom::connected() someone called, though he is not an NDLCom::Interface";
@@ -164,6 +175,10 @@ void NDLCom::NDLCom::disconnected()
 
     if ((inter = qobject_cast<Interface*>(QObject::sender())))
     {
+        /* remove entry in transferrate-map for this interface (overall transferred data is kept): */
+        mMapRxRate.remove(inter);
+        mMapTxRate.remove(inter);
+
         delete inter;
         runningInterfaces.removeAll(inter);
     }
@@ -227,3 +242,102 @@ void NDLCom::NDLCom::slot_rxMessage(const ::NDLCom::Message& msg)
     }
 }
 
+void NDLCom::NDLCom::slot_rxRate(double rate)
+{
+    Interface* inter = qobject_cast<Interface*>(QObject::sender());
+    mMapRxRate[inter] = rate;
+}
+
+void NDLCom::NDLCom::slot_txRate(double rate)
+{
+    Interface* inter = qobject_cast<Interface*>(QObject::sender());
+    mMapTxRate[inter] = rate;
+}
+
+void NDLCom::NDLCom::slot_rxBytes(double bytes)
+{
+    Interface* inter = qobject_cast<Interface*>(QObject::sender());
+    mMapRxBytes[inter] = bytes;
+}
+
+void NDLCom::NDLCom::slot_txBytes(double bytes)
+{
+    void* inter = qobject_cast<Interface*>(QObject::sender());
+    mMapTxBytes[inter] = bytes;
+}
+
+/* little hack for niceness! */
+QString NDLCom::NDLCom::sizeToString(int size)
+{
+    int bytes = 1;
+    int kbytes = 1024*bytes;
+    int mbytes = 1024*kbytes;
+    int gbytes = 1024*mbytes;
+
+    if (size > gbytes)
+        return QString::number((double)(size)/gbytes,'f',2)+QString(" GiB");
+    else if (size > mbytes)
+        return QString::number((double)(size)/mbytes,'f',2)+QString(" MiB");
+    else if (size > kbytes)
+        return QString::number((double)(size)/kbytes,'f',2)+QString(" KiB");
+    else
+        return QString::number(size)+QString(" B");
+}
+
+void NDLCom::NDLCom::on_mpGuiTimer_timeout()
+{
+    double overallRxRate;
+    double overallTxRate;
+    double overallRxBytes;
+    double overallTxBytes;
+
+    {
+        QMapIterator<void*, double> i(mMapRxBytes);
+        while (i.hasNext()) {
+            i.next();
+            overallRxBytes += i.value();
+        }
+    }
+
+    {
+        QMapIterator<void*, double> i(mMapRxRate);
+        while (i.hasNext()) {
+            i.next();
+            overallRxRate += i.value();
+        }
+    }
+
+    {
+        QMapIterator<void*, double> i(mMapTxBytes);
+        while (i.hasNext()) {
+            i.next();
+            overallTxBytes += i.value();
+        }
+    }
+
+    {
+        QMapIterator<void*, double> i(mMapTxRate);
+        while (i.hasNext()) {
+            i.next();
+            overallTxRate += i.value();
+        }
+    }
+
+    /* stand back, pure inefficiency!!! */
+    QString string = QString("Rx: ")
+                   + sizeToString(overallRxBytes)
+                   + QString(", ")
+                   + sizeToString(overallRxRate)
+                   + QString("/s -- Tx: ")
+                   + sizeToString(overallTxBytes)
+                   + QString(", ")
+                   + sizeToString(overallTxRate)
+                   + QString("/s");
+
+    emit transferRate(string);
+
+    emit rxRate(overallRxRate);
+    emit txRate(overallTxRate);
+    emit rxBytes(overallRxBytes);
+    emit txBytes(overallTxBytes);
+}
