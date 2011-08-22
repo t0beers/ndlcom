@@ -53,6 +53,9 @@ namespace NDLCom
          */
         QAction* actionDisconnect;
 
+        /* little helper function */
+        static QString sizeToString(int size);
+
     signals:
         /** emitted by inheriting classes */
         void connected();
@@ -140,9 +143,6 @@ namespace NDLCom
         Ui::Interface* mpUi;
         /** used to show current raw-traffic of a Interface in a seperate window */
         QWidget* mpTrafficWindow;
-
-        /* little helper function */
-        QString sizeToString(int size);
 
     signals:/*private*/
         /** current data rate, transformed as a string */

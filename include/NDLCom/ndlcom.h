@@ -78,11 +78,9 @@ namespace NDLCom
         /** current status (transferred data and rates) of all interfaces */
         void transferRate(const QString);
 
-        /** current datarates and amounts of all interfaces */
-        void rxRate(double);
-        void txRate(double);
-        void rxBytes(double);
-        void txBytes(double);
+        /** this signal will print string/datarate combinations rx/tx bytes/rate, summed over all
+         * interfaces each */
+        void status(QString, double);
 
     private:
 
@@ -106,9 +104,6 @@ namespace NDLCom
 
         /* to update als summarize the received transfer rates from all interfaces this timer */
         QTimer* mpGuiTimer;
-
-        /* little helper function... */
-        QString sizeToString(int size);
 
     private slots:
         void slot_rxMessage(const ::NDLCom::Message&);

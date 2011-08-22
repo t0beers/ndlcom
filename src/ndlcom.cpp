@@ -114,14 +114,9 @@ void NDLCom::NDLCom::on_actionDisconnectAll_triggered()
 {
     while (!runningInterfaces.isEmpty())
     {
-        delete runningInterfaces.takeFirst();
+        Interface* inter = runningInterfaces.takeFirst();
+        inter->actionDisconnect->trigger();
     }
-    /* update the icons */
-    mRunningUdp = 0;
-    mRunningSerial = 0;
-    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
-    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
-    actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png"));
 }
 
 /* what should we do on a successfull connect? */
@@ -175,26 +170,28 @@ void NDLCom::NDLCom::disconnected()
 
     if ((inter = qobject_cast<Interface*>(QObject::sender())))
     {
-        /* remove entry in transferrate-map for this interface (overall transferred data is kept): */
-        mMapRxRate.remove(inter);
-        mMapTxRate.remove(inter);
+        /* update the icons (do this before deleting, otherwise object_cast won't work) */
+        if (qobject_cast<Serialcom*>(QObject::sender()))
+            actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
+                        --mRunningSerial,
+                        QColor("#6dca00")));
+
+        if (qobject_cast<UdpCom*>(QObject::sender()))
+            actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
+                        --mRunningUdp,
+                        QColor("#6dca00")));
 
         delete inter;
         runningInterfaces.removeAll(inter);
+
+        /* remove entry in transferrate-map for this interface (overall transferred data is kept): */
+        mMapRxRate.remove(inter);
+        mMapTxRate.remove(inter);
     }
     else
         qWarning() << "NDLCom::NDLCom::disconnected() someone called, tough he is not an NDLCom::Interface";
 
-    /* update the icons */
-    if (qobject_cast<Serialcom*>(QObject::sender()))
-        actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
-                                                       --mRunningSerial,
-                                                       QColor("#6dca00")));
-    if (qobject_cast<UdpCom*>(QObject::sender()))
-        actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
-                                                    --mRunningUdp,
-                                                    QColor("#6dca00")));
-
+    /* updating this icon in all cases */
     actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png",
                                                     mRunningUdp+mRunningSerial));
 }
@@ -266,24 +263,6 @@ void NDLCom::NDLCom::slot_txBytes(double bytes)
     mMapTxBytes[inter] = bytes;
 }
 
-/* little hack for niceness! */
-QString NDLCom::NDLCom::sizeToString(int size)
-{
-    int bytes = 1;
-    int kbytes = 1024*bytes;
-    int mbytes = 1024*kbytes;
-    int gbytes = 1024*mbytes;
-
-    if (size > gbytes)
-        return QString::number((double)(size)/gbytes,'f',2)+QString(" GiB");
-    else if (size > mbytes)
-        return QString::number((double)(size)/mbytes,'f',2)+QString(" MiB");
-    else if (size > kbytes)
-        return QString::number((double)(size)/kbytes,'f',2)+QString(" KiB");
-    else
-        return QString::number(size)+QString(" B");
-}
-
 void NDLCom::NDLCom::on_mpGuiTimer_timeout()
 {
     double overallRxRate;
@@ -325,19 +304,19 @@ void NDLCom::NDLCom::on_mpGuiTimer_timeout()
 
     /* stand back, pure inefficiency!!! */
     QString string = QString("Rx: ")
-                   + sizeToString(overallRxBytes)
+                   + Interface::sizeToString(overallRxBytes)
                    + QString(", ")
-                   + sizeToString(overallRxRate)
+                   + Interface::sizeToString(overallRxRate)
                    + QString("/s -- Tx: ")
-                   + sizeToString(overallTxBytes)
+                   + Interface::sizeToString(overallTxBytes)
                    + QString(", ")
-                   + sizeToString(overallTxRate)
+                   + Interface::sizeToString(overallTxRate)
                    + QString("/s");
 
     emit transferRate(string);
 
-    emit rxRate(overallRxRate);
-    emit txRate(overallTxRate);
-    emit rxBytes(overallRxBytes);
-    emit txBytes(overallTxBytes);
+    emit status("NDLCom:rxRate",overallRxRate);
+    emit status("NDLCom:txRate",overallTxRate);
+    emit status("NDLCom:rxBytes",overallRxBytes);
+    emit status("NDLCom:txBytes",overallTxBytes);
 }

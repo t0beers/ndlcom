@@ -100,12 +100,6 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
      * father-class of NDLCom. this is a stupid solution, which hopefully will be changed in the
      * future. the nice part is, that doing this the signals seems to be emitted from the same
      * class, when viewed from outside */
-
-    /* we wanna tell the outside world what is going on... */
-    connect(mpNdlcom, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
-    connect(mpNdlcom, SIGNAL(txRate(double)),  this, SLOT(slot_txRate(double)));
-    connect(mpNdlcom, SIGNAL(rxBytes(double)), this, SLOT(slot_rxBytes(double)));
-    connect(mpNdlcom, SIGNAL(txBytes(double)), this, SLOT(slot_txBytes(double)));
 }
 
 /* Gui->world, SLOT just a receiving wrapper, sending data via function-call to ndlcom */
@@ -119,24 +113,4 @@ void NDLCom::NDLComContainer::txMessage(const ::NDLCom::Message& msg)
 void NDLCom::NDLComContainer::slot_rxMessage(const ::NDLCom::Message& msg)
 {
     emit rxMessage(msg);
-}
-
-void NDLCom::NDLComContainer::slot_rxRate(double rate)
-{
-    emit status("NDLCom:rxRate",rate);
-}
-
-void NDLCom::NDLComContainer::slot_txRate(double rate)
-{
-    emit status("NDLCom:txRate",rate);
-}
-
-void NDLCom::NDLComContainer::slot_rxBytes(double bytes)
-{
-    emit status("NDLCom:rxBytes",bytes);
-}
-
-void NDLCom::NDLComContainer::slot_txBytes(double bytes)
-{
-    emit status("NDLCom:txBytes",bytes);
 }

@@ -110,11 +110,6 @@ namespace NDLCom
     private slots:
         /** used for internal receiving of signals, to be able to echo them */
         void slot_rxMessage(const ::NDLCom::Message&);
-        /** wrapper signals/slot stubs... */
-        void slot_rxRate(double);
-        void slot_txRate(double);
-        void slot_rxBytes(double);
-        void slot_txBytes(double);
     };
 };
 
