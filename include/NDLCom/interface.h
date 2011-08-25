@@ -85,37 +85,39 @@ namespace NDLCom
         virtual void txMessage(const ::NDLCom::Message&) = 0;
 
     protected:
-        /** subclasses update this values as they receive raw-data, is used to display send/receive-rates */
+        /** subclasses update this value as they receive raw-data, is used to display receive-rates */
         int mRxBytes;
-        /** subclasses update this values as they receive raw-data, is used to display send/receive-rates */
+        /** subclasses update this value as they send raw-data, is used to display send-rates */
         int mTxBytes;
-        /** should be used to decide wether new data is emitted or not */
+        /** should be used to decide wether new data is sent/received or not. note that the basic
+         * interface is still serving the hardware, but the signal/slot connection inside this class
+         * is cut! */
         bool mPaused;
         /**
          * @brief may be called by a subclasses to tell this Interface it's status
          *
          * @param QString something like "/dev/ttyUSB0" or "UDP 192.168.0.34:43211"
          */
-        void setStatusString(const QString&);
+        void setInterfaceType(const QString&);
 
     signals:/*protected*/
+		/** used to send traffic to the raw-traffic-window */
         void txRaw(const QByteArray&);
         void rxRaw(const QByteArray&);
 
     protected slots:
         /**
-         * @brief action to be performed for a proper connect
+         * @brief action to be triggered for a proper connect
          *
-         * pure virtual! has to be implemented
+         * pure virtual! has to be implemented by a subclass
          */
         virtual void on_actionConnect_triggered() = 0;
         /**
-         * @brief action to be performed for a proper disconnect
+         * @brief action to be triggered for a proper disconnect
          *
-         * pure virtual! has to be implemented
+         * pure virtual! has to be implemented by a subclass
          */
         virtual void on_actionDisconnect_triggered() = 0;
-
 
     private:
         /* used to calculate sending rates */
@@ -123,9 +125,7 @@ namespace NDLCom
         int mTxBytes_last;
         double mRxRate_last;
         double mTxRate_last;
-        /**
-         * @brief will add a widget showing current raw-traffic of this interface...
-         */
+        /** @brief will add a widget showing current raw-traffic of this interface... */
         QAction* actionShowTraffic;
         /** widget which may show raw-traffic */
         InterfaceTraffic* mpTraffic;
@@ -137,12 +137,11 @@ namespace NDLCom
          */
         QAction* actionPauseResume;
         /** updating the Gui */
-        QTimer* mpTimer;
-
-        /** ... */
-        Ui::Interface* mpUi;
+        QTimer* mpGuiTimer;
         /** used to show current raw-traffic of a Interface in a seperate window */
         QWidget* mpTrafficWindow;
+        /** ... */
+        Ui::Interface* mpUi;
 
     signals:/*private*/
         /** current data rate, transformed as a string */
@@ -156,8 +155,7 @@ namespace NDLCom
 
     private slots:
         /** updating the statusstring is done automagically... */
-        void on_mpTimer_timeout();
-
+        void on_mpGuiTimer_timeout();
         /** when a connection was established */
         void slot_connected();
         /** when a connection was disconnected */

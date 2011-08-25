@@ -10,11 +10,7 @@
 
 #include <QDebug>
 
-#ifndef GUI_TIMER_INTERVAL
-#   define GUI_TIMER_INTERVAL 100
-#else
-#   error "WTF?"
-#endif
+#define GUI_TIMER_INTERVAL 100
 
 NDLCom::Interface::Interface(QWidget* parent) : QWidget(parent)
 {
@@ -50,9 +46,9 @@ NDLCom::Interface::Interface(QWidget* parent) : QWidget(parent)
     actionShowTraffic->setStatusTip("Show current datatraffic");
     mpTraffic = NULL;
 
-    mpTimer = new QTimer(this);
-    mpTimer->setObjectName("mpTimer");
-    mpTimer->setInterval(GUI_TIMER_INTERVAL);
+    mpGuiTimer = new QTimer(this);
+    mpGuiTimer->setObjectName("mpGuiTimer");
+    mpGuiTimer->setInterval(GUI_TIMER_INTERVAL);
 
     mpUi = new Ui::Interface;
     mpUi->setupUi(this);
@@ -66,14 +62,14 @@ NDLCom::Interface::Interface(QWidget* parent) : QWidget(parent)
     mTxRate_last = 0;
 
     /* what we wanna do on a successfull connect */
-    connect(this, SIGNAL(connected()), mpTimer, SLOT(start()));
+    connect(this, SIGNAL(connected()), mpGuiTimer, SLOT(start()));
     connect(this, SIGNAL(connected()), this, SLOT(slot_connected()));
     /* what we wanna do after disconnection occured */
-    connect(this, SIGNAL(disconnected()), mpTimer, SLOT(stop()));
+    connect(this, SIGNAL(disconnected()), mpGuiTimer, SLOT(stop()));
     connect(this, SIGNAL(disconnected()), this, SLOT(slot_disconnected()));
     /* what we wanna do on pause/resume */
-    connect(this, SIGNAL(resumed()), mpTimer, SLOT(start()));
-    connect(this, SIGNAL(paused()), mpTimer, SLOT(stop()));
+    connect(this, SIGNAL(resumed()), mpGuiTimer, SLOT(start()));
+    connect(this, SIGNAL(paused()), mpGuiTimer, SLOT(stop()));
     /* setting the current transfer-rate directly to the appropriate QLabel */
     connect(this, SIGNAL(transferRate(QString)), mpUi->status, SLOT(setText(QString)));
 
@@ -88,12 +84,7 @@ NDLCom::Interface::Interface(QWidget* parent) : QWidget(parent)
 
 NDLCom::Interface::~Interface()
 {
-    if (mpTrafficWindow)
-    {
-        qDeleteAll(mpTrafficWindow->children());
-        delete mpTrafficWindow;
-        mpTrafficWindow = NULL;
-    }
+    /* nop */
 }
 
 /* little hack for niceness! */
@@ -115,7 +106,7 @@ QString NDLCom::Interface::sizeToString(int size)
 }
 
 /* calculating and updating current transfer-rates */
-void NDLCom::Interface::on_mpTimer_timeout()
+void NDLCom::Interface::on_mpGuiTimer_timeout()
 {
     /* this is some sort of low-pass filter, to allow smoother values */
     mRxRate_last = (mRxRate_last+(mRxBytes-mRxBytes_last)/(double)GUI_TIMER_INTERVAL*1000.0)/2.0;
@@ -144,7 +135,7 @@ void NDLCom::Interface::on_mpTimer_timeout()
 }
 
 /* append current interface-type, like "/dev/ttyUSB0" to all QAction */
-void NDLCom::Interface::setStatusString(const QString& interfaceType)
+void NDLCom::Interface::setInterfaceType(const QString& interfaceType)
 {
     mpUi->type->setText(interfaceType);
 
@@ -160,7 +151,7 @@ void NDLCom::Interface::setStatusString(const QString& interfaceType)
         actionPauseResume->setStatusTip("Pause "+interfaceType);
 
     if (mpTrafficWindow)
-        mpTrafficWindow->setWindowTitle("raw traffic of "+mpUi->type->text());
+        mpTrafficWindow->setWindowTitle("raw traffic of "+interfaceType);
 }
 
 /* showing an extra Window with current Raw-Traffic */
@@ -170,7 +161,9 @@ void NDLCom::Interface::on_actionShowTraffic_toggled(bool checked)
     {
         if (!mpTrafficWindow)
         {
-            mpTrafficWindow = new QWidget();
+            /* giving the Qt::Window flag together with "this", the widget becomes a window which
+             * has a parent -- so the parent can destroy the widget on exit */
+            mpTrafficWindow = new QWidget(this, Qt::Window);
             mpTrafficWindow->setWindowTitle("raw traffic of "+mpUi->type->text());
             mpTrafficWindow->resize(400,400);
             QVBoxLayout* layout = new QVBoxLayout();
@@ -180,14 +173,14 @@ void NDLCom::Interface::on_actionShowTraffic_toggled(bool checked)
             connect(this, SIGNAL(rxRaw(const QByteArray&)), wid, SLOT(rxTraffic(const QByteArray&)));
             connect(this, SIGNAL(txRaw(const QByteArray&)), wid, SLOT(txTraffic(const QByteArray&)));
             mpTrafficWindow->show();
-            mpTrafficWindow->activateWindow();
+            mpTrafficWindow->raise();
         }
     }
     else
     {
+        /* remove this window */
         if (mpTrafficWindow)
         {
-            qDeleteAll(mpTrafficWindow->children());
             delete mpTrafficWindow;
             mpTrafficWindow = NULL;
         }
@@ -220,7 +213,7 @@ void NDLCom::Interface::on_actionPauseResume_toggled(bool state)
 /* handle connection-lost */
 void NDLCom::Interface::slot_disconnected()
 {
-    setStatusString("not connected");
+    setInterfaceType("not connected");
 
     /* zeroing the stats */
     mRxBytes = 0;
@@ -238,6 +231,13 @@ void NDLCom::Interface::slot_disconnected()
 
     actionDisconnect->setText("Disconnect");
     actionDisconnect->setStatusTip("Disconnect existing Connection");
+
+    /* remove this window on a disconnect */
+    if (mpTrafficWindow)
+    {
+        delete mpTrafficWindow;
+        mpTrafficWindow = NULL;
+    }
 }
 
 /* handle successfull connection */

@@ -16,7 +16,7 @@ NDLCom::UdpCom::UdpCom(QWidget* parent): Interface(parent)
     mpTransmitSocket = NULL;
     mpReceiveThread = NULL;
 
-    setStatusString("UDP");
+    setInterfaceType("UDP");
 }
 
 NDLCom::UdpCom::~UdpCom()
@@ -63,7 +63,7 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
 
         mpReceiveThread->start();
 
-        setStatusString("UDP ["+hostname+QString(":")+QString::number(sendport)+QString("]"));
+        setInterfaceType("UDP ["+hostname+QString(":")+QString::number(sendport)+QString("]"));
 
         emit connected();
     }

@@ -12,7 +12,7 @@ NDLCom::Serialcom::Serialcom(QWidget* parent): Interface(parent)
 
     mpPorthandler = NULL;
 
-    setStatusString("Serial");
+    setInterfaceType("Serial");
 
     mpProtocolBuffer = new char[65535];
     mpProtocolParser = protocolParserCreate(mpProtocolBuffer, 65535);
@@ -56,7 +56,7 @@ void NDLCom::Serialcom::on_actionConnect_triggered()
 
             actionDisconnect->setText("Disconnect "+portName);
 
-            setStatusString("Serialport "+portName);
+            setInterfaceType("Serialport "+portName);
 
             emit connected();
         }
