@@ -150,8 +150,6 @@ namespace NDLCom
         /** allows some bookkeeping of data-traffic by higher-level widgets */
         void rxRate(double);
         void txRate(double);
-        void rxBytes(double);
-        void txBytes(double);
 
     private slots:
         /** updating the statusstring is done automagically... */
