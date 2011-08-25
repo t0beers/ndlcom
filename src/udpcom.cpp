@@ -67,8 +67,6 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
 
         emit connected();
     }
-    else
-        emit disconnected();
 }
 
 void NDLCom::UdpCom::on_actionDisconnect_triggered()

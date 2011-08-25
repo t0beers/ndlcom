@@ -73,8 +73,6 @@ void NDLCom::Serialcom::on_actionConnect_triggered()
             return;
         }
     }
-    else
-        emit disconnected();
 }
 
 void NDLCom::Serialcom::on_actionDisconnect_triggered()
