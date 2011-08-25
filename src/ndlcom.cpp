@@ -317,6 +317,4 @@ void NDLCom::NDLCom::on_mpGuiTimer_timeout()
 
     emit status("NDLCom:rxRate",overallRxRate);
     emit status("NDLCom:txRate",overallTxRate);
-    emit status("NDLCom:rxBytes",overallRxBytes);
-    emit status("NDLCom:txBytes",overallTxBytes);
 }
