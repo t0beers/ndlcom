@@ -137,6 +137,7 @@ void NDLCom::Interface::on_mpGuiTimer_timeout()
 /* append current interface-type, like "/dev/ttyUSB0" to all QAction */
 void NDLCom::Interface::setInterfaceType(const QString& interfaceType)
 {
+    mInterfaceType = interfaceType;
     mpUi->type->setText(interfaceType);
 
     actionConnect->setText("Connect "+interfaceType);

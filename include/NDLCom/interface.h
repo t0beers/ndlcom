@@ -56,6 +56,8 @@ namespace NDLCom
         /* little helper function */
         static QString sizeToString(int size);
 
+        QString mInterfaceType;
+
     signals:
         /** emitted by inheriting classes */
         void connected();
