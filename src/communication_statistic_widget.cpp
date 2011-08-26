@@ -25,7 +25,7 @@ NDLCom::CommunicationStatisticWidget::CommunicationStatisticWidget(QWidget *pare
     mpUi = new NDLCom::Ui::CommunicationStatisticWidget();
     mpUi->setupUi(this);
 
-    mpUi->outputTable->setColumnCount(8);
+    mpUi->outputTable->setColumnCount(7);
     createTableHeader();
 
     mpTimerRateUpdate->start(100); //unit: milliseconds, e.g. 10Hz
@@ -48,8 +48,9 @@ void NDLCom::CommunicationStatisticWidget::createTableHeader()
     mpUi->outputTable->setHorizontalHeaderItem(5,headerItem);
     headerItem = new QTableWidgetItem("Rate");
     mpUi->outputTable->setHorizontalHeaderItem(6,headerItem);
-    headerItem = new QTableWidgetItem("StdDev");
-    mpUi->outputTable->setHorizontalHeaderItem(7,headerItem);
+    // This makes no sense yet, because we have huge deviations due to missing real time functionality
+    //headerItem = new QTableWidgetItem("StdDev");
+    //mpUi->outputTable->setHorizontalHeaderItem(7,headerItem);
     mpUi->outputTable->resizeColumnsToContents();
 }
 
@@ -61,7 +62,7 @@ void NDLCom::CommunicationStatisticWidget::on_resetButton_clicked()
     counterReceived.clear();
     counterMissed.clear();
     estimatedFrequency.clear();
-    estimatedJitter.clear();    
+    //estimatedJitter.clear();    
     mpUi->outputTable->clear();
     mpUi->outputTable->setRowCount(0);
     createTableHeader();
@@ -84,7 +85,7 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
         counterMissed[mapKey] = 0;
         lastTimeReceived[mapKey] = timestamp;
         lastFrameCounter[mapKey] = header.mCounter;
-        lastFrequencies[mapKey] = QList<double>();
+        //lastFrequencies[mapKey] = QList<double>();
         lastTimeStamps[mapKey] = QList<struct timespec>();
     }
     else
@@ -134,26 +135,26 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
         double rate_from_last = 1000. /(delta_millis + delta_nanos/1.e6);
 
         double rateMean = rate_from_last > 30 ? rate_from_oldest : rate_from_last;
-        double rateVariance = 0.;
-        double rateStdDev = 0.;
+        //double rateVariance = 0.;
+        //double rateStdDev = 0.;
 
         /* update list of frequencies and estimate variance. */
-        QList<double>& list = lastFrequencies[mapKey];
-        list.append(rate_from_last);
-        for (int i = 0; i < list.size(); ++i)
-        {
-            double entryDiff = (list[i] - rateMean);
-            rateVariance += entryDiff * entryDiff;
-        }
-        rateVariance /= list.size() - 1;
-        rateStdDev = sqrt(rateVariance);
-        if(list.size() > 250)
-        {
-            list.removeFirst();
-        }
+        //QList<double>& list = lastFrequencies[mapKey];
+        //list.append(rate_from_last);
+        //for (int i = 0; i < list.size(); ++i)
+        //{
+            //double entryDiff = (list[i] - rateMean);
+            //rateVariance += entryDiff * entryDiff;
+        //}
+        //rateVariance /= list.size() - 1;
+        //rateStdDev = sqrt(rateVariance);
+        //if(list.size() > 250)
+        //{
+            //list.removeFirst();
+        //}
 
         estimatedFrequency[mapKey] = rateMean; //estimatedFrequency[mapKey] * 0.99 + 0.01 * rate;
-        estimatedJitter[mapKey] = rateStdDev;
+        //estimatedJitter[mapKey] = rateStdDev;
         lastFrameCounter[mapKey] = header.mCounter;
         lastTimeReceived[mapKey] = timestamp;
     }
@@ -190,7 +191,7 @@ void NDLCom::CommunicationStatisticWidget::on_mpTimerRateUpdate_timeout()
             mpUi->outputTable->setItem(line,4,new QTableWidgetItem("0"));
             mpUi->outputTable->setItem(line,5,new QTableWidgetItem("0%"));
             mpUi->outputTable->setItem(line,6,new QTableWidgetItem("0 Hz"));
-            mpUi->outputTable->setItem(line,7,new QTableWidgetItem(""));
+            //mpUi->outputTable->setItem(line,7,new QTableWidgetItem(""));
 
             mpUi->outputTable->resizeColumnsToContents();
             keyToLine.insert(key, line);
@@ -228,14 +229,14 @@ void NDLCom::CommunicationStatisticWidget::on_mpTimerRateUpdate_timeout()
         if (rate < 1000./mpTimerRateUpdate->interval())
         {
             mpUi->outputTable->item(line,6)->setText(QString("%1 Hz").arg(rate, 7, ' ', 1));
-            mpUi->outputTable->item(line,7)->setText(QString(""));
+            //mpUi->outputTable->item(line,7)->setText(QString(""));
         }
         else
         {
             double rate = estimatedFrequency[key];
-            double jitter = estimatedJitter[key];
+            //double jitter = estimatedJitter[key];
             mpUi->outputTable->item(line,6)->setText(QString("%1 Hz").arg(rate, 7, ' ', 1));
-            mpUi->outputTable->item(line,7)->setText(QString("%1 Hz").arg(jitter, 7, ' ', 1));
+            //mpUi->outputTable->item(line,7)->setText(QString("%1 Hz").arg(jitter, 7, ' ', 1));
         }
     }
 }

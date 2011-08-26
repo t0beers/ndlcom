@@ -56,7 +56,7 @@ namespace NDLCom
         QMap<long, int> counterMissed;
         QMap<long, int> counterReceived;
         QMap<long, double> estimatedFrequency;
-        QMap<long, double> estimatedJitter;
+        //QMap<long, double> estimatedJitter;
 
 
         /**
