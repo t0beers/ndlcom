@@ -211,9 +211,10 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
     }
     catch(size_t wrongLength)
     {
-        qWarning() << tr("Parser: Received data with wrong "
-                         "length from %1: Got %2 but expected %3.")
+        qWarning() << tr("RepresentationMapper: [%1->%2] Representation::%3 with wrong length: Got %4, expected %5.")
             .arg(Representations::Names::getDeviceName(msg.mHdr.mSenderId))
+            .arg(Representations::Names::getDeviceName(msg.mHdr.mReceiverId))
+            .arg(Representations::Names::getRepresentationName(msg.mpDecodedData[0]))
             .arg(msg.mHdr.mDataLen)
             .arg(wrongLength);
     }
