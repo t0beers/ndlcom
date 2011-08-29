@@ -51,7 +51,7 @@ namespace NDLCom
         Q_OBJECT
     public:
         RepresentationMapper(QWidget* parent = 0);
-        virtual ~RepresentationMapper() {};
+        virtual ~RepresentationMapper();
 
     signals:
         /** this signal is emitted from the derived class (NDLCom, ndlcom.cpp), not here!!! */
@@ -79,6 +79,20 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::TelemetryValues&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
+
+        /**
+         *  exportString -- allowing a nice export facility to allow printing of data into files...
+         *
+         * @param QString the representations name of the data contained in the second string
+         * @param QString the representations data formatted as a nice string, complete with newline
+         *                and so on to be appended line by line to a logfile
+         */
+        void exportString(const QString, const QString);
+
+    private:
+        const char* exportDelimiter;
+        char* pBuffer;
+        QString printMessageHeader(const ::NDLCom::Message&);
 
     private slots:
         void slot_rxMessage(const ::NDLCom::Message&);
