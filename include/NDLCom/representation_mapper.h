@@ -13,8 +13,7 @@ namespace Representations
 {
     struct Representation;
     /* please keep this list alphabetically sorted */
-    class AccelerometerConfig;
-    class AccelerometerData;
+    class Acceleration;
     class CurrentValues;
     class DMSBoardConfig;
     class DebugMessage;
@@ -61,8 +60,7 @@ namespace NDLCom
         void internal_txMessage(const ::NDLCom::Message&);
         /** for specialized modules: correctly detected packages. should remove some load. */
         /* please keep this list alphabetically sorted! */
-        void rxRepresentation(const ProtocolHeader&, const Representations::AccelerometerConfig&);
-        void rxRepresentation(const ProtocolHeader&, const Representations::AccelerometerData&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::Acceleration&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CurrentValues&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DMSBoardConfig&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DistanceSI1120&);

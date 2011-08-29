@@ -18,7 +18,7 @@
 #include "representations/names.h"
 #include "representations/id.h"
 /* please keep this list alphabetically sorted */
-#include "representations/accelerometer.h"
+#include "representations/acceleration.h"
 #include "representations/current_values.h"
 #include "representations/debug_message.h"
 #include "representations/distance_si1120.h"
@@ -40,8 +40,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<ProtocolHeader>("ProtocolHeader");
 
     /* please keep this list alphabetically sorted */
-    qRegisterMetaType<Representations::AccelerometerConfig>("Representations::AccelerometerConfig");
-    qRegisterMetaType<Representations::AccelerometerData>("Representations::AccelerometerData");
+    qRegisterMetaType<Representations::Acceleration>("Representations::Acceleration");
     qRegisterMetaType<Representations::DMSBoardConfig>("Representations::DMSBoardConfig");
     qRegisterMetaType<Representations::DebugMessage>("Representations::DebugMessage");
     qRegisterMetaType<Representations::DistanceSI1120>("Representations::DistanceSI1120");
@@ -142,15 +141,12 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
             /* please keep this list alphabetically sorted */
             switch(repreData->mId)
             {
-                case REPRESENTATIONS_REPRESENTATION_ID_AccelerometerConfig:
-                    emit rxRepresentation(msg.mHdr, *(Representations::AccelerometerConfig*)repreData);
-                    break;
-                case REPRESENTATIONS_REPRESENTATION_ID_AccelerometerData:
-                    sprintf(pBuffer,"%s %i%s %i%s %i\n", exportDelimiter, ((Representations::AccelerometerData*)repreData)->accelX,
-                                                        exportDelimiter, ((Representations::AccelerometerData*)repreData)->accelY,
-                                                        exportDelimiter, ((Representations::AccelerometerData*)repreData)->accelZ);
+                case REPRESENTATIONS_REPRESENTATION_ID_Acceleration:
+                    sprintf(pBuffer,"%s %f%s %f%s %f\n",exportDelimiter, ((Representations::Acceleration*)repreData)->accX,
+                                                        exportDelimiter, ((Representations::Acceleration*)repreData)->accY,
+                                                        exportDelimiter, ((Representations::Acceleration*)repreData)->accZ);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
-                    emit rxRepresentation(msg.mHdr, *(Representations::AccelerometerData*)repreData);
+                    emit rxRepresentation(msg.mHdr, *(Representations::Acceleration*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_CurrentValues:
                     emit rxRepresentation(msg.mHdr, *(Representations::CurrentValues*)repreData);
