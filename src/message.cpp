@@ -2,6 +2,19 @@
 #include "string.h"
 #include "assert.h"
 
+NDLCom::Message::Message(const struct timespec time, const ProtocolHeader hdr, const void* decodedData)
+{
+    /* header*/
+    mHdr = hdr;
+
+    /* payload */
+    mpDecodedData = new char[mHdr.mDataLen];
+    memcpy(mpDecodedData, decodedData, mHdr.mDataLen);
+
+    /* timestamp */
+    mTimestamp = time;
+}
+
 NDLCom::Message::Message(const ProtocolHeader hdr, const void* decodedData)
 {
     /* header*/

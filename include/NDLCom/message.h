@@ -11,6 +11,7 @@ namespace NDLCom
         public:
             /* when creating this object, the length of the datafield is automatically supplied in the header */
             Message(){};
+            Message(const struct timespec time, const ProtocolHeader hdr, const void* decodedData);
             Message(const ProtocolHeader* hdr, const void* decodedData);
             Message(const ProtocolHeader hdr, const void* decodedData);
             /* destructor */
