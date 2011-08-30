@@ -176,7 +176,7 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                     emit rxRepresentation(msg.mHdr, *(Representations::MemoryData*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsPing:
-                    sprintf(pBuffer,"%s %i%s %lu%s %i\n", exportDelimiter, ((Representations::Ping*)repreData)->mType,
+                    sprintf(pBuffer,"%s %i%s %lu%s %i\n",exportDelimiter, ((Representations::Ping*)repreData)->mType,
                                                          exportDelimiter, (long unsigned int)((Representations::Ping*)repreData)->mCurrentTimeCounter,
                                                          exportDelimiter, ((Representations::Ping*)repreData)->mPaketId);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
@@ -195,6 +195,12 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_vectorData*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_TelemetryValues:
+                    sprintf(pBuffer,"%s %i%s %i%s %i%s %i%s %i\n",exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[4]*4,
+                                                        exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[14]*4,
+                                                        exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[1],
+                                                        exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[13],
+                                                        exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[7]);
+                    emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::TelemetryValues*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_Temperature:
