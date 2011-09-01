@@ -46,7 +46,7 @@ void NDLCom::CommunicationStatisticWidget::createTableHeader()
     mpUi->outputTable->setHorizontalHeaderItem(4,headerItem);
     headerItem = new QTableWidgetItem("Error Ratio");
     mpUi->outputTable->setHorizontalHeaderItem(5,headerItem);
-    headerItem = new QTableWidgetItem("Rate");
+    headerItem = new QTableWidgetItem("   Rate   ");
     mpUi->outputTable->setHorizontalHeaderItem(6,headerItem);
     // This makes no sense yet, because we have huge deviations due to missing real time functionality
     //headerItem = new QTableWidgetItem("StdDev");
@@ -184,13 +184,21 @@ void NDLCom::CommunicationStatisticWidget::on_mpTimerRateUpdate_timeout()
             QTableWidgetItem* newSenderItem = new QTableWidgetItem(senderName ? senderName : QString::number(senderId));
             QTableWidgetItem* newReceiverItem = new QTableWidgetItem(receiverName ? receiverName : QString::number(receiverId));
             QTableWidgetItem* newRepresentationItem = new QTableWidgetItem(representationName ? representationName : QString::number(reprId));
+            QTableWidgetItem *newReceivedItem = new QTableWidgetItem("1");
+            QTableWidgetItem *newMissedItem = new QTableWidgetItem("0");
+            QTableWidgetItem *newErrorRatioItem = new QTableWidgetItem("0%");
+            QTableWidgetItem *newRateItem = new QTableWidgetItem("0 Hz");
+            newReceivedItem->setTextAlignment(Qt::AlignRight);
+            newMissedItem->setTextAlignment(Qt::AlignRight);
+            newErrorRatioItem->setTextAlignment(Qt::AlignRight);
+            newRateItem->setTextAlignment(Qt::AlignRight);
             mpUi->outputTable->setItem(line,0,newSenderItem);
             mpUi->outputTable->setItem(line,1,newReceiverItem);
             mpUi->outputTable->setItem(line,2,newRepresentationItem);
-            mpUi->outputTable->setItem(line,3,new QTableWidgetItem("1"));
-            mpUi->outputTable->setItem(line,4,new QTableWidgetItem("0"));
-            mpUi->outputTable->setItem(line,5,new QTableWidgetItem("0%"));
-            mpUi->outputTable->setItem(line,6,new QTableWidgetItem("0 Hz"));
+            mpUi->outputTable->setItem(line,3,newReceivedItem);
+            mpUi->outputTable->setItem(line,4,newMissedItem);
+            mpUi->outputTable->setItem(line,5,newErrorRatioItem);
+            mpUi->outputTable->setItem(line,6,newRateItem);
             //mpUi->outputTable->setItem(line,7,new QTableWidgetItem(""));
 
             mpUi->outputTable->resizeColumnsToContents();
