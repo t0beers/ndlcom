@@ -30,6 +30,7 @@ namespace Representations
     class SensorArray_matrixData;
     class SensorArray_vectorData;
     class TelemetryValues;
+    class BLDCJointTelemetryMessage;
     class Temperature;
     class ThermometerDS18B20;
 };
@@ -75,6 +76,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_matrixData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_vectorData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::TelemetryValues&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
 

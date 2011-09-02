@@ -31,6 +31,7 @@
 #include "representations/register.h"
 #include "representations/sensor_array.h"
 #include "representations/telemetry_values.h"
+#include "representations/bldc_joint_telemetry.h"
 #include "representations/temperature.h"
 #include "representations/thermometer_ds18b20.h"
 
@@ -55,6 +56,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
     qRegisterMetaType<Representations::TelemetryValues>("Representations::TelemetryValues");
+    qRegisterMetaType<Representations::BLDCJointTelemetryMessage>("Representations::BLDCJointTelemetryMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::ThermometerDS18B20>("Representations::ThermometerDS18B20");
     qRegisterMetaType<NDLCom::Message>("NDLCom::Message");
@@ -202,6 +204,16 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                                                         exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[7]);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::TelemetryValues*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_BLDCJointTelemetryMessage:
+                    // FIXME: versteht ich nicht - hab da kein Bock drauf - mir viel yu konpliziert - machs doch selbst (ts)
+                    // sprintf(pBuffer,"%s %i%s %i%s %i%s %i%s %i\n",exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[4]*4,
+                    //                                     exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[14]*4,
+                    //                                     exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[1],
+                    //                                     exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[13],
+                    //                                     exportDelimiter, ((Representations::TelemetryValues*)repreData)->value[7]);
+                    // emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
+                    emit rxRepresentation(msg.mHdr, *(Representations::BLDCJointTelemetryMessage*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_Temperature:
                     sprintf(pBuffer,"%s %hhu%s %hu\n", exportDelimiter, ((Representations::Temperature*)repreData)->thermometerId,

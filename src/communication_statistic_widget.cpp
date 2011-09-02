@@ -188,10 +188,10 @@ void NDLCom::CommunicationStatisticWidget::on_mpTimerRateUpdate_timeout()
             QTableWidgetItem *newMissedItem = new QTableWidgetItem("0");
             QTableWidgetItem *newErrorRatioItem = new QTableWidgetItem("0%");
             QTableWidgetItem *newRateItem = new QTableWidgetItem("0 Hz");
-            newReceivedItem->setTextAlignment(Qt::AlignRight);
-            newMissedItem->setTextAlignment(Qt::AlignRight);
-            newErrorRatioItem->setTextAlignment(Qt::AlignRight);
-            newRateItem->setTextAlignment(Qt::AlignRight);
+            newReceivedItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            newMissedItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            newErrorRatioItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            newRateItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
             mpUi->outputTable->setItem(line,0,newSenderItem);
             mpUi->outputTable->setItem(line,1,newReceiverItem);
             mpUi->outputTable->setItem(line,2,newRepresentationItem);
