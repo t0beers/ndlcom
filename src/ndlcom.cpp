@@ -140,7 +140,7 @@ void NDLCom::NDLCom::connected()
         /* we wrap all received signals by the interfaces in our private slot */
         connect(inter, SIGNAL(rxMessage(const ::NDLCom::Message&)), this, SLOT(slot_rxMessage(const ::NDLCom::Message&)));
 
-        /* we wann keep book */
+        /* we wanna keep book */
         connect(inter, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
         connect(inter, SIGNAL(txRate(double)),  this, SLOT(slot_txRate(double)));
         connect(inter, SIGNAL(rxBytes(double)), this, SLOT(slot_rxBytes(double)));
