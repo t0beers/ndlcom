@@ -27,7 +27,6 @@ void NDLCom::UdpCom::ReceiveThread::run(void)
         }
         else
         {
-            std::cerr << "UdpCom: got " << r << " Bytes." << std::endl;
             emit dataReceived(QByteArray(buffer, r));
         }
     }
