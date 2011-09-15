@@ -1,10 +1,9 @@
 #include "NDLCom/serialcom.h"
+#include "serialcom/serialcom.h"
+#include "serialcom/serialcom_connect_dialog.h"
 #include "protocol.h"
 #include <QDebug>
 #include <QMessageBox>
-
-#include "serialcom_connect_dialog.h"
-#include "serialcom_port_handler.h"
 
 NDLCom::Serialcom::Serialcom(QWidget* parent): Interface(parent)
 {
@@ -37,7 +36,7 @@ void NDLCom::Serialcom::on_actionConnect_triggered()
         return;
     }
 
-    SerialcomConnectDialog connectDialog;
+    ::Serialcom::SerialcomConnectDialog connectDialog;
 
     if (connectDialog.exec()==QDialog::Accepted)
     {
@@ -45,7 +44,7 @@ void NDLCom::Serialcom::on_actionConnect_triggered()
         int baudRate     = connectDialog.getBaudRate();
         int parity       = connectDialog.getParity();
 
-        mpPorthandler = new SerialcomPortHandler(this);
+        mpPorthandler = new ::Serialcom::Serialcom(this);
 
         if (mpPorthandler->connect(portName.toAscii().constData(),baudRate,parity))
         {

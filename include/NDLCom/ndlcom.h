@@ -16,8 +16,6 @@
 
 #include "NDLCom/representation_mapper.h"
 
-class Serialcom;
-
 namespace NDLCom
 {
     namespace Ui

@@ -14,7 +14,10 @@
 
 #include "NDLCom/interface.h"
 
-class SerialcomPortHandler;
+namespace Serialcom
+{
+    class Serialcom;
+}
 
 namespace NDLCom
 {
@@ -37,7 +40,7 @@ namespace NDLCom
         void on_actionDisconnect_triggered();
 
     private:
-        SerialcomPortHandler* mpPorthandler;
+        ::Serialcom::Serialcom* mpPorthandler;
         QString mPortname;
 
         ProtocolParser* mpProtocolParser;
