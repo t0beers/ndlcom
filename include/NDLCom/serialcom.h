@@ -1,6 +1,6 @@
 /**
- * @file lib/widgets/include/widgets/udpcom_.h
- * @brief Qt wrapper (child of QObject) around lib/udpcom.
+ * @file lib/NDLCom/include/NDLCom/serialcom.h
+ * @brief Qt wrapper (child of QObject) around lib/serialcom.
  * Project: iStruct
  * @date 07/2011
  * @author Armin
@@ -19,7 +19,7 @@ class SerialcomPortHandler;
 namespace NDLCom
 {
     /**
-     * @brief widget to use lib/udpcom from qt.
+     * @brief widget to use lib/serialcom from qt.
      */
     class Serialcom: public Interface
     {
