@@ -88,7 +88,9 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
      * as other (external) widgets would do. */
     connect(comp,     SIGNAL(txMessage(const ::NDLCom::Message&)),
             mpNdlcom, SLOT(txMessage(const ::NDLCom::Message&)));
-    /* allow statistics about received messages */
+    /* allow statistics about transmitted (from inside/gui) and received (from outside) messages */
+    connect(mpNdlcom, SIGNAL(internal_txMessage(const ::NDLCom::Message&)),
+            comm,     SLOT(rxMessage(const ::NDLCom::Message&)));
     connect(mpNdlcom, SIGNAL(rxMessage(const ::NDLCom::Message&)),
             comm,     SLOT(rxMessage(const ::NDLCom::Message&)));
     /* gui->world: let data out. incoming data is sent from NDLCom::NDLComContainer::txMessage()
