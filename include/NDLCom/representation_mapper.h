@@ -33,6 +33,7 @@ namespace Representations
     class BLDCJointTelemetryMessage;
     class Temperature;
     class ThermometerDS18B20;
+    class CAM_TCM8230MD;
 };
 
 class ProtocolHeader;
@@ -79,6 +80,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
 
         /**
          *  exportString -- allowing a nice export facility to allow printing of data into files...

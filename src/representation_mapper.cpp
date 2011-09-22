@@ -34,6 +34,7 @@
 #include "representations/bldc_joint_telemetry.h"
 #include "representations/temperature.h"
 #include "representations/thermometer_ds18b20.h"
+#include "representations/cam_tcm8230md.h"
 
 NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(parent)
 {
@@ -59,6 +60,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::BLDCJointTelemetryMessage>("Representations::BLDCJointTelemetryMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::ThermometerDS18B20>("Representations::ThermometerDS18B20");
+    qRegisterMetaType<Representations::CAM_TCM8230MD>("Representations::CAM_TCM8230MD");
     qRegisterMetaType<NDLCom::Message>("NDLCom::Message");
 
     /* this is the Message-signal emitted by the derived class NDLCom. we connect it to here, so we
@@ -222,6 +224,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_ThermometerDS18B20:
                     emit rxRepresentation(msg.mHdr, *(Representations::ThermometerDS18B20*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_CAM_TCM8230MD:
+                    emit rxRepresentation(msg.mHdr, *(Representations::CAM_TCM8230MD*)repreData);
                     break;
             }
         }
