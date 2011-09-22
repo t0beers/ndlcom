@@ -19,7 +19,6 @@
 #include "representations/id.h"
 /* please keep this list alphabetically sorted */
 #include "representations/acceleration.h"
-#include "representations/current_values.h"
 #include "representations/debug_message.h"
 #include "representations/distance_si1120.h"
 #include "representations/dms_board_config.h"
@@ -151,9 +150,6 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                                                         exportDelimiter, ((Representations::Acceleration*)repreData)->accZ);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::Acceleration*)repreData);
-                    break;
-                case REPRESENTATIONS_REPRESENTATION_ID_CurrentValues:
-                    emit rxRepresentation(msg.mHdr, *(Representations::CurrentValues*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_DMSBoardConfig:
                     emit rxRepresentation(msg.mHdr, *(Representations::DMSBoardConfig*)repreData);
