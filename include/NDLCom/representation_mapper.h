@@ -87,11 +87,11 @@ namespace NDLCom
         /**
          *  exportString -- allowing a nice export facility to allow printing of data into files...
          *
-         * @param QString the representations name of the data contained in the second string
-         * @param QString the representations data formatted as a nice string, complete with newline
+         * @param type the representations name of the data contained in the second string
+         * @param data the representations data formatted as a nice string, complete with newline
          *                and so on to be appended line by line to a logfile
          */
-        void exportString(const QString, const QString);
+        void exportString(const QString type, const QString data);
 
     private:
         const char* exportDelimiter;

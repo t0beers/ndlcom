@@ -72,9 +72,9 @@ namespace NDLCom
          *
          * pure virtual... see http://stackoverflow.com/questions/2998216/does-qt-support-virtual-pure-slots
          *
-         * @param Message recevied data 
+         * @param msg recevied data 
          */
-        void rxMessage(const ::NDLCom::Message&);
+        void rxMessage(const ::NDLCom::Message& msg);
 
     public slots:
         /**
@@ -82,9 +82,9 @@ namespace NDLCom
          *
          * pure virtual... see http://stackoverflow.com/questions/2998216/does-qt-support-virtual-pure-slots
          *
-         * @param Message to be transmitted to the outside world
+         * @param msg to be transmitted to the outside world
          */
-        virtual void txMessage(const ::NDLCom::Message&) = 0;
+        virtual void txMessage(const ::NDLCom::Message& msg) = 0;
 
     protected:
         /** subclasses update this value as they receive raw-data, is used to display receive-rates */
@@ -98,12 +98,12 @@ namespace NDLCom
         /**
          * @brief may be called by a subclasses to tell this Interface it's status
          *
-         * @param QString something like "/dev/ttyUSB0" or "UDP 192.168.0.34:43211"
+         * @param type something like "/dev/ttyUSB0" or "UDP 192.168.0.34:43211"
          */
-        void setInterfaceType(const QString&);
+        void setInterfaceType(const QString& type);
 
     signals:/*protected*/
-		/** used to send traffic to the raw-traffic-window */
+		/* used to send traffic to the raw-traffic-window */
         void txRaw(const QByteArray&);
         void rxRaw(const QByteArray&);
 
@@ -146,10 +146,10 @@ namespace NDLCom
         Ui::Interface* mpUi;
 
     signals:/*private*/
-        /** current data rate, transformed as a string */
+        /* current data rate, transformed as a string */
         void transferRate(QString);
 
-        /** allows some bookkeeping of data-traffic by higher-level widgets */
+        /* allows some bookkeeping of data-traffic by higher-level widgets */
         void rxRate(double);
         void txRate(double);
         void rxBytes(double);
