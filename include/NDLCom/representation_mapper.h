@@ -32,6 +32,7 @@ namespace Representations
     class TelemetryValues;
     class BLDCJointTelemetryMessage;
     class Temperature;
+    class TestlegAngles;
     class ThermometerDS18B20;
     class CAM_TCM8230MD;
 };
@@ -79,6 +80,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::TelemetryValues&);
         void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::TestlegAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
 

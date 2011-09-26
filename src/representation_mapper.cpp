@@ -32,6 +32,7 @@
 #include "representations/telemetry_values.h"
 #include "representations/bldc_joint_telemetry.h"
 #include "representations/temperature.h"
+#include "representations/testleg_angles.h"
 #include "representations/thermometer_ds18b20.h"
 #include "representations/cam_tcm8230md.h"
 
@@ -58,6 +59,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::TelemetryValues>("Representations::TelemetryValues");
     qRegisterMetaType<Representations::BLDCJointTelemetryMessage>("Representations::BLDCJointTelemetryMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
+    qRegisterMetaType<Representations::TestlegAngles>("Representations::TestlegAngles");
     qRegisterMetaType<Representations::ThermometerDS18B20>("Representations::ThermometerDS18B20");
     qRegisterMetaType<Representations::CAM_TCM8230MD>("Representations::CAM_TCM8230MD");
     qRegisterMetaType<NDLCom::Message>("NDLCom::Message");
@@ -218,6 +220,19 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::Temperature*)repreData);
                     break;
+                case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsTestlegAngles:
+                {
+                    const Representations::TestlegAngles* pAngles((Representations::TestlegAngles*)repreData);
+                    sprintf(pBuffer,"%s %hd%s %hd%s %hd %s %hd\n",
+                            exportDelimiter, pAngles->angleHip0,
+                            exportDelimiter, pAngles->angleHip1,
+                            exportDelimiter, pAngles->angleHip2,
+                            exportDelimiter, pAngles->angleKnee
+                            );
+                    emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
+                    emit rxRepresentation(msg.mHdr, *pAngles);
+                    break;
+                }
                 case REPRESENTATIONS_REPRESENTATION_ID_ThermometerDS18B20:
                     emit rxRepresentation(msg.mHdr, *(Representations::ThermometerDS18B20*)repreData);
                     break;
