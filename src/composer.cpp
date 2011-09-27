@@ -97,9 +97,8 @@ void NDLCom::Composer::on_autoSend_toggled(bool)
 /* changin send-rate */
 void NDLCom::Composer::on_sendRate_valueChanged(int value)
 {
-    mpSendThread->setFrequency(value);
-    /* update our status label */
-    mpUi->autoSend->setText(QString("AutoSend ")+QString::number(value)+QString(" Hz"));
+    if (mpSendThread)
+        mpSendThread->setFrequency(value);
 }
 
 /* keeping index in QSpinBox and name in QDropBox in sync, if possible */

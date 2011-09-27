@@ -172,7 +172,7 @@
          <item>
           <widget class="QCheckBox" name="autoSend">
            <property name="text">
-            <string>AutoSend 1Hz</string>
+            <string>AutoSend (Hz)</string>
            </property>
           </widget>
          </item>
