@@ -107,7 +107,6 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
 /* Gui->world, SLOT just a receiving wrapper, sending data via function-call to ndlcom */
 void NDLCom::NDLComContainer::txMessage(const ::NDLCom::Message& msg)
 {
-    qDebug() << "1";
     emit mpNdlcom->txMessage(msg);
 }
 

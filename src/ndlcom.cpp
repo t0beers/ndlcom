@@ -303,15 +303,11 @@ void NDLCom::NDLCom::on_mpGuiTimer_timeout()
     }
 
     /* stand back, pure inefficiency!!! */
-    QString string = QString("Rx: ")
-                   + Interface::sizeToString(overallRxBytes)
-                   + QString(", ")
-                   + Interface::sizeToString(overallRxRate)
-                   + QString("/s -- Tx: ")
-                   + Interface::sizeToString(overallTxBytes)
-                   + QString(", ")
-                   + Interface::sizeToString(overallTxRate)
-                   + QString("/s");
+    QString string = QString("Rx: %1, %2/s -- Tx: %3, %4/s")
+                    .arg(Interface::sizeToString(overallRxBytes))
+                    .arg(Interface::sizeToString(overallRxRate))
+                    .arg(Interface::sizeToString(overallTxBytes))
+                    .arg(Interface::sizeToString(overallTxRate));
 
     emit transferRate(string);
 

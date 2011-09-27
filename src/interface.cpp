@@ -113,15 +113,11 @@ void NDLCom::Interface::on_mpGuiTimer_timeout()
     mTxRate_last = (mTxRate_last+(mTxBytes-mTxBytes_last)/(double)GUI_TIMER_INTERVAL*1000.0)/2.0;
 
     /* stand back, pure inefficiency!!! */
-    QString string = QString("Rx: ")
-                   + sizeToString(mRxBytes)
-                   + QString(", ")
-                   + sizeToString(mRxRate_last)
-                   + QString("/s -- Tx: ")
-                   + sizeToString(mTxBytes)
-                   + QString(", ")
-                   + sizeToString(mTxRate_last)
-                   + QString("/s");
+    QString string = QString("Rx: %1, %2/s -- Tx: %3, %4/s")
+                    .arg(sizeToString(mRxBytes))
+                    .arg(sizeToString(mRxRate_last))
+                    .arg(sizeToString(mTxBytes))
+                    .arg(sizeToString(mTxRate_last));
 
     mRxBytes_last = mRxBytes;
     mTxBytes_last = mTxBytes;
