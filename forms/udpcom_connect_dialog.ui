@@ -49,6 +49,16 @@
        </item>
        <item>
         <property name="text">
+         <string>192.168.100.25</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>192.168.100.49</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>The Milliways</string>
         </property>
        </item>
