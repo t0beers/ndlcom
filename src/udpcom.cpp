@@ -117,8 +117,10 @@ void NDLCom::UdpCom::txMessage(const ::NDLCom::Message& msg)
     char buffer[1024];
     int len = protocolEncodeForUDP(buffer, 1024, &msg.mHdr, (const void *)msg.mpDecodedData);
     mpTransmitSocket->write(QByteArray::fromRawData(buffer, len), len);
-    emit txRaw(QByteArray::fromRawData(buffer, len));
 
+	/* we don't get any response from the transmit object which data was actually written, so we
+	 * hope the best */
+    emit txRaw(QByteArray::fromRawData(buffer, len));
     mTxBytes += len;
 }
 

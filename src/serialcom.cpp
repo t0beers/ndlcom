@@ -52,6 +52,7 @@ void NDLCom::Serialcom::on_actionConnect_triggered()
 
             connect(mpPorthandler,SIGNAL(lostConnection()), this, SLOT(on_actionDisconnect_triggered()));
             connect(mpPorthandler,SIGNAL(newData(const QByteArray&)), this, SLOT(receivedData( const QByteArray&)));
+            connect(mpPorthandler,SIGNAL(dataTransmitted(const QByteArray&)), this, SLOT(updateTxBytes(const QByteArray&)));
 
             actionDisconnect->setText("Disconnect "+portName);
 
@@ -98,9 +99,14 @@ void NDLCom::Serialcom::txMessage(const ::NDLCom::Message& msg)
     char buffer[1024];
     int len = protocolEncode(buffer, 1024, &msg.mHdr, (const void *)msg.mpDecodedData);
     mpPorthandler->send(QByteArray::fromRawData(buffer, len));
-    emit txRaw(QByteArray::fromRawData(buffer, len));
+}
 
-    mTxBytes += len;
+void NDLCom::Serialcom::updateTxBytes(const QByteArray& data)
+{
+	/* update bytes going out */
+    mTxBytes += data.length();
+	/* and notify other object that we actually sent some data */
+    emit txRaw(data);
 }
 
 void NDLCom::Serialcom::receivedData(const QByteArray& encodedData)

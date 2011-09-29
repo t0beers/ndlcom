@@ -38,6 +38,7 @@ namespace NDLCom
 
         void on_actionConnect_triggered();
         void on_actionDisconnect_triggered();
+        void updateTxBytes(const QByteArray&);
 
     private:
         ::Serialcom::Serialcom* mpPorthandler;
