@@ -11,6 +11,8 @@ SRCDIR = .
 FORMSDIR = ../forms
 HEADERSDIR = ../include/NDLCom
 
+QT += network
+
 CONFIG += staticlib
 CONFIG += debug
 

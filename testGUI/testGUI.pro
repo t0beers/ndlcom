@@ -1,6 +1,8 @@
 TEMPLATE = app
 TARGET = TestGUINDLCom
 
+QT += network
+
 MACHINE = $$system($$QMAKE_CC -dumpmachine)
 
 OBJECTS_DIR = ../build/$${MACHINE}/

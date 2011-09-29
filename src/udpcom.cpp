@@ -4,6 +4,8 @@
 #include "protocol.h"
 #include <QThread>
 #include <QDebug>
+#include <QtNetwork>
+#include <QHostInfo>
 
 #include <iostream>
 #include <cassert>
@@ -48,6 +50,20 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
     if (connectDialog.exec()==QDialog::Accepted)
     {
         QString hostname = connectDialog.getHostname();
+        QHostAddress address(hostname);
+        if (QAbstractSocket::IPv4Protocol == address.protocol())
+        {
+            qDebug() << "UdpCom: connecting to valid IPv4 address" << hostname;
+        }
+        else
+        {
+            /* translate the string to a ip. if a hostname was given, a ping lookup is performed.
+             * if a ip was given in the string, it is returned */
+            qDebug() << "UdpCom: performing lookup for" << hostname;
+            hostname = QHostInfo::fromName(hostname).addresses().first().toString();
+            qDebug() << "UdpCom: got address" << hostname;
+        }
+
         int sendport = connectDialog.getSendport();
 
         mpTransmitSocket = new ::UdpCom::UdpCom();
