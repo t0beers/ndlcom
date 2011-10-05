@@ -44,17 +44,17 @@
        </property>
        <item>
         <property name="text">
-         <string>127.0.0.1</string>
+         <string>localhost</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>192.168.100.25</string>
+         <string>suzaku1-istruct</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>192.168.100.49</string>
+         <string>suzaku2-istruct</string>
         </property>
        </item>
        <item>
