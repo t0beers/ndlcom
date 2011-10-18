@@ -63,8 +63,6 @@ QString NDLCom::MessageTraffic::formatMessage(const ::NDLCom::Message &msg)
               + QString(" to ")
               + receiver
               + QString("\n")
-              + QString("    prio: ")
-              + QString::number(hdr->mPriority)
               + QString(" counter: ")
               + QString::number(hdr->mCounter)
               + QString(" dataLength: ")

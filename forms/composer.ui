@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>245</height>
+    <width>435</width>
+    <height>309</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,11 +22,15 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QVBoxLayout" name="layout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
      <item>
       <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Receiver</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QSpinBox" name="receiverId">
          <property name="maximum">
@@ -41,13 +45,6 @@
            <width>0</width>
            <height>0</height>
           </size>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Receiver</string>
          </property>
         </widget>
        </item>
@@ -67,6 +64,13 @@
        </item>
        <item row="1" column="2">
         <widget class="QComboBox" name="senders"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Priority</string>
+         </property>
+        </widget>
        </item>
        <item row="2" column="1">
         <widget class="QSpinBox" name="priority">
@@ -90,10 +94,10 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Priority</string>
+          <string>Frame Counter</string>
          </property>
         </widget>
        </item>
@@ -115,14 +119,7 @@
           <bool>true</bool>
          </property>
          <property name="maximum">
-          <number>4095</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Frame Counter</string>
+          <number>255</number>
          </property>
         </widget>
        </item>
@@ -163,7 +160,7 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>1000</number>
+          <number>9999</number>
          </property>
         </widget>
        </item>
@@ -177,6 +174,19 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="5" column="3">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item row="6" column="2">
         <widget class="QToolButton" name="sendButton">

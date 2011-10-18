@@ -66,7 +66,6 @@ void NDLCom::Composer::on_actionSend_triggered()
     struct ProtocolHeader header;
     header.mReceiverId =  mpUi->receiverId->value();
     header.mSenderId = mpUi->senderId->value();
-    header.mPriority = mpUi->priority->value();
     header.mCounter = mpUi->frameCounter->value();
     header.mDataLen = mpUi->dataLength->value();
 

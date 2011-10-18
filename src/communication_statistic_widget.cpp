@@ -97,10 +97,11 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
         if (diffCounter < 0)
         {
             //handle overflow
-            diffCounter += 4096;
+            diffCounter += 256;
         }
         if (diffCounter > 1)
         {
+            printf("missed package: last: %d act: %d\n",lastCounter,header.mCounter);
             missed = diffCounter - 1;
         }
         counterMissed[mapKey] += missed;
