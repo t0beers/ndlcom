@@ -62,11 +62,6 @@
          <string>www.disney.com</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>The Milliways</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item row="1" column="1">
