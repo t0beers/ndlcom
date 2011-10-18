@@ -35,6 +35,7 @@ namespace Representations
     class TestlegAngles;
     class ThermometerDS18B20;
     class CAM_TCM8230MD;
+    class SheetMetalHand;
 };
 
 class ProtocolHeader;
@@ -83,6 +84,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::TestlegAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::SheetMetalHand&);
 
         /**
          *  exportString -- allowing a nice export facility to allow printing of data into files...

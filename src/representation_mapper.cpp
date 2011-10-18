@@ -239,6 +239,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_CAM_TCM8230MD:
                     emit rxRepresentation(msg.mHdr, *(Representations::CAM_TCM8230MD*)repreData);
                     break;
+                case REPRESENTATIONS_REPRESENTATION_ID_SheetMetalHand:
+                    emit rxRepresentation(msg.mHdr, *(Representations::SheetMetalHand*)repreData);
+                    break;
             }
         }
     }
