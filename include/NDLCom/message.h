@@ -1,7 +1,7 @@
 #ifndef _NDLCOM_MESSAGE_H_
 #define _NDLCOM_MESSAGE_H_
 
-#include "protocol.h"
+#include "protocol/protocol.h"
 #include "time.h"
 
 namespace NDLCom

@@ -1,7 +1,7 @@
 #include "udpcom/udpcom.h"
 #include "NDLCom/udpcom.h"
 #include "udpcom_receive_thread.h"
-#include "protocol.h"
+#include "protocol/protocol.h"
 #include <QThread>
 #include <QDebug>
 #include <QtNetwork>

@@ -1,7 +1,7 @@
 #include "NDLCom/serialcom.h"
 #include "serialcom/serialcom.h"
 #include "serialcom/serialcom_connect_dialog.h"
-#include "protocol.h"
+#include "protocol/protocol.h"
 #include <QDebug>
 #include <QMessageBox>
 

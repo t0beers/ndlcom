@@ -6,7 +6,7 @@
  */
 #include "NDLCom/communication_statistic_widget.h"
 
-#include "protocol.h"
+#include "protocol/protocol.h"
 #include "representations/names.h"
 
 #include <stdio.h>

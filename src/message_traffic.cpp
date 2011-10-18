@@ -10,7 +10,7 @@
 #include "NDLCom/message.h"
 #include "representations/representation.h"
 #include "representations/names.h"
-#include "protocol.h"
+#include "protocol/protocol.h"
 
 #include "ui_traffic.h"
 
