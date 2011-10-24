@@ -104,6 +104,10 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
             printf("missed package: last: %d act: %d\n",lastCounter,header.mCounter);
             missed = diffCounter - 1;
         }
+        if (diffCounter == 0) {
+            // handle messages with same frame counter
+            missed = 255;
+        }
         counterMissed[mapKey] += missed;
 
         /*
