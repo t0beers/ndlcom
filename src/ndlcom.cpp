@@ -220,7 +220,7 @@ void NDLCom::NDLCom::slot_rxMessage(const ::NDLCom::Message& msg)
     return;
     /* if message not for us (PC): additionally to sending it to the GUI, we send it to all 
      * other active interfaces, except the receiving one */
-    if (msg.mHdr.mReceiverId != REPRESENTATIONS_DEVICE_ID_PC)
+    if (msg.mHdr.mReceiverId != REPRESENTATIONS_DEVICE_ID_ControlGUI)
     {
         qDebug() << "NDLCom::NDLCom::slot_rxMessage() tries to forward a message to " << msg.mHdr.mReceiverId  << " (experimental!)";
 

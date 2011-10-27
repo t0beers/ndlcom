@@ -43,7 +43,7 @@ NDLCom::Composer::Composer(QWidget* parent) : QWidget(parent)
             mpUi->receivers->addItem(name);
         }
     }
-    mpUi->senderId->setValue(representationsNamesGetDeviceId("PC"));
+    mpUi->senderId->setValue(representationsNamesGetDeviceId("ControlGUI"));
     mpUi->receiverId->setValue(representationsNamesGetDeviceId("BROADCAST"));
 
     /* no autoSending on beginning. when enabling the checkbox, the corresponding object is created */
