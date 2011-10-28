@@ -1,0 +1,49 @@
+# - Try to find ndlcom
+# Once done this will define
+#  NDLCom_FOUND - System has ndlcom
+#  NDLCom_INCLUDE_DIRS - The ndlcom include directories
+#  NDLCom_LIBRARY_DIRS - The ndlcom link directories
+#  NDLCom_LIBRARIES - The libraries needed to use ndlcom
+
+find_package(protocol REQUIRED)
+find_package(representations REQUIRED)
+find_package(serialcom REQUIRED)
+find_package(udpcom REQUIRED)
+
+find_path(NDLCom_INCLUDE_DIR NAMES NDLCom/ndlcom.h
+    PATHS @CMAKE_INSTALL_PREFIX@/NDLCom/include )
+
+find_path(NDLCom_LIBRARY_DIR NAMES libNDLCom.so
+    PATHS @CMAKE_INSTALL_PREFIX@/NDLCom/lib )
+
+find_library(NDLCom_LIBRARY NAMES NDLCom
+    PATHS @CMAKE_INSTALL_PREFIX@/NDLCom/lib )
+
+set(NDLCom_LIBRARY_DIRS
+    ${protocol_LIBRARY_DIRS}
+    ${representations_LIBRARY_DIRS}
+    ${serialcom_LIBRARY_DIRS}
+    ${udpcom_LIBRARY_DIRS}
+   )
+set(NDLCom_LIBRARIES ${NDLCom_LIBRARY}
+    ${protocol_LIBRARIES}
+    ${representations_LIBRARIES}
+    ${serialcom_LIBRARAIES}
+    ${udpcom_LIBARAIES}
+   )
+set(NDLCom_INCLUDE_DIRS ${NDLCom_INCLUDE_DIR}
+    ${protocol_INCLUDE_DIRS}
+    ${representations_INCLUDE_DIRS}
+    ${serialcom_INCLUDE_DIRS}
+    ${udpcom_INCLUDE_DIRS}
+   )
+
+include(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments and set NDLCom_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(NDLCom DEFAULT_MSG
+                                  NDLCom_LIBRARY
+                                  NDLCom_LIBRARY_DIR
+                                  NDLCom_INCLUDE_DIR)
+
+mark_as_advanced(NDLCom_INCLUDE_DIR NDLCom_LIBRARY NDLCom_LIBRARY_DIR)

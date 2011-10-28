@@ -8,8 +8,6 @@ void termination_handler (int signum);
 
 int main( int argc, char* argv[])
 {
-    Q_INIT_RESOURCE(serialcom);
-
     signal (SIGINT, termination_handler);
 
     QApplication a(argc, argv);
