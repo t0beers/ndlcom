@@ -1,37 +1,50 @@
 # - Try to find ndlcom
 # Once done this will define
-#  NDLCom_FOUND - System has ndlcom
-#  NDLCom_INCLUDE_DIRS - The ndlcom include directories
-#  NDLCom_LIBRARY_DIRS - The ndlcom link directories
-#  NDLCom_LIBRARIES - The libraries needed to use ndlcom
+#  @PROJECT_NAME@_FOUND - System has ndlcom
+#  @PROJECT_NAME@_INCLUDE_DIRS - The ndlcom include directories
+#  @PROJECT_NAME@_LIBRARY_DIRS - The ndlcom link directories
+#  @PROJECT_NAME@_LIBRARIES - The libraries needed to use ndlcom
+#  @PROJECT_NAME@_LIBRARIES_STATIC - The libraries needed to use @PROJECT_NAME@ in a static linkage
 
 find_package(protocol REQUIRED)
 find_package(representations REQUIRED)
 find_package(serialcom REQUIRED)
 find_package(udpcom REQUIRED)
 
-find_path(NDLCom_INCLUDE_DIR NAMES NDLCom/ndlcom.h
-    PATHS @CMAKE_INSTALL_PREFIX@/NDLCom/include )
+find_package(Qt4 REQUIRED)
 
-find_path(NDLCom_LIBRARY_DIR NAMES libNDLCom.so
-    PATHS @CMAKE_INSTALL_PREFIX@/NDLCom/lib )
+find_path(@PROJECT_NAME@_INCLUDE_DIR NAMES @PROJECT_NAME@/ndlcom.h
+    PATHS @CMAKE_INSTALL_PREFIX@/@PROJECT_NAME@/include )
 
-find_library(NDLCom_LIBRARY NAMES NDLCom
-    PATHS @CMAKE_INSTALL_PREFIX@/NDLCom/lib )
+find_path(@PROJECT_NAME@_LIBRARY_DIR NAMES lib@PROJECT_NAME@.so
+    PATHS @CMAKE_INSTALL_PREFIX@/@PROJECT_NAME@/lib )
 
-set(NDLCom_LIBRARY_DIRS
+find_library(@PROJECT_NAME@_LIBRARY NAMES @PROJECT_NAME@
+    PATHS @CMAKE_INSTALL_PREFIX@/@PROJECT_NAME@/lib )
+
+find_library(@PROJECT_NAME@_LIBRARY_STATIC NAMES lib@PROJECT_NAME@.a
+    PATHS @CMAKE_INSTALL_PREFIX@/@PROJECT_NAME@/lib )
+
+set(@PROJECT_NAME@_LIBRARY_DIRS
     ${protocol_LIBRARY_DIRS}
     ${representations_LIBRARY_DIRS}
     ${serialcom_LIBRARY_DIRS}
     ${udpcom_LIBRARY_DIRS}
    )
-set(NDLCom_LIBRARIES ${NDLCom_LIBRARY}
+set(@PROJECT_NAME@_LIBRARIES ${@PROJECT_NAME@_LIBRARY}
     ${protocol_LIBRARIES}
     ${representations_LIBRARIES}
-    ${serialcom_LIBRARAIES}
-    ${udpcom_LIBARAIES}
+    ${serialcom_LIBRARIES}
+    ${udpcom_LIBRARIES}
    )
-set(NDLCom_INCLUDE_DIRS ${NDLCom_INCLUDE_DIR}
+set(@PROJECT_NAME@_LIBRARIES_STATIC ${@PROJECT_NAME@_LIBRARY_STATIC}
+    ${QT_LIBRARIES} # MZ: these are shared... but we need go give them here for static linkage to match the dependencies
+    ${protocol_LIBRARIES_STATIC}
+    ${representations_LIBRARIES_STATIC}
+    ${serialcom_LIBRARIES_STATIC}
+    ${udpcom_LIBRARIES_STATIC}
+   )
+set(@PROJECT_NAME@_INCLUDE_DIRS ${@PROJECT_NAME@_INCLUDE_DIR}
     ${protocol_INCLUDE_DIRS}
     ${representations_INCLUDE_DIRS}
     ${serialcom_INCLUDE_DIRS}
@@ -39,11 +52,18 @@ set(NDLCom_INCLUDE_DIRS ${NDLCom_INCLUDE_DIR}
    )
 
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set NDLCom_FOUND to TRUE
+# handle the QUIETLY and REQUIRED arguments and set @PROJECT_NAME@_FOUND to TRUE
 # if all listed variables are TRUE
-find_package_handle_standard_args(NDLCom DEFAULT_MSG
-                                  NDLCom_LIBRARY
-                                  NDLCom_LIBRARY_DIR
-                                  NDLCom_INCLUDE_DIR)
+find_package_handle_standard_args(@PROJECT_NAME@ DEFAULT_MSG
+                                  @PROJECT_NAME@_LIBRARY
+                                  @PROJECT_NAME@_LIBRARY_STATIC
+                                  @PROJECT_NAME@_LIBRARY_DIR
+                                  @PROJECT_NAME@_INCLUDE_DIR
+                                  )
 
-mark_as_advanced(NDLCom_INCLUDE_DIR NDLCom_LIBRARY NDLCom_LIBRARY_DIR)
+mark_as_advanced(
+    @PROJECT_NAME@_INCLUDE_DIR
+    @PROJECT_NAME@_LIBRARY
+    @PROJECT_NAME@_LIBRARY_STATIC
+    @PROJECT_NAME@_LIBRARY_DIR
+    )
