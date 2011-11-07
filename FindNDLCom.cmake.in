@@ -12,6 +12,8 @@ find_package(serialcom REQUIRED)
 find_package(udpcom REQUIRED)
 
 find_package(Qt4 REQUIRED)
+SET(QT_USE_QTNETWORK TRUE)
+include(${QT_USE_FILE})
 
 find_path(@PROJECT_NAME@_INCLUDE_DIR NAMES @PROJECT_NAME@/ndlcom.h
     PATHS @CMAKE_INSTALL_PREFIX@/@PROJECT_NAME@/include )
@@ -32,6 +34,7 @@ set(@PROJECT_NAME@_LIBRARY_DIRS
     ${udpcom_LIBRARY_DIRS}
    )
 set(@PROJECT_NAME@_LIBRARIES ${@PROJECT_NAME@_LIBRARY}
+    ${QT_LIBRARIES}
     ${protocol_LIBRARIES}
     ${representations_LIBRARIES}
     ${serialcom_LIBRARIES}
