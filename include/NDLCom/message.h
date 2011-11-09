@@ -13,7 +13,7 @@ namespace NDLCom
             Message(){};
             Message(const struct timespec time, const ProtocolHeader hdr, const void* decodedData);
             Message(const ProtocolHeader* hdr, const void* decodedData);
-            Message(const ProtocolHeader hdr, const void* decodedData);
+            Message(const ProtocolHeader& hdr, const void* decodedData);
             /* destructor */
             ~Message();
             /*copy constructor */

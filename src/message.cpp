@@ -15,11 +15,9 @@ NDLCom::Message::Message(const struct timespec time, const ProtocolHeader hdr, c
     mTimestamp = time;
 }
 
-NDLCom::Message::Message(const ProtocolHeader hdr, const void* decodedData)
+NDLCom::Message::Message(const ProtocolHeader& hdr, const void* decodedData)
+        : mHdr(hdr)
 {
-    /* header*/
-    mHdr = hdr;
-
     /* payload */
     mpDecodedData = new char[mHdr.mDataLen];
     memcpy(mpDecodedData, decodedData, mHdr.mDataLen);
