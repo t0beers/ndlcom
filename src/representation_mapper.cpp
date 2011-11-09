@@ -9,6 +9,8 @@
 #include "NDLCom/representation_mapper.h"
 #include "NDLCom/message.h"
 
+#include <cassert>
+
 #include "ui_show_representations.h"
 
 #include <math.h>
@@ -34,6 +36,7 @@
 #include "representations/temperature.h"
 #include "representations/testleg_angles.h"
 #include "representations/thermometer_ds18b20.h"
+#include "representations/timestamp.h"
 #include "representations/cam_tcm8230md.h"
 
 NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(parent)
@@ -94,6 +97,30 @@ QString NDLCom::RepresentationMapper::printMessageHeader(const ::NDLCom::Message
     return time + header;
 }
 
+void NDLCom::RepresentationMapper::handleTimestampedData(const ::NDLCom::Message& msg)
+{
+    //check length
+    if (msg.mHdr.mDataLen < sizeof(Representations::Timestamp))
+    {
+        qWarning() << "Received message too short for timestamp.";
+        return;
+    }
+    const Representations::Timestamp* pTimestamp = (const Representations::Timestamp*)msg.mpDecodedData;
+
+    uint64_t timestamp_microseconds = pTimestamp->mMicroseconds;
+    struct timespec t; //Todo: write data into timespec
+
+    //keep source and destination from the common header
+    ProtocolHeader innerHeader(msg.mHdr);
+    //data of the inner message starts after the timestamp data
+    innerHeader.mDataLen = msg.mHdr.mDataLen - sizeof(Representations::Timestamp);
+    ::NDLCom::Message innerMessage(&innerHeader, msg.mpDecodedData + sizeof(Representations::Timestamp));
+    //handle data in inner message
+//                                   innerMessage.mTimestamp = ...
+//    innerMessage.mpDecodedData = msg.mpDecodedData + sizeof(Representations::Timestamp);
+    slot_rxMessage(innerMessage);
+}
+
 void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
 {
     /* than, we try to get a pointer to representation-data */
@@ -104,6 +131,7 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
         bool hasFixedSize =
             (   repreData->mId == REPRESENTATIONS_REPRESENTATION_ID_DebugMessage
              || repreData->mId == REPRESENTATIONS_REPRESENTATION_ID_RegisterDescriptionResponse
+             || repreData->mId == REPRESENTATIONS_REPRESENTATION_ID_RepresentationsTimestamp
             ) ? false : true;
 
         //handle packets with dynamic size
@@ -130,6 +158,20 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const ::NDLCom::Message& msg)
                 const Representations::RegisterDescriptionResponse r = *(Representations::RegisterDescriptionResponse*)repreData;
                 const QByteArray description((char*)repreData + structLength, descrLength);
                 emit rxRepresentation(msg.mHdr,r,description);
+            }
+            else if (repreData->mId == REPRESENTATIONS_REPRESENTATION_ID_RepresentationsTimestamp)
+            {
+                //dynamic length: another representation follows this timestamp data
+                const int secondReprLength = msg.mHdr.mDataLen - sizeof(Representations::Timestamp);
+                if (secondReprLength >= 0)
+                {
+                    //call a function to handle this data
+                    handleTimestampedData(msg);
+                }
+                else
+                {
+                    qDebug("received Timestamp message with unexpected size %d", msg.mHdr.mDataLen);
+                }
             }
         }
         else

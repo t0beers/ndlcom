@@ -100,6 +100,11 @@ namespace NDLCom
         char* pBuffer;
         QString printMessageHeader(const ::NDLCom::Message&);
 
+        /** Function to extract the message after the timestamp-data and feed it to slot_rxMessage().
+         * @param msg Message including the timestamp data
+         */
+        void handleTimestampedData(const ::NDLCom::Message& msg);
+
     private slots:
         void slot_rxMessage(const ::NDLCom::Message&);
     };
