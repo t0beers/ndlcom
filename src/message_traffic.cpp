@@ -22,16 +22,16 @@ NDLCom::MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
     mpUi->setupUi(this);
 }
 
-void NDLCom::MessageTraffic::sentMessage(const ::NDLCom::Message& msg)
+void NDLCom::MessageTraffic::sentMessage(const NDLCom::Message& msg)
 {
     mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
 }
-void NDLCom::MessageTraffic::receivedMessage(const ::NDLCom::Message& msg)
+void NDLCom::MessageTraffic::receivedMessage(const NDLCom::Message& msg)
 {
     mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
 }
 
-QString NDLCom::MessageTraffic::formatMessage(const ::NDLCom::Message &msg)
+QString NDLCom::MessageTraffic::formatMessage(const NDLCom::Message &msg)
 {
     const ProtocolHeader* hdr = &msg.mHdr;
     const Representations::Representation* decodedData = reinterpret_cast<const Representations::Representation*>(msg.mpDecodedData);

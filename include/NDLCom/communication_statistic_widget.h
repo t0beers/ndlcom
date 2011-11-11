@@ -29,7 +29,7 @@ namespace NDLCom
         CommunicationStatisticWidget(QWidget *parent=NULL);
 
     public slots:
-        void rxMessage(const ::NDLCom::Message&);
+        void rxMessage(const NDLCom::Message&);
 
     private slots:
         /**

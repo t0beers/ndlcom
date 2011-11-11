@@ -39,7 +39,7 @@ namespace NDLCom
         virtual ~UdpCom();
 
     private slots:
-        void txMessage(const ::NDLCom::Message&);
+        void txMessage(const NDLCom::Message&);
         void dataFromReceiveThread(const QByteArray&);
 
         void on_actionConnect_triggered();

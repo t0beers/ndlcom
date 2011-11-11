@@ -46,7 +46,7 @@ NDLCom::Message::~Message()
     delete[] mpDecodedData;
 }
 
-NDLCom::Message::Message(const ::NDLCom::Message& org)
+NDLCom::Message::Message(const NDLCom::Message& org)
 {
     /* header*/
     mHdr = org.mHdr;
@@ -59,7 +59,7 @@ NDLCom::Message::Message(const ::NDLCom::Message& org)
     mTimestamp = org.mTimestamp;
 }
 
-NDLCom::Message& NDLCom::Message::operator= (const ::NDLCom::Message &other)
+NDLCom::Message& NDLCom::Message::operator= (const NDLCom::Message &other)
 {
     if (this != &other) // protect against invalid self-assignment
     {

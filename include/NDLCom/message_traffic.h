@@ -26,13 +26,13 @@ namespace NDLCom
         virtual ~MessageTraffic() {};
 
     public slots:
-        void sentMessage(const ::NDLCom::Message&);
-        void receivedMessage(const ::NDLCom::Message&);
+        void sentMessage(const NDLCom::Message&);
+        void receivedMessage(const NDLCom::Message&);
 
     private:
         Ui::Traffic* mpUi;
 
-        QString formatMessage(const ::NDLCom::Message&);
+        QString formatMessage(const NDLCom::Message&);
     };
 };
 

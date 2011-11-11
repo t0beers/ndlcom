@@ -3,7 +3,7 @@
 
 #include <QDebug>
 
-NDLCom::InterfaceContainer* NDLCom::getNDLCom()
+NDLCom::InterfaceContainer* NDLCom::getNDLComInstance()
 {
     NDLCom::InterfaceContainer* retval = NDLCom::InterfaceContainer::getInterfaceContainer();
 

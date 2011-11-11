@@ -17,9 +17,9 @@ namespace NDLCom
             /* destructor */
             ~Message();
             /*copy constructor */
-            Message(const ::NDLCom::Message& m);
+            Message(const NDLCom::Message& m);
             /* assignment operator */
-            Message& operator= (const ::NDLCom::Message &other);
+            Message& operator= (const NDLCom::Message &other);
 
             /* datastructures */
             struct timespec mTimestamp;

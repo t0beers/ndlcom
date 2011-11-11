@@ -32,7 +32,7 @@ namespace NDLCom
         virtual ~Serialcom();
 
     private slots:
-        void txMessage(const ::NDLCom::Message&);
+        void txMessage(const NDLCom::Message&);
 
         void receivedData(const QByteArray&);
 

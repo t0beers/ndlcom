@@ -74,7 +74,7 @@ namespace NDLCom
          *
          * @param msg recevied data 
          */
-        void rxMessage(const ::NDLCom::Message& msg);
+        void rxMessage(const NDLCom::Message& msg);
 
     public slots:
         /**
@@ -84,7 +84,7 @@ namespace NDLCom
          *
          * @param msg to be transmitted to the outside world
          */
-        virtual void txMessage(const ::NDLCom::Message& msg) = 0;
+        virtual void txMessage(const NDLCom::Message& msg) = 0;
 
     protected:
         /** subclasses update this value as they receive raw-data, is used to display receive-rates */

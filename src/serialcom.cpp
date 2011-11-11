@@ -91,7 +91,7 @@ void NDLCom::Serialcom::on_actionDisconnect_triggered()
     emit disconnected();
 }
 
-void NDLCom::Serialcom::txMessage(const ::NDLCom::Message& msg)
+void NDLCom::Serialcom::txMessage(const NDLCom::Message& msg)
 {
     if (mPaused)
         return;

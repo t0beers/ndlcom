@@ -5,7 +5,7 @@ all: compile
 build:
 	mkdir -p build;\
 	cd build;\
-	cmake .. -DCMAKE_INSTALL_PREFIX=~/SeeGrip/SeeGrip.install
+	cmake .. -DCMAKE_INSTALL_PREFIX=~/iStruct/iStruct.install
 
 compile: build
 	${MAKE} -C build -j$(JOBS)

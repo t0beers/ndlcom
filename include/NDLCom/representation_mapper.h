@@ -58,10 +58,10 @@ namespace NDLCom
 
     signals:
         /** this signal is emitted from the derived class (NDLCom, ndlcom.cpp), not here!!! */
-        void rxMessage(const ::NDLCom::Message&);
+        void rxMessage(const NDLCom::Message&);
         /** this signal is emitted from the derived class. it contains packages sent from
          * gui-internal, to be received again...? */
-        void internal_txMessage(const ::NDLCom::Message&);
+        void internal_txMessage(const NDLCom::Message&);
         /** for specialized modules: correctly detected packages. should remove some load. */
         /* please keep this list alphabetically sorted! */
         void rxRepresentation(const ProtocolHeader&, const Representations::Acceleration&);
@@ -98,7 +98,7 @@ namespace NDLCom
     private:
         const char* exportDelimiter;
         char* pBuffer;
-        QString printMessageHeader(const ::NDLCom::Message&);
+        QString printMessageHeader(const NDLCom::Message&);
 
         /** Function to extract the message after the timestamp-data and feed it to slot_rxMessage().
          * @param msg Message including the timestamp data
@@ -106,7 +106,7 @@ namespace NDLCom
         void handleTimestampedData(const ::NDLCom::Message& msg);
 
     private slots:
-        void slot_rxMessage(const ::NDLCom::Message&);
+        void slot_rxMessage(const NDLCom::Message&);
     };
 
     /* just a simple Widget, which prints all devices and representation types... with their id */

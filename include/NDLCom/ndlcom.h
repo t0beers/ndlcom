@@ -10,7 +10,7 @@
 
 namespace NDLCom
 {
-    NDLCom::InterfaceContainer* getNDLCom();
+    NDLCom::InterfaceContainer* getNDLComInstance();
 }
 
 #endif/*_NDLCOM_NDLCOM_H_*/

@@ -22,7 +22,7 @@ testGUI::testGUI(QWidget *parent) : QMainWindow(parent)
     addToolBar(ndlcomcontainer->mpToolbar);
 
     /* getting pointer to signal-emitting object */
-    NDLCom::InterfaceContainer* ndlcom = NDLCom::getNDLCom();
+    NDLCom::InterfaceContainer* ndlcom = NDLCom::getNDLComInstance();
     if (!ndlcom)
         qCritical() << "testGUI: Can't get the pointer to the NDLCom widget.";
 

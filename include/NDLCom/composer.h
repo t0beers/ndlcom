@@ -47,7 +47,7 @@ namespace NDLCom
         ~Composer();
 
     signals:
-        void txMessage(const ::NDLCom::Message&);
+        void txMessage(const NDLCom::Message&);
 
     private:
         Ui::Composer* mpUi;
