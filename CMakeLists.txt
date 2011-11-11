@@ -42,50 +42,53 @@ link_directories(
 # first part: set every thing up to compile the lib (both shared and dynamic)
 #
 set(lib_SOURCES
-    src/ndlcom.cpp
+    src/communication_statistic_widget.cpp
+    src/composer.cpp
+    src/data_line_input.cpp
     src/hex_input.cpp
-    src/udpcom_receive_thread.cpp
     src/interface.cpp
+    src/interface_container.cpp
+    src/interface_traffic.cpp
+    src/message.cpp
     src/message_traffic.cpp
+    src/ndlcom.cpp
+    src/ndlcom_container.cpp
+    src/representation_mapper.cpp
     src/serialcom.cpp
     src/udpcom.cpp
-    src/composer.cpp
-    src/representation_mapper.cpp
-    src/ndlcom_container.cpp
-    src/message.cpp
-    src/interface_traffic.cpp
-    src/communication_statistic_widget.cpp
-    src/data_line_input.cpp
+    src/udpcom_receive_thread.cpp
     )
 
 set(lib_HEADERS
-    src/udpcom_receive_thread.h
-    src/hex_input.h
-    src/data_line_input.h
-    include/NDLCom/serialcom.h
-    include/NDLCom/message_traffic.h
-    include/NDLCom/composer.h
-    include/NDLCom/representation_mapper.h
     include/NDLCom/communication_statistic_widget.h
+    include/NDLCom/composer.h
     include/NDLCom/interface.h
+    include/NDLCom/interface_container.h
     include/NDLCom/interface_traffic.h
-    include/NDLCom/udpcom.h
+    include/NDLCom/message_traffic.h
     include/NDLCom/ndlcom.h
     include/NDLCom/ndlcom_container.h
+    include/NDLCom/representation_mapper.h
+    include/NDLCom/serialcom.h
+    include/NDLCom/udpcom.h
+    src/data_line_input.h
+    src/hex_input.h
+    src/udpcom_receive_thread.h
     )
 # here we only mention additionally which libs should get installed in the system
 set(install_HEADERS
-    include/NDLCom/ndlcom.h
-    include/NDLCom/representation_mapper.h
-    include/NDLCom/ndlcom_container.h
+    include/NDLCom/interface_container.h
     include/NDLCom/message.h
+    include/NDLCom/ndlcom.h
+    include/NDLCom/ndlcom_container.h
+    include/NDLCom/representation_mapper.h
     )
 
 set(lib_FORMS
     forms/composer.ui
     forms/show_representations.ui
     forms/udpcom_connect_dialog.ui
-    forms/ndlcom.ui
+    forms/interface_container.ui
     forms/interface.ui
     forms/communication_statistic_widget.ui
     forms/traffic.ui

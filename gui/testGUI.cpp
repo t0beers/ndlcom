@@ -22,9 +22,9 @@ testGUI::testGUI(QWidget *parent) : QMainWindow(parent)
     addToolBar(ndlcomcontainer->mpToolbar);
 
     /* getting pointer to signal-emitting object */
-    NDLCom::NDLCom* ndlcom = findChild<NDLCom::NDLCom *>();
+    NDLCom::InterfaceContainer* ndlcom = NDLCom::getNDLCom();
     if (!ndlcom)
-        qCritical() << "iLeggui: Can't get the pointer to the NDLCom widget.";
+        qCritical() << "testGUI: Can't get the pointer to the NDLCom widget.";
 
     QStatusBar *statusbar = new QStatusBar(this);
     setStatusBar(statusbar);

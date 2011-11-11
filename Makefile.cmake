@@ -1,26 +1,19 @@
-PROJECT_NAME=NDLCom
+JOBS=$(shell getconf _NPROCESSORS_ONLN)
 
-all: $(PROJECT_NAME)_sharedgui
+all: compile
 
 build:
 	mkdir -p build;\
 	cd build;\
-	cmake .. -DCMAKE_INSTALL_PREFIX=~/iStruct/iStruct.install
+	cmake .. -DCMAKE_INSTALL_PREFIX=~/SeeGrip/SeeGrip.install
 
-build/$(PROJECT_NAME)_sharedgui: build
-	${MAKE} -C build
+compile: build
+	${MAKE} -C build -j$(JOBS)
 
-build/lib$(PROJECT_NAME).so: build
-	${MAKE} -C build
-
-$(PROJECT_NAME)_sharedgui: build/$(PROJECT_NAME)_sharedgui
-	cp $< $@
-
-install: build/lib$(PROJECT_NAME).so
-	${MAKE} -C build install
+install: build subdir
+	${MAKE} -C build -j$(JOBS) install
 
 clean:
 	rm -rf build
-	rm -f $(PROJECT_NAME)_sharedgui
 
-.PHONY: build/$(PROJECT_NAME)_sharedgui
+.PHONY: subdir

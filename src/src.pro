@@ -25,7 +25,7 @@ FORMS   += \
     $${FORMSDIR}/communication_statistic_widget.ui \
     $${FORMSDIR}/composer.ui \
     $${FORMSDIR}/interface.ui \
-    $${FORMSDIR}/ndlcom.ui \
+    $${FORMSDIR}/interface_container.ui \
     $${FORMSDIR}/show_representations.ui \
     $${FORMSDIR}/traffic.ui \
     $${FORMSDIR}/udpcom_connect_dialog.ui \
@@ -36,6 +36,7 @@ HEADERS += \
     $${HEADERSDIR}/communication_statistic_widget.h \
     $${HEADERSDIR}/composer.h \
     $${HEADERSDIR}/interface.h \
+    $${HEADERSDIR}/interface_container.h \
     $${HEADERSDIR}/interface_traffic.h \
     $${HEADERSDIR}/message.h \
     $${HEADERSDIR}/message_traffic.h \
@@ -54,6 +55,7 @@ SOURCES += \
     $${SRCDIR}/data_line_input.cpp \
     $${SRCDIR}/hex_input.cpp \
     $${SRCDIR}/interface.cpp \
+    $${SRCDIR}/interface_container.cpp \
     $${SRCDIR}/interface_traffic.cpp \
     $${SRCDIR}/message.cpp \
     $${SRCDIR}/message_traffic.cpp \
