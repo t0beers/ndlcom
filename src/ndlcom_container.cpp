@@ -24,7 +24,7 @@ inline void initMyResource() { Q_INIT_RESOURCE(NDLCom); }
 NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
 {
     /* init the ressources, like icons, with this quick hack */
-#ifndef _DYNAMIC_BUILD
+#ifndef SHARED_BUILD
     initMyResource();
 #endif
 

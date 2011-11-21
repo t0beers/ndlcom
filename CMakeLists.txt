@@ -152,7 +152,7 @@ target_link_libraries(${PROJECT_NAME}_shared
 set_target_properties(${PROJECT_NAME}_shared PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}
     # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on dynamic builds
-    COMPILE_FLAGS -D_DYNAMIC_BUILD
+    COMPILE_FLAGS -DSHARED_BUILD
     )
 add_dependencies(${PROJECT_NAME}_shared
     protocol_shared
@@ -195,7 +195,7 @@ target_link_libraries(${PROJECT_NAME}_sharedgui
     )
 set_target_properties(${PROJECT_NAME}_sharedgui PROPERTIES
     # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on dynamic builds
-    COMPILE_FLAGS -D_DYNAMIC_BUILD
+    COMPILE_FLAGS -DSHARED_BUILD
     )
 
 #
