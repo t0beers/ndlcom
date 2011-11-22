@@ -30,6 +30,7 @@
 #include "representations/memory.h"
 #include "representations/ping.h"
 #include "representations/register.h"
+#include "representations/relay_board_msg_design.h"
 #include "representations/sensor_array.h"
 #include "representations/telemetry_values.h"
 #include "representations/bldc_joint_telemetry.h"
@@ -56,6 +57,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::Ping>("Representations::Ping");
     qRegisterMetaType<Representations::RegisterDescriptionResponse>("Representations::RegisterDescriptionResponse>");
     qRegisterMetaType<Representations::RegisterValueResponse>("RegisterValueResponse");
+    qRegisterMetaType<Representations::RelayBoardTelemetry>("Representations::RelayBoardTelemetry");
     qRegisterMetaType<Representations::SensorArray_channelData>("Representations::mIdSensorArray_channelData");
     qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
@@ -228,6 +230,19 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_RegisterValueResponse:
                     emit rxRepresentation(msg.mHdr, *(Representations::RegisterValueResponse*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_RelayBoardTelemetry:
+                    sprintf(pBuffer,"%s %i%s %i%s %i%s %i%s %i%s %i%s %i%s %i\n", exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[0], exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[1], exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[2], exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[3], exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[4], exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[5], exportDelimiter,
+	                    ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[6], exportDelimiter,
+                        ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[7]);
+                    emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
+                    emit rxRepresentation(msg.mHdr, *(Representations::RelayBoardTelemetry*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_channelData:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_channelData*)repreData);

@@ -36,6 +36,8 @@ namespace Representations
     class ThermometerDS18B20;
     class CAM_TCM8230MD;
     class SheetMetalHand;
+    class RelayBoardTelemetry;
+    class RelayBoardCommands;
 };
 
 class ProtocolHeader;
@@ -65,6 +67,8 @@ namespace NDLCom
         /** for specialized modules: correctly detected packages. should remove some load. */
         /* please keep this list alphabetically sorted! */
         void rxRepresentation(const ProtocolHeader&, const Representations::Acceleration&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CurrentValues&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DMSBoardConfig&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DistanceSI1120&);
@@ -75,16 +79,15 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::Ping&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RegisterDescriptionResponse&, const QByteArray&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RegisterValueResponse&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::RelayBoardTelemetry&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_channelData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_matrixData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_vectorData&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::SheetMetalHand&);
         void rxRepresentation(const ProtocolHeader&, const Representations::TelemetryValues&);
-        void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::TestlegAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
-        void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
-        void rxRepresentation(const ProtocolHeader&, const Representations::SheetMetalHand&);
 
         /**
          *  exportString -- allowing a nice export facility to allow printing of data into files...
