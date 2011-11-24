@@ -13,6 +13,7 @@
 #include "NDLCom/udpcom.h"
 
 #include "representations/id.h"
+#include "representations/names.h"
 
 #include "ui_interface_container.h"
 
@@ -233,26 +234,25 @@ void NDLCom::InterfaceContainer::slot_rxMessage(const NDLCom::Message& msg)
     /* this slot can be found in RepresentationMapper */
     emit rxMessage(msg);
 
-    /* since there are indeed packet getting here which are not for this PC, forwarding is not activated in the moment... */
-    return;
-    /* if message not for us (PC): additionally to sending it to the GUI, we send it to all
-     * other active interfaces, except the receiving one */
-    if (msg.mHdr.mReceiverId != REPRESENTATIONS_DEVICE_ID_ControlGUI)
+    /* experimental feature: forward all messages received here on the other existing interfaces...
+     * this may lead to exessive flood of packages, so be carefull! to guard normal operation from
+     * this, we introduced a checkbox */
+    if (!mpUi->bridging->checkState())
+        return;
+
+    /* just to be sure... */
+    Interface* inter = qobject_cast<Interface*>(QObject::sender());
+    if (!inter)
     {
-        qDebug() << "NDLCom::InterfaceContainer::slot_rxMessage() tries to forward a message to " << msg.mHdr.mReceiverId  << " (experimental!)";
+        qWarning() << "NDLCom::InterfaceContainer::slot_rxMessage() got called by an alien";
+        return;
+    }
 
-        Interface* inter = qobject_cast<Interface*>(QObject::sender());
-        if (!inter)
-        {
-            qWarning() << "NDLCom::InterfaceContainer::slot_rxMessage() got called by an alien";
-            return;
-        }
-
-        for (int i = 0; i < runningInterfaces.size(); ++i)
-        {
-            if (runningInterfaces.at(i) != inter)
-                emit runningInterfaces.at(i)->txMessage(msg);
-        }
+    for (int i = 0; i < runningInterfaces.size(); ++i)
+    {
+        /* all other interfaces but this one */
+        if (runningInterfaces.at(i) != inter)
+            emit runningInterfaces.at(i)->txMessage(msg);
     }
 }
 
