@@ -281,10 +281,10 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 {
                     const Representations::TestlegAngles* pAngles((Representations::TestlegAngles*)repreData);
                     sprintf(pBuffer,"%s %hd%s %hd%s %hd %s %hd\n",
-                            exportDelimiter, pAngles->angleHip0,
-                            exportDelimiter, pAngles->angleHip1,
-                            exportDelimiter, pAngles->angleHip2,
-                            exportDelimiter, pAngles->angleKnee
+                            exportDelimiter, pAngles->mAngleHip0,
+                            exportDelimiter, pAngles->mAngleHip1,
+                            exportDelimiter, pAngles->mAngleHip2,
+                            exportDelimiter, pAngles->mAngleKnee
                             );
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *pAngles);
