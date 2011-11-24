@@ -81,6 +81,9 @@ NDLCom::InterfaceContainer::InterfaceContainer(QWidget* parent) : Representation
 NDLCom::InterfaceContainer::~InterfaceContainer()
 {
     emit on_actionDisconnectAll_triggered();
+    /* setting this back to zero again allows recreating an instance multiple times... while only
+     * one at a time is alive */
+    spInstance = NULL;
 }
 
 /* another sexy hack: showing the numbre of active interfaces in the actionConnect*-actions */
