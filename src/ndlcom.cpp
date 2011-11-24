@@ -9,7 +9,7 @@ NDLCom::InterfaceContainer* NDLCom::getNDLComInstance()
 
     if (!retval)
     {
-        qWarning() << "NDLCom: could not find signal emitting object. this is nearly fatal...?";
+        /* we could be nice and create the instance here... */
         return NULL;
     }
     return retval;
