@@ -26,6 +26,7 @@
 #include "representations/dms_board_config.h"
 #include "representations/dms_raw.h"
 #include "representations/force_torque.h"
+#include "representations/imu_data.h"
 #include "representations/joint_angles.h"
 #include "representations/memory.h"
 #include "representations/ping.h"
@@ -52,6 +53,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::DistanceSI1120>("Representations::DistanceSI1120");
     qRegisterMetaType<Representations::DmsRaw>("Representations::DmsRaw");
     qRegisterMetaType<Representations::ForceTorque>("Representations::ForceTorque");
+    qRegisterMetaType<Representations::IMUDataMessage>("Representations::IMUDataMessage");
     qRegisterMetaType<Representations::JointAngles>("Representations::JointAngles");
     qRegisterMetaType<Representations::MemoryData>("Representations::MemoryData");
     qRegisterMetaType<Representations::Ping>("Representations::Ping");
@@ -210,6 +212,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_ForceTorque:
                     emit rxRepresentation(msg.mHdr, *(Representations::ForceTorque*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_IMUDataMessage:
+                    emit rxRepresentation(msg.mHdr, *(Representations::IMUDataMessage*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_JointAngles:
                     sprintf(pBuffer,"%s %f%s %f%s %f\n", exportDelimiter, ((Representations::JointAngles*)repreData)->rotX/32768*M_PI,
