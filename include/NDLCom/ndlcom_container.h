@@ -47,7 +47,7 @@ namespace NDLCom
      * tracking the order of packages from different interfaces. It also
      * contains the ProtocolHeader of this message as well as the decoded
      * raw-data as a char-array. This data can be used by other applications.
-     * Or it can be casted to a Representations::<blabla> class, which is done
+     * Or it can be casted to a Representations::blabla class, which is done
      * in NDLCom::RepresentationsMapper.
      *
      * The NDLCom::NDLComContainer emits signals of type "const Message&"
