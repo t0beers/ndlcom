@@ -1,5 +1,5 @@
 /**
- * @file NDLCom/include/NDLCom/hex_input.h
+ * @file NDLCom/src/hex_input.h
  * @class NDLCom::HexInput
  *
  * @brief A QLineEdit to insert text in ascii or hex.
