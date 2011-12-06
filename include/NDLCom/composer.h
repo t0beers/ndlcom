@@ -13,6 +13,16 @@
 #include <QTimer>
 #include <QThread>
 #include <QMutex>
+
+/**
+ * @addtogroup Communication
+ * @{
+ * @addtogroup Communication_NDLCom
+ * @{
+ * @addtogroup Communication_NDLCom_Composer composer
+ * @{
+ */
+
 #define NSEC_PER_SEC    (1000000000) /* The number of nsecs per sec. */
 
 namespace NDLCom
@@ -104,5 +114,10 @@ namespace NDLCom
     };
 };
 
+/**
+ * @}
+ * @}
+ * @}
+ */
 #endif/*_NDLCOM_COMPOSER_H_*/
 

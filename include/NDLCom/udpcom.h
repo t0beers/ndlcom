@@ -16,6 +16,15 @@
 
 #include "NDLCom/interface.h"
 
+/**
+ * @addtogroup Communication
+ * @{
+ * @addtogroup Communication_NDLCom
+ * @{
+ * @addtogroup Communication_NDLCom_UDPcom UDPCom
+ * @{
+ */
+
 namespace UdpCom
 {
     class UdpCom;
@@ -77,5 +86,10 @@ namespace NDLCom
     };
 };
 
+/**
+ * @}
+ * @}
+ * @}
+ */
 #endif/*_NDLCOM_UDPCOM_H_*/
 

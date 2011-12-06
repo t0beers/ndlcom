@@ -13,6 +13,15 @@
 #include <QAction>
 #include <QTimer>
 
+/**
+ * @addtogroup Communication
+ * @{
+ * @addtogroup Communication_NDLCom
+ * @{
+ * @addtogroup Communication_NDLCom_Interface interface
+ * @{
+ */
+
 namespace NDLCom
 {
     namespace Ui
@@ -169,5 +178,10 @@ namespace NDLCom
     };
 };
 
+/**
+ * @}
+ * @}
+ * @}
+ */
 #endif/*_NDLCOM_INTERFACE_H_*/
 

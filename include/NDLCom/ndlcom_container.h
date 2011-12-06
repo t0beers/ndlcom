@@ -11,6 +11,13 @@
 #include <QToolBar>
 #include <QMenu>
 
+/**
+ * @addtogroup Communication
+ * @{
+ * @defgroup Communication_NDLCom NDLCom
+ * @{
+ */
+
 namespace NDLCom
 {
     class InterfaceContainer;
@@ -109,6 +116,11 @@ namespace NDLCom
         void slot_rxMessage(const NDLCom::Message&);
     };
 };
+
+/**
+ * @}
+ * @}
+ */
 
 #endif/*_NDLCOM_NDLCOM_CONTAINER_H_*/
 

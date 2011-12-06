@@ -14,6 +14,15 @@
 
 #include "NDLCom/interface.h"
 
+/**
+ * @addtogroup Communication
+ * @{
+ * @addtogroup Communication_NDLCom
+ * @{
+ * @addtogroup Communication_NDLCom_Serialcom serialcom
+ * @{
+ */
+
 namespace Serialcom
 {
     class Serialcom;
@@ -49,5 +58,10 @@ namespace NDLCom
     };
 };
 
+/**
+ * @}
+ * @}
+ * @}
+ */
 #endif/*_NDLCOM_SERIALCOM_H_*/
 
