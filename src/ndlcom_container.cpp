@@ -29,7 +29,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
 #endif
 
     /* create all object we need */
-    InterfaceContainer* mpInterfaceContainer = new InterfaceContainer(this);
+    InterfaceContainer* mpInterfaceContainer = InterfaceContainer::getInterfaceContainer();
     CommunicationStatisticWidget* comm = new CommunicationStatisticWidget(this);
     Composer* comp = new Composer(this);
     ShowRepresentations* show = new ShowRepresentations(this);
@@ -80,6 +80,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
         action->setIcon(QIcon(d->icon));
         mpMenu->addAction(action);
         mpToolbar->addAction(action);
+		mpToolbar->hide();
         if (main)
             main->addDockWidget(Qt::LeftDockWidgetArea, dock);
     }

@@ -45,17 +45,6 @@ namespace NDLCom
         Q_OBJECT;
 
     public:
-        /**
-         * @brief standard qt constructor...
-         *
-         * @param parent normally "this" of the main-window or something...
-         */
-        InterfaceContainer(QWidget* parent = 0);
-        /**
-         * @brief Destructor of InterfaceContainer class. Doing cleanup here
-         */
-        virtual ~InterfaceContainer();
-
         /* users can ask here for the pointer of this module */
         static NDLCom::InterfaceContainer* getInterfaceContainer();
 
@@ -79,6 +68,21 @@ namespace NDLCom
         /** this signal will print string/datarate combinations rx/tx bytes/rate, summed over all
          * interfaces each */
         void status(QString, double);
+
+		/** this signal emits the connection state to higher level instances, e.g. the control 
+			of the processing flow of the application (e.g. starting/stopping of keep alive messaging */
+		void connectionStatusChanged(bool _isConnected);
+	protected: 
+        /**
+         * @brief standard qt constructor...
+         *
+         * @param parent normally "this" of the main-window or something...
+         */
+        InterfaceContainer(QWidget* parent = 0);
+        /**
+         * @brief Destructor of InterfaceContainer class. Doing cleanup here
+         */
+        virtual ~InterfaceContainer();
 
     private:
 

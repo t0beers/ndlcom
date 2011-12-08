@@ -30,6 +30,9 @@ NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::spInstance = 0;
 
 NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::getInterfaceContainer()
 {
+	if(spInstance == 0)
+		spInstance = new InterfaceContainer();
+
     return spInstance;
 }
 
@@ -158,6 +161,9 @@ void NDLCom::InterfaceContainer::connected()
         /* we wrap all received signals by the interfaces in our private slot */
         connect(inter, SIGNAL(rxMessage(const NDLCom::Message&)), this, SLOT(slot_rxMessage(const NDLCom::Message&)));
 
+		/* inform others about established connection */	
+		emit connectionStatusChanged(true);
+
         /* we wanna keep book */
         connect(inter, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
         connect(inter, SIGNAL(txRate(double)),  this, SLOT(slot_txRate(double)));
@@ -201,6 +207,9 @@ void NDLCom::InterfaceContainer::disconnected()
 
         delete inter;
         runningInterfaces.removeAll(inter);
+
+		/* Inform others about closed connection */
+		emit connectionStatusChanged(false);
 
         /* remove entry in transferrate-map for this interface (overall transferred data is kept): */
         mMapRxRate.remove(inter);
