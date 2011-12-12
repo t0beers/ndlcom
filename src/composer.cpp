@@ -149,7 +149,7 @@ NDLCom::SendThread::~SendThread()
 {
     /* stop thread and wait for it to finish */
     stopRunning = true;
-    wait(500);/* timeout of 500ms */
+    wait(1000);/* timeout of 1000ms */
 }
 void NDLCom::SendThread::setFrequency(unsigned int frequency)
 {
