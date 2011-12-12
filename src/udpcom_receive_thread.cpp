@@ -21,15 +21,15 @@ void NDLCom::UdpCom::ReceiveThread::run(void)
     while(mContinueLoop)
     {
         char buffer[65535];
-        int r = mUdpCom.readWithTimeout(buffer, sizeof(buffer), 1000);
+        /* given timeout is 500ms */
+        int r = mUdpCom.readWithTimeout(buffer, sizeof(buffer), 500);
         if (r == -1)
         {
             //TODO: UdpCom::readWithTimeout()
 //            assert(errno == EAGAIN);
-            qWarning() << "Udp: timeout reading data.";
         }
         else
-        {            
+        {
             emit dataReceived(QByteArray(buffer, r));
         }
     }

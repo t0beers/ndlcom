@@ -28,7 +28,7 @@ NDLCom::UdpCom::~UdpCom()
     if (mpReceiveThread)
     {
         mpReceiveThread->stop();
-        mpReceiveThread->wait(500); //wait max 500ms until thread stops
+        mpReceiveThread->wait(1000); //wait max 1000ms until thread stops
         delete mpReceiveThread;
         mpReceiveThread = NULL;
     }

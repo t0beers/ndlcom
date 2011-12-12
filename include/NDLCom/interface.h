@@ -81,7 +81,7 @@ namespace NDLCom
          *
          * pure virtual... see http://stackoverflow.com/questions/2998216/does-qt-support-virtual-pure-slots
          *
-         * @param msg recevied data 
+         * @param msg recevied data
          */
         void rxMessage(const NDLCom::Message& msg);
 
