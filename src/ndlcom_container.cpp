@@ -80,7 +80,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
         action->setIcon(QIcon(d->icon));
         mpMenu->addAction(action);
         mpToolbar->addAction(action);
-		mpToolbar->hide();
+        //mpToolbar->hide();
         if (main)
             main->addDockWidget(Qt::LeftDockWidgetArea, dock);
     }

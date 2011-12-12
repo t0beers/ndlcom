@@ -162,7 +162,7 @@ void NDLCom::InterfaceContainer::connected()
         connect(inter, SIGNAL(rxMessage(const NDLCom::Message&)), this, SLOT(slot_rxMessage(const NDLCom::Message&)));
 
 		/* inform others about established connection */	
-		emit connectionStatusChanged(true);
+        emit connectionStatusChanged(true);
 
         /* we wanna keep book */
         connect(inter, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
@@ -209,7 +209,7 @@ void NDLCom::InterfaceContainer::disconnected()
         runningInterfaces.removeAll(inter);
 
 		/* Inform others about closed connection */
-		emit connectionStatusChanged(false);
+        emit connectionStatusChanged(false);
 
         /* remove entry in transferrate-map for this interface (overall transferred data is kept): */
         mMapRxRate.remove(inter);
