@@ -21,7 +21,7 @@
  * see http://doc.trolltech.com/4.7/qdir.html#Q_INIT_RESOURCE */
 inline void initMyResource() { Q_INIT_RESOURCE(NDLCom); }
 
-NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
+NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QWidget(parent)
 {
     /* init the ressources, like icons, with this quick hack */
 #ifndef SHARED_BUILD
@@ -80,7 +80,8 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent) : QWidget(parent)
         action->setIcon(QIcon(d->icon));
         mpMenu->addAction(action);
         mpToolbar->addAction(action);
-        //mpToolbar->hide();
+        if (!showToolBar)
+            mpToolbar->hide();
         if (main)
             main->addDockWidget(Qt::LeftDockWidgetArea, dock);
     }

@@ -77,15 +77,12 @@ namespace NDLCom
      * unified interface. This allows easy use of QToolBar and QMenu.
      *
      * TODO:
-     * - since we don't have a routing algorithm, all telegrams to send are
-     *   emitted on all interfaces! And telegrams not directed to the PC are not
-     *   forwarded. There is a forward-stub in the code which is deactivated...
+     * - since we don't have a routing algorithm, all telegrams can be send
+     *   on all interfaces! this can be disabled in the gui using the "bridging" checkbox
      *
      * FIXME:
      * - something with the NDLCom::Message() class is broken on accessing
      *   references... grep the code...
-     * - Interface-raw-traffic as separate pop-up-window is not properly working
-     *   in the moment, if one window is kept open, the GUI may not close properly...
      *
      * This text was basically the used commit-message for the initial commit. for a
      * more elaborate documentation, see the other classes.
@@ -94,7 +91,14 @@ namespace NDLCom
     {
         Q_OBJECT
     public:
-        NDLComContainer(QWidget* parent = 0);
+         /**
+          * creates a nice collection of usefull tools, all related to ndlcom
+          *
+          * if second argument is false, the toolbar will not be shown, usefull if you want to build
+          * your own application layout, but still want to use the wrapped creation of NDLCom-style
+          * widgets in this class
+          */
+        NDLComContainer(QWidget* parent = NULL, bool showToolBar = true);
         virtual ~NDLComContainer() {};
         /** contains selection of sub-widgets aswell as some further actions */
         QMenu* mpMenu;

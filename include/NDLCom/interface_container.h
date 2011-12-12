@@ -69,10 +69,12 @@ namespace NDLCom
          * interfaces each */
         void status(QString, double);
 
-		/** this signal emits the connection state to higher level instances, e.g. the control 
-			of the processing flow of the application (e.g. starting/stopping of keep alive messaging */
+        /**
+         * this signal emits the connection state to higher level instances, e.g. the control
+         * of the processing flow of the application (e.g. starting/stopping of keep alive messaging */
         void connectionStatusChanged(bool _isConnected);
-	protected: 
+
+	protected:
         /**
          * @brief standard qt constructor...
          *
