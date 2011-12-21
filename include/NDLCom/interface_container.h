@@ -42,7 +42,7 @@ namespace NDLCom
      */
     class InterfaceContainer : public RepresentationMapper
     {
-        Q_OBJECT;
+        Q_OBJECT
 
     public:
         /* users can ask here for the pointer of this module */
