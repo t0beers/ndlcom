@@ -17,7 +17,7 @@ namespace Ui
 
 class testGUI : public QMainWindow
 {
-    Q_OBJECT;
+    Q_OBJECT
 
     public:
         testGUI (QWidget *parent = 0);
