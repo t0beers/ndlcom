@@ -36,7 +36,7 @@ namespace Representations
     class TestlegAngles;
     class ThermometerDS18B20;
     class CAM_TCM8230MD;
-    class SheetMetalHand;
+    class SheetMetalMessage;
     class RelayBoardTelemetry;
     class RelayBoardCommands;
 };
@@ -85,7 +85,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_channelData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_matrixData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_vectorData&);
-        void rxRepresentation(const ProtocolHeader&, const Representations::SheetMetalHand&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::SheetMetalMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::TelemetryValues&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::TestlegAngles&);
