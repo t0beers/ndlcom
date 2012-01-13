@@ -267,14 +267,15 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::TelemetryValues*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_BLDCJointTelemetryMessage:
-                     sprintf(pBuffer,"%s %i%s %i%s %i%s %i%s %i\n",exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.speed,
-                                                         exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.desiredSpeed,
+                case REPRESENTATIONS_REPRESENTATION_ID_BLDCJointTelemetryMessage:                  
+                    sprintf(pBuffer,"%s %i%s %i%s %i%s %i%s %i\n",exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.speed,
+                                                         exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.speedCtrlInput,
                                                          exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.position,
-                                                         exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.desiredPosition,
-                                                         exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.current);
+                                                         exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.positionCtrlInput,
+                                                         exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.jointCurrent);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::BLDCJointTelemetryMessage*)repreData);
+
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_Temperature:
                     sprintf(pBuffer,"%s %hhu%s %hu\n", exportDelimiter, ((Representations::Temperature*)repreData)->thermometerId,
