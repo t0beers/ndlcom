@@ -20,6 +20,7 @@ namespace Representations
     class DistanceSI1120;
     class DmsRaw;
     class ForceTorque;
+    class RepresentationsGripperState;
     class IMUDataMessage;
     class JointAngles;
     class MemoryData;
@@ -75,6 +76,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::DistanceSI1120&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DmsRaw&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ForceTorque&);
+	void rxRepresentation(const ProtocolHeader&, const Representations::RepresentationsGripperState&);
         void rxRepresentation(const ProtocolHeader&, const Representations::IMUDataMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::JointAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::MemoryData&);

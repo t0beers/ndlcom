@@ -26,6 +26,7 @@
 #include "representations/dms_board_config.h"
 #include "representations/dms_raw.h"
 #include "representations/force_torque.h"
+#include "representations/gripperstate.h"
 #include "representations/imu_data.h"
 #include "representations/joint_angles.h"
 #include "representations/memory.h"
@@ -53,6 +54,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::DistanceSI1120>("Representations::DistanceSI1120");
     qRegisterMetaType<Representations::DmsRaw>("Representations::DmsRaw");
     qRegisterMetaType<Representations::ForceTorque>("Representations::ForceTorque");
+    qRegisterMetaType<Representations::RepresentationsGripperState>("Representations::RepresentationsGripperState");
     qRegisterMetaType<Representations::IMUDataMessage>("Representations::IMUDataMessage");
     qRegisterMetaType<Representations::JointAngles>("Representations::JointAngles");
     qRegisterMetaType<Representations::MemoryData>("Representations::MemoryData");
@@ -213,6 +215,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_ForceTorque:
                     emit rxRepresentation(msg.mHdr, *(Representations::ForceTorque*)repreData);
                     break;
+	        case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsGripperState:
+		    emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsGripperState*)repreData);
+		    break;
                 case REPRESENTATIONS_REPRESENTATION_ID_IMUDataMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::IMUDataMessage*)repreData);
                     break;
