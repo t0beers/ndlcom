@@ -62,6 +62,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::RegisterDescriptionResponse>("Representations::RegisterDescriptionResponse>");
     qRegisterMetaType<Representations::RegisterValueResponse>("RegisterValueResponse");
     qRegisterMetaType<Representations::RelayBoardTelemetry>("Representations::RelayBoardTelemetry");
+    qRegisterMetaType<Representations::SensorArray_calibration>("Representations::mIdSensorArray_calibration");
     qRegisterMetaType<Representations::SensorArray_channelData>("Representations::mIdSensorArray_channelData");
     qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
@@ -253,6 +254,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                         ((Representations::RelayBoardTelemetry*)repreData)->channelTelemetry[7]);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::RelayBoardTelemetry*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_calibration:
+                    emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_calibration*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_channelData:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_channelData*)repreData);

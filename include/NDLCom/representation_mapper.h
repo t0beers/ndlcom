@@ -28,6 +28,7 @@ namespace Representations
     class RawData;
     class RegisterDescriptionResponse;
     class RegisterValueResponse;
+    class SensorArray_calibration;
     class SensorArray_channelData;
     class SensorArray_matrixData;
     class SensorArray_vectorData;
@@ -84,6 +85,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::RegisterDescriptionResponse&, const QByteArray&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RegisterValueResponse&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RelayBoardTelemetry&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_calibration&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_channelData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_matrixData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_vectorData&);
