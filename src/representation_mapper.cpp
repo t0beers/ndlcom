@@ -37,7 +37,7 @@
 #include "representations/telemetry_values.h"
 #include "representations/bldc_joint_telemetry.h"
 #include "representations/temperature.h"
-#include "representations/testleg_angles.h"
+#include "representations/leg_angles.h"
 #include "representations/thermometer_ds18b20.h"
 #include "representations/timestamp.h"
 #include "representations/cam_tcm8230md.h"
@@ -69,7 +69,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::TelemetryValues>("Representations::TelemetryValues");
     qRegisterMetaType<Representations::BLDCJointTelemetryMessage>("Representations::BLDCJointTelemetryMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
-    qRegisterMetaType<Representations::TestlegAngles>("Representations::TestlegAngles");
+    qRegisterMetaType<Representations::LegAngles>("Representations::LegAngles");
     qRegisterMetaType<Representations::ThermometerDS18B20>("Representations::ThermometerDS18B20");
     qRegisterMetaType<Representations::CAM_TCM8230MD>("Representations::CAM_TCM8230MD");
     qRegisterMetaType<NDLCom::Message>("NDLCom::Message");
@@ -112,10 +112,11 @@ void NDLCom::RepresentationMapper::handleTimestampedData(const NDLCom::Message& 
         qWarning() << "Received message too short for timestamp.";
         return;
     }
-    const Representations::Timestamp* pTimestamp = (const Representations::Timestamp*)msg.mpDecodedData;
+    //const Representations::Timestamp* pTimestamp = (const Representations::Timestamp*)msg.mpDecodedData;
 
-    uint64_t timestamp_microseconds = pTimestamp->mMicroseconds;
-    struct timespec t; //Todo: write data into timespec
+    ///@todo Use the timestamp from the packets!
+    // uint64_t timestamp_microseconds = pTimestamp->mMicroseconds;
+    // struct timespec t; //Todo: write data into timespec
 
     //keep source and destination from the common header
     ProtocolHeader innerHeader(msg.mHdr);
@@ -292,19 +293,10 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::Temperature*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsTestlegAngles:
-                {
-                    const Representations::TestlegAngles* pAngles((Representations::TestlegAngles*)repreData);
-                    sprintf(pBuffer,"%s %hd%s %hd%s %hd %s %hd\n",
-                            exportDelimiter, pAngles->mAngleHip0,
-                            exportDelimiter, pAngles->mAngleHip1,
-                            exportDelimiter, pAngles->mAngleHip2,
-                            exportDelimiter, pAngles->mAngleKnee
-                            );
-                    emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
-                    emit rxRepresentation(msg.mHdr, *pAngles);
+                case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsLegAngles:
+                    emit rxRepresentation(msg.mHdr, *(Representations::LegAngles*)repreData);
                     break;
-                }
+
                 case REPRESENTATIONS_REPRESENTATION_ID_ThermometerDS18B20:
                     emit rxRepresentation(msg.mHdr, *(Representations::ThermometerDS18B20*)repreData);
                     break;
