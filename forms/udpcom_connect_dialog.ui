@@ -95,7 +95,7 @@
      <item>
       <widget class="QPushButton" name="saveSettings">
        <property name="text">
-        <string>Speichern</string>
+        <string>Save</string>
        </property>
       </widget>
      </item>

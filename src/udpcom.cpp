@@ -1,5 +1,6 @@
 #include "udpcom/udpcom.h"
 #include "NDLCom/udpcom.h"
+#include "udpcom_connect_dialog.h"
 #include "udpcom_receive_thread.h"
 #include "protocol/protocol.h"
 #include <QThread>

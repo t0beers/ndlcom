@@ -47,6 +47,7 @@ HEADERS += \
     $${HEADERSDIR}/udpcom.h \
     $${SRCDIR}/data_line_input.h \
     $${SRCDIR}/hex_input.h \
+    $${SRCDIR}/udpcom_connect_dialog.h \
     $${SRCDIR}/udpcom_receive_thread.h \
 
 SOURCES += \
@@ -64,6 +65,7 @@ SOURCES += \
     $${SRCDIR}/representation_mapper.cpp \
     $${SRCDIR}/serialcom.cpp \
     $${SRCDIR}/udpcom.cpp \
+    $${SRCDIR}/udpcom_connect_dialog.cpp \
     $${SRCDIR}/udpcom_receive_thread.cpp \
 
 #Doxygen
