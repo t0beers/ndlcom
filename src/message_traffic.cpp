@@ -24,11 +24,19 @@ NDLCom::MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
 
 void NDLCom::MessageTraffic::sentMessage(const NDLCom::Message& msg)
 {
-    mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
+    /* save cpu cycles if this widget is not visible */
+    if (isVisible())
+    {
+        mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
+    }
 }
 void NDLCom::MessageTraffic::receivedMessage(const NDLCom::Message& msg)
 {
-    mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
+    /* save cpu cycles if this widget is not visible */
+    if (isVisible())
+    {
+        mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
+    }
 }
 
 QString NDLCom::MessageTraffic::formatMessage(const NDLCom::Message &msg)
