@@ -56,6 +56,7 @@ set(lib_SOURCES
     src/representation_mapper.cpp
     src/serialcom.cpp
     src/udpcom.cpp
+    src/udpcom_connect_dialog.cpp
     src/udpcom_receive_thread.cpp
     )
 
@@ -73,6 +74,7 @@ set(lib_HEADERS
     include/NDLCom/udpcom.h
     src/data_line_input.h
     src/hex_input.h
+    src/udpcom_connect_dialog.h
     src/udpcom_receive_thread.h
     )
 # here we only mention additionally which libs should get installed in the system
