@@ -114,20 +114,20 @@ void NDLCom::RepresentationMapper::handleTimestampedData(const NDLCom::Message& 
         qWarning() << "Received message too short for timestamp.";
         return;
     }
-    //const Representations::Timestamp* pTimestamp = (const Representations::Timestamp*)msg.mpDecodedData;
 
-    ///@todo Use the timestamp from the packets!
-    // uint64_t timestamp_microseconds = pTimestamp->mMicroseconds;
-    // struct timespec t; //Todo: write data into timespec
-
-    //keep source and destination from the common header
+   //keep source and destination from the common header
     ProtocolHeader innerHeader(msg.mHdr);
     //data of the inner message starts after the timestamp data
     innerHeader.mDataLen = msg.mHdr.mDataLen - sizeof(Representations::Timestamp);
-    NDLCom::Message innerMessage(&innerHeader, msg.mpDecodedData + sizeof(Representations::Timestamp));
+    NDLCom::Message innerMessage(msg.mTimestamp, innerHeader, msg.mpDecodedData + sizeof(Representations::Timestamp));
+
+    //put timestamp from sender into message struct
+    const Representations::Timestamp* pTimestamp = (const Representations::Timestamp*)msg.mpDecodedData;
+    const uint64_t& micro(pTimestamp->mMicroseconds);
+    innerMessage.mTimestampFromSender.tv_sec = micro / 1000000;
+    innerMessage.mTimestampFromSender.tv_nsec = (micro * 1000) % 1000000000;
+
     //handle data in inner message
-//                                   innerMessage.mTimestamp = ...
-//    innerMessage.mpDecodedData = msg.mpDecodedData + sizeof(Representations::Timestamp);
     slot_rxMessage(innerMessage);
 }
 
