@@ -36,6 +36,7 @@
 #include "representations/sensor_array.h"
 #include "representations/telemetry_values.h"
 #include "representations/bldc_joint_telemetry.h"
+#include "representations/fpga_log_message.h"
 #include "representations/temperature.h"
 #include "representations/leg_angles.h"
 #include "representations/thermometer_ds18b20.h"
@@ -68,6 +69,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
     qRegisterMetaType<Representations::TelemetryValues>("Representations::TelemetryValues");
     qRegisterMetaType<Representations::BLDCJointTelemetryMessage>("Representations::BLDCJointTelemetryMessage");
+    qRegisterMetaType<Representations::FpgaLogMessage>("Representations::FpgaLogMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::LegAngles>("Representations::LegAngles");
     qRegisterMetaType<Representations::ThermometerDS18B20>("Representations::ThermometerDS18B20");
@@ -285,6 +287,10 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                                                          exportDelimiter, ((Representations::BLDCJointTelemetryMessage*)repreData)->telemetry.jointCurrent);
                     emit exportString(QString(representationsNamesGetRepresentationName(repreData->mId)), messageString+QString(pBuffer));
                     emit rxRepresentation(msg.mHdr, *(Representations::BLDCJointTelemetryMessage*)repreData);
+
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_FpgaLogMessage:                  
+                    emit rxRepresentation(msg.mHdr, *(Representations::FpgaLogMessage*)repreData);
 
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_Temperature:

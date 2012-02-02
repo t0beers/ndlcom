@@ -14,6 +14,9 @@ namespace Representations
     struct Representation;
     /* please keep this list alphabetically sorted */
     class Acceleration;
+    class AnkleJointTelemetryMessage;
+    class BLDCJointTelemetryMessage;
+    class FpgaLogMessage;
     class CurrentValues;
     class DMSBoardConfig;
     class DebugMessage;
@@ -33,7 +36,6 @@ namespace Representations
     class SensorArray_matrixData;
     class SensorArray_vectorData;
     class TelemetryValues;
-    class BLDCJointTelemetryMessage;
     class Temperature;
     class LegAngles;
     class ThermometerDS18B20;
@@ -70,7 +72,9 @@ namespace NDLCom
         /** for specialized modules: correctly detected packages. should remove some load. */
         /* please keep this list alphabetically sorted! */
         void rxRepresentation(const ProtocolHeader&, const Representations::Acceleration&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::AnkleJointTelemetryMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::FpgaLogMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CurrentValues&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DMSBoardConfig&);
