@@ -4,6 +4,11 @@ cmake_minimum_required(VERSION 2.6)
 # uses some sibling-directorys of this repository, so keep them at the right place
 project(NDLCom)
 
+# this allows installing out of project tree with dynamic linkage and relocatable files
+# see http://www.cmake.org/Wiki/CMake_RPATH_handling
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lib")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 find_package(Qt4 REQUIRED)
 set(QT_USE_QTNETWORK true)
 
@@ -217,15 +222,16 @@ target_link_libraries(${PROJECT_NAME}_staticgui
 #
 # installing
 #
-install(TARGETS ${PROJECT_NAME}_shared ${PROJECT_NAME}_static
-    ARCHIVE DESTINATION ${PROJECT_NAME}/lib
-    LIBRARY DESTINATION ${PROJECT_NAME}/lib
+install(TARGETS ${PROJECT_NAME}_shared ${PROJECT_NAME}_static ${PROJECT_NAME}_sharedgui ${PROJECT_NAME}_staticgui
+    RUNTIME DESTINATION bin
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
     )
 
-install(FILES ${install_HEADERS} DESTINATION ${PROJECT_NAME}/include/${PROJECT_NAME})
+install(FILES ${install_HEADERS} DESTINATION include/${PROJECT_NAME})
 
 configure_file(${PROJECT_SOURCE_DIR}/${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION pkgconfig)
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Find${PROJECT_NAME}.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/Find${PROJECT_NAME}.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Find${PROJECT_NAME}.cmake DESTINATION CMake-Modules)
