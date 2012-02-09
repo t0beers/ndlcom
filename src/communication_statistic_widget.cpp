@@ -40,7 +40,7 @@ void NDLCom::CommunicationStatisticWidget::createTableHeader()
     mpUi->outputTable->setHorizontalHeaderItem(1,headerItem);
     headerItem = new QTableWidgetItem("Message ID");
     mpUi->outputTable->setHorizontalHeaderItem(2,headerItem);
-    headerItem = new QTableWidgetItem("Received");
+    headerItem = new QTableWidgetItem("Count");
     mpUi->outputTable->setHorizontalHeaderItem(3,headerItem);
     headerItem = new QTableWidgetItem("Missed");
     mpUi->outputTable->setHorizontalHeaderItem(4,headerItem);
