@@ -115,9 +115,12 @@ void NDLCom::InterfaceContainer::on_actionConnectSerial_triggered()
     Serialcom* serialcom = new Serialcom(this);
 
     connect(serialcom, SIGNAL(connected()), this, SLOT(connected()));
-    connect(serialcom, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
     serialcom->actionConnect->activate(QAction::Trigger);
+
+    /* catch the case that the user declines the connection dialog using "cancel" */
+    if (!serialcom->isConnected)
+        delete serialcom;
 }
 
 /* how to create a new udp-connection */
@@ -126,9 +129,12 @@ void NDLCom::InterfaceContainer::on_actionConnectUdp_triggered()
     UdpCom* udpcom = new UdpCom(this);
 
     connect(udpcom, SIGNAL(connected()), this, SLOT(connected()));
-    connect(udpcom, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
     udpcom->actionConnect->activate(QAction::Trigger);
+
+    /* catch the case that the user declines the connection dialog using "cancel" */
+    if (!udpcom->isConnected)
+        delete udpcom;
 }
 
 /* how to remove _all_ connections by calling each one's disconnect action. the rest is done in the
