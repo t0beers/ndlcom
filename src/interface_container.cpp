@@ -48,16 +48,18 @@ NDLCom::InterfaceContainer::InterfaceContainer(QWidget* parent) : Representation
     actionDisconnectAll->setObjectName("actionDisconnectAll");
     actionDisconnectAll->setIcon(QIcon(":/NDLCom/images/disconnect.png"));
     actionDisconnectAll->setShortcuts(QKeySequence::Close);
-    actionDisconnectAll->setToolTip("Disconnect all exsting data connections");
+    actionDisconnectAll->setToolTip("Disconnect all existing data connections");
 
     actionConnectSerial = new QAction("Connect Serial",this);
     actionConnectSerial->setObjectName("actionConnectSerial");
     actionConnectSerial->setShortcuts(QKeySequence::Open);
     actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
+    actionConnectSerial->setToolTip("Connect to a serial port");
 
     actionConnectUdp = new QAction("Connect UDP",this);
     actionConnectUdp->setObjectName("actionConnectUdp");
     actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
+    actionConnectUdp->setToolTip("Connect to an UDP port to receive data over network");
 
     mpGuiTimer = new QTimer(this);
     mpGuiTimer->setObjectName("mpGuiTimer");
