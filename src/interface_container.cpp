@@ -84,7 +84,8 @@ NDLCom::InterfaceContainer::InterfaceContainer(QWidget* parent) : Representation
 
 NDLCom::InterfaceContainer::~InterfaceContainer()
 {
-    emit on_actionDisconnectAll_triggered();
+    actionDisconnectAll->activate(QAction::Trigger);
+
     /* setting this back to zero again allows recreating an instance multiple times... while only
      * one at a time is alive */
     spInstance = NULL;
@@ -130,14 +131,12 @@ void NDLCom::InterfaceContainer::on_actionConnectUdp_triggered()
     udpcom->actionConnect->activate(QAction::Trigger);
 }
 
-/* how to remove _all_ connections */
+/* how to remove _all_ connections by calling each one's disconnect action. the rest is done in the
+ * disconnected() slot after the sppropriate ignal of the interfaces arrives here */
 void NDLCom::InterfaceContainer::on_actionDisconnectAll_triggered()
 {
     while (!runningInterfaces.isEmpty())
-    {
-        Interface* inter = runningInterfaces.takeFirst();
-        inter->actionDisconnect->trigger();
-    }
+        runningInterfaces.first()->actionDisconnect->activate(QAction::Trigger);
 }
 
 /* what should we do on a successfull connect? */
