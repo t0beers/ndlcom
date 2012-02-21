@@ -179,7 +179,7 @@ void NDLCom::UdpCom::dataFromReceiveThread(const QByteArray& encodedData)
             data += r;
             notparsed -= r;
         }
-        
+
         if (protocolParserHasPacket(parser))
         {
             const void* packet = protocolParserGetPacket(parser);
