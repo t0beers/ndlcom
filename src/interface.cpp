@@ -80,6 +80,8 @@ NDLCom::Interface::Interface(QWidget* parent) : QWidget(parent)
 
     /* set this to zero to avoid overwriting it by accident */
     mpTrafficWindow = NULL;
+
+    isConnected = false;
 }
 
 NDLCom::Interface::~Interface()
@@ -235,6 +237,10 @@ void NDLCom::Interface::slot_disconnected()
         delete mpTrafficWindow;
         mpTrafficWindow = NULL;
     }
+
+    if (!isConnected)
+        qWarning() << "NDLCom::Interface::slot_disconnected() got a disconnect without beeing connected -- fix my code!";
+    isConnected = false;
 }
 
 /* handle successfull connection */
@@ -242,5 +248,7 @@ void NDLCom::Interface::slot_connected()
 {
     actionPauseResume->setEnabled(true);
     actionDisconnect->setEnabled(true);
+
+    isConnected = true;
 }
 

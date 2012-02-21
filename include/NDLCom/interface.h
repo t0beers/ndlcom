@@ -48,6 +48,13 @@ namespace NDLCom
         virtual ~Interface();
 
         /**
+         * @brief will be true if a connection was established sucessfully
+         *
+         * may be used from outsize to check if everything went good. somewhat redundant to the
+         * connected() signal, but keeps the state persistent in this object */
+        bool isConnected;
+
+        /**
          * @brief will connect try to connect the underlying hardware-interface
          *
          * may pop up a QDialog to ask the user what we should do...
