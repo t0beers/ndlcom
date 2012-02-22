@@ -99,20 +99,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::LegAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
 
-        /**
-         *  exportString -- allowing a nice export facility to allow printing of data into files...
-         *
-         * @param type the representations name of the data contained in the second string
-         * @param data the representations data formatted as a nice string, complete with newline
-         *                and so on to be appended line by line to a logfile
-         */
-        void exportString(const QString type, const QString data);
-
     private:
-        const char* exportDelimiter;
-        char* pBuffer;
-        QString printMessageHeader(const NDLCom::Message&);
-
         /** Function to extract the message after the timestamp-data and feed it to slot_rxMessage().
          * @param msg Message including the timestamp data
          */
