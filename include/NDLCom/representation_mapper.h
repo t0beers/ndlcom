@@ -42,6 +42,7 @@ namespace Representations
     class CAM_TCM8230MD;
     class SheetMetalMessage;
     class RelayBoardTelemetry;
+    class RepresentationsValveControl;
     class RelayBoardCommands;
 };
 
@@ -81,7 +82,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::DistanceSI1120&);
         void rxRepresentation(const ProtocolHeader&, const Representations::DmsRaw&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ForceTorque&);
-	void rxRepresentation(const ProtocolHeader&, const Representations::RepresentationsGripperState&);
+	    void rxRepresentation(const ProtocolHeader&, const Representations::RepresentationsGripperState&);
         void rxRepresentation(const ProtocolHeader&, const Representations::IMUDataMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::JointAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::MemoryData&);
@@ -98,6 +99,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::LegAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::RepresentationsValveControl&);
 
     private:
         /** Function to extract the message after the timestamp-data and feed it to slot_rxMessage().
