@@ -6,7 +6,7 @@ project(NDLCom)
 
 # this allows installing out of project tree with dynamic linkage and relocatable files
 # see http://www.cmake.org/Wiki/CMake_RPATH_handling
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lib")
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 find_package(Qt4 REQUIRED)
