@@ -64,6 +64,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::JointAngles>("Representations::JointAngles");
     qRegisterMetaType<Representations::MemoryData>("Representations::MemoryData");
     qRegisterMetaType<Representations::Ping>("Representations::Ping");
+    qRegisterMetaType<Representations::RepresentationsPUState>("Representations::RepresentationsPUState");
     qRegisterMetaType<Representations::RegisterDescriptionResponse>("Representations::RegisterDescriptionResponse>");
     qRegisterMetaType<Representations::RegisterValueResponse>("RegisterValueResponse");
     qRegisterMetaType<Representations::RelayBoardTelemetry>("Representations::RelayBoardTelemetry");
@@ -217,6 +218,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsPing:
                     emit rxRepresentation(msg.mHdr, *(Representations::Ping*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsPUState:
+                    emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsPUState*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_RegisterValueResponse:
                     emit rxRepresentation(msg.mHdr, *(Representations::RegisterValueResponse*)repreData);
