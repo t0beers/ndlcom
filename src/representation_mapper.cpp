@@ -203,9 +203,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_ForceTorque:
                     emit rxRepresentation(msg.mHdr, *(Representations::ForceTorque*)repreData);
                     break;
-	        case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsGripperState:
-		    emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsGripperState*)repreData);
-		    break;
+	            case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsGripperState:
+		            emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsGripperState*)repreData);
+		            break;
                 case REPRESENTATIONS_REPRESENTATION_ID_IMUDataMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::IMUDataMessage*)repreData);
                     break;
@@ -252,7 +252,7 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     emit rxRepresentation(msg.mHdr, *(Representations::ThermometerDS18B20*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsValveControl:
-                    emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsValveControl)repreData);
+                    emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsValveControl*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_CAM_TCM8230MD:
                     emit rxRepresentation(msg.mHdr, *(Representations::CAM_TCM8230MD*)repreData);
