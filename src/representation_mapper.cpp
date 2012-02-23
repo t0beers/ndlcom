@@ -42,6 +42,7 @@
 #include "representations/leg_angles.h"
 #include "representations/thermometer_ds18b20.h"
 #include "representations/timestamp.h"
+#include "representations/valve_control_board.h"
 #include "representations/cam_tcm8230md.h"
 
 NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(parent)
@@ -75,6 +76,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::LegAngles>("Representations::LegAngles");
     qRegisterMetaType<Representations::ThermometerDS18B20>("Representations::ThermometerDS18B20");
+    qRegisterMetaType<Representations::RepresentationsValveControl>("Representations::RepresentationsValveControl");
     qRegisterMetaType<Representations::CAM_TCM8230MD>("Representations::CAM_TCM8230MD");
     qRegisterMetaType<NDLCom::Message>("NDLCom::Message");
 
