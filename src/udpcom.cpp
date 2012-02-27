@@ -95,6 +95,7 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
         mpTransmitSocket = new ::UdpCom::UdpCom();
 
         mpTransmitSocket->setTarget(addressString.toStdString().c_str(), sendport);
+        mpTransmitSocket->bind("0.0.0.0",connectDialog.getRecvport());
 
         mpReceiveThread = new ReceiveThread(this);
         mpReceiveThread->setRecvPort(connectDialog.getRecvport());
