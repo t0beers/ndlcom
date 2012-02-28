@@ -240,9 +240,6 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_vectorData:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_vectorData*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_TelemetryValues:
-                    emit rxRepresentation(msg.mHdr, *(Representations::TelemetryValues*)repreData);
-                    break;
                 case REPRESENTATIONS_REPRESENTATION_ID_FpgaDebugMessage:                  
                     emit rxRepresentation(msg.mHdr, *(Representations::FpgaDebugMessage*)repreData);
                     break;
