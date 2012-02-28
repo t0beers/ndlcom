@@ -36,7 +36,6 @@
 #include "representations/register.h"
 #include "representations/relay_board_msg_design.h"
 #include "representations/sensor_array.h"
-#include "representations/telemetry_values.h"
 #include "representations/fpga_debug_message.h"
 #include "representations/temperature.h"
 #include "representations/leg_angles.h"
@@ -72,7 +71,6 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::SensorArray_channelData>("Representations::mIdSensorArray_channelData");
     qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
-    qRegisterMetaType<Representations::TelemetryValues>("Representations::TelemetryValues");
     qRegisterMetaType<Representations::FpgaDebugMessage>("Representations::FpgaDebugMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::LegAngles>("Representations::LegAngles");
