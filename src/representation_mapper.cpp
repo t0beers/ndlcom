@@ -36,6 +36,7 @@
 #include "representations/register.h"
 #include "representations/relay_board_msg_design.h"
 #include "representations/sensor_array.h"
+#include "representations/spine_telemetry.h"
 #include "representations/fpga_debug_message.h"
 #include "representations/temperature.h"
 #include "representations/leg_angles.h"
@@ -71,6 +72,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::SensorArray_channelData>("Representations::mIdSensorArray_channelData");
     qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
+    qRegisterMetaType<Representations::SpineTelemetryMessage>("Representations::SpineTelemetryMessage");
     qRegisterMetaType<Representations::FpgaDebugMessage>("Representations::FpgaDebugMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::LegAngles>("Representations::LegAngles");
@@ -202,9 +204,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_ForceTorque:
                     emit rxRepresentation(msg.mHdr, *(Representations::ForceTorque*)repreData);
                     break;
-	            case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsGripperState:
-		            emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsGripperState*)repreData);
-		            break;
+                case REPRESENTATIONS_REPRESENTATION_ID_RepresentationsGripperState:
+                    emit rxRepresentation(msg.mHdr, *(Representations::RepresentationsGripperState*)repreData);
+                    break;
                 case REPRESENTATIONS_REPRESENTATION_ID_IMUDataMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::IMUDataMessage*)repreData);
                     break;
@@ -237,6 +239,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_vectorData:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_vectorData*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_SpineTelemetryMessage:                  
+                    emit rxRepresentation(msg.mHdr, *(Representations::SpineTelemetryMessage*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_FpgaDebugMessage:                  
                     emit rxRepresentation(msg.mHdr, *(Representations::FpgaDebugMessage*)repreData);
