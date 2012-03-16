@@ -37,6 +37,7 @@
 #include "representations/relay_board_msg_design.h"
 #include "representations/sensor_array.h"
 #include "representations/spine_telemetry.h"
+#include "representations/support_polygon.h"
 #include "representations/fpga_debug_message.h"
 #include "representations/temperature.h"
 #include "representations/leg_angles.h"
@@ -73,6 +74,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
     qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
     qRegisterMetaType<Representations::SpineTelemetryMessage>("Representations::SpineTelemetryMessage");
+    qRegisterMetaType<Representations::SupportPolygon>("Representations::SupportPolygon");
     qRegisterMetaType<Representations::FpgaDebugMessage>("Representations::FpgaDebugMessage");
     qRegisterMetaType<Representations::Temperature>("Representations::Temperature");
     qRegisterMetaType<Representations::LegAngles>("Representations::LegAngles");
@@ -242,6 +244,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SpineTelemetryMessage:                  
                     emit rxRepresentation(msg.mHdr, *(Representations::SpineTelemetryMessage*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_SupportPolygon:
+                    emit rxRepresentation(msg.mHdr, *(Representations::SupportPolygon*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_FpgaDebugMessage:                  
                     emit rxRepresentation(msg.mHdr, *(Representations::FpgaDebugMessage*)repreData);

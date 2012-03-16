@@ -37,6 +37,7 @@ namespace Representations
     class SensorArray_matrixData;
     class SensorArray_vectorData;
     class SpineTelemetryMessage;
+    class SupportPolygon;
     class Temperature;
     class LegAngles;
     class ThermometerDS18B20;
@@ -98,6 +99,7 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::SensorArray_vectorData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SheetMetalMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::SpineTelemetryMessage&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::SupportPolygon&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Temperature&);
         void rxRepresentation(const ProtocolHeader&, const Representations::LegAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::ThermometerDS18B20&);
