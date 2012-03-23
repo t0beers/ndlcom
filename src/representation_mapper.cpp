@@ -35,6 +35,7 @@
 #include "representations/ping.h"
 #include "representations/register.h"
 #include "representations/relay_board_msg_design.h"
+#include "representations/scope.h"
 #include "representations/sensor_array.h"
 #include "representations/spine_telemetry.h"
 #include "representations/support_polygon.h"
@@ -69,10 +70,9 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::RegisterDescriptionResponse>("Representations::RegisterDescriptionResponse>");
     qRegisterMetaType<Representations::RegisterValueResponse>("RegisterValueResponse");
     qRegisterMetaType<Representations::RelayBoardTelemetry>("Representations::RelayBoardTelemetry");
-    qRegisterMetaType<Representations::SensorArray_calibration>("Representations::mIdSensorArray_calibration");
-    qRegisterMetaType<Representations::SensorArray_channelData>("Representations::mIdSensorArray_channelData");
-    qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::mIdSensorArray_matrixData");
-    qRegisterMetaType<Representations::SensorArray_vectorData>("Representations::mIdSensorArray_vectorData");
+    qRegisterMetaType<Representations::Scope_channelData>("Representations::Scope_channelData");
+    qRegisterMetaType<Representations::SensorArray_calibration>("Representations::SensorArray_calibration");
+    qRegisterMetaType<Representations::SensorArray_matrixData>("Representations::SensorArray_matrixData");
     qRegisterMetaType<Representations::SpineTelemetryMessage>("Representations::SpineTelemetryMessage");
     qRegisterMetaType<Representations::SupportPolygon>("Representations::SupportPolygon");
     qRegisterMetaType<Representations::FpgaDebugMessage>("Representations::FpgaDebugMessage");
@@ -230,17 +230,14 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_RelayBoardTelemetry:
                     emit rxRepresentation(msg.mHdr, *(Representations::RelayBoardTelemetry*)repreData);
                     break;
+                case REPRESENTATIONS_REPRESENTATION_ID_Scope_channelData:
+                    emit rxRepresentation(msg.mHdr, *(Representations::Scope_channelData*)repreData);
+                    break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_calibration:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_calibration*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_channelData:
-                    emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_channelData*)repreData);
-                    break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_matrixData:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_matrixData*)repreData);
-                    break;
-                case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_vectorData:
-                    emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_vectorData*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SpineTelemetryMessage:                  
                     emit rxRepresentation(msg.mHdr, *(Representations::SpineTelemetryMessage*)repreData);
