@@ -1,8 +1,8 @@
 #ifndef _NDLCOM_MESSAGE_H_
 #define _NDLCOM_MESSAGE_H_
 
-#include "time.h"
 #include "protocol/header.h"
+#include <ctime>
 
 namespace NDLCom
 {
