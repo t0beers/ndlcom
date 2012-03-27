@@ -1,5 +1,5 @@
 /**
- * @file NDLCom/include/NDLCom/udpcom_connect_dialog.h
+ * @file NDLCom/src/udpcom_connect_dialog.h
  * @author Martin Zenzes, Peter Kampmann, Armin
  */
 
