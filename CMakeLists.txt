@@ -30,6 +30,7 @@ include_directories(
     # all dependencys are subdirs, needed includes get stored in each build-dir (which are subdirs to our build dir)
     ${protocol_SOURCE_DIR}/include
     ${representations_SOURCE_DIR}/include
+    ${representations_BINARY_DIR}/include
     ${serialcom_SOURCE_DIR}/include
     ${udpcom_SOURCE_DIR}/include
     )

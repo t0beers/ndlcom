@@ -1,19 +1,27 @@
-JOBS=$(shell getconf _NPROCESSORS_ONLN)
+# allows automatical multicore build sessions!
+MAKEFLAGS+=-j$(shell getconf _NPROCESSORS_ONLN)
+export MAKEFLAGS
+# by default, we use a compiler dependent install place. carefull -- i ask the c++ compiler, not the c-compiler!
+# additionally the environment variable CXX is asked, so not neccessarily the native compiler!
+ARCH=$(shell ${CXX} -dumpmachine)
 
 all: compile
 
-build:
-	mkdir -p build;\
-	cd build;\
-	cmake .. -DCMAKE_INSTALL_PREFIX=~/DFKI.install
+# so we have "build" as a shorthand for creating a new build environment
+build: build/$(ARCH)/Makefile
 
-compile: build
-	${MAKE} -C build -j$(JOBS)
+build/$(ARCH)/Makefile:
+	mkdir -p build/$(ARCH);\
+	cd build/$(ARCH);\
+	cmake ../../ -DCMAKE_INSTALL_PREFIX=~/DFKI.install/$(ARCH)
 
-install: build
-	${MAKE} -C build -j$(JOBS) install
+compile: build/$(ARCH)/Makefile
+	${MAKE} ${MAKEFLAGS} -C build/$(ARCH)
+
+install: compile
+	${MAKE} ${MAKEFLAGS} -C build/$(ARCH) install
 
 clean:
-	rm -rf build
+	rm -rf build/$(ARCH)
 
 .PHONY: compile
