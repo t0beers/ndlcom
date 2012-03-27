@@ -28,6 +28,8 @@ namespace Serialcom
     class Serialcom;
 }
 
+struct ProtocolParser;
+
 namespace NDLCom
 {
     /**
