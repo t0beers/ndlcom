@@ -18,10 +18,16 @@ NDLCom::InterfaceTraffic::InterfaceTraffic(QWidget* parent) : QWidget(parent)
 
 void NDLCom::InterfaceTraffic::rxTraffic(const QByteArray& data)
 {
-    mpUi->plainTextEdit_Rx->appendPlainText(data.toHex());
+    if(isVisible())
+    {
+        mpUi->plainTextEdit_Rx->appendPlainText(data.toHex());
+    }
 }
 void NDLCom::InterfaceTraffic::txTraffic(const QByteArray& data)
 {
-    mpUi->plainTextEdit_Tx->appendPlainText(data.toHex());
+    if(isVisible())
+    {
+        mpUi->plainTextEdit_Tx->appendPlainText(data.toHex());
+    }
 }
 
