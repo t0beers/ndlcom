@@ -218,9 +218,7 @@ void NDLCom::InterfaceContainer::disconnected()
         /* Inform others about closed connection */
         emit connectionStatusChanged(false);
 
-        /* remove entry in transferrate-map for this interface (overall transferred data is kept): */
-        mMapRxRate.remove(inter);
-        mMapTxRate.remove(inter);
+        /* Interface statistics are currently not removed from the mInterfaceStatistics map. */
     }
     else
         qWarning() << "NDLCom::InterfaceContainer::disconnected() someone called, tough he is not an NDLCom::Interface";
@@ -275,75 +273,43 @@ void NDLCom::InterfaceContainer::slot_rxMessage(const NDLCom::Message& msg)
 void NDLCom::InterfaceContainer::slot_rxRate(double rate)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
-    mMapRxRate[inter] = rate;
+    mStatistics[inter].mRxRate = rate;
 }
 
 void NDLCom::InterfaceContainer::slot_txRate(double rate)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
-    mMapTxRate[inter] = rate;
+    mStatistics[inter].mTxRate = rate;
 }
 
 void NDLCom::InterfaceContainer::slot_rxBytes(double bytes)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
-    mMapRxBytes[inter] = bytes;
+    mStatistics[inter].mRxBytes = bytes;
 }
 
 void NDLCom::InterfaceContainer::slot_txBytes(double bytes)
 {
-    void* inter = qobject_cast<Interface*>(QObject::sender());
-    mMapTxBytes[inter] = bytes;
+    Interface* inter = qobject_cast<Interface*>(QObject::sender());
+    mStatistics[inter].mTxBytes = bytes;
 }
 
 void NDLCom::InterfaceContainer::on_mpGuiTimer_timeout()
 {
-    double overallRxRate;
-    double overallTxRate;
-    double overallRxBytes;
-    double overallTxBytes;
+    Interface::Statistics sum;
+    sum.setZero();
 
+    for(std::map<Interface*, Interface::Statistics>::const_iterator it(mStatistics.begin());
+        it != mStatistics.end(); it++)
     {
-        QMapIterator<void*, double> i(mMapRxBytes);
-        while (i.hasNext()) {
-            i.next();
-            overallRxBytes += i.value();
-        }
+        sum.mRxBytes += (*it).second.mRxBytes;
+        sum.mTxBytes += (*it).second.mTxBytes;
+        sum.mRxRate += (*it).second.mRxRate;
+        sum.mTxRate += (*it).second.mTxRate;
     }
 
-    {
-        QMapIterator<void*, double> i(mMapRxRate);
-        while (i.hasNext()) {
-            i.next();
-            overallRxRate += i.value();
-        }
-    }
+    emit transferRate(sum.toQString());
 
-    {
-        QMapIterator<void*, double> i(mMapTxBytes);
-        while (i.hasNext()) {
-            i.next();
-            overallTxBytes += i.value();
-        }
-    }
-
-    {
-        QMapIterator<void*, double> i(mMapTxRate);
-        while (i.hasNext()) {
-            i.next();
-            overallTxRate += i.value();
-        }
-    }
-
-    /* stand back, pure inefficiency!!! */
-    QString string = QString("Rx: %1, %2/s -- Tx: %3, %4/s")
-                    .arg(Interface::sizeToString(overallRxBytes))
-                    .arg(Interface::sizeToString(overallRxRate))
-                    .arg(Interface::sizeToString(overallTxBytes))
-                    .arg(Interface::sizeToString(overallTxRate));
-
-    emit transferRate(string);
-
-    emit status("NDLCom:rxRate",overallRxRate);
-    emit status("NDLCom:txRate",overallTxRate);
+    emit status("NDLCom:rxRate",sum.mRxRate);
+    emit status("NDLCom:txRate",sum.mTxRate);
 }

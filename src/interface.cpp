@@ -56,10 +56,7 @@ NDLCom::Interface::Interface(QWidget* parent) : QWidget(parent)
     /* for calculating current transfer-rates */
     mRxBytes = 0;
     mTxBytes = 0;
-    mRxBytes_last = 0;
-    mTxBytes_last = 0;
-    mRxRate_last = 0;
-    mTxRate_last = 0;
+    mStatistics.setZero();
 
     /* what we wanna do on a successfull connect */
     connect(this, SIGNAL(connected()), mpGuiTimer, SLOT(start()));
@@ -111,25 +108,21 @@ QString NDLCom::Interface::sizeToString(int size)
 void NDLCom::Interface::on_mpGuiTimer_timeout()
 {
     /* this is some sort of low-pass filter, to allow smoother values */
-    mRxRate_last = (mRxRate_last+(mRxBytes-mRxBytes_last)/(double)GUI_TIMER_INTERVAL*1000.0)/2.0;
-    mTxRate_last = (mTxRate_last+(mTxBytes-mTxBytes_last)/(double)GUI_TIMER_INTERVAL*1000.0)/2.0;
+    double newRxRate = (mRxBytes-mStatistics.mRxBytes)/(double)GUI_TIMER_INTERVAL*1000.0;
+    double newTxRate = (mTxBytes-mStatistics.mTxBytes)/(double)GUI_TIMER_INTERVAL*1000.0;
 
-    /* stand back, pure inefficiency!!! */
-    QString string = QString("Rx: %1, %2/s -- Tx: %3, %4/s")
-                    .arg(sizeToString(mRxBytes))
-                    .arg(sizeToString(mRxRate_last))
-                    .arg(sizeToString(mTxBytes))
-                    .arg(sizeToString(mTxRate_last));
+    /* calculate rate by comparing to byte counter from last interval */
+    mStatistics.mRxRate = (mStatistics.mRxRate + newRxRate)/2.0;
+    mStatistics.mTxRate = (mStatistics.mTxRate + newTxRate)/2.0;
+    mStatistics.mRxBytes = mRxBytes;
+    mStatistics.mTxBytes = mTxBytes;
 
-    mRxBytes_last = mRxBytes;
-    mTxBytes_last = mTxBytes;
+    emit transferRate(mStatistics.toQString());
 
-    emit transferRate(string);
-
-    emit rxRate(mRxRate_last);
-    emit txRate(mTxRate_last);
-    emit rxBytes(mRxBytes);
-    emit txBytes(mTxBytes);
+    emit rxRate(mStatistics.mRxRate);
+    emit txRate(mStatistics.mTxRate);
+    emit rxBytes(mStatistics.mRxBytes);
+    emit txBytes(mStatistics.mTxBytes);
 }
 
 /* append current interface-type, like "/dev/ttyUSB0" to all QAction */
@@ -217,10 +210,7 @@ void NDLCom::Interface::slot_disconnected()
     /* zeroing the stats */
     mRxBytes = 0;
     mTxBytes = 0;
-    mRxBytes_last = 0;
-    mTxBytes_last = 0;
-    mRxRate_last = 0;
-    mTxRate_last = 0;
+    mStatistics.setZero();
 
     actionPauseResume->setDisabled(true);
     actionDisconnect->setDisabled(true);
@@ -252,3 +242,13 @@ void NDLCom::Interface::slot_connected()
     isConnected = true;
 }
 
+QString NDLCom::Interface::Statistics::toQString() const
+{
+    /* stand back, pure inefficiency!!! */
+    QString string = QString("Rx: %1, %2/s -- Tx: %3, %4/s")
+        .arg(Interface::sizeToString(mRxBytes))
+        .arg(Interface::sizeToString(mRxRate))
+        .arg(Interface::sizeToString(mTxBytes))
+        .arg(Interface::sizeToString(mTxRate));
+    return string;
+}

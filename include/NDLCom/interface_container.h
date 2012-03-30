@@ -6,6 +6,7 @@
 #ifndef _NDLCOM_INTERFACE_CONTAINER_H_
 #define _NDLCOM_INTERFACE_CONTAINER_H_
 
+#include <vector>
 #include <QWidget>
 #include <QIcon>
 #include <QMap>
@@ -14,6 +15,7 @@
 #include <QMenu>
 
 #include "NDLCom/representation_mapper.h"
+#include "NDLCom/interface.h"
 
 namespace NDLCom
 {
@@ -23,7 +25,6 @@ namespace NDLCom
     };
 
     class Message;
-    class Interface;
     class RepresentationMapper;
 
     /**
@@ -103,10 +104,8 @@ namespace NDLCom
 
         /** for displaying overall data-rate. will keep transferred bytes forever. will remove
          * current rates for disconnected devices */
-        QMap<void*, double> mMapRxRate;
-        QMap<void*, double> mMapTxRate;
-        QMap<void*, double> mMapRxBytes;
-        QMap<void*, double> mMapTxBytes;
+
+        std::map<Interface*, Interface::Statistics> mStatistics;
 
         /* to update als summarize the received transfer rates from all interfaces this timer */
         QTimer* mpGuiTimer;

@@ -74,6 +74,16 @@ namespace NDLCom
 
         QString mInterfaceType;
 
+        struct Statistics
+        {
+            double mRxRate;
+            double mTxRate;
+            double mRxBytes;
+            double mTxBytes;
+            void setZero() { mTxBytes = mRxBytes = mTxRate = mRxRate = 0.; }
+            QString toQString() const;
+        };
+
     signals:
         /** emitted by inheriting classes */
         void connected();
@@ -139,10 +149,8 @@ namespace NDLCom
 
     private:
         /* used to calculate sending rates */
-        int mRxBytes_last;
-        int mTxBytes_last;
-        double mRxRate_last;
-        double mTxRate_last;
+        Statistics mStatistics;
+
         /** @brief will add a widget showing current raw-traffic of this interface... */
         QAction* actionShowTraffic;
         /** widget which may show raw-traffic */
