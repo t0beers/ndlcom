@@ -85,8 +85,10 @@ set(lib_HEADERS
     )
 # here we only mention additionally which libs should get installed in the system
 set(install_HEADERS
+    include/NDLCom/interface.h
     include/NDLCom/interface_container.h
-    include/NDLCom/message.h
+    include/NDLCom/interface_traffic.h
+    include/NDLCom/message_traffic.h
     include/NDLCom/ndlcom.h
     include/NDLCom/ndlcom_container.h
     include/NDLCom/representation_mapper.h
