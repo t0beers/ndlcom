@@ -16,10 +16,10 @@ build/$(ARCH)/Makefile:
 	cmake ../../ -DCMAKE_INSTALL_PREFIX=~/DFKI.install/$(ARCH)
 
 compile: build/$(ARCH)/Makefile
-	${MAKE} ${MAKEFLAGS} -C build/$(ARCH)
+	${MAKE}  -C build/$(ARCH)
 
 install: compile
-	${MAKE} ${MAKEFLAGS} -C build/$(ARCH) install
+	${MAKE}  -C build/$(ARCH) install
 
 clean:
 	rm -rf build/$(ARCH)
