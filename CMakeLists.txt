@@ -29,8 +29,8 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     # all dependencys are subdirs, needed includes get stored in each build-dir (which are subdirs to our build dir)
     ${protocol_SOURCE_DIR}/include
+    ${representations_BINARY_DIR}/include # the generated id.h can be found here
     ${representations_SOURCE_DIR}/include
-    ${representations_BINARY_DIR}/include
     ${serialcom_SOURCE_DIR}/include
     ${udpcom_SOURCE_DIR}/include
     )
