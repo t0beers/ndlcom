@@ -82,16 +82,10 @@ add_library(${PROJECT_NAME}_static STATIC
     )
 target_link_libraries(${PROJECT_NAME}_static
     ${QT_LIBRARIES}
-    protocol_static
-    representations_static
-    serialcom_static
-    udpcom_static
+    ${NDLCom_PKGCONFIG_STATIC_LIBRARIES}
     )
 set_target_properties(${PROJECT_NAME}_static PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}
-    )
-add_dependencies(${PROJECT_NAME}_static
-    ${NDLCom_PKGCONFIG_STATIC_LIBRARIES}
     )
 
 #
@@ -107,18 +101,12 @@ add_library(${PROJECT_NAME}_shared SHARED
     )
 target_link_libraries(${PROJECT_NAME}_shared
     ${QT_LIBRARIES}
-    protocol_shared
-    representations_shared
-    serialcom_shared
-    udpcom_shared
+    ${NDLCom_PKGCONFIG_LIBRARIES}
     )
 set_target_properties(${PROJECT_NAME}_shared PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}
     # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on dynamic builds
     COMPILE_FLAGS -DSHARED_BUILD
-    )
-add_dependencies(${PROJECT_NAME}_shared
-    ${NDLCom_PKGCONFIG_LIBRARIES}
     )
 
 #
