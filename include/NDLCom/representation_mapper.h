@@ -30,8 +30,8 @@ namespace Representations
     class Ping;
     class RepresentationsPUState;
     class RawData;
-    class RegisterDescriptionResponse;
-    class RegisterValueResponse;
+    struct RegisterDescriptionResponse;
+    struct RegisterValueResponse;
     class Scope_channelData;
     class SensorArray_calibration;
     class SensorArray_matrixData;
@@ -47,7 +47,7 @@ namespace Representations
     class RelayBoardCommands;
 };
 
-class ProtocolHeader;
+struct ProtocolHeader;
 
 namespace NDLCom
 {
