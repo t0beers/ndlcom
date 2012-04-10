@@ -49,11 +49,9 @@ add_subdirectory(gui)
 
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY)
-#execute_process(COMMAND sed -i "/^Cflags:/s/;/ -I/g" ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc)# hack for semicolon-lists...
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 # pkg-config for use inside our buildtree
 configure_file(${PROJECT_NAME}-uninstalled.pc.in ${PROJECT_NAME}-uninstalled.pc @ONLY)
-#execute_process(COMMAND sed -i "/^Cflags:/s/;/ -I/g" ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-uninstalled.pc)
 
 configure_file(Find${PROJECT_NAME}.cmake.in Find${PROJECT_NAME}.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Find${PROJECT_NAME}.cmake DESTINATION CMake-Modules)
