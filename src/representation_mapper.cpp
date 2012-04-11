@@ -176,10 +176,24 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
         else
         {
             /* check size */
-            const ssize_t expectedSize = Representations::getSize(repreData->mId);
-            if (expectedSize != msg.mHdr.mDataLen)
+            const int expectedSize = Representations::getSize(repreData->mId);
+            if (expectedSize == -1)
             {
-                throw size_t(expectedSize);
+                QString errormsg = QString("[%1->%2] unknown mBase->mId \"%3\"")
+                    .arg(Representations::Names::getDeviceName(msg.mHdr.mSenderId))
+                    .arg(Representations::Names::getDeviceName(msg.mHdr.mReceiverId))
+                    .arg(repreData->mId);
+                throw errormsg;
+            }
+            else if (expectedSize != msg.mHdr.mDataLen)
+            {
+                QString errormsg = QString("[%1->%2] Representation::%3 with wrong length: Got %4, expected %5.")
+                    .arg(Representations::Names::getDeviceName(msg.mHdr.mSenderId))
+                    .arg(Representations::Names::getDeviceName(msg.mHdr.mReceiverId))
+                    .arg(Representations::Names::getRepresentationName(msg.mpDecodedData[0]))
+                    .arg(msg.mHdr.mDataLen)
+                    .arg(expectedSize);
+                throw errormsg;
             }
             /* and switch to the correct signal */
             /* please keep this list alphabetically sorted */
@@ -188,10 +202,10 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_Acceleration:
                     emit rxRepresentation(msg.mHdr, *(Representations::Acceleration*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_AnkleJointTelemetryMessage:                  
+                case REPRESENTATIONS_REPRESENTATION_ID_AnkleJointTelemetryMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::AnkleJointTelemetryMessage*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_BLDCJointTelemetryMessage:                  
+                case REPRESENTATIONS_REPRESENTATION_ID_BLDCJointTelemetryMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::BLDCJointTelemetryMessage*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_DMSBoardConfig:
@@ -239,13 +253,13 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                 case REPRESENTATIONS_REPRESENTATION_ID_SensorArray_matrixData:
                     emit rxRepresentation(msg.mHdr, *(Representations::SensorArray_matrixData*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_SpineTelemetryMessage:                  
+                case REPRESENTATIONS_REPRESENTATION_ID_SpineTelemetryMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::SpineTelemetryMessage*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_SupportPolygon:
                     emit rxRepresentation(msg.mHdr, *(Representations::SupportPolygon*)repreData);
                     break;
-                case REPRESENTATIONS_REPRESENTATION_ID_FpgaDebugMessage:                  
+                case REPRESENTATIONS_REPRESENTATION_ID_FpgaDebugMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::FpgaDebugMessage*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_Temperature:
@@ -269,14 +283,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
             }
         }
     }
-    catch(size_t wrongLength)
+    catch(QString errormsg)
     {
-        qWarning() << tr("RepresentationMapper: [%1->%2] Representation::%3 with wrong length: Got %4, expected %5.")
-            .arg(Representations::Names::getDeviceName(msg.mHdr.mSenderId))
-            .arg(Representations::Names::getDeviceName(msg.mHdr.mReceiverId))
-            .arg(Representations::Names::getRepresentationName(msg.mpDecodedData[0]))
-            .arg(msg.mHdr.mDataLen)
-            .arg(wrongLength);
+        qWarning("RepresentationMapper: %s",errormsg.toLatin1().data());
     }
 }
 
