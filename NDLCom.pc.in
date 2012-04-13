@@ -7,4 +7,4 @@ Description: Contains the qt-widget collection to speak NDLCom. many helper and 
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -l@PROJECT_NAME@
 Cflags: -I${includedir}
-Requires: representations serialcom protocol udpcpm
+Requires.private: representations serialcom protocol udpcom

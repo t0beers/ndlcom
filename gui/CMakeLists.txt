@@ -17,39 +17,18 @@ set(gui_FORMS
 qt4_wrap_cpp(gui_HEADERS_MOC ${gui_HEADERS})
 qt4_wrap_ui(gui_FORMS_HEADERS ${gui_FORMS})
 
-#
-# defining shared one
-#
-add_executable(${PROJECT_NAME}_sharedgui
+add_executable(${PROJECT_NAME}_gui
     ${gui_SOURCES}
     ${gui_HEADERS}
     ${gui_HEADERS_MOC}
     ${gui_FORMS_HEADERS}
     )
-target_link_libraries(${PROJECT_NAME}_sharedgui
+target_link_libraries(${PROJECT_NAME}_gui
     ${QT_LIBRARIES}
-    ${PROJECT_NAME}_shared
-    )
-set_target_properties(${PROJECT_NAME}_sharedgui PROPERTIES
-    # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on dynamic builds
-    COMPILE_FLAGS -DSHARED_BUILD
+    ${PROJECT_NAME}
     )
 
 #
-# same demo app as static build
+# installing
 #
-add_executable(${PROJECT_NAME}_staticgui
-    ${gui_SOURCES}
-    ${gui_HEADERS}
-    ${gui_HEADERS_MOC}
-    ${gui_FORMS_HEADERS}
-    )
-target_link_libraries(${PROJECT_NAME}_staticgui
-    ${QT_LIBRARIES}
-    ${PROJECT_NAME}_static
-    )
-
-#
-# installing both guis
-#
-install(TARGETS ${PROJECT_NAME}_sharedgui ${PROJECT_NAME}_staticgui RUNTIME DESTINATION bin)
+install(TARGETS ${PROJECT_NAME}_gui RUNTIME DESTINATION bin)

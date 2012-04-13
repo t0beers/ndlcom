@@ -1,6 +1,10 @@
+#prefix=@CMAKE_INSTALL_PREFIX@
+libdir=@CMAKE_CURRENT_BINARY_DIR@/src
+includedir=@CMAKE_CURRENT_SOURCE_DIR@/include
+
 Name: @PROJECT_NAME@
 Description: Contains the qt-widget collection to speak NDLCom. many helper and debugging features
 Version: @PROJECT_VERSION@
-Libs: -L@CMAKE_CURRENT_BINARY_DIR@/src -l@PROJECT_NAME@
-Cflags: -I@CMAKE_CURRENT_SOURCE_DIR@/include
-Requires: representations serialcom protocol udpcom
+Libs: -L${libdir} -l@PROJECT_NAME@
+Cflags: -I${includedir}
+Requires.private: representations serialcom protocol udpcom

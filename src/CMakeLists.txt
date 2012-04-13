@@ -72,7 +72,7 @@ qt4_add_resources(lib_RESSOURCES_RCC ${lib_RESSOURCES})
 #
 # after setting everything up, we define two tragets: shared and dynamic, and link both with the respective libs
 #
-add_library(${PROJECT_NAME}_static STATIC
+add_library(${PROJECT_NAME}
     ${lib_SOURCES}
     ${lib_HEADERS}
     ${lib_HEADERS_QT}
@@ -80,39 +80,20 @@ add_library(${PROJECT_NAME}_static STATIC
     ${lib_FORMS_HEADERS}
     ${lib_RESSOURCES_RCC}
     )
-target_link_libraries(${PROJECT_NAME}_static
-    ${QT_LIBRARIES}
-    ${NDLCom_PKGCONFIG_STATIC_LIBRARIES}
-    )
-set_target_properties(${PROJECT_NAME}_static PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}
-    )
-
-#
-# like i said, same with shared:
-#
-add_library(${PROJECT_NAME}_shared SHARED
-    ${lib_SOURCES}
-    ${lib_HEADERS}
-    ${lib_HEADERS_QT}
-    ${lib_HEADERS_MOC}
-    ${lib_FORMS_HEADERS}
-    ${lib_RESSOURCES_RCC}
-    )
-target_link_libraries(${PROJECT_NAME}_shared
+target_link_libraries(${PROJECT_NAME}
     ${QT_LIBRARIES}
     ${NDLCom_PKGCONFIG_LIBRARIES}
     )
-set_target_properties(${PROJECT_NAME}_shared PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}
-    # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on dynamic builds
-    COMPILE_FLAGS -DSHARED_BUILD
-    )
+
+if(${BUILD_SHARED_LIBS})
+    # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on shared builds
+    set_property(SOURCE ndlcom_container.cpp APPEND PROPERTY COMPILE_FLAGS "-DSHARED_BUILD")
+endif(${BUILD_SHARED_LIBS})
 
 #
 # installing
 #
-install(TARGETS ${PROJECT_NAME}_shared ${PROJECT_NAME}_static
+install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     )
