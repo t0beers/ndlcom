@@ -11,6 +11,9 @@ SRCDIR=$(shell pwd)
 INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(shell ${CXX} -dumpmachine))
 BUILDDIR=$(shell readlink -m ./build/$(shell ${CXX} -dumpmachine))
 
+# SILENCE!
+MAKEFLAGS=--no-print-directory
+
 # default:
 all: compile
 
