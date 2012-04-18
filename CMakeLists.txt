@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 # build static and shared NDLCom-lib, aswell as static and shared demoapp
 # uses some sibling-directorys of this repository, so keep them at the right place
