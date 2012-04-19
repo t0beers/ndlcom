@@ -49,7 +49,7 @@ NDLCom::Composer::Composer(QWidget* parent) :
 
     /* provide sensible default */
     mpUi->senderId->setValue(REPRESENTATIONS_DEVICE_ID_ControlGUI);
-    mpUi->receiverId->setValue(REPRESENTATIONS_DEVICE_ID_BROADCAST);
+    mpUi->receiverId->setValue(255);
 }
 
 NDLCom::Composer::~Composer()
