@@ -16,8 +16,8 @@ NDLCom::DataLineInput::DataLineInput(QWidget *parent) : HexInput(parent)
 void NDLCom::DataLineInput::setDataLength(int length)
 {
     while (length > data().length()) {
-        char buf[2];
-        sprintf(buf,"%02x",data().length()+1);
+        char buf[3];
+        snprintf(buf,sizeof(buf),"%02x",data().length()+1);
         insert(buf);
     }
 
