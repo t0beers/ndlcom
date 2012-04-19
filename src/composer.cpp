@@ -9,13 +9,16 @@
 #include "NDLCom/message.h"
 
 #include "representations/names.h"
+#include "representations/id.h"
 
 #include "data_line_input.h"
 #include "ui_composer.h"
 
 #include <QDebug>
 
-NDLCom::Composer::Composer(QWidget* parent) : QWidget(parent)
+NDLCom::Composer::Composer(QWidget* parent) :
+    QWidget(parent),
+    mpSendThread(NULL)
 {
     /* creating these object before setupUi() allows autoconnect to work */
     actionSend = new QAction("Send Message", this);
@@ -43,18 +46,16 @@ NDLCom::Composer::Composer(QWidget* parent) : QWidget(parent)
             mpUi->receivers->addItem(name);
         }
     }
-    mpUi->senderId->setValue(representationsNamesGetDeviceId("ControlGUI"));
-    mpUi->receiverId->setValue(representationsNamesGetDeviceId("BROADCAST"));
 
-    /* no autoSending on beginning. when enabling the checkbox, the corresponding object is created */
-    mpSendThread = NULL;
+    /* provide sensible default */
+    mpUi->senderId->setValue(REPRESENTATIONS_DEVICE_ID_ControlGUI);
+    mpUi->receiverId->setValue(REPRESENTATIONS_DEVICE_ID_BROADCAST);
 }
+
 NDLCom::Composer::~Composer()
 {
     if (mpSendThread)
-    {
         delete mpSendThread;
-    }
 }
 
 /* sending a message */
