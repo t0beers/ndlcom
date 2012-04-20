@@ -21,6 +21,7 @@
 #include "representations/id.h"
 /* please keep this list alphabetically sorted */
 #include "representations/acceleration.h"
+#include "representations/angles.h"
 #include "representations/ankle_joint_telemetry.h"
 #include "representations/bldc_joint_telemetry.h"
 #include "representations/debug_message.h"
@@ -55,6 +56,7 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     /* please keep this list alphabetically sorted */
     qRegisterMetaType<Representations::Acceleration>("Representations::Acceleration");
     qRegisterMetaType<Representations::AnkleJointTelemetryMessage>("Representations::AnkleJointTelemetryMessage");
+    qRegisterMetaType<Representations::Angles>("Representations::Angles");
     qRegisterMetaType<Representations::BLDCJointTelemetryMessage>("Representations::BLDCJointTelemetryMessage");
     qRegisterMetaType<Representations::DMSBoardConfig>("Representations::DMSBoardConfig");
     qRegisterMetaType<Representations::DebugMessage>("Representations::DebugMessage");
@@ -204,6 +206,9 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_AnkleJointTelemetryMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::AnkleJointTelemetryMessage*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_Angles:
+                    emit rxRepresentation(msg.mHdr, *(Representations::Angles*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_BLDCJointTelemetryMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::BLDCJointTelemetryMessage*)repreData);

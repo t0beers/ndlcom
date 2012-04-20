@@ -15,6 +15,7 @@ namespace Representations
     /* please keep this list alphabetically sorted */
     class Acceleration;
     class AnkleJointTelemetryMessage;
+    class Angles;
     class BLDCJointTelemetryMessage;
     class FpgaDebugMessage;
     class CurrentValues;
@@ -75,6 +76,7 @@ namespace NDLCom
         /* please keep this list alphabetically sorted! */
         void rxRepresentation(const ProtocolHeader&, const Representations::Acceleration&);
         void rxRepresentation(const ProtocolHeader&, const Representations::AnkleJointTelemetryMessage&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::Angles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::BLDCJointTelemetryMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::FpgaDebugMessage&);
         void rxRepresentation(const ProtocolHeader&, const Representations::CAM_TCM8230MD&);
