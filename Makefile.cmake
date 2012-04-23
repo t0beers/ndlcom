@@ -46,8 +46,10 @@ test: compile
 install: compile
 	${MAKE} -j$(JOBS) -C $(BUILDDIR) install
 
-distclean:
 clean:
+	${MAKE} -C $(BUILDDIR) clean
+
+distclean: clean
 	rm -rf $(BUILDDIR)
 	@rm -f dependencys.png
 
