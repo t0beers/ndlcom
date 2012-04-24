@@ -42,11 +42,111 @@ add_definitions(${NDLCom_PKGCONFIG_CFLAGS_OTHER})
 
 include_directories(include)
 
-add_subdirectory(src)
-add_subdirectory(gui EXCLUDE_FROM_ALL)
+# needed by qt's generated header files (from the ui files)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-configure_file(Find${PROJECT_NAME}.cmake.in Find${PROJECT_NAME}.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Find${PROJECT_NAME}.cmake DESTINATION CMake-Modules)
+#
+# first part: set every thing up to compile the lib (both shared and dynamic)
+#
+set(lib_SOURCES
+    src/communication_statistic_widget.cpp
+    src/composer.cpp
+    src/data_line_input.cpp
+    src/hex_input.cpp
+    src/interface.cpp
+    src/interface_container.cpp
+    src/interface_traffic.cpp
+    src/message.cpp
+    src/message_traffic.cpp
+    src/ndlcom.cpp
+    src/ndlcom_container.cpp
+    src/representation_mapper.cpp
+    src/serialcom.cpp
+    src/udpcom.cpp
+    src/udpcom_connect_dialog.cpp
+    src/udpcom_receive_thread.cpp
+    )
+set(lib_HEADERS_QT # need moc to be processed
+    include/NDLCom/communication_statistic_widget.h
+    include/NDLCom/composer.h
+    include/NDLCom/interface.h
+    include/NDLCom/interface_container.h
+    include/NDLCom/interface_traffic.h
+    include/NDLCom/message_traffic.h
+    include/NDLCom/ndlcom_container.h
+    include/NDLCom/representation_mapper.h
+    include/NDLCom/serialcom.h
+    include/NDLCom/udpcom.h
+    src/data_line_input.h
+    src/hex_input.h
+    src/udpcom_connect_dialog.h
+    src/udpcom_receive_thread.h
+    )
+set(lib_HEADERS # need no moc, plain cpp
+    include/NDLCom/ndlcom.h
+    include/NDLCom/message.h
+    )
+# here we only mention additionally which libs should get installed in the system
+set(install_HEADERS
+    include/NDLCom/interface.h
+    include/NDLCom/interface_container.h
+    include/NDLCom/interface_traffic.h
+    include/NDLCom/message_traffic.h
+    include/NDLCom/ndlcom.h
+    include/NDLCom/ndlcom_container.h
+    include/NDLCom/representation_mapper.h
+    )
+set(lib_FORMS
+    forms/composer.ui
+    forms/show_representations.ui
+    forms/udpcom_connect_dialog.ui
+    forms/interface_container.ui
+    forms/interface.ui
+    forms/communication_statistic_widget.ui
+    forms/traffic.ui
+    )
+set(lib_RESSOURCES
+    src/NDLCom.qrc
+    )
+
+# some qt-magic...
+qt4_wrap_cpp(lib_HEADERS_MOC ${lib_HEADERS_QT})
+qt4_wrap_ui(lib_FORMS_HEADERS ${lib_FORMS})
+qt4_add_resources(lib_RESSOURCES_RCC ${lib_RESSOURCES})
+
+#
+# after setting everything up, we define two tragets: shared and dynamic, and link both with the respective libs
+#
+add_library(${PROJECT_NAME}
+    ${lib_SOURCES}
+    ${lib_HEADERS}
+    ${lib_HEADERS_QT}
+    ${lib_HEADERS_MOC}
+    ${lib_FORMS_HEADERS}
+    ${lib_RESSOURCES_RCC}
+    )
+target_link_libraries(${PROJECT_NAME}
+    ${QT_LIBRARIES}
+    ${NDLCom_PKGCONFIG_LIBRARIES}
+    )
+
+if(${BUILD_SHARED_LIBS})
+    # this switch is used to deactivate "Q_INIT_RESSOURCE" macro on shared builds
+    set_property(SOURCE src/ndlcom_container.cpp APPEND PROPERTY COMPILE_FLAGS "-DSHARED_BUILD")
+endif(${BUILD_SHARED_LIBS})
+
+#
+# installing
+#
+install(TARGETS ${PROJECT_NAME}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    )
+
+install(FILES ${install_HEADERS} DESTINATION include/${PROJECT_NAME})
+
+# still an extra subdir
+add_subdirectory(gui EXCLUDE_FROM_ALL)
 
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)

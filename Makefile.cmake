@@ -47,10 +47,10 @@ install: compile
 	${MAKE} -j$(JOBS) -C $(BUILDDIR) install
 
 clean:
-	${MAKE} -C $(BUILDDIR) clean
+	-${MAKE} -C $(BUILDDIR) clean
 
 distclean: clean
-	rm -rf $(BUILDDIR)
+	-rm -rf $(BUILDDIR)
 	@rm -f dependencys.png
 
 .PHONY: compile
