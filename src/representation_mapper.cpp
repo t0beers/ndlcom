@@ -31,6 +31,7 @@
 #include "representations/force_torque.h"
 #include "representations/gripperstate.h"
 #include "representations/imu_data.h"
+#include "representations/Isp.h"
 #include "representations/joint_angles.h"
 #include "representations/memory.h"
 #include "representations/ping.h"
@@ -65,6 +66,8 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     qRegisterMetaType<Representations::ForceTorque>("Representations::ForceTorque");
     qRegisterMetaType<Representations::RepresentationsGripperState>("Representations::RepresentationsGripperState");
     qRegisterMetaType<Representations::IMUDataMessage>("Representations::IMUDataMessage");
+    qRegisterMetaType<Representations::IspCommand>("Representations::IspCommand");
+    qRegisterMetaType<Representations::IspData>("Representations::IspData");
     qRegisterMetaType<Representations::JointAngles>("Representations::JointAngles");
     qRegisterMetaType<Representations::MemoryData>("Representations::MemoryData");
     qRegisterMetaType<Representations::Ping>("Representations::Ping");
@@ -230,6 +233,12 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_IMUDataMessage:
                     emit rxRepresentation(msg.mHdr, *(Representations::IMUDataMessage*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_IspCommand:
+                    emit rxRepresentation(msg.mHdr, *(Representations::IspCommand*)repreData);
+                    break;
+                case REPRESENTATIONS_REPRESENTATION_ID_IspData:
+                    emit rxRepresentation(msg.mHdr, *(Representations::IspData*)repreData);
                     break;
                 case REPRESENTATIONS_REPRESENTATION_ID_JointAngles:
                     emit rxRepresentation(msg.mHdr, *(Representations::JointAngles*)repreData);

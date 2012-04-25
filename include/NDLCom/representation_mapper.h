@@ -26,6 +26,8 @@ namespace Representations
     struct ForceTorque;
     struct RepresentationsGripperState;
     struct IMUDataMessage;
+    struct IspCommand;
+    struct IspData;
     struct JointAngles;
     struct MemoryData;
     struct Ping;
@@ -87,6 +89,8 @@ namespace NDLCom
         void rxRepresentation(const ProtocolHeader&, const Representations::ForceTorque&);
         void rxRepresentation(const ProtocolHeader&, const Representations::RepresentationsGripperState&);
         void rxRepresentation(const ProtocolHeader&, const Representations::IMUDataMessage&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::IspCommand&);
+        void rxRepresentation(const ProtocolHeader&, const Representations::IspData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::JointAngles&);
         void rxRepresentation(const ProtocolHeader&, const Representations::MemoryData&);
         void rxRepresentation(const ProtocolHeader&, const Representations::Ping&);
