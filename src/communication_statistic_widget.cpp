@@ -1,6 +1,6 @@
 /**
  * @file NDLCom/src/communication_statistic_widget.cpp
- * @brief 
+ * @brief
  * @author Armin Burchardt
  * @date 2011
  */
@@ -62,7 +62,7 @@ void NDLCom::CommunicationStatisticWidget::on_resetButton_clicked()
     counterReceived.clear();
     counterMissed.clear();
     estimatedFrequency.clear();
-    //estimatedJitter.clear();    
+    //estimatedJitter.clear();
     mpUi->outputTable->clear();
     mpUi->outputTable->setRowCount(0);
     createTableHeader();
@@ -101,7 +101,9 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
         }
         if (diffCounter > 1)
         {
-            printf("missed package: last: %d act: %d\n",lastCounter,header.mCounter);
+            qDebug() << "NDLCom::CommunicationStatisticWidget(): unexpected PacketCounter from"
+                     << Representations::Names::getDeviceName(header.mSenderId)
+                     << "-- received" << header.mCounter << "expected" << (lastCounter+1)%256;
             missed = diffCounter - 1;
         }
         if (diffCounter == 0) {
@@ -114,7 +116,7 @@ void NDLCom::CommunicationStatisticWidget::rxMessage(const Message& msg)
          * add timestamp to list of timestamps and limit list
          * length (larger lists have less noise in rate estimation
          * but reaction and calculation is slower).
-         */        
+         */
         lastTimeStamps[mapKey].append(timestamp);
         if (lastTimeStamps[mapKey].size() > 250)
         {
@@ -229,8 +231,8 @@ void NDLCom::CommunicationStatisticWidget::on_mpTimerRateUpdate_timeout()
         {
             missedPercent = 100.f * missed / expected;
         }
-        mpUi->outputTable->item(line,5)->setText(QString::number(missedPercent,'f',2) + "%");        
-        
+        mpUi->outputTable->item(line,5)->setText(QString::number(missedPercent,'f',2) + "%");
+
         struct timespec tv_last = lastTimeReceived[key];
         long delta_nanos = tv_now.tv_nsec - tv_last.tv_nsec;
         long delta_millis = (tv_now.tv_sec - tv_last.tv_sec) * 1000;
@@ -246,9 +248,9 @@ void NDLCom::CommunicationStatisticWidget::on_mpTimerRateUpdate_timeout()
         }
         else
         {
-            double rate = estimatedFrequency[key];
+            double rate2 = estimatedFrequency[key];
             //double jitter = estimatedJitter[key];
-            mpUi->outputTable->item(line,6)->setText(QString("%1 Hz").arg(rate, 7, ' ', 1));
+            mpUi->outputTable->item(line,6)->setText(QString("%1 Hz").arg(rate2, 7, ' ', 1));
             //mpUi->outputTable->item(line,7)->setText(QString("%1 Hz").arg(jitter, 7, ' ', 1));
         }
     }
