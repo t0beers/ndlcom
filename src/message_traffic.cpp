@@ -62,9 +62,7 @@ QString NDLCom::MessageTraffic::formatMessage(const NDLCom::Message &msg)
     if (receiver.isEmpty())
         receiver = QString("id 0x%1").arg(hdr->mReceiverId,0,16);
 
-    QString newline;
-
-    newline = QString("New telegram: ")
+    return QString("New telegram: ")
               + repr
               + QString(", sent from ")
               + sender
@@ -75,13 +73,7 @@ QString NDLCom::MessageTraffic::formatMessage(const NDLCom::Message &msg)
               + QString::number(hdr->mCounter)
               + QString(" dataLength: ")
               + QString::number(hdr->mDataLen)
-              + QString(" Bytes");
-
-#if QT_VERSION >= 0x040700
-    long int time_ms = msg.mTimestamp.tv_sec*1000.0 + msg.mTimestamp.tv_nsec/1000000.0 + 0.5;
-    newline += QString(" [") + QDateTime::fromMSecsSinceEpoch(time_ms).toString("HH:mm:ss-zzz") + QString("]");
-#endif
-
-    return newline;
+              + QString(" Bytes")
+              + QString(" [%1]").arg(QDateTime().addSecs(msg.mTimestamp.tv_sec).addMSecs(msg.mTimestamp.tv_nsec/1000000).toString("HH:mm:ss-zzz"));
 }
 
