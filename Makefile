@@ -32,10 +32,10 @@ $(BUILDDIR)/Makefile:
 	mkdir -p $(BUILDDIR);\
 	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)"
 
-dependencys: build
+link_dependency_graph: build
 	mkdir -p $(BUILDDIR)
-	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) --graphviz=dependencys.dot"
-	dot $(BUILDDIR)/dependencys.dot -Tpng > $(SRCDIR)/dependencys.png
+	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) --graphviz=link_dependency_graph.dot"
+	dot $(BUILDDIR)/link_dependency_graph.dot -Tpng > $(SRCDIR)/link_dependency_graph.png
 
 compile: build
 	${MAKE} -j$(JOBS) -C $(BUILDDIR)
@@ -51,6 +51,6 @@ clean:
 
 distclean: clean
 	-rm -rf $(BUILDDIR)
-	@rm -f dependencys.png
+	@rm -f link_dependency_graph.png
 
 .PHONY: compile
