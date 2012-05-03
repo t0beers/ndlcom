@@ -30,10 +30,17 @@ void NDLCom::InterfaceTraffic::rxTraffic(const QByteArray& data)
         QStringList list(QString(data.toHex()).split("7e", QString::KeepEmptyParts));
         for (int i = 0;i<list.size();i++)
         {
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
+            mpUi->plainTextEdit_Rx->setFont(other);
+            mpUi->plainTextEdit_Rx->appendPlainText(QString("7e"));
+            mpUi->plainTextEdit_Rx->setFont(old);
+            mpUi->plainTextEdit_Rx->appendPlainText(list.at(i));
+#else
             mpUi->plainTextEdit_Rx->setFont(other);
             mpUi->plainTextEdit_Rx->appendText(QString("7e"));
             mpUi->plainTextEdit_Rx->setFont(old);
             mpUi->plainTextEdit_Rx->appendText(list.at(i));
+#endif
         }
             /* qDebug() << "list" << i << "7e" << list.at(i); */
     }
