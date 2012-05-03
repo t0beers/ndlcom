@@ -15,11 +15,15 @@
 #include "ui_traffic.h"
 
 #include <QDateTime>
+#include <QAction>
 
 NDLCom::MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
 {
     mpUi = new Ui::Traffic;
     mpUi->setupUi(this);
+
+    mpUi->clearRx->setIcon(QIcon::fromTheme("edit-clear"));
+    mpUi->clearTx->setIcon(QIcon::fromTheme("edit-clear"));
 }
 
 void NDLCom::MessageTraffic::sentMessage(const NDLCom::Message& msg)

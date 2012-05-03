@@ -31,6 +31,13 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
+        <widget class="QToolButton" name="clearRx">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPlainTextEdit" name="plainTextEdit_Rx">
          <property name="font">
           <font>
@@ -44,21 +51,6 @@
          <property name="styleSheet">
           <string notr="true"/>
          </property>
-         <property name="undoRedoEnabled">
-          <bool>false</bool>
-         </property>
-         <property name="lineWrapMode">
-          <enum>QPlainTextEdit::NoWrap</enum>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="maximumBlockCount">
-          <number>100</number>
-         </property>
-         <property name="centerOnScroll">
-          <bool>false</bool>
-         </property>
         </widget>
        </item>
       </layout>
@@ -68,6 +60,13 @@
        <string>Tx</string>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QToolButton" name="clearTx">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPlainTextEdit" name="plainTextEdit_Tx">
          <property name="font">
@@ -97,5 +96,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>clearTx</sender>
+   <signal>clicked()</signal>
+   <receiver>plainTextEdit_Tx</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>37</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>268</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
