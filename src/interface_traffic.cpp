@@ -10,39 +10,72 @@
 
 #include "ui_traffic.h"
 
-NDLCom::InterfaceTraffic::InterfaceTraffic(QWidget* parent) : QWidget(parent)
+using namespace NDLCom;
+
+InterfaceTraffic::InterfaceTraffic(QWidget* parent) : QWidget(parent)
 {
     mpUi = new Ui::Traffic;
     mpUi->setupUi(this);
 
-    mpUi->clearRx->setIcon(QIcon::fromTheme("edit-clear"));
-    mpUi->clearTx->setIcon(QIcon::fromTheme("edit-clear"));
+    mpUi->clear->setIcon(QIcon::fromTheme("edit-clear"));
+    mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
+
+    mpHighlight_Tx = new Highlighter(mpUi->plainTextEdit_Tx->document());
+    mpHighlight_Rx = new Highlighter(mpUi->plainTextEdit_Rx->document());
+
+    setToolTip("red: protocol flag (0x7e, only allowd between telegrams)\n\
+                blue: escaped protocol flags (0x7e -> 0x7d 0x5e)\n\
+                green: escaped escaped (0x7d -> 0x7d 0x5d");
 }
 
-void NDLCom::InterfaceTraffic::rxTraffic(const QByteArray& data)
+void InterfaceTraffic::rxTraffic(const QByteArray& data)
 {
-    if(isVisible())
+    if(isVisible() && !mpUi->pause->isChecked())
     {
-        QFont old = mpUi->plainTextEdit_Rx->font();
-        QFont other = old;
-        other.setBold(true);
-
-        QStringList list(QString(data.toHex()).split("7e", QString::KeepEmptyParts));
-        for (int i = 0;i<list.size();i++)
-        {
-            mpUi->plainTextEdit_Rx->setFont(other);
-            mpUi->plainTextEdit_Rx->appendPlainText(QString("7e"));
-            mpUi->plainTextEdit_Rx->setFont(old);
-            mpUi->plainTextEdit_Rx->appendPlainText(list.at(i));
-        }
-            /* qDebug() << "list" << i << "7e" << list.at(i); */
+        mpUi->plainTextEdit_Rx->appendPlainText(data.toHex());
     }
 }
-void NDLCom::InterfaceTraffic::txTraffic(const QByteArray& data)
+void InterfaceTraffic::txTraffic(const QByteArray& data)
 {
-    if(isVisible())
+    if(isVisible() && !mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Tx->appendPlainText(data.toHex());
     }
 }
 
+Highlighter::Highlighter(QTextDocument* parent) :
+    QSyntaxHighlighter(parent)
+{
+    HighlightingRule protocolFlag;
+    protocolFlag.pattern = QRegExp("7e");
+    protocolFlag.format.setForeground(Qt::red);
+    highlightingRules.append(protocolFlag);
+
+    /* escaped flags */
+    /* 0x7e --> 0x7d 0x5e */
+    HighlightingRule escapedProtocolFlag;
+    escapedProtocolFlag.pattern = QRegExp("7d5e");
+    escapedProtocolFlag.format.setForeground(Qt::blue);
+    highlightingRules.append(escapedProtocolFlag);
+
+    /* escaped escapes */
+    /* 0x7d --> 0x7d 0x5d */
+    HighlightingRule escapedEscape;
+    escapedEscape.pattern = QRegExp("7d5d");
+    escapedEscape.format.setForeground(Qt::green);
+    highlightingRules.append(escapedEscape);
+
+}
+
+void Highlighter::highlightBlock(const QString &text)
+{
+    foreach (const HighlightingRule &rule, highlightingRules) {
+        QRegExp expression(rule.pattern);
+        int index = expression.indexIn(text);
+        while (index >= 0) {
+            int length = expression.matchedLength();
+            setFormat(index, length, rule.format);
+            index = expression.indexIn(text, index + length);
+        }
+    }
+}

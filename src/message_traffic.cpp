@@ -15,35 +15,37 @@
 #include "ui_traffic.h"
 
 #include <QDateTime>
-#include <QAction>
 
-NDLCom::MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
+using namespace NDLCom;
+
+MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
 {
     mpUi = new Ui::Traffic;
     mpUi->setupUi(this);
 
-    mpUi->clearRx->setIcon(QIcon::fromTheme("edit-clear"));
-    mpUi->clearTx->setIcon(QIcon::fromTheme("edit-clear"));
+    mpUi->clear->setIcon(QIcon::fromTheme("edit-clear"));
+    mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
 }
 
-void NDLCom::MessageTraffic::sentMessage(const NDLCom::Message& msg)
+void MessageTraffic::receivedMessage(const Message& msg)
 {
     /* save cpu cycles if this widget is not visible */
-    if (isVisible())
+    if(isVisible() && mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
     }
 }
-void NDLCom::MessageTraffic::receivedMessage(const NDLCom::Message& msg)
+
+void MessageTraffic::sentMessage(const Message& msg)
 {
     /* save cpu cycles if this widget is not visible */
-    if (isVisible())
+    if(isVisible() && mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
     }
 }
 
-QString NDLCom::MessageTraffic::formatMessage(const NDLCom::Message &msg)
+QString MessageTraffic::formatMessage(const Message &msg)
 {
     const ProtocolHeader* hdr = &msg.mHdr;
     const Representations::Representation* decodedData = reinterpret_cast<const Representations::Representation*>(msg.mpDecodedData);

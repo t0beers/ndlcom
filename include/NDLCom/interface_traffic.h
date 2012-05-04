@@ -8,10 +8,12 @@
 #define _NDLCOM_INTERFACE_TRAFFIC_H_
 
 #include <QWidget>
+#include <QSyntaxHighlighter>
 
 namespace NDLCom
 {
     class Message;
+    class Highlighter;
 
     namespace Ui
     {
@@ -20,6 +22,7 @@ namespace NDLCom
 
     class InterfaceTraffic : public QWidget
     {
+
         Q_OBJECT
     public:
         InterfaceTraffic(QWidget* parent = 0);
@@ -31,6 +34,30 @@ namespace NDLCom
 
     private:
         Ui::Traffic* mpUi;
+
+        Highlighter* mpHighlight_Rx;
+        Highlighter* mpHighlight_Tx;
+
+    };
+
+
+    class Highlighter : public QSyntaxHighlighter
+    {
+        Q_OBJECT
+
+        public:
+            Highlighter(QTextDocument *parent = 0);
+
+        protected:
+            void highlightBlock(const QString &text);
+
+        private:
+            struct HighlightingRule
+            {
+                QRegExp pattern;
+                QTextCharFormat format;
+            };
+            QVector<HighlightingRule> highlightingRules;
     };
 };
 
