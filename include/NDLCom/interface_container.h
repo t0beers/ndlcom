@@ -46,8 +46,11 @@ namespace NDLCom
         Q_OBJECT
 
     public:
-        /* users can ask here for the pointer of this module */
+        /** FIXME to be removed. the name of this function is missleading/inconsistent... use the
+         * alternative "getInstance()" */
         static NDLCom::InterfaceContainer* getInterfaceContainer();
+        /** users can ask here for the pointer of this module */
+        static NDLCom::InterfaceContainer* getInstance();
 
         /** here, we will collect all disconnect-actions of the currently active and running interfaces */
         QMenu* mpDisconnect;

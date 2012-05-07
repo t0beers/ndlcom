@@ -10,7 +10,10 @@
 
 namespace NDLCom
 {
+    /** FIXME to be removed. the name of this function is missleading/inconsistent... use the
+     * alternative "getInstance()" */
     NDLCom::InterfaceContainer* getNDLComInstance();
+    NDLCom::InterfaceContainer* getInstance();
 }
 
 #endif/*_NDLCOM_NDLCOM_H_*/

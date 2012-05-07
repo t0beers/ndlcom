@@ -29,7 +29,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QW
 #endif
 
     /* create all object we need */
-    InterfaceContainer* mpInterfaceContainer = InterfaceContainer::getInterfaceContainer();
+    InterfaceContainer* mpInterfaceContainer = InterfaceContainer::getInstance();
     CommunicationStatisticWidget* comm = new CommunicationStatisticWidget(this);
     Composer* comp = new Composer(this);
     ShowRepresentations* show = new ShowRepresentations(this);

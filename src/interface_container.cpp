@@ -30,6 +30,12 @@ NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::spInstance = 0;
 
 NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::getInterfaceContainer()
 {
+#warning NDLCom::InterfaceContainer::getInterfaceContainer() deprecated, use 'NDLCom::InterfaceContainer::getInstance()' instead
+    return getInstance();
+}
+
+NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::getInstance()
+{
     if(spInstance == 0)
         spInstance = new InterfaceContainer();
 
