@@ -61,6 +61,7 @@ set(lib_SOURCES
     src/ndlcom.cpp
     src/ndlcom_container.cpp
     src/representation_mapper.cpp
+    src/AvailableRepresentations.cpp
     src/serialcom.cpp
     src/udpcom.cpp
     src/udpcom_connect_dialog.cpp
@@ -75,6 +76,7 @@ set(lib_HEADERS_QT # need moc to be processed
     include/NDLCom/message_traffic.h
     include/NDLCom/ndlcom_container.h
     include/NDLCom/representation_mapper.h
+    include/NDLCom/AvailableRepresentations.h
     include/NDLCom/serialcom.h
     include/NDLCom/udpcom.h
     src/data_line_input.h
@@ -98,7 +100,7 @@ set(install_HEADERS
     )
 set(lib_FORMS
     forms/composer.ui
-    forms/show_representations.ui
+    forms/AvailableRepresentations.ui
     forms/udpcom_connect_dialog.ui
     forms/interface_container.ui
     forms/interface.ui

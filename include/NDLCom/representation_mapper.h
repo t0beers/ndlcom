@@ -56,11 +56,6 @@ namespace NDLCom
 {
     class Message;
 
-    namespace Ui
-    {
-        class ShowRepresentations;
-    };
-
     class RepresentationMapper : public QWidget
     {
         Q_OBJECT
@@ -119,13 +114,6 @@ namespace NDLCom
         void slot_rxMessage(const NDLCom::Message&);
     };
 
-    /* just a simple Widget, which prints all devices and representation types... with their id */
-    class ShowRepresentations : public QWidget
-    {
-        Q_OBJECT
-    public:
-        ShowRepresentations(QWidget* parent=0);
-    };
 };
 
 #endif/*_NDLCOM_REPRESENTATION_MAPPER_H_*/

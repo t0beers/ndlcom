@@ -10,6 +10,7 @@
 #include "NDLCom/composer.h"
 #include "NDLCom/communication_statistic_widget.h"
 #include "NDLCom/representation_mapper.h"
+#include "NDLCom/AvailableRepresentations.h"
 #include "NDLCom/message_traffic.h"
 
 #include <QDebug>
@@ -32,7 +33,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QW
     InterfaceContainer* mpInterfaceContainer = InterfaceContainer::getInstance();
     CommunicationStatisticWidget* comm = new CommunicationStatisticWidget(this);
     Composer* comp = new Composer(this);
-    ShowRepresentations* show = new ShowRepresentations(this);
+    AvailableRepresentations* avail = new AvailableRepresentations(this);
     MessageTraffic* trfk = new MessageTraffic(this);
 
     /* we have our own menu, which can (and should) be added into the main-application */
@@ -63,7 +64,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QW
     const DockListEntry dockList[] = {
         {mpInterfaceContainer, "InterfaceContainer", "Manages all active interface", ":/NDLCom/images/ndlcom.png"},
         {comp,     "TelegramComposer", "Composer", ":/NDLCom/images/telegram.png"},
-        {show,     "Representations Info", "Representations", ":/NDLCom/images/info.png"},
+        {avail,    "Representations Info", "Representations", ":/NDLCom/images/info.png"},
         {trfk,     "MessageTraffic", "MessageTraffic", ":/NDLCom/images/parser.png"},
         {comm,     "CommunicationStatistics", "ComStats", ":/NDLCom/images/communication_statistics.png"},
         {0, 0, 0, 0}

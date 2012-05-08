@@ -302,39 +302,3 @@ void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
         qWarning("RepresentationMapper: %s",errormsg.toLatin1().data());
     }
 }
-
-/* constructor of little widget to show all Representation-names and Device-name with their Id ! */
-NDLCom::ShowRepresentations::ShowRepresentations(QWidget* parent) : QWidget(parent)
-{
-    Ui::ShowRepresentations* ui = new Ui::ShowRepresentations();
-    ui->setupUi(this);
-
-    int rowCounter = 0;
-    for (int id = 0;id<=255;id++)
-    {
-        if (representationsNamesGetDeviceName(id))
-        {
-            rowCounter++;
-            QString number = QString("0x%1").arg(id,2,16,QChar('0'));
-            QString name(representationsNamesGetDeviceName(id));
-            ui->deviceGrid->addWidget(new QLabel(number,this), rowCounter, 0);
-            ui->deviceGrid->addWidget(new QLabel(name,this), rowCounter, 1);
-        }
-    }
-
-    rowCounter = 0;
-    for (int id = 0;id<=255;id++)
-    {
-        if (representationsNamesGetRepresentationName(id))
-        {
-            rowCounter++;
-            QString number = QString("0x%1").arg(id,2,16,QChar('0'));
-            QString size = QString::number(Representations::getSize(id));
-            QString name(representationsNamesGetRepresentationName(id));
-            ui->repreGrid->addWidget(new QLabel(number,this), rowCounter, 0);
-            ui->repreGrid->addWidget(new QLabel(size,this), rowCounter, 1);
-            ui->repreGrid->addWidget(new QLabel(name,this), rowCounter, 2);
-        }
-    }
-}
-
