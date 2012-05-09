@@ -10,6 +10,8 @@ NDLCom::Message::Message()
     mHdr.mDataLen=0;
     mTimestamp.tv_sec=0;
     mTimestamp.tv_nsec=0;
+    mTimestampFromSender.tv_sec=0;
+    mTimestampFromSender.tv_nsec=0;
     mpDecodedData = new char[mHdr.mDataLen];
 }
 
@@ -24,6 +26,7 @@ NDLCom::Message::Message(const struct timespec& time, const ProtocolHeader& hdr,
 
     /* copy timestamp */
     mTimestamp = time;
+    mTimestampFromSender = time;
 }
 
 NDLCom::Message::Message(const ProtocolHeader& hdr, const void* decodedData)
@@ -68,6 +71,7 @@ NDLCom::Message::Message(const NDLCom::Message& org)
 
     /* timestamp */
     mTimestamp = org.mTimestamp;
+    mTimestampFromSender = org.mTimestampFromSender;
 }
 
 NDLCom::Message& NDLCom::Message::operator= (const NDLCom::Message &other)
@@ -84,6 +88,7 @@ NDLCom::Message& NDLCom::Message::operator= (const NDLCom::Message &other)
 
         /* timestamp */
         mTimestamp = other.mTimestamp;
+        mTimestampFromSender = other.mTimestampFromSender;
     }
     // by convention, always return *this
     return *this;
