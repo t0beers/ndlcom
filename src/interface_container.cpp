@@ -6,6 +6,8 @@
 #include "NDLCom/interface_container.h"
 
 #include "NDLCom/StaticTools.h"
+#include "NDLCom/CommandLineArgument.h"
+#include "NDLCom/serialcom.h"
 
 #include <QDebug>
 #include <QPainter>
@@ -59,6 +61,18 @@ InterfaceContainer::InterfaceContainer(QObject* parent) :
     QMetaObject::connectSlotsByName(this);
 
     connect(this, SIGNAL(connectionStatusChanged(bool)), this, SLOT(updateIcons()));
+
+    /* we support a simple commandline argument: connecting directly! */
+    QString portName = CommandLineArgument("--serialport", "", "serialport to connect to");
+    int baudRate = CommandLineArgument("--baudrate", "500000", "baudrate to use").toInt();
+    if (!portName.isEmpty())
+    {
+        Serialcom* serialcom = new Serialcom(this);
+        connect(serialcom, SIGNAL(connected()), this, SLOT(connected()));
+        serialcom->portName = portName;
+        serialcom->baudRate = baudRate;
+        serialcom->actionConnect->activate(QAction::Trigger);
+    }
 }
 
 /* destructor of singleton. should never be called. however we do implement it */

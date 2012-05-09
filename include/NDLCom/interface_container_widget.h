@@ -65,6 +65,8 @@ namespace NDLCom
          * during disconnects */
         QMap<Interface*,InterfaceWidget*> interfaceWidgets;
 
+        void addInterface(NDLCom::Interface* interface);
+
     private slots:
         void connected();
         void disconnected();

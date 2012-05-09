@@ -58,6 +58,16 @@ InterfaceContainerWidget::InterfaceContainerWidget(QWidget* parent) :
     connect(mpUi->bridging, SIGNAL(toggled(bool)),
             InterfaceContainer::getInstance()->actionBridging, SLOT(setChecked(bool)));
 
+    /* update our gui widget with all previously existing interfaces */
+    QStringList types = InterfaceContainer::getInstance()->getInterfaceTypes();
+    for (int i = 0; i < types.size(); ++i)
+    {
+        QList<Interface*> interfaces = InterfaceContainer::getInstance()->getActiveInterfaces(types.at(i));
+        for (int j = 0; j < interfaces.size(); ++j)
+        {
+            addInterface(interfaces.at(j));
+        }
+    }
 }
 
 /* how to create a new serial connection */
@@ -98,6 +108,12 @@ void InterfaceContainerWidget::connected()
 
     if (!(interface = qobject_cast<Interface*>(QObject::sender())))
         return;
+
+    addInterface(interface);
+}
+
+void InterfaceContainerWidget::addInterface(NDLCom::Interface* interface)
+{
 
     /* create a displaying widget for this interface. it will use the base-class'es signals */
     InterfaceWidget* widget = new InterfaceWidget(this,interface);
