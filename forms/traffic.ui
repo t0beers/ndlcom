@@ -25,17 +25,17 @@
      <item>
       <widget class="QPushButton" name="clear">
        <property name="text">
-        <string>clear</string>
+        <string>Clear</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pause">
        <property name="text">
-        <string>pause</string>
+        <string>Pause</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>

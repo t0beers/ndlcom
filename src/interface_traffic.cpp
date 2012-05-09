@@ -19,25 +19,39 @@ InterfaceTraffic::InterfaceTraffic(QWidget* parent) : QWidget(parent)
 
     mpUi->clear->setIcon(QIcon::fromTheme("edit-clear"));
     mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
+    mPause = false;
 
     mpHighlight_Tx = new Highlighter(mpUi->plainTextEdit_Tx->document());
     mpHighlight_Rx = new Highlighter(mpUi->plainTextEdit_Rx->document());
 
-    setToolTip("red: protocol flag (0x7e, only allowd between telegrams)\n\
-                blue: escaped protocol flags (0x7e -> 0x7d 0x5e)\n\
-                green: escaped escaped (0x7d -> 0x7d 0x5d");
+    setToolTip(QString("red: protocol flag (0x7e, only allowd between telegrams)\n") +
+               QString("blue: escaped protocol flags (0x7e -> 0x7d 0x5e)\n") +
+               QString("green: escaped escaped (0x7d -> 0x7d 0x5d"));
+}
+
+void InterfaceTraffic::on_pause_clicked()
+{
+    if (mPause) {
+        mPause=false;
+        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
+        mpUi->pause->setText("Pause");
+    } else {
+        mPause=true;
+        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-start"));
+        mpUi->pause->setText("Resume");
+    }
 }
 
 void InterfaceTraffic::rxTraffic(const QByteArray& data)
 {
-    if(isVisible() && !mpUi->pause->isChecked())
+    if(isVisible() && !mPause)
     {
         mpUi->plainTextEdit_Rx->appendPlainText(data.toHex());
     }
 }
 void InterfaceTraffic::txTraffic(const QByteArray& data)
 {
-    if(isVisible() && !mpUi->pause->isChecked())
+    if(isVisible() && !mPause)
     {
         mpUi->plainTextEdit_Tx->appendPlainText(data.toHex());
     }
