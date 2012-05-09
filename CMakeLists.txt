@@ -49,11 +49,14 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # first part: set every thing up to compile the lib (both shared and dynamic)
 #
 set(lib_SOURCES
+    src/StaticTools.cpp
     src/communication_statistic_widget.cpp
     src/composer.cpp
     src/data_line_input.cpp
     src/hex_input.cpp
     src/interface.cpp
+    src/InterfaceWidget.cpp
+    src/interface_container_widget.cpp
     src/interface_container.cpp
     src/interface_traffic.cpp
     src/message.cpp
@@ -71,6 +74,8 @@ set(lib_HEADERS_QT # need moc to be processed
     include/NDLCom/communication_statistic_widget.h
     include/NDLCom/composer.h
     include/NDLCom/interface.h
+    include/NDLCom/InterfaceWidget.h
+    include/NDLCom/interface_container_widget.h
     include/NDLCom/interface_container.h
     include/NDLCom/interface_traffic.h
     include/NDLCom/message_traffic.h
@@ -85,25 +90,21 @@ set(lib_HEADERS_QT # need moc to be processed
     src/udpcom_receive_thread.h
     )
 set(lib_HEADERS # need no moc, plain cpp
+    include/NDLCom/StaticTools.h
     include/NDLCom/ndlcom.h
     include/NDLCom/message.h
     )
 # here we only mention additionally which libs should get installed in the system
 set(install_HEADERS
-    include/NDLCom/interface.h
+    include/NDLCom/StaticTools.h
     include/NDLCom/interface_container.h
-    include/NDLCom/interface_traffic.h
-    include/NDLCom/message_traffic.h
-    include/NDLCom/ndlcom.h
-    include/NDLCom/ndlcom_container.h
-    include/NDLCom/representation_mapper.h
     )
 set(lib_FORMS
     forms/composer.ui
     forms/AvailableRepresentations.ui
     forms/udpcom_connect_dialog.ui
-    forms/interface_container.ui
-    forms/interface.ui
+    forms/interface_container_widget.ui
+    forms/interface_widget.ui
     forms/communication_statistic_widget.ui
     forms/traffic.ui
     )
@@ -147,12 +148,11 @@ install(TARGETS ${PROJECT_NAME}
 
 install(FILES ${install_HEADERS} DESTINATION include/${PROJECT_NAME})
 
-# still an extra subdir
-add_subdirectory(gui EXCLUDE_FROM_ALL)
-
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 # pkg-config for use inside our buildtree
 configure_file(${PROJECT_NAME}-uninstalled.pc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-uninstalled.pc @ONLY)
 
+# still an extra subdir
+add_subdirectory(gui EXCLUDE_FROM_ALL)

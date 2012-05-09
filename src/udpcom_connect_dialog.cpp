@@ -9,8 +9,6 @@ UdpComConnectDialog::UdpComConnectDialog(QDialog* parent)
       mpUi(new Ui::UdpComConnectDialog())
 {
     mpUi->setupUi(this);
-    connect(mpUi->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(mpUi->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(mpUi->saveSettings,SIGNAL(clicked()),this, SLOT(writeCommonConnectionSettings()));
     loadCommonConnectionSettings();
 }
@@ -47,7 +45,8 @@ QString UdpComConnectDialog::getHostname()
     return mpUi->hostname->currentText();
 }
 
-int UdpComConnectDialog::getRecvport(){
+int UdpComConnectDialog::getRecvport()
+{
     return mpUi->recvport->currentText().toInt();
 }
 

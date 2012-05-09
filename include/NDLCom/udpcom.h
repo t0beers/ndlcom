@@ -9,9 +9,6 @@
 #ifndef _NDLCOM_UDPCOM_H_
 #define _NDLCOM_UDPCOM_H_
 
-#include <QWidget>
-
-
 #include "NDLCom/interface.h"
 
 /**
@@ -36,9 +33,18 @@ namespace NDLCom
     class UdpCom: public Interface
     {
         Q_OBJECT
+
     public:
-        UdpCom(QWidget *parent=0);
+        UdpCom(QObject *parent = NULL);
         virtual ~UdpCom();
+
+        /* these three things denote a connection */
+        QString addressString;
+        int sendPort;
+        int recvPort;
+
+        /* asks the user to enter some settings before connection */
+        bool popupConnectDialogAndTryToConnect();
 
     private slots:
         void txMessage(const NDLCom::Message&);
@@ -53,6 +59,7 @@ namespace NDLCom
         ReceiveThread* mpReceiveThread;
         friend class ReceiveThread;
     };
+
 
 }; //of namespace
 

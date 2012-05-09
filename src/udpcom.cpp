@@ -1,8 +1,12 @@
-#include "udpcom/udpcom.h"
 #include "NDLCom/udpcom.h"
+
+#include "udpcom/udpcom.h"
 #include "udpcom_connect_dialog.h"
 #include "udpcom_receive_thread.h"
 #include "protocol/protocol.h"
+
+#include <QAction>
+#include <QTimer>
 #include <QThread>
 #include <QDebug>
 #include <QtNetwork>
@@ -13,15 +17,59 @@
 #include <iostream>
 #include <cassert>
 
+/* using namespace NDLCom is not possible because lowlevel object UdpCom has the same name... */
 
-NDLCom::UdpCom::UdpCom(QWidget* parent): Interface(parent)
+#define INTERFACETYPE "UdpCom"
+
+bool NDLCom::UdpCom::popupConnectDialogAndTryToConnect()
 {
-    setObjectName("UdpCom");
+    UdpComConnectDialog connectDialog;
+
+    if (connectDialog.exec()!=QDialog::Accepted)
+        return false;
+
+    //resolve hostname to numeric address
+    QHostAddress address(connectDialog.getHostname());
+    if (QAbstractSocket::IPv4Protocol == address.protocol())
+    {
+        addressString = address.toString();
+    }
+    else
+    {
+        /* translate the string to a ip. if a hostname was given, a ping lookup is performed.
+         * if a ip was given in the string, it is returned */
+        QString hostname(connectDialog.getHostname());
+        qDebug() << QString("UdpCom: performing lookup for %1").arg(hostname);
+        //use resolver to get address from name
+        QHostInfo hostInfo(QHostInfo::fromName(hostname));
+        if (hostInfo.error() == QHostInfo::NoError)
+        {
+            addressString = hostInfo.addresses().first().toString();
+            qDebug() << "UdpCom: got address" << hostname;
+        }
+        else
+        {
+            qCritical() << QString("UdpCom: could not get address from hostname %1").arg(hostname);
+            return false;
+        }
+
+        sendPort = connectDialog.getSendport();
+        recvPort = connectDialog.getRecvport();
+    }
+
+    actionConnect->activate(QAction::Trigger);
+
+    return true;
+}
+
+NDLCom::UdpCom::UdpCom(QObject* parent): Interface(parent)
+{
+    mInterfaceType = INTERFACETYPE;
+    sendPort = -1;
+    recvPort = -1;
 
     mpTransmitSocket = NULL;
     mpReceiveThread = NULL;
-
-    setInterfaceType("UDP");
 }
 
 NDLCom::UdpCom::~UdpCom()
@@ -48,68 +96,23 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
         return;
     }
 
-    UdpComConnectDialog connectDialog;
+    mpTransmitSocket = new ::UdpCom::UdpCom();
 
-    if (connectDialog.exec()==QDialog::Accepted)
-    {
-        QString addressString;
+    mpTransmitSocket->setTarget(addressString.toStdString().c_str(), sendPort);
+    mpTransmitSocket->bind("0.0.0.0",recvPort);
 
-	//resolve hostname to numeric address
-        QHostAddress address(connectDialog.getHostname());
-        if (QAbstractSocket::IPv4Protocol == address.protocol())
-        {
-	    addressString = address.toString();
-        }
-        else
-        {
-            /* translate the string to a ip. if a hostname was given, a ping lookup is performed.
-             * if a ip was given in the string, it is returned */
-            QString hostname(connectDialog.getHostname());
-            qDebug() << QString("UdpCom: performing lookup for %1").arg(hostname);
-	    //use resolver to get address from name
-            QHostInfo hostInfo(QHostInfo::fromName(hostname));
-	    if (hostInfo.error() == QHostInfo::NoError)
-	    {
-	        addressString = hostInfo.addresses().first().toString();
-                qDebug() << "UdpCom: got address" << hostname;
-	    }
-	    else
-	    {
-	      qCritical() << QString("UdpCom: could not get address from hostname %1").arg(hostname);
-	      return;
-	    }
-        }
+    mpReceiveThread = new ReceiveThread(this);
+    mpReceiveThread->setRecvPort(recvPort);
 
-	if (addressString == "")
-	{
-	    qWarning() << "UdpCom: invalid address.";
-	    return;
-	}
-	else
-	{
-            qDebug() << "UdpCom: connecting to " << addressString;
-	}
+    /* create and start new thread, which will execute it's run() function. */
+    connect(mpReceiveThread, SIGNAL(dataReceived(const QByteArray&)),
+            this, SLOT(dataFromReceiveThread(const QByteArray&)));
 
-        int sendport = connectDialog.getSendport();
+    mpReceiveThread->start();
 
-        mpTransmitSocket = new ::UdpCom::UdpCom();
+    setDeviceName( QString("UDP [%1:%2]").arg(addressString).arg(sendPort));
 
-        mpTransmitSocket->setTarget(addressString.toStdString().c_str(), sendport);
-        mpTransmitSocket->bind("0.0.0.0",connectDialog.getRecvport());
-
-        mpReceiveThread = new ReceiveThread(this);
-        mpReceiveThread->setRecvPort(connectDialog.getRecvport());
-
-        /* create and start new thread, which will execute it's run() function. */
-        connect(mpReceiveThread, SIGNAL(dataReceived(const QByteArray&)),
-                this, SLOT(dataFromReceiveThread(const QByteArray&)));
-
-        mpReceiveThread->start();
-
-        setInterfaceType( QString("UDP [%1:%2]").arg(addressString).arg(sendport));
-
-        emit connected();
-    }
+    emit connected();
 }
 
 void NDLCom::UdpCom::on_actionDisconnect_triggered()

@@ -68,7 +68,8 @@ QString MessageTraffic::formatMessage(const Message &msg)
     if (receiver.isEmpty())
         receiver = QString("id 0x%1").arg(hdr->mReceiverId,0,16);
 
-    return QString("New telegram: ")
+    return QString("[%1] ").arg(QDateTime().addSecs(msg.mTimestamp.tv_sec).addMSecs(msg.mTimestamp.tv_nsec/1000000).toString("HH:mm:ss-zzz"))
+              + QString("New telegram: ")
               + repr
               + QString(", sent from ")
               + sender
@@ -79,7 +80,6 @@ QString MessageTraffic::formatMessage(const Message &msg)
               + QString::number(hdr->mCounter)
               + QString(" dataLength: ")
               + QString::number(hdr->mDataLen)
-              + QString(" Bytes")
-              + QString(" [%1]").arg(QDateTime().addSecs(msg.mTimestamp.tv_sec).addMSecs(msg.mTimestamp.tv_nsec/1000000).toString("HH:mm:ss-zzz"));
+              + QString(" Bytes");
 }
 

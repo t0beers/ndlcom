@@ -1,17 +1,37 @@
 #include "NDLCom/serialcom.h"
+
 #include "serialcom/serialcom.h"
 #include "serialcom/serialcom_connect_dialog.h"
 #include "protocol/protocol.h"
+
+#include <QAction>
+#include <QTimer>
 #include <QDebug>
-#include <QMessageBox>
 
-NDLCom::Serialcom::Serialcom(QWidget* parent): Interface(parent)
+/* using namespace NDLCom is not possible because lowlevel object UdpCom has the same name... */
+
+#define INTERFACETYPE "Serial"
+
+bool NDLCom::Serialcom::popupConnectDialogAndTryToConnect()
 {
-    setObjectName("Serialcom");
+    ::Serialcom::SerialcomConnectDialog connectDialog;
 
+    if (connectDialog.exec()!=QDialog::Accepted)
+        return false;
+
+    portName = connectDialog.getPortName();
+    baudRate = connectDialog.getBaudRate();
+    parity = connectDialog.getParity();
+
+    actionConnect->activate(QAction::Trigger);
+
+    return true;
+}
+
+NDLCom::Serialcom::Serialcom(QObject* parent): Interface(parent)
+{
+    mInterfaceType = INTERFACETYPE;
     mpPorthandler = NULL;
-
-    setInterfaceType("Serial");
 
     mpProtocolBuffer = new char[65535];
     mpProtocolParser = protocolParserCreate(mpProtocolBuffer, 65535);
@@ -36,42 +56,19 @@ void NDLCom::Serialcom::on_actionConnect_triggered()
         return;
     }
 
-    ::Serialcom::SerialcomConnectDialog connectDialog;
+    mpPorthandler = new ::Serialcom::Serialcom(this);
 
-    if (connectDialog.exec()==QDialog::Accepted)
+    if (mpPorthandler->connect(portName.toAscii().constData(),baudRate,parity))
     {
-        QString portName = connectDialog.getPortName();
-        int baudRate     = connectDialog.getBaudRate();
-        int parity       = connectDialog.getParity();
+        connect(mpPorthandler,SIGNAL(lostConnection()), this, SLOT(on_actionDisconnect_triggered()));
+        connect(mpPorthandler,SIGNAL(newData(const QByteArray&)), this, SLOT(receivedData( const QByteArray&)));
+        connect(mpPorthandler,SIGNAL(dataTransmitted(const QByteArray&)), this, SLOT(updateTxBytes(const QByteArray&)));
 
-        mpPorthandler = new ::Serialcom::Serialcom(this);
+        actionDisconnect->setText("Disconnect "+portName);
 
-        if (mpPorthandler->connect(portName.toAscii().constData(),baudRate,parity))
-        {
-            mPortname = portName;
+        setDeviceName("Serialport "+portName);
 
-            connect(mpPorthandler,SIGNAL(lostConnection()), this, SLOT(on_actionDisconnect_triggered()));
-            connect(mpPorthandler,SIGNAL(newData(const QByteArray&)), this, SLOT(receivedData( const QByteArray&)));
-            connect(mpPorthandler,SIGNAL(dataTransmitted(const QByteArray&)), this, SLOT(updateTxBytes(const QByteArray&)));
-
-            actionDisconnect->setText("Disconnect "+portName);
-
-            setInterfaceType("Serialport "+portName);
-
-            emit connected();
-        }
-        else// connection not successfull (by underlying module)
-        {
-            QMessageBox msgBox;
-            QString text = QString("Serialcom: Connect to %1 failed.").arg(portName);
-            msgBox.setText(text);
-            msgBox.exec();
-
-            delete mpPorthandler;
-            mpPorthandler = NULL;
-
-            return;
-        }
+        emit connected();
     }
 }
 
@@ -83,7 +80,7 @@ void NDLCom::Serialcom::on_actionDisconnect_triggered()
         return;
     }
 
-    mPortname = "Serialport";
+    portName = "";
     mpPorthandler->disconnect();
     delete mpPorthandler;
     mpPorthandler = NULL;
@@ -123,7 +120,7 @@ void NDLCom::Serialcom::receivedData(const QByteArray& encodedData)
         int r = protocolParserReceive(mpProtocolParser, (uint8_t*)pData+parsed, datalen-parsed);
         if (r == -1)
         {
-            qDebug() << "Parser: returned -1...";
+            qDebug() << "NDLCom::Serialcom::receivedData() parser returned -1...";
             return;
         }
         parsed += r;
@@ -145,4 +142,3 @@ void NDLCom::Serialcom::receivedData(const QByteArray& encodedData)
     /* also, we wanna have somethin like raw-traffic displays... */
     emit rxRaw(encodedData);
 }
-

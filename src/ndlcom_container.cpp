@@ -6,6 +6,7 @@
  */
 
 #include "NDLCom/ndlcom_container.h"
+#include "NDLCom/interface_container_widget.h"
 #include "NDLCom/interface_container.h"
 #include "NDLCom/composer.h"
 #include "NDLCom/communication_statistic_widget.h"
@@ -29,8 +30,11 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QW
     initMyResource();
 #endif
 
-    /* create all object we need */
+    /* create the signal-emitting object */
     InterfaceContainer* mpInterfaceContainer = InterfaceContainer::getInstance();
+
+    /* create all object we need for displaying */
+    InterfaceContainerWidget* inter = new InterfaceContainerWidget(this);
     CommunicationStatisticWidget* comm = new CommunicationStatisticWidget(this);
     Composer* comp = new Composer(this);
     AvailableRepresentations* avail = new AvailableRepresentations(this);
@@ -39,15 +43,16 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QW
     /* we have our own menu, which can (and should) be added into the main-application */
     mpMenu = new QMenu("NDLCom",this);
     mpMenu->setObjectName("NDLCom Menu");
-    mpMenu->addAction(mpInterfaceContainer->actionConnectSerial);
-    mpMenu->addAction(mpInterfaceContainer->actionConnectUdp);
-    mpMenu->addMenu(mpInterfaceContainer->mpDisconnect);
+    mpMenu->addAction(inter->actionConnectSerial);
+    mpMenu->addAction(inter->actionConnectUdp);
+    mpMenu->addMenu(inter->mpDisconnectMenu);
+    mpMenu->addAction(mpInterfaceContainer->actionBridging);
     mpMenu->addSeparator();
 
     /* so do we have our toolbar... */
     mpToolbar = new QToolBar("NDLCom",this);
     mpToolbar->setObjectName("NDLCom Toolbar");
-    mpToolbar->addAction(mpInterfaceContainer->actionConnectSerial);
+    mpToolbar->addAction(inter->actionConnectSerial);
     mpToolbar->addAction(mpInterfaceContainer->actionDisconnectAll);
 
     /* to be able to add our subwidget to the main QDockWidget-area of the application */
@@ -62,7 +67,7 @@ NDLCom::NDLComContainer::NDLComContainer(QWidget* parent, bool showToolBar) : QW
     /* declare all our subwidgets */
     struct DockListEntry {QWidget* widget; const QString title; const char* name; const char* icon; };
     const DockListEntry dockList[] = {
-        {mpInterfaceContainer, "InterfaceContainer", "Manages all active interface", ":/NDLCom/images/ndlcom.png"},
+        {inter,    "InterfaceContainerWidget", "Manages all active interface", ":/NDLCom/images/ndlcom.png"},
         {comp,     "TelegramComposer", "Composer", ":/NDLCom/images/telegram.png"},
         {avail,    "Representations Info", "Representations", ":/NDLCom/images/info.png"},
         {trfk,     "MessageTraffic", "MessageTraffic", ":/NDLCom/images/parser.png"},

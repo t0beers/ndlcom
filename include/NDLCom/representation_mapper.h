@@ -7,7 +7,7 @@
 #ifndef _NDLCOM_REPRESENTATION_MAPPER_H_
 #define _NDLCOM_REPRESENTATION_MAPPER_H_
 
-#include <QWidget>
+#include <QObject>
 
 namespace Representations
 {
@@ -56,11 +56,11 @@ namespace NDLCom
 {
     class Message;
 
-    class RepresentationMapper : public QWidget
+    class RepresentationMapper : public QObject
     {
         Q_OBJECT
     public:
-        RepresentationMapper(QWidget* parent = 0);
+        RepresentationMapper(QObject* parent = 0);
         virtual ~RepresentationMapper();
 
     signals:

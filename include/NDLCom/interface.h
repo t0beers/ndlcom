@@ -1,7 +1,7 @@
 /**
  * @file lib/NDLCom/include/NDLCom/interface.h
  * @author Martin Zenzes
- * @date 2011-07-28
+ * @date 2011-07-28, 09-05-2012
  */
 
 #ifndef _NDLCOM_INTERFACE_H_
@@ -10,8 +10,6 @@
 #include "NDLCom/message.h"
 
 #include <QWidget>
-#include <QAction>
-#include <QTimer>
 
 /**
  * @addtogroup Communication
@@ -22,15 +20,11 @@
  * @{
  */
 
+class QAction;
+class QTimer;
+
 namespace NDLCom
 {
-    namespace Ui
-    {
-        class Interface;
-    };
-
-    /* widget to show current raw-traffic. will be shown as seperate window */
-    class InterfaceTraffic;
 
     /**
      * @brief Interface Base-Class, all neccessary "sugar" for nice NDLCom-Interfaces
@@ -40,12 +34,12 @@ namespace NDLCom
      * a set of QAction and Signal/Slot combinations is defined and prepared. Some servicework is
      * done here, for example pausing/resuming, showing current traffic rates and raw-traffic
      */
-    class Interface : public QWidget
+    class Interface : public QObject
     {
         Q_OBJECT
     public:
-        Interface(QWidget* parent = 0);
-        virtual ~Interface();
+        Interface(QObject* parent = NULL);
+        virtual ~Interface() {};
 
         /**
          * @brief will be true if a connection was established sucessfully
@@ -55,13 +49,14 @@ namespace NDLCom
         bool isConnected;
 
         /**
-         * @brief will connect try to connect the underlying hardware-interface
+         * @brief will try to connect a object the underlying hardware-interface
          *
-         * may pop up a QDialog to ask the user what we should do...
+         * should _not_ pop up a connect dialog!
          *
          * should emit a "connected()" signal if succesfull.
          */
         QAction* actionConnect;
+
         /**
          * @brief this action shall disconnect the interface, it may delete the driver internally
          *
@@ -69,10 +64,18 @@ namespace NDLCom
          */
         QAction* actionDisconnect;
 
-        /* little helper function */
-        static QString sizeToString(int size);
+        /**
+         * @brief This action is handled exclusivly by this base-class
+         *
+         * sets the bool mPaused to true, if its paused, and cares to alter all other informative
+         * stuff, like fresh labels, activating actions and emitting signals.
+         */
+        QAction* actionPauseResume;
 
+        /** holds the low-level interface type, like "Serial" or "UdpCom" */
         QString mInterfaceType;
+        /** holds the name of this specific interface, like "Serial /dev/ttyUSB0" */
+        QString mDeviceName;
 
         struct Statistics
         {
@@ -112,6 +115,9 @@ namespace NDLCom
          */
         virtual void txMessage(const NDLCom::Message& msg) = 0;
 
+        /** this triggers a dialog, which asks the user to input some informations... */
+        virtual bool popupConnectDialogAndTryToConnect() = 0;
+
     protected:
         /** subclasses update this value as they receive raw-data, is used to display receive-rates */
         int mRxBytes;
@@ -126,7 +132,7 @@ namespace NDLCom
          *
          * @param type something like "/dev/ttyUSB0" or "UDP 192.168.0.34:43211"
          */
-        void setInterfaceType(const QString& type);
+        void setDeviceName(const QString& type);
 
     signals:/*protected*/
 		/* used to send traffic to the raw-traffic-window */
@@ -151,23 +157,8 @@ namespace NDLCom
         /* used to calculate sending rates */
         Statistics mStatistics;
 
-        /** @brief will add a widget showing current raw-traffic of this interface... */
-        QAction* actionShowTraffic;
-        /** widget which may show raw-traffic */
-        InterfaceTraffic* mpTraffic;
-        /**
-         * @brief This action is handled exclusivly by this base-class
-         *
-         * sets the bool mPaused to true, if its paused, and cares to alter all other informative
-         * stuff, like fresh labels, activating actions and emitting signals.
-         */
-        QAction* actionPauseResume;
         /** updating the Gui */
         QTimer* mpGuiTimer;
-        /** used to show current raw-traffic of a Interface in a seperate window */
-        QWidget* mpTrafficWindow;
-        /** ... */
-        Ui::Interface* mpUi;
 
     signals:/*private*/
         /* current data rate, transformed as a string */
@@ -186,11 +177,10 @@ namespace NDLCom
         void slot_connected();
         /** when a connection was disconnected */
         void slot_disconnected();
-        /** handling a request for raw-data traffic */
-        void on_actionShowTraffic_toggled(bool);
         /** handling a request for pause/resume. renames QAction-tooltips, informs subclasses and displays state */
         void on_actionPauseResume_toggled(bool);
     };
+
 };
 
 /**

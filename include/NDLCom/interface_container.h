@@ -1,28 +1,25 @@
 /**
  * @file include/NDLCom/interface_container.h
  * @author Martin Zenzes
- * @date 2011
+ * @date 2011, 09-05-2012
  */
 #ifndef _NDLCOM_INTERFACE_CONTAINER_H_
 #define _NDLCOM_INTERFACE_CONTAINER_H_
 
-#include <vector>
-#include <QWidget>
-#include <QIcon>
+#include <QObject>
 #include <QMap>
+#include <QIcon>
 #include <QList>
-#include <QTimer>
-#include <QMenu>
 
 #include "NDLCom/representation_mapper.h"
 #include "NDLCom/interface.h"
 
+class QIcon;
+class QAction;
+class QTimer;
+
 namespace NDLCom
 {
-    namespace Ui
-    {
-        class InterfaceContainer;
-    };
 
     class Message;
     class RepresentationMapper;
@@ -52,30 +49,37 @@ namespace NDLCom
         /** users can ask here for the pointer of this module */
         static NDLCom::InterfaceContainer* getInstance();
 
-        /** here, we will collect all disconnect-actions of the currently active and running interfaces */
-        QMenu* mpDisconnect;
-        /** for every kind of new interface, we need one action which knows how to create it */
-        QAction* actionConnectSerial;
-        /** for every kind of new interface, we need one action which knows how to create it */
-        QAction* actionConnectUdp;
+        /* will return the names of all known interfaces types, which are active in the moment */
+        QStringList getInterfaceTypes();
+        /** will return a list of all existing interfaces of a specific type */
+        QList<Interface*> getActiveInterfaces(QString interfaceType);
+        /** will return the number of _all_ active interfaces */
+        int getNumberOfActiveInterfaces();
+
         /** removing all active connection in one click! */
         QAction* actionDisconnectAll;
+
+        /** action which is checkable. if enabled, all received messages will be echoed on all other
+         * interfaces. attention: this is merely experimental and dangerous */
+        QAction* actionBridging;
 
     public slots:
         /** finished and valid telegram to be sent away into the world */
         void txMessage(const NDLCom::Message&);
 
     signals:
-        /** current status (transferred data and rates) of all interfaces */
+        /** current status (overall transferred data and current rates) of all interfaces, formatted
+         * in one string  */
         void transferRate(const QString);
 
-        /** this signal will print string/datarate combinations rx/tx bytes/rate, summed over all
-         * interfaces each */
+        /** this signal will print a string holding rx/tx bytes and current rates, summed over all
+         * interfaces each, given in kB/s and suitable for the istruct plotter */
         void status(QString, double);
 
         /**
          * this signal emits the connection state to higher level instances, e.g. the control
-         * of the processing flow of the application (e.g. starting/stopping of keep alive messaging */
+         * of the processing flow of the application (e.g. starting/stopping of keep alive messaging
+         * TODO use number of active interfaces */
         void connectionStatusChanged(bool _isConnected);
 
 	protected:
@@ -84,7 +88,7 @@ namespace NDLCom
          *
          * @param parent normally "this" of the main-window or something...
          */
-        InterfaceContainer(QWidget* parent = 0);
+        InterfaceContainer(QObject* parent = NULL);
         /**
          * @brief Destructor of InterfaceContainer class. Doing cleanup here
          */
@@ -92,42 +96,34 @@ namespace NDLCom
 
     private:
 
-        /** this list will contain all interfaces, which are connected right now */
-        QList<Interface*> runningInterfaces;
+        /** this time is used to generate the status strings and statistics */
+        QTimer* mpStatisticsTimer;
 
-        /** ... */
-        Ui::InterfaceContainer* mpUi;
+        /** this map contains the mapping of a "interfaceType" name to the list containing all
+         * interfaces of this type */
+        QMap<QString, QList<Interface*>* > activeInterfaces;
 
-        /** printing the number of current connections into the "new connection" icon */
-        QIcon printNumberOnIcon(QString, int number = 0, QColor color = Qt::black);
-
-        /** these two are used two counter the number of active interfaces for display in the icons */
-        int mRunningUdp;
-        int mRunningSerial;
-
-        /** for displaying overall data-rate. will keep transferred bytes forever. will remove
-         * current rates for disconnected devices */
-
+        /** a map holding some statistical data. this map is _not_ cleared by disconnected
+         * interfaces! */
         std::map<Interface*, Interface::Statistics> mStatistics;
 
-        /* to update als summarize the received transfer rates from all interfaces this timer */
-        QTimer* mpGuiTimer;
-
-        /** static pointer to the only instance */
+        /** static pointer to the singleton instance */
         static InterfaceContainer* spInstance;
 
     private slots:
+
         void slot_rxMessage(const NDLCom::Message&);
         void slot_rxRate(double);
         void slot_txRate(double);
         void slot_rxBytes(double);
         void slot_txBytes(double);
+
         void connected();
         void disconnected();
-        void on_actionConnectSerial_triggered();
-        void on_actionConnectUdp_triggered();
+        void updateIcons();
+
+        void on_mpStatisticsTimer_timeout();
         void on_actionDisconnectAll_triggered();
-        void on_mpGuiTimer_timeout();
     };
 };
 

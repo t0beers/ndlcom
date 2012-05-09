@@ -4,13 +4,10 @@
  * @date 2011
  */
 
-#include <QDebug>
-#include <QMetaType>
 #include "NDLCom/representation_mapper.h"
 #include "NDLCom/message.h"
 
 #include <cassert>
-#include <math.h>
 
 /* extra types of representation */
 #include "representations/representation.h"
@@ -46,7 +43,12 @@
 #include "representations/valve_control_board.h"
 #include "representations/cam_tcm8230md.h"
 
-NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(parent)
+#include <QDebug>
+#include <QMetaType>
+
+using namespace NDLCom;
+
+RepresentationMapper::RepresentationMapper(QObject* parent) : QObject(parent)
 {
     /* should be moved into main gui? */
     qRegisterMetaType<ProtocolHeader>("ProtocolHeader");
@@ -93,11 +95,11 @@ NDLCom::RepresentationMapper::RepresentationMapper(QWidget* parent) : QWidget(pa
     connect(this, SIGNAL(internal_txMessage(const NDLCom::Message&)), this, SLOT(slot_rxMessage(const NDLCom::Message&)));
 }
 
-NDLCom::RepresentationMapper::~RepresentationMapper()
+RepresentationMapper::~RepresentationMapper()
 {
 }
 
-void NDLCom::RepresentationMapper::handleTimestampedData(const NDLCom::Message& msg)
+void RepresentationMapper::handleTimestampedData(const NDLCom::Message& msg)
 {
     //check length
     if (msg.mHdr.mDataLen < sizeof(Representations::Timestamp))
@@ -110,7 +112,7 @@ void NDLCom::RepresentationMapper::handleTimestampedData(const NDLCom::Message& 
     ProtocolHeader innerHeader(msg.mHdr);
     //data of the inner message starts after the timestamp data
     innerHeader.mDataLen = msg.mHdr.mDataLen - sizeof(Representations::Timestamp);
-    NDLCom::Message innerMessage(msg.mTimestamp, innerHeader, msg.mpDecodedData + sizeof(Representations::Timestamp));
+    Message innerMessage(msg.mTimestamp, innerHeader, msg.mpDecodedData + sizeof(Representations::Timestamp));
 
     //put timestamp from sender into message struct
     const Representations::Timestamp* pTimestamp = (const Representations::Timestamp*)msg.mpDecodedData;
@@ -122,7 +124,7 @@ void NDLCom::RepresentationMapper::handleTimestampedData(const NDLCom::Message& 
     emit rxMessage(innerMessage);
 }
 
-void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
+void RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
 {
     /* than, we try to get a pointer to representation-data */
     const Representations::Representation* repreData = reinterpret_cast<const Representations::Representation*>(msg.mpDecodedData);

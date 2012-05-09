@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NDLCom::Interface</class>
- <widget class="QWidget" name="NDLCom::Interface">
+ <class>NDLCom::InterfaceWidget</class>
+ <widget class="QWidget" name="NDLCom::InterfaceWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

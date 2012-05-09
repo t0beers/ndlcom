@@ -9,9 +9,6 @@
 #ifndef _NDLCOM_SERIALCOM_H_
 #define _NDLCOM_SERIALCOM_H_
 
-#include <QObject>
-#include <QDialog>
-
 #include "NDLCom/interface.h"
 
 /**
@@ -39,8 +36,16 @@ namespace NDLCom
     {
         Q_OBJECT
     public:
-        Serialcom(QWidget *parent=0);
+        Serialcom(QObject *parent = NULL);
         virtual ~Serialcom();
+
+        /* these three things are the settings used to connect the device */
+        QString portName;
+        int baudRate;
+        int parity;
+
+        /* will pop up a dialoge where the user might change the current settings */
+        bool popupConnectDialogAndTryToConnect();
 
     private slots:
         void txMessage(const NDLCom::Message&);
@@ -53,7 +58,6 @@ namespace NDLCom
 
     private:
         ::Serialcom::Serialcom* mpPorthandler;
-        QString mPortname;
 
         ProtocolParser* mpProtocolParser;
         char* mpProtocolBuffer;

@@ -1,40 +1,30 @@
 /**
  * @file NDLCom/src/interface_container.cpp
  * @author Martin Zenzes
- * @date 2011
+ * @date 2011, 2012
  */
 #include "NDLCom/interface_container.h"
-#include "NDLCom/communication_statistic_widget.h"
-#include "NDLCom/composer.h"
-#include "NDLCom/interface.h"
-#include "NDLCom/message.h"
-#include "NDLCom/message_traffic.h"
-#include "NDLCom/serialcom.h"
-#include "NDLCom/udpcom.h"
 
-#include "representations/id.h"
-#include "representations/names.h"
-
-#include "ui_interface_container.h"
+#include "NDLCom/StaticTools.h"
 
 #include <QDebug>
-#include <QDockWidget>
-#include <QMenu>
-#include <QPixmap>
 #include <QPainter>
-#include <QMenu>
+#include <QIcon>
+#include <QTimer>
+#include <QAction>
 
-#include <cassert>
+using namespace NDLCom;
 
-NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::spInstance = 0;
+/* singletons pointer */
+InterfaceContainer* InterfaceContainer::spInstance = 0;
 
-NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::getInterfaceContainer()
+InterfaceContainer* InterfaceContainer::getInterfaceContainer()
 {
 #warning NDLCom::InterfaceContainer::getInterfaceContainer() deprecated, use 'NDLCom::InterfaceContainer::getInstance()' instead
     return getInstance();
 }
 
-NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::getInstance()
+InterfaceContainer* InterfaceContainer::getInstance()
 {
     if(spInstance == 0)
         spInstance = new InterfaceContainer();
@@ -42,205 +32,182 @@ NDLCom::InterfaceContainer* NDLCom::InterfaceContainer::getInstance()
     return spInstance;
 }
 
-NDLCom::InterfaceContainer::InterfaceContainer(QWidget* parent) : RepresentationMapper(parent)
+InterfaceContainer::InterfaceContainer(QObject* parent) :
+    RepresentationMapper(parent)
 {
-
     /* we only want ONE single instance of this object! */
-    assert(spInstance == 0);
+    Q_ASSERT(spInstance == NULL);
     spInstance = this;
 
-    /* setting up oll object for autoconnect before setupUi() */
     actionDisconnectAll = new QAction("Disconnect All",this);
     actionDisconnectAll->setObjectName("actionDisconnectAll");
     actionDisconnectAll->setIcon(QIcon(":/NDLCom/images/disconnect.png"));
     actionDisconnectAll->setShortcuts(QKeySequence::Close);
     actionDisconnectAll->setToolTip("Disconnect all existing data connections");
 
-    actionConnectSerial = new QAction("Connect Serial",this);
-    actionConnectSerial->setObjectName("actionConnectSerial");
-    actionConnectSerial->setShortcuts(QKeySequence::Open);
-    actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
-    actionConnectSerial->setToolTip("Connect to a serial port");
+    actionBridging = new QAction("Enable NDLCom bridging", this);
+    actionBridging->setObjectName("actionBridging");
+    actionBridging->setToolTip("if enabled all received messages will be echoed on all other interfaces. dangerous!");
+    actionBridging->setCheckable(true);
+    actionBridging->setChecked(false);
 
-    actionConnectUdp = new QAction("Connect UDP",this);
-    actionConnectUdp->setObjectName("actionConnectUdp");
-    actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png"));
-    actionConnectUdp->setToolTip("Connect to an UDP port to receive data over network");
+    mpStatisticsTimer = new QTimer(this);
+    mpStatisticsTimer->setObjectName("mpStatisticsTimer");
+    mpStatisticsTimer->setInterval(100);/*10Hz*/
+    mpStatisticsTimer->start();
 
-    mpGuiTimer = new QTimer(this);
-    mpGuiTimer->setObjectName("mpGuiTimer");
-    mpGuiTimer->setInterval(100);/*10Hz*/
-    mpGuiTimer->start();
+    QMetaObject::connectSlotsByName(this);
 
-    /* setting up Ui */
-    mpUi = new Ui::InterfaceContainer();
-    mpUi->setupUi(this);
-
-    /* set up the toolButtons in our widget */
-    mpUi->connectSerial->setDefaultAction(actionConnectSerial);
-    mpUi->connectUdp->setDefaultAction(actionConnectUdp);
-    mpUi->disconnectAll->setDefaultAction(actionDisconnectAll);
-
-    /* to be able to provide all disconnect-actions grouped together, we ned a menu */
-    mpDisconnect = new QMenu("Disconnect");
-    mpDisconnect->addAction(actionDisconnectAll);
-
-    /* for counting active interfaces */
-    mRunningSerial = 0;
-    mRunningUdp = 0;
+    connect(this, SIGNAL(connectionStatusChanged(bool)), this, SLOT(updateIcons()));
 }
 
-NDLCom::InterfaceContainer::~InterfaceContainer()
+/* destructor of singleton. should never be called. however we do implement it */
+InterfaceContainer::~InterfaceContainer()
 {
     actionDisconnectAll->activate(QAction::Trigger);
 
+    /* clean up list of interfaces: each map-entry is a list of pointers to interfaces... after
+     * called actionDisconnectAll, this map should be empty anyway */
+    QMapIterator<QString, QList<Interface* >* > i(activeInterfaces);
+    while(!activeInterfaces.isEmpty())
+    {
+        QList<Interface* >* interfaces = activeInterfaces.take(activeInterfaces.end().key());
+        while(!interfaces->isEmpty())
+        {
+            qWarning() << "NDLCom::InterfaceContainer::~InterfaceContainer() found non deleted interface...";
+            delete interfaces->takeFirst();
+        }
+
+        delete interfaces;
+    }
+
+    qWarning() << "NDLCom::InterfaceContainer::~InterfaceContainer() called... singleton?";
     /* setting this back to zero again allows recreating an instance multiple times... while only
      * one at a time is alive */
     spInstance = NULL;
 }
 
-/* another sexy hack: showing the numbre of active interfaces in the actionConnect*-actions */
-QIcon NDLCom::InterfaceContainer::printNumberOnIcon(QString icon, int number, QColor color)
-{
-    /* we don't paint zeros... */
-    if (number == 0)
-        return QIcon(icon);
-
-    /* this may be unefficient, but i know it works... */
-    QPixmap pix(icon);
-    QPainter painter;
-    painter.begin(&pix);
-    painter.setPen(color);
-    painter.setFont(QFont("", 14, -1, false));
-    painter.drawText(QPoint(0,20), QString::number(number));
-    painter.end();
-    return QIcon(pix);
-}
-
-/* how to create a new serial connection */
-void NDLCom::InterfaceContainer::on_actionConnectSerial_triggered()
-{
-    Serialcom* serialcom = new Serialcom(this);
-
-    connect(serialcom, SIGNAL(connected()), this, SLOT(connected()));
-
-    serialcom->actionConnect->activate(QAction::Trigger);
-
-    /* catch the case that the user declines the connection dialog using "cancel" */
-    if (!serialcom->isConnected)
-        delete serialcom;
-}
-
-/* how to create a new udp-connection */
-void NDLCom::InterfaceContainer::on_actionConnectUdp_triggered()
-{
-    UdpCom* udpcom = new UdpCom(this);
-
-    connect(udpcom, SIGNAL(connected()), this, SLOT(connected()));
-
-    udpcom->actionConnect->activate(QAction::Trigger);
-
-    /* catch the case that the user declines the connection dialog using "cancel" */
-    if (!udpcom->isConnected)
-        delete udpcom;
-}
-
 /* how to remove _all_ connections by calling each one's disconnect action. the rest is done in the
- * disconnected() slot after the sppropriate ignal of the interfaces arrives here */
+ * disconnected() slot after the appropriate signal of the interfaces arrives here */
 void NDLCom::InterfaceContainer::on_actionDisconnectAll_triggered()
 {
-    while (!runningInterfaces.isEmpty())
-        runningInterfaces.first()->actionDisconnect->activate(QAction::Trigger);
+    QMapIterator<QString, QList<Interface* >* > i(activeInterfaces);
+    while(i.hasNext())
+    {
+        i.next();
+        QList<Interface* >* interfaces = i.value();
+        for (int j=interfaces->size()-1;j>=0;j--)
+            interfaces->at(j)->actionDisconnect->activate(QAction::Trigger);
+    }
 }
 
 /* what should we do on a successfull connect? */
-void NDLCom::InterfaceContainer::connected()
+void InterfaceContainer::connected()
 {
     Interface* inter;
 
-    if ((inter = qobject_cast<Interface*>(QObject::sender())))
+    if (!(inter = qobject_cast<Interface*>(QObject::sender())))
+        return;
+
+    /* check if we know this type of interface already */
+    if (!activeInterfaces.value(inter->mInterfaceType))
     {
-        /* show the widget in the gui, added as second last (the last is the spacer) */
-        mpUi->areaGates->insertWidget(mpUi->areaGates->count()-1,inter);
-        /* mark it in our list */
-        if (runningInterfaces.contains(inter))
-            qWarning() << "NDLCom::InterfaceContainer::connected() got a doubled connect?";
-        runningInterfaces.append(inter);
-        /* allow specific disconnections */
-        mpDisconnect->addAction(inter->actionDisconnect);
-        /* handle losing a connection... */
-        connect(inter, SIGNAL(disconnected()), this, SLOT(disconnected()));
-
-        /* we wrap all received signals by the interfaces in our private slot */
-        connect(inter, SIGNAL(rxMessage(const NDLCom::Message&)), this, SLOT(slot_rxMessage(const NDLCom::Message&)));
-
-        /* inform others about established connection */
-        emit connectionStatusChanged(true);
-
-        /* we wanna keep book */
-        connect(inter, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
-        connect(inter, SIGNAL(txRate(double)),  this, SLOT(slot_txRate(double)));
-        connect(inter, SIGNAL(rxBytes(double)), this, SLOT(slot_rxBytes(double)));
-        connect(inter, SIGNAL(txBytes(double)), this, SLOT(slot_txBytes(double)));
+        /* qDebug() << "NDLCom::InterfaceContainer::connected() learned new interface type" << inter->mInterfaceType; */
+        activeInterfaces.insert(inter->mInterfaceType, new QList<Interface*>());
     }
-    else
-        qWarning() << "NDLCom::InterfaceContainer::connected() someone called, though he is not an NDLCom::Interface";
+    /* save it in our list */
+    activeInterfaces.value(inter->mInterfaceType)->append(inter);
 
-    /* update the icons */
-    if (qobject_cast<Serialcom*>(QObject::sender()))
-        actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
-                                                       ++mRunningSerial,
-                                                       QColor("#6dca00")));
-    if (qobject_cast<UdpCom*>(QObject::sender()))
-        actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
-                                                    ++mRunningUdp,
-                                                    QColor("#6dca00")));
+    /* handle losing a connection from this interface... */
+    connect(inter, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
-    actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png",
-                                                    mRunningUdp+mRunningSerial));
+    /* we wrap all received signals by the interfaces in our private slot */
+    connect(inter, SIGNAL(rxMessage(const NDLCom::Message&)), this, SLOT(slot_rxMessage(const NDLCom::Message&)));
+
+    /* inform others about established connection FIXME use number if active interfaces instead? */
+    emit connectionStatusChanged(true);
+
+    /* we wanna keep book in the statistics */
+    connect(inter, SIGNAL(rxRate(double)),  this, SLOT(slot_rxRate(double)));
+    connect(inter, SIGNAL(txRate(double)),  this, SLOT(slot_txRate(double)));
+    connect(inter, SIGNAL(rxBytes(double)), this, SLOT(slot_rxBytes(double)));
+    connect(inter, SIGNAL(txBytes(double)), this, SLOT(slot_txBytes(double)));
 }
 
 /* what should we do after loosing a connection */
-void NDLCom::InterfaceContainer::disconnected()
+void InterfaceContainer::disconnected()
 {
     Interface* inter;
 
-    if ((inter = qobject_cast<Interface*>(QObject::sender())))
-    {
-        /* update the icons (do this before deleting, otherwise object_cast won't work) */
-        if (qobject_cast<Serialcom*>(QObject::sender()))
-            actionConnectSerial->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
-                        --mRunningSerial,
-                        QColor("#6dca00")));
+    /* only proceed if we have a valid caller */
+    if (!(inter = qobject_cast<Interface*>(QObject::sender())))
+        return;
 
-        if (qobject_cast<UdpCom*>(QObject::sender()))
-            actionConnectUdp->setIcon(printNumberOnIcon(":/NDLCom/images/connect.png",
-                        --mRunningUdp,
-                        QColor("#6dca00")));
+    /* lookup this interface in our list, and remove it from the list */
+    activeInterfaces.value(inter->mInterfaceType)->removeAll(inter);
+    /* if this was the last interface, remove it's list aswell */
+    if (activeInterfaces.value(inter->mInterfaceType)->isEmpty())
+        delete activeInterfaces.take(inter->mInterfaceType);
+    /* and finally delete the interface itself */
+    delete inter;
 
-        delete inter;
-        runningInterfaces.removeAll(inter);
+    /* Inform others about closed connection */
+    emit connectionStatusChanged(false);
 
-        /* Inform others about closed connection */
-        emit connectionStatusChanged(false);
-
-        /* Interface statistics are currently not removed from the mInterfaceStatistics map. */
-    }
-    else
-        qWarning() << "NDLCom::InterfaceContainer::disconnected() someone called, tough he is not an NDLCom::Interface";
-
-    /* updating this icon in all cases */
-    actionDisconnectAll->setIcon(printNumberOnIcon(":/NDLCom/images/disconnect.png",
-                                                    mRunningUdp+mRunningSerial));
+    /* Interface statistics are currently not removed from the mInterfaceStatistics map. */
 }
 
-/* _all_ messages from the GUI to external devices go through this slot */
-void NDLCom::InterfaceContainer::txMessage(const NDLCom::Message& msg)
+QList<Interface* > InterfaceContainer::getActiveInterfaces(QString type)
 {
-    /* TODO choose correct interface. in the time being we send every message to every interface */
-    for (int i = 0; i < runningInterfaces.size(); ++i)
+    if (activeInterfaces.value(type))
+        return *activeInterfaces.value(type);
+    else
+        return QList<Interface*>();
+}
+
+int InterfaceContainer::getNumberOfActiveInterfaces()
+{
+    int retval = 0;
+
+    QMapIterator<QString, QList<Interface* >* > i(activeInterfaces);
+    while(i.hasNext())
     {
-        emit runningInterfaces.at(i)->txMessage(msg);
+        i.next();
+        retval += i.value()->size();
+    }
+
+    return retval;
+}
+
+QStringList InterfaceContainer::getInterfaceTypes()
+{
+    QStringList retval;
+
+    QMapIterator<QString, QList<Interface* >* > i(activeInterfaces);
+    while(i.hasNext())
+    {
+        i.next();
+        retval << i.key();
+    }
+
+    return retval;
+}
+
+/* ---------------------------------- data handling ---------------------------------- */
+
+/* _all_ messages from the GUI to external devices go through this slot */
+void InterfaceContainer::txMessage(const NDLCom::Message& msg)
+{
+    /* TODO choose correct interface. */
+    /* in the time being we send every message to every interface */
+    QMapIterator<QString, QList<Interface* >* > i(activeInterfaces);
+    while(i.hasNext())
+    {
+        i.next();
+        for (int j=0;j<i.value()->size();++j)
+        {
+            emit i.value()->at(j)->txMessage(msg);
+        }
     }
 
     /* just for other widgets who wanna see the traffic, like NDLCom::MessageTraffic */
@@ -248,7 +215,7 @@ void NDLCom::InterfaceContainer::txMessage(const NDLCom::Message& msg)
 }
 
 /* _all_ received messages go through this slot! Message which are not addressed at us will be forwarded */
-void NDLCom::InterfaceContainer::slot_rxMessage(const NDLCom::Message& msg)
+void InterfaceContainer::slot_rxMessage(const NDLCom::Message& msg)
 {
     /* in any case, we retransmit the Message. If anymone needs it */
     /* this slot can be found in RepresentationMapper */
@@ -257,7 +224,7 @@ void NDLCom::InterfaceContainer::slot_rxMessage(const NDLCom::Message& msg)
     /* experimental feature: forward all messages received here on the other existing interfaces...
      * this may lead to exessive flood of packages, so be carefull! to guard normal operation from
      * this, we introduced a checkbox */
-    if (!mpUi->bridging->checkState())
+    if (!actionBridging->isChecked())
         return;
 
     /* just to be sure... */
@@ -268,39 +235,52 @@ void NDLCom::InterfaceContainer::slot_rxMessage(const NDLCom::Message& msg)
         return;
     }
 
-    for (int i = 0; i < runningInterfaces.size(); ++i)
+    QMapIterator<QString, QList<Interface* >* > i(activeInterfaces);
+    while(i.hasNext())
     {
-        /* all other interfaces but this one */
-        if (runningInterfaces.at(i) != inter)
-            emit runningInterfaces.at(i)->txMessage(msg);
+        i.next();
+        for (int j=0;j<i.value()->size();++j)
+        {
+            /* all other interfaces but this one */
+            if (i.value()->at(j) != inter)
+                emit i.value()->at(j)->txMessage(msg);
+        }
     }
 }
 
-void NDLCom::InterfaceContainer::slot_rxRate(double rate)
+void InterfaceContainer::updateIcons()
+{
+    actionDisconnectAll->setIcon(printNumberOnIcon(QIcon(":/NDLCom/images/connect.png"),
+                                                   getNumberOfActiveInterfaces()));
+}
+
+/* ---------------------------------- statistics ---------------------------------- */
+
+void InterfaceContainer::slot_rxRate(double rate)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
     mStatistics[inter].mRxRate = rate;
 }
 
-void NDLCom::InterfaceContainer::slot_txRate(double rate)
+void InterfaceContainer::slot_txRate(double rate)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
     mStatistics[inter].mTxRate = rate;
 }
 
-void NDLCom::InterfaceContainer::slot_rxBytes(double bytes)
+void InterfaceContainer::slot_rxBytes(double bytes)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
     mStatistics[inter].mRxBytes = bytes;
 }
 
-void NDLCom::InterfaceContainer::slot_txBytes(double bytes)
+void InterfaceContainer::slot_txBytes(double bytes)
 {
     Interface* inter = qobject_cast<Interface*>(QObject::sender());
     mStatistics[inter].mTxBytes = bytes;
 }
 
-void NDLCom::InterfaceContainer::on_mpGuiTimer_timeout()
+void InterfaceContainer::on_mpStatisticsTimer_timeout()
 {
     Interface::Statistics sum;
     sum.setZero();
