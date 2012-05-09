@@ -119,7 +119,7 @@ void NDLCom::RepresentationMapper::handleTimestampedData(const NDLCom::Message& 
     innerMessage.mTimestampFromSender.tv_nsec = (micro * 1000) % 1000000000;
 
     //handle data in inner message
-    slot_rxMessage(innerMessage);
+    emit rxMessage(innerMessage);
 }
 
 void NDLCom::RepresentationMapper::slot_rxMessage(const NDLCom::Message& msg)
