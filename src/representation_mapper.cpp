@@ -10,9 +10,6 @@
 #include "NDLCom/message.h"
 
 #include <cassert>
-
-#include "ui_show_representations.h"
-
 #include <math.h>
 
 /* extra types of representation */
