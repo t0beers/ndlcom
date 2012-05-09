@@ -91,12 +91,14 @@ set(lib_HEADERS_QT # need moc to be processed
     )
 set(lib_HEADERS # need no moc, plain cpp
     include/NDLCom/StaticTools.h
+    include/NDLCom/CommandLineArgument.h
     include/NDLCom/ndlcom.h
     include/NDLCom/message.h
     )
 # here we only mention additionally which libs should get installed in the system
 set(install_HEADERS
     include/NDLCom/StaticTools.h
+    include/NDLCom/CommandLineArgument.h
     include/NDLCom/interface_container.h
     )
 set(lib_FORMS
