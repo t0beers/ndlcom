@@ -30,18 +30,18 @@ MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
 void MessageTraffic::receivedMessage(const Message& msg)
 {
     /* save cpu cycles if this widget is not visible */
-    if(isVisible() && mpUi->pause->isChecked())
+    if(isVisible() && !mpUi->pause->isChecked())
     {
-        mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
+        mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
     }
 }
 
 void MessageTraffic::sentMessage(const Message& msg)
 {
     /* save cpu cycles if this widget is not visible */
-    if(isVisible() && mpUi->pause->isChecked())
+    if(isVisible() && !mpUi->pause->isChecked())
     {
-        mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
+        mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
     }
 }
 
