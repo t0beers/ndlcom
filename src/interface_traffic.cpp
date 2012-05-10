@@ -19,7 +19,6 @@ InterfaceTraffic::InterfaceTraffic(QWidget* parent) : QWidget(parent)
 
     mpUi->clear->setIcon(QIcon::fromTheme("edit-clear"));
     mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
-    mPause = false;
 
     mpHighlight_Tx = new Highlighter(mpUi->plainTextEdit_Tx->document());
     mpHighlight_Rx = new Highlighter(mpUi->plainTextEdit_Rx->document());
@@ -29,33 +28,36 @@ InterfaceTraffic::InterfaceTraffic(QWidget* parent) : QWidget(parent)
                QString("green: escaped escaped (0x7d -> 0x7d 0x5d"));
 }
 
-void InterfaceTraffic::on_pause_clicked()
-{
-    if (mPause) {
-        mPause=false;
-        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
-        mpUi->pause->setText("Pause");
-    } else {
-        mPause=true;
-        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-start"));
-        mpUi->pause->setText("Resume");
-    }
-}
-
 void InterfaceTraffic::rxTraffic(const QByteArray& data)
 {
-    if(isVisible() && !mPause)
+    if(isVisible() && !mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Rx->appendPlainText(data.toHex());
     }
 }
 void InterfaceTraffic::txTraffic(const QByteArray& data)
 {
-    if(isVisible() && !mPause)
+    if(isVisible() && !mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Tx->appendPlainText(data.toHex());
     }
 }
+
+void InterfaceTraffic::on_pause_toggled(bool checked)
+{
+    if (checked)
+    {
+        mpUi->pause->setText("Resume");
+        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-start"));
+    }
+    else
+    {
+        mpUi->pause->setText("Pause");
+        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
+    }
+}
+
+/* ------------------------- minimal custon highlighter class ------------------------ */
 
 Highlighter::Highlighter(QTextDocument* parent) :
     QSyntaxHighlighter(parent)

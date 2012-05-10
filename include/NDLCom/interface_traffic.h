@@ -32,18 +32,18 @@ namespace NDLCom
         void txTraffic(const QByteArray&);
         void rxTraffic(const QByteArray&);
 
-    private slots:
-        void on_pause_clicked();
-
     private:
         Ui::Traffic* mpUi;
 
         Highlighter* mpHighlight_Rx;
         Highlighter* mpHighlight_Tx;
 
-        bool mPause;
+    private slots:
+        void on_pause_toggled(bool checked);
+
     };
 
+    /* ------------------------- minimal custon highlighter class ------------------------ */
 
     class Highlighter : public QSyntaxHighlighter
     {

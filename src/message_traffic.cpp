@@ -25,26 +25,12 @@ MessageTraffic::MessageTraffic(QWidget* parent) : QWidget(parent)
 
     mpUi->clear->setIcon(QIcon::fromTheme("edit-clear"));
     mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
-    mPause = false;
-}
-
-void MessageTraffic::on_pause_clicked()
-{
-    if (mPause) {
-        mPause=false;
-        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
-        mpUi->pause->setText("Pause");
-    } else {
-        mPause=true;
-        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-start"));
-        mpUi->pause->setText("Resume");
-    }
 }
 
 void MessageTraffic::receivedMessage(const Message& msg)
 {
     /* save cpu cycles if this widget is not visible */
-    if(isVisible() && !mPause)
+    if(isVisible() && !mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Rx->appendPlainText(formatMessage(msg));
     }
@@ -53,7 +39,7 @@ void MessageTraffic::receivedMessage(const Message& msg)
 void MessageTraffic::sentMessage(const Message& msg)
 {
     /* save cpu cycles if this widget is not visible */
-    if(isVisible() && !mPause)
+    if(isVisible() && !mpUi->pause->isChecked())
     {
         mpUi->plainTextEdit_Tx->appendPlainText(formatMessage(msg));
     }
@@ -97,3 +83,16 @@ QString MessageTraffic::formatMessage(const Message &msg)
               + QString(" Bytes");
 }
 
+void MessageTraffic::on_pause_toggled(bool checked)
+{
+    if (checked)
+    {
+        mpUi->pause->setText("Resume");
+        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-start"));
+    }
+    else
+    {
+        mpUi->pause->setText("Pause");
+        mpUi->pause->setIcon(QIcon::fromTheme("media-playback-pause"));
+    }
+}

@@ -29,15 +29,13 @@ namespace NDLCom
         void sentMessage(const NDLCom::Message&);
         void receivedMessage(const NDLCom::Message&);
 
-    private slots:
-        void on_pause_clicked();
-
     private:
         Ui::Traffic* mpUi;
 
         QString formatMessage(const NDLCom::Message&);
 
-        bool mPause;
+    private slots:
+        void on_pause_toggled(bool checked);
     };
 };
 
