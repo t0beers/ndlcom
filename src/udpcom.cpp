@@ -52,10 +52,10 @@ bool NDLCom::UdpCom::popupConnectDialogAndTryToConnect()
             qCritical() << QString("UdpCom: could not get address from hostname %1").arg(hostname);
             return false;
         }
-
-        sendPort = connectDialog.getSendport();
-        recvPort = connectDialog.getRecvport();
     }
+
+    sendPort = connectDialog.getSendport();
+    recvPort = connectDialog.getRecvport();
 
     actionConnect->activate(QAction::Trigger);
 
@@ -110,7 +110,7 @@ void NDLCom::UdpCom::on_actionConnect_triggered()
 
     mpReceiveThread->start();
 
-    setDeviceName( QString("UDP [%1:%2]").arg(addressString).arg(sendPort));
+    setDeviceName( QString("UDP [%1:%2-%3]").arg(addressString).arg(sendPort).arg(recvPort));
 
     emit connected();
 }
