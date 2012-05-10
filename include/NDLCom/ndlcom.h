@@ -8,6 +8,11 @@
 
 #include "NDLCom/interface_container.h"
 
+/* if this message bites you: go away... */
+#if QT_VERSION < 0x040600
+#error "NDLCom and iStruct don't support Qt below 4.6"
+#endif
+
 namespace NDLCom
 {
     /** FIXME to be removed. the name of this function is missleading/inconsistent... use the
