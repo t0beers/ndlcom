@@ -103,6 +103,7 @@ set(install_HEADERS
     include/NDLCom/interface.h
     include/NDLCom/message.h
     include/NDLCom/ndlcom.h
+    include/NDLCom/ndlcom_container.h
     include/NDLCom/representation_mapper.h
     )
 set(lib_FORMS
