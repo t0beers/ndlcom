@@ -97,10 +97,13 @@ set(lib_HEADERS # need no moc, plain cpp
     )
 # here we only mention additionally which libs should get installed in the system
 set(install_HEADERS
-    include/NDLCom/StaticTools.h
-    include/NDLCom/ndlcom.h
     include/NDLCom/CommandLineArgument.h
+    include/NDLCom/StaticTools.h
     include/NDLCom/interface_container.h
+    include/NDLCom/interface.h
+    include/NDLCom/message.h
+    include/NDLCom/ndlcom.h
+    include/NDLCom/representation_mapper.h
     )
 set(lib_FORMS
     forms/composer.ui
