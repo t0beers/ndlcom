@@ -3,8 +3,7 @@ libdir=${prefix}/lib
 includedir=${prefix}/include
 
 Name: @PROJECT_NAME@
-Description: Contains the qt-widget collection to speak NDLCom. many helper and debugging features
+Description: Parser and encoder for iStruct's and SeeGrip's NDLCom.
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -l@PROJECT_NAME@
 Cflags: -I${includedir}
-Requires.private: representations serialcom protocol udpcom QtNetwork

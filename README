@@ -1,0 +1,7 @@
+do a
+	make
+	# build for avr-architecture (sensorCrumb, needs toolchain)
+	make CC=avr-gcc
+	# build for stm32 (anadaq7x7, dms-board, needs toolchain)
+	make CC=${TOOLCHAIN}/bin/arm-none-linux-gnueabi-gcc
+

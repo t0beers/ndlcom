@@ -1,56 +1,55 @@
-# 423d7ddbc -- unique string to find this makefile without sourcecontrol...
-# allows automatical multicore build sessions!
-JOBS=$(shell getconf _NPROCESSORS_ONLN)
+#Do not modufy CFLAGS in this Makefile, we are using the environment variable!
 
-# we wanna use absolute path' where possible
-SRCDIR=$(shell pwd)
+HOST := $(shell $(CC) -dumpmachine)
 
-# by default, we use a compiler dependent build and install directory.
-# carefull -- we ask the c++ compiler, not the c-compiler!
-# additionally the environment variable CXX is asked, so not neccessarily the native compiler!
-INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(shell ${CXX} -dumpmachine))
-BUILDDIR=$(shell readlink -m ./build/$(shell ${CXX} -dumpmachine))
+BUILDDIR ?= build/$(HOST)
+LIBDIR ?= lib/$(HOST)
+LIB := $(LIBDIR)/libNDLCom.a
 
-# SILENCE!
-MAKEFLAGS=--no-print-directory
+OBJS=\
+	$(BUILDDIR)/ProtocolEncode.o \
+	$(BUILDDIR)/ProtocolParser.o \
 
-# default:
-all: compile
+INCLUDES = -Isrc -Iinclude
 
-# so we have "build" as a shorthand for creating a new build environment
-build: $(BUILDDIR)/Makefile
+PROTOCOLCFLAGS:=-fPIC   #for use in a shared library
 
-info:
-	@echo "srcdir (here):"
-	@echo $(SRCDIR)
-	@echo "installdir:"
-	@echo $(INSTALLDIR)
-	@echo "builddir:"
-	@echo $(BUILDDIR)
+.PHONY: doc test
 
-$(BUILDDIR)/Makefile:
-	mkdir -p $(BUILDDIR);\
-	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)"
+all: $(LIB) test
 
-link_dependency_graph: build
-	mkdir -p $(BUILDDIR)
-	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) --graphviz=link_dependency_graph.dot"
-	dot $(BUILDDIR)/link_dependency_graph.dot -Tpng > $(SRCDIR)/link_dependency_graph.png
-
-compile: build
-	${MAKE} -j$(JOBS) -C $(BUILDDIR)
-
-test: compile
-	${MAKE} -j$(JOBS) -C $(BUILDDIR) test
-
-install: compile
-	${MAKE} -j$(JOBS) -C $(BUILDDIR) install
-
+distclean:
 clean:
-	-${MAKE} -C $(BUILDDIR) clean
+	rm -f $(OBJS)
+	rm -f $(LIB)
+	rm -rf doc/html
 
-distclean: clean
-	-rm -rf $(BUILDDIR)
-	@rm -f link_dependency_graph.png
+doc:
+	doxygen doc/Doxyfile
 
-.PHONY: compile
+$(BUILDDIR)/%.o: src/%.c
+	@mkdir -p "$(BUILDDIR)"
+	$(CC) $(DEFINES) $(INCLUDES) $(CFLAGS) $(PROTOCOLCFLAGS) -c -o $@ $<
+
+TEST_CFLAGS:=-Wall -g3 -O0
+$(BUILDDIR)/test-decoder: test/test-decoder.c $(LIB)
+	$(CC) $(DEFINES) $(INCLUDES) $(TEST_CFLAGS) $(CFLAGS) $< -L$(LIBDIR) -lNDLCom -o $@
+
+#only run test on native platform
+TEST_DEPENDS=
+NATIVEHOST=$(shell gcc -dumpmachine)
+ifeq ($(HOST),$(NATIVEHOST))
+	TEST_DEPENDS+=$(BUILDDIR)/test-result
+endif
+
+test: $(TEST_DEPENDS)
+
+build/${HOST}/test-result: $(BUILDDIR)/test-decoder
+	@echo -n Running test-decoder...
+	@$(BUILDDIR)/test-decoder && touch "$@"
+
+	@echo " done."
+
+$(LIB): $(OBJS)
+	@mkdir -p "$(LIBDIR)"
+	$(AR) rs "$@" $(OBJS)
