@@ -98,6 +98,7 @@ set(lib_HEADERS # need no moc, plain cpp
 # here we only mention additionally which libs should get installed in the system
 set(install_HEADERS
     include/NDLCom/StaticTools.h
+    include/NDLCom/ndlcom.h
     include/NDLCom/CommandLineArgument.h
     include/NDLCom/interface_container.h
     )
