@@ -143,8 +143,6 @@ int16_t protocolParserReceive(
         in++;
         dataRead++;
 
-        // printf("Got 0x%02X in state: %s\n", c, protocolParserStateName[parser->mState]);
-
         //handle char after ESC
         if(parser->mLastWasESC)
         {
@@ -202,7 +200,6 @@ int16_t protocolParserReceive(
             case mcWAIT_DATA:
                 *(parser->mpDataWritePos++) = c;
                 parser->mDataCRC ^= c;
-//                printf("Got data byte %d/%d. Expected CRC is now 0x%02X\n", (parser->mpDataWritePos - parser->mpData), parser->mHeader.mDataLen, parser->mDataCRC);
                 if (parser->mpDataWritePos
                     == parser->mpData + parser->mDataBufSize)
                 {
@@ -230,6 +227,7 @@ int16_t protocolParserReceive(
                 }
                 else
                 {
+#ifndef PROTOCOL_NO_PRINTF
                     /* this code will hopefully silentyl ignored by the stm32's */
                     fprintf(stderr,"protocol_parser.c: crc failed (frameCounter %d c:0x%x dataCRC:0x%x)\n",
                             parser->mHeader.mCounter,c,parser->mDataCRC);
@@ -241,6 +239,7 @@ int16_t protocolParserReceive(
                         /* this code will hopefully silentyl ignored by the stm32's */
                         fprintf(stderr,"\tdata[%d]: 0x%x\n",i,parser->mpData[i]);
                     }
+#endif
                     parser->mNumberOfCRCFails++;
                     parser->mState = mcWAIT_STARTFLAG;
                 }
@@ -257,8 +256,6 @@ int16_t protocolParserReceive(
                 ;
                 //TODO
         } //of switch
-
-        // printf("  -> new state: %s\n", protocolParserStateName[parser->mState]);
 
         //abort processing if a complete packet was received
         if (parser->mState == mcCOMPLETE)
