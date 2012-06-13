@@ -1,24 +1,27 @@
 # 423d7ddbc -- unique string to find this makefile without sourcecontrol...
+
 # allows automatical multicore build sessions!
-JOBS=$(shell getconf _NPROCESSORS_ONLN)
+JOBS?=$(shell getconf _NPROCESSORS_ONLN)
 
 # we wanna use absolute path' where possible
 SRCDIR=$(shell pwd)
 
-# by default, we use a compiler dependent build and install directory.
 # carefull -- we ask the c++ compiler, not the c-compiler!
 # additionally the environment variable CXX is asked, so not neccessarily the native compiler!
-INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(shell ${CXX} -dumpmachine))
-BUILDDIR=$(shell readlink -m ./build/$(shell ${CXX} -dumpmachine))
+ARCH?=$(shell ${CXX} -dumpmachine)
+# by default, we use a compiler dependent build and install directory.
+INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(ARCH))
+BUILDDIR=$(shell readlink -m ./build/$(ARCH))
 
 # SILENCE!
 MAKEFLAGS=--no-print-directory
 
-# default:
-all: compile
+# configure cmake:
+CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
 
-# so we have "build" as a shorthand for creating a new build environment
-build: $(BUILDDIR)/Makefile
+## working area ###
+
+all: compile
 
 info:
 	@echo "srcdir (here):"
@@ -27,10 +30,17 @@ info:
 	@echo $(INSTALLDIR)
 	@echo "builddir:"
 	@echo $(BUILDDIR)
+	@echo "arch:"
+	@echo $(ARCH)
+	@echo "cmake_flags:"
+	@echo $(CMAKE_FLAGS)
 
-$(BUILDDIR)/Makefile:
+# so we have "build" as a shorthand for creating a new build environment
+build: $(BUILDDIR)/Makefile
+
+$(BUILDDIR)/Makefile: Makefile
 	mkdir -p $(BUILDDIR);\
-	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)"
+	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) $(CMAKE_FLAGS)"
 
 link_dependency_graph: build
 	mkdir -p $(BUILDDIR)
