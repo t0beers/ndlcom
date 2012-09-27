@@ -122,7 +122,6 @@ int16_t protocolParserReceive(
     const void* newData,
     uint16_t newDataLen)
 {
-    int i;
     int16_t dataRead = 0;
     const uint8_t* in = (uint8_t*)newData;
 
@@ -228,8 +227,9 @@ int16_t protocolParserReceive(
                 else
                 {
 #ifndef PROTOCOL_NO_PRINTF
-                    /* this code will hopefully silentyl ignored by the stm32's */
-                    fprintf(stderr,"protocol_parser.c: crc failed (frameCounter %d c:0x%x dataCRC:0x%x)\n",
+                    int i;
+                    /* this code will hopefully silently ignored by the stm32's */
+                    fprintf(stderr,"ProtocolParser.c: crc failed (frameCounter %d c:0x%x dataCRC:0x%x)\n",
                             parser->mHeader.mCounter,c,parser->mDataCRC);
                     for (i=0; i<PROTOCOL_HEADERLEN; i++) {
                         /* this code will hopefully silentyl ignored by the stm32's */
