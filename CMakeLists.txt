@@ -33,8 +33,12 @@ install(TARGETS ${PROJECT_NAME}
 
 install(FILES ${HEADERS_lib} DESTINATION include/${PROJECT_NAME})
 
-# still and extra subdir
-add_subdirectory(test)
+# testing the decoder with some corner-cases
+if (NOT CMAKE_CROSSCOMPILING)
+    # this has to be enabled explicitly! either here or in the "main" CMakeLists, including this one
+    #enable_testing()
+    add_subdirectory(test)
+endif (NOT CMAKE_CROSSCOMPILING)
 
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
