@@ -39,8 +39,6 @@ struct ProtocolHeader
 /* The library is now named NDLCom. :-/ */
 typedef struct ProtocolHeader NDLComHeader;
 
-/*
-
 #if defined (__cplusplus)
 }
 #endif
