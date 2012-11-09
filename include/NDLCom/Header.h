@@ -26,7 +26,7 @@ extern "C" {
  */
 struct ProtocolHeader
 {
-    /** id of receiver. 0x00 for broadcast. */
+    /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
     NDLComId mReceiverId;
     /** id of the sender of the packet. */
     NDLComId mSenderId;
