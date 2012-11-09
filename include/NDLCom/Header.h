@@ -12,7 +12,7 @@
  *
  */
 
-#include <stdint.h>
+#include "Types.h"
 
 #if defined (__cplusplus)
 extern "C" {
@@ -27,15 +27,19 @@ extern "C" {
 struct ProtocolHeader
 {
     /** id of receiver. 0x00 for broadcast. */
-    uint8_t mReceiverId;
+    NDLComId mReceiverId;
     /** id of the sender of the packet. */
-    uint8_t mSenderId;
+    NDLComId mSenderId;
     /** Frame counter. */
-    uint8_t mCounter;
+    NDLComCounter mCounter;
     /** Length of following data structure, limited to 255 bytes. */
-    uint8_t mDataLen;
+    NDLComDataLen mDataLen;
 } __attribute__((packed));
 
+/* The library is now named NDLCom. :-/ */
+typedef struct ProtocolHeader NDLComHeader;
+
+/*
 
 #if defined (__cplusplus)
 }
