@@ -14,10 +14,10 @@ INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(ARCH))
 BUILDDIR=$(shell readlink -m ./build/$(ARCH))
 
 # SILENCE!
-MAKEFLAGS=--no-print-directory
+override MAKEFLAGS=--no-print-directory
 
 # configure cmake:
-CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
+override CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
 
 ## working area ###
 
