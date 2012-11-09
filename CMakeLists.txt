@@ -4,6 +4,11 @@ project(NDLCom)
 
 include_directories(include)
 
+# we don't have printf everywhere, which is remove by this define
+if(CMAKE_CROSSCOMPILING)
+    add_definitions(-DPROTOCOL_NO_PRINTF)
+endif(CMAKE_CROSSCOMPILING)
+
 set(SOURCES_lib
 	src/ProtocolEncode.c
 	src/ProtocolParser.c
