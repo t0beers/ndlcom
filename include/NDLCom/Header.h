@@ -18,7 +18,6 @@
 extern "C" {
 #endif
 
-
 /**
  * @brief The byteformat of a header
  *
