@@ -1,3 +1,3 @@
 #include "NDLCom/Header.h"
 
-NDLComHeaderConfig protocolHeaderConfigDefault;
+NDLComHeaderConfig protocolHeaderConfigDefault = { 0, {0}} ;
