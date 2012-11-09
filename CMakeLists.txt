@@ -11,6 +11,7 @@ endif(CMAKE_CROSSCOMPILING)
 
 set(SOURCES_lib
 	src/ProtocolEncode.c
+	src/Header.c
 	src/ProtocolParser.c
 )
 
