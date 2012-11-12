@@ -1,55 +1,66 @@
-#Do not modufy CFLAGS in this Makefile, we are using the environment variable!
+# 423d7ddbc -- unique string to find this makefile without sourcecontrol...
 
-HOST := $(shell $(CC) -dumpmachine)
+# allows automatical multicore build sessions!
+JOBS?=$(shell getconf _NPROCESSORS_ONLN)
 
-BUILDDIR ?= build/$(HOST)
-LIBDIR ?= lib/$(HOST)
-LIB := $(LIBDIR)/libNDLCom.a
+# we wanna use absolute path' where possible
+SRCDIR=$(shell pwd)
 
-OBJS=\
-	$(BUILDDIR)/ProtocolEncode.o \
-	$(BUILDDIR)/ProtocolParser.o \
+# carefull -- we ask the c++ compiler, not the c-compiler!
+# additionally the environment variable CXX is asked, so not neccessarily the native compiler!
+ARCH?=$(shell ${CXX} -dumpmachine)
+# by default, we use a compiler dependent build and install directory.
+INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(ARCH))
+BUILDDIR=$(shell readlink -m ./build/$(ARCH))
 
-INCLUDES = -Isrc -Iinclude
+# SILENCE!
+override MAKEFLAGS=--no-print-directory
 
-PROTOCOLCFLAGS:=-fPIC   #for use in a shared library
+# configure cmake:
+override CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
 
-.PHONY: doc test
+## working area ###
 
-all: $(LIB) test
+all: compile
 
-distclean:
+info:
+	@echo "srcdir (here):"
+	@echo $(SRCDIR)
+	@echo "installdir:"
+	@echo $(INSTALLDIR)
+	@echo "builddir:"
+	@echo $(BUILDDIR)
+	@echo "arch:"
+	@echo $(ARCH)
+	@echo "cmake_flags:"
+	@echo $(CMAKE_FLAGS)
+
+# so we have "build" as a shorthand for creating a new build environment
+build: $(BUILDDIR)/Makefile
+
+$(BUILDDIR)/Makefile: Makefile
+	mkdir -p $(BUILDDIR);\
+	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) $(CMAKE_FLAGS)"
+
+link_dependency_graph: build
+	mkdir -p $(BUILDDIR)
+	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) --graphviz=link_dependency_graph.dot"
+	dot $(BUILDDIR)/link_dependency_graph.dot -Tpng > $(SRCDIR)/link_dependency_graph.png
+
+compile: build
+	${MAKE} -j$(JOBS) -C $(BUILDDIR)
+
+test: compile
+	${MAKE} -j$(JOBS) -C $(BUILDDIR) test
+
+install: compile
+	${MAKE} -j$(JOBS) -C $(BUILDDIR) install
+
 clean:
-	rm -f $(OBJS)
-	rm -f $(LIB)
-	rm -rf doc/html
+	-${MAKE} -C $(BUILDDIR) clean
 
-doc:
-	doxygen doc/Doxyfile
+distclean: clean
+	-rm -rf $(BUILDDIR)
+	@rm -f link_dependency_graph.png
 
-$(BUILDDIR)/%.o: src/%.c
-	@mkdir -p "$(BUILDDIR)"
-	$(CC) $(DEFINES) $(INCLUDES) $(CFLAGS) $(PROTOCOLCFLAGS) -c -o $@ $<
-
-TEST_CFLAGS:=-Wall -g3 -O0
-$(BUILDDIR)/test-decoder: test/test-decoder.c $(LIB)
-	$(CC) $(DEFINES) $(INCLUDES) $(TEST_CFLAGS) $(CFLAGS) $< -L$(LIBDIR) -lNDLCom -o $@
-
-#only run test on native platform
-TEST_DEPENDS=
-NATIVEHOST=$(shell gcc -dumpmachine)
-ifeq ($(HOST),$(NATIVEHOST))
-	TEST_DEPENDS+=$(BUILDDIR)/test-result
-endif
-
-test: $(TEST_DEPENDS)
-
-build/${HOST}/test-result: $(BUILDDIR)/test-decoder
-	@echo -n Running test-decoder...
-	@$(BUILDDIR)/test-decoder && touch "$@"
-
-	@echo " done."
-
-$(LIB): $(OBJS)
-	@mkdir -p "$(LIBDIR)"
-	$(AR) rs "$@" $(OBJS)
+.PHONY: compile
