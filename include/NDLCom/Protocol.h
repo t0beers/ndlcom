@@ -15,14 +15,14 @@
  * @defgroup Communication_Protocol Protocol
  * @{
  *
- * C Implemtation for easy usage of the iStruct&SeeGrip NDLCom protocol.
+ * C Implentation for easy usage of the iStruct&SeeGrip NDLCom protocol.
  *
  * This code is intended to be build into a static library, which then in turn may
  * be linked into your binary. There, the makefile supports different architectures.
  *
  * To use, include the header-file:
  * @code
- *  #include "protocol/protocol.h"
+ *  #include "NDLCom/Protocol.h"
  * @endcode
  *
  * initialize the basic struct ProtocolParserState by doing
