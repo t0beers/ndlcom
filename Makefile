@@ -8,13 +8,18 @@ SRCDIR=$(shell pwd)
 
 # carefull -- we ask the c++ compiler, not the c-compiler!
 # additionally the environment variable CXX is asked, so not neccessarily the native compiler!
+ifndef ARCH
 ARCH?=$(shell ${CXX} -dumpmachine)
+else
+override CMAKE_FLAGS+=-DCMAKE_TOOLCHAIN_FILE=../../CMake-Modules/${ARCH}.cmake
+endif
+
 # by default, we use a compiler dependent build and install directory.
 INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(ARCH))
 BUILDDIR=$(shell readlink -m ./build/$(ARCH))
 
 # SILENCE!
-override MAKEFLAGS=--no-print-directory
+override MAKEFLAGS+=--no-print-directory
 
 # configure cmake:
 override CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
