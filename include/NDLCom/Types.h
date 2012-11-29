@@ -1,5 +1,5 @@
 /**
- * @file include/NDLCom/header.h
+ * @file include/NDLCom/Types.h
  * @date 2011
  */
 

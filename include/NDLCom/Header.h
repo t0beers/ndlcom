@@ -12,7 +12,7 @@
  *
  */
 
-#include "Types.h"
+#include "NDLCom/Types.h"
 
 #if defined (__cplusplus)
 extern "C" {
