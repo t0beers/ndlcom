@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- SeeGrip device ids "only", at least in the moment -->
+
+<ndlcom>
+    <device name="ERROR" id="0" /><!-- sure? -->
+
+    <device name="ControlGUI" id="1">comments possible</device>
+
+    <device name="CAM_TCM8230MD" id="129"/>
+    <device name="SheetMetalHand" id="130"/>
+    <device name="BaseBoard" id="131"/>
+    <device name="microDMSBoard" id="132"/>
+    <device name="CamControl_PSOC" id="133"/>
+    <device name="CamControl_FPGA" id="134"/>
+    <device name="SensorFusion" id="135"/>
+
+    <device name="BROADCAST" id="255"/>
+</ndlcom>
