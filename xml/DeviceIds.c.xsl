@@ -12,7 +12,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 struct ndlcomDeviceEntrys
 {
-    ndlcomDeviceId id;
+    ndlcomDeviceIdEnum id;
     const char* name;
 };
 
@@ -22,7 +22,7 @@ static const struct ndlcomDeviceEntrys entrys[] =
     {0,0} // end-of-list
 };
 
-const char* ndlcomDeviceGetName(ndlcomDeviceId id)
+const char* ndlcomDeviceGetName(ndlcomId id)
 {
     const struct ndlcomDeviceEntrys* entry = entrys;
     while(entry->name)
@@ -34,7 +34,7 @@ const char* ndlcomDeviceGetName(ndlcomDeviceId id)
     return 0;
 }
 
-ndlcomDeviceId ndlcomDeviceGetId(const char* name)
+ndlcomId ndlcomDeviceGetId(const char* name)
 {
     const struct ndlcomDeviceEntrys* entry = entrys;
     while(entry->name)
