@@ -4,11 +4,6 @@ project(NDLCom)
 
 include_directories(include)
 
-# we don't have printf everywhere, which is removed by this define
-if(CMAKE_CROSSCOMPILING)
-    add_definitions(-DPROTOCOL_NO_PRINTF)
-endif(CMAKE_CROSSCOMPILING)
-
 # we are generating header files using a xml -- they are put into this directory:
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 

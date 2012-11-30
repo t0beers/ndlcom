@@ -226,20 +226,6 @@ int16_t protocolParserReceive(
                 }
                 else
                 {
-#ifndef PROTOCOL_NO_PRINTF
-                    int i;
-                    /* this code will hopefully silently ignored by the stm32's */
-                    fprintf(stderr,"ProtocolParser.c: crc failed (frameCounter %d c:0x%x dataCRC:0x%x)\n",
-                            parser->mHeader.mCounter,c,parser->mDataCRC);
-                    for (i=0; i<PROTOCOL_HEADERLEN; i++) {
-                        /* this code will hopefully silentyl ignored by the stm32's */
-                        fprintf(stderr,"\theader[%d]: 0x%x\n",i,parser->mHeaderRaw[i]);
-                    }
-                    for (i=0; i<parser->mHeader.mDataLen; i++) {
-                        /* this code will hopefully silentyl ignored by the stm32's */
-                        fprintf(stderr,"\tdata[%d]: 0x%x\n",i,parser->mpData[i]);
-                    }
-#endif
                     parser->mNumberOfCRCFails++;
                     parser->mState = mcWAIT_STARTFLAG;
                 }
