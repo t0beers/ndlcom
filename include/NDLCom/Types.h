@@ -15,13 +15,13 @@
 #include <stdint.h>
 
 /** Type for sender and receiver ids in the header. */
-typedef uint8_t NDLComId;
+typedef uint8_t ndlcomId;
 
 /** Type for counter field in the header. */
-typedef uint8_t NDLComCounter;
+typedef uint8_t ndlcomCounter;
 
 /** Type for the data length field in the header */
-typedef uint8_t NDLComDataLen;
+typedef uint8_t ndlcomDataLen;
 
 /**
  * @}

@@ -26,21 +26,21 @@ extern "C" {
 struct ProtocolHeader
 {
     /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
-    NDLComId mReceiverId;
+    ndlcomId mReceiverId;
     /** id of the sender of the packet. */
-    NDLComId mSenderId;
+    ndlcomId mSenderId;
     /** Frame counter. */
-    NDLComCounter mCounter;
+    ndlcomCounter mCounter;
     /** Length of following data structure, limited to 255 bytes. */
-    NDLComDataLen mDataLen;
+    ndlcomDataLen mDataLen;
 } __attribute__((packed));
 
 /* The library is now named NDLCom. :-/ */
-typedef struct ProtocolHeader NDLComHeader;
+typedef struct ProtocolHeader ndlcomHeader;
 
 
 /* Calculate the number of possible devices */
-enum { protocolHeaderMaxNumberOfDevices = (1 << (sizeof(NDLComId) * 8)) };
+enum { protocolHeaderMaxNumberOfDevices = (1 << (sizeof(ndlcomId) * 8)) };
 
 /*
  * Keeps track of used counters and has the default sender id which
@@ -49,14 +49,14 @@ enum { protocolHeaderMaxNumberOfDevices = (1 << (sizeof(NDLComId) * 8)) };
  */
 typedef struct
 {
-    NDLComId mSenderId;
-    NDLComId mCounterForReceiver[protocolHeaderMaxNumberOfDevices];
-} NDLComHeaderConfig;
+    ndlcomId mSenderId;
+    ndlcomId mCounterForReceiver[protocolHeaderMaxNumberOfDevices];
+} ndlcomHeaderConfig;
 
 /*
  * There is one static instance of NDLComHeaderConfig.
  */
-extern NDLComHeaderConfig protocolHeaderConfigDefault;
+extern ndlcomHeaderConfig protocolHeaderConfigDefault;
 
 /**
  * @brief Set all fields of the header.
@@ -68,10 +68,10 @@ extern NDLComHeaderConfig protocolHeaderConfigDefault;
  * @param pConfig Pointer to a structure holding the sender id and
  *                keeping track of packet counters.
  */
-static void protocolHeaderPrepareWithConfig(NDLComHeader* pHeader,
-                                            NDLComId recv,
-                                            NDLComDataLen length,
-                                            NDLComHeaderConfig* pConfig)
+static void protocolHeaderPrepareWithConfig(ndlcomHeader* pHeader,
+                                            ndlcomId recv,
+                                            ndlcomDataLen length,
+                                            ndlcomHeaderConfig* pConfig)
 {
     pHeader->mReceiverId = recv;
     pHeader->mSenderId = pConfig->mSenderId;
@@ -88,9 +88,9 @@ static void protocolHeaderPrepareWithConfig(NDLComHeader* pHeader,
  * @param recv Receiver Id.
  * @param length Length of data packet (often the size of a c-struct).
  */
-static inline void protocolHeaderPrepare(NDLComHeader* pHeader,
-                                         NDLComId recv,
-                                         NDLComDataLen length)
+static inline void protocolHeaderPrepare(ndlcomHeader* pHeader,
+                                         ndlcomId recv,
+                                         ndlcomDataLen length)
 {
     return protocolHeaderPrepareWithConfig(pHeader, recv, length, &protocolHeaderConfigDefault);
 }
@@ -98,7 +98,7 @@ static inline void protocolHeaderPrepare(NDLComHeader* pHeader,
 /**
  * @brief Set default sender id.
  */
-static inline void protocolHeaderConfigDefaultSenderId(NDLComId id)
+static inline void protocolHeaderConfigDefaultSenderId(ndlcomId id)
 {
     protocolHeaderConfigDefault.mSenderId = id;
 }
