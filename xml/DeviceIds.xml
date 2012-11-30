@@ -63,6 +63,7 @@
     <device name="CamControl_PSOC" id="133"/>
     <device name="CamControl_FPGA" id="134"/>
     <device name="SensorFusion" id="135"/>
+    <device name="ValveControl" id="136"/>
 
     <device name="BROADCAST" id="255"/>
 </ndlcom>
