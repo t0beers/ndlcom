@@ -9,8 +9,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
-package devices is
+package Devices is
 
     -- ---------- --
     -- Device Ids --
