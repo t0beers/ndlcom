@@ -29,30 +29,32 @@ add_custom_command(
     COMMAND xmllint --noout --schema ${DEVICES_XSD} ${DEVICES_XML} && touch ${DEVICES_XML_VALIDATED}
     DEPENDS ${DEVICES_XML} ${DEVICES_XSD}
     )
-add_custom_target(${PROJECT_NAME}-validate ALL DEPENDS ${DEVICES_XML_VALIDATED})
+add_custom_target(${PROJECT_NAME}-validate)
+add_dependencies(${PROJECT_NAME}-validate ${DEVICES_XML_VALIDATED})
 
 # three "generate" commands to create c, h and vhd files using the provided xml infrastructure
 add_custom_command(
     OUTPUT ${DEVICE_IDS_C}
     COMMAND mkdir -p `dirname ${DEVICE_IDS_C}`
     COMMAND xmlstarlet tr ${DEVICE_IDS_C_XSL} ${DEVICES_XML} > ${DEVICE_IDS_C} || rm ${DEVICE_IDS_C}
-    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICE_IDS_C_XSL}
+    DEPENDS ${DEVICES_XML} ${DEVICE_IDS_C_XSL}
     )
 add_custom_command(
     OUTPUT ${DEVICE_IDS_H}
     COMMAND mkdir -p `dirname ${DEVICE_IDS_H}`
     COMMAND xmlstarlet tr ${DEVICE_IDS_H_CSL} ${DEVICES_XML} > ${DEVICE_IDS_H} || rm ${DEVICE_IDS_H}
-    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICE_IDS_H_CSL}
+    DEPENDS ${DEVICES_XML} ${DEVICE_IDS_H_CSL}
     )
 add_custom_command(
     OUTPUT ${DEVICES_VHD}
     COMMAND mkdir -p `dirname ${DEVICES_VHD}`
     COMMAND xmlstarlet tr ${DEVICES_VHD_XSL} ${DEVICES_XML} > ${DEVICES_VHD} || rm ${DEVICES_VHD}
-    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICES_VHD_XSL}
+    DEPENDS ${DEVICES_XML} ${DEVICES_VHD_XSL}
     )
 
 # and create a custom target from this, so that cmake can work with this
-add_custom_target(${PROJECT_NAME}-generate ALL DEPENDS ${DEVICES_C} ${DEVICES_H} ${DEVICES_VHD})
+add_custom_target(${PROJECT_NAME}-generate ALL DEPENDS ${DEVICES_VHD})
+add_dependencies(${PROJECT_NAME}-generate ${PROJECT_NAME}-validate ${DEVICES_C} ${DEVICES_H} ${DEVICES_VHD})
 
 # allows cleaning the created stuff, so we don't leave a mess
 set_directory_properties(PROPERTIES
