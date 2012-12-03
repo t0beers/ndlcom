@@ -13,15 +13,6 @@ set(DEVICES_XSD ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.xsd)
 # and a temporary file we create to indicate a successfull validation of the schema
 set(DEVICES_XML_VALIDATED ${CMAKE_CURRENT_BINARY_DIR}/xml/DeviceIds.xml.validated)
 
-# and the block to do that validation
-add_custom_command(
-    OUTPUT ${DEVICES_XML_VALIDATED}
-    COMMAND mkdir -p `dirname ${DEVICES_XML_VALIDATED}`
-    COMMAND xmllint --noout --schema ${DEVICES_XSD} ${DEVICES_XML} && touch ${DEVICES_XML_VALIDATED}
-    DEPENDS ${DEVICES_XML} ${DEVICES_XSD}
-    )
-add_custom_target(${PROJECT_NAME}-validate ALL DEPENDS ${DEVICES_XML_VALIDATED})
-
 # the transforming xml stuff:
 set(DEVICES_C_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.c.xsl)
 set(DEVICES_H_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.h.xsl)
@@ -31,24 +22,33 @@ set(DEVICES_C ${CMAKE_CURRENT_BINARY_DIR}/src/DeviceIds.c)
 set(DEVICES_H ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/DeviceIds.h)
 set(DEVICES_VHD ${CMAKE_CURRENT_SOURCE_DIR}/vhdl/Devices.vhd)
 
+# and the block to do that validation
+add_custom_command(
+    OUTPUT ${DEVICES_XML_VALIDATED}
+    COMMAND mkdir -p `dirname ${DEVICES_XML_VALIDATED}`
+    COMMAND xmllint --noout --schema ${DEVICES_XSD} ${DEVICES_XML} && touch ${DEVICES_XML_VALIDATED}
+    DEPENDS ${DEVICES_XML} ${DEVICES_XSD}
+    )
+add_custom_target(${PROJECT_NAME}-validate ALL DEPENDS ${DEVICES_XML_VALIDATED})
+
 # two commands to create c and h files using the provided xml infrastructure
 add_custom_command(
     OUTPUT ${DEVICES_C}
     COMMAND mkdir -p `dirname ${DEVICES_C}`
     COMMAND xmlstarlet tr ${DEVICES_C_XSL} ${DEVICES_XML} > ${DEVICES_C} || rm ${DEVICES_C}
-    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICES_C_XSL}
+    DEPENDS ${DEVICES_XML_VALIDATED} ${DEVICES_XML} ${DEVICES_C_XSL}
     )
 add_custom_command(
     OUTPUT ${DEVICES_H}
     COMMAND mkdir -p `dirname ${DEVICES_H}`
     COMMAND xmlstarlet tr ${DEVICES_H_XSL} ${DEVICES_XML} > ${DEVICES_H} || rm ${DEVICES_H}
-    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICES_H_XSL}
+    DEPENDS ${DEVICES_XML_VALIDATED} ${DEVICES_XML} ${DEVICES_H_XSL}
     )
 add_custom_command(
     OUTPUT ${DEVICES_VHD}
     COMMAND mkdir -p `dirname ${DEVICES_VHD}`
     COMMAND xmlstarlet tr ${DEVICES_VHD_XSL} ${DEVICES_XML} > ${DEVICES_VHD} || rm ${DEVICES_VHD}
-    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICES_VHD_XSL}
+    DEPENDS ${DEVICES_XML_VALIDATED} ${DEVICES_XML} ${DEVICES_VHD_XSL}
     )
 add_custom_target(${PROJECT_NAME}-vhdl-package ALL DEPENDS ${DEVICES_VHD})
 # allows cleaning the created stuff, so we don't leave a mess
