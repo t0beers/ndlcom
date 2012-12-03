@@ -97,6 +97,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(FILES ${HEADERS_lib} DESTINATION include/${PROJECT_NAME})
+install(FILES ${DEVICES_VHD} DESTINATION vhdl/${PROJECT_NAME})
 
 # testing the decoder with some corner-cases
 if (NOT CMAKE_CROSSCOMPILING)
