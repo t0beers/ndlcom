@@ -14,12 +14,12 @@ set(DEVICES_XSD ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.xsd)
 set(DEVICES_XML_VALIDATED ${CMAKE_CURRENT_BINARY_DIR}/xml/DeviceIds.xml.validated)
 
 # the transforming xml stuff:
-set(DEVICES_C_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.c.xsl)
-set(DEVICES_H_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.h.xsl)
+set(DEVICE_IDS_C_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.c.xsl)
+set(DEVICE_IDS_H_CSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.h.xsl)
 set(DEVICES_VHD_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/Devices.vhd.xsl)
 # and the c-files we wanna create:
-set(DEVICES_C ${CMAKE_CURRENT_BINARY_DIR}/src/DeviceIds.c)
-set(DEVICES_H ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/DeviceIds.h)
+set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/src/DeviceIds.c)
+set(DEVICE_IDS_H ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/DeviceIds.h)
 set(DEVICES_VHD ${CMAKE_CURRENT_SOURCE_DIR}/vhdl/Devices.vhd)
 
 # and the block to do that validation
@@ -31,26 +31,29 @@ add_custom_command(
     )
 add_custom_target(${PROJECT_NAME}-validate ALL DEPENDS ${DEVICES_XML_VALIDATED})
 
-# two commands to create c and h files using the provided xml infrastructure
+# three "generate" commands to create c, h and vhd files using the provided xml infrastructure
 add_custom_command(
-    OUTPUT ${DEVICES_C}
-    COMMAND mkdir -p `dirname ${DEVICES_C}`
-    COMMAND xmlstarlet tr ${DEVICES_C_XSL} ${DEVICES_XML} > ${DEVICES_C} || rm ${DEVICES_C}
-    DEPENDS ${DEVICES_XML_VALIDATED} ${DEVICES_XML} ${DEVICES_C_XSL}
+    OUTPUT ${DEVICE_IDS_C}
+    COMMAND mkdir -p `dirname ${DEVICE_IDS_C}`
+    COMMAND xmlstarlet tr ${DEVICE_IDS_C_XSL} ${DEVICES_XML} > ${DEVICE_IDS_C} || rm ${DEVICE_IDS_C}
+    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICE_IDS_C_XSL}
     )
 add_custom_command(
-    OUTPUT ${DEVICES_H}
-    COMMAND mkdir -p `dirname ${DEVICES_H}`
-    COMMAND xmlstarlet tr ${DEVICES_H_XSL} ${DEVICES_XML} > ${DEVICES_H} || rm ${DEVICES_H}
-    DEPENDS ${DEVICES_XML_VALIDATED} ${DEVICES_XML} ${DEVICES_H_XSL}
+    OUTPUT ${DEVICE_IDS_H}
+    COMMAND mkdir -p `dirname ${DEVICE_IDS_H}`
+    COMMAND xmlstarlet tr ${DEVICE_IDS_H_CSL} ${DEVICES_XML} > ${DEVICE_IDS_H} || rm ${DEVICE_IDS_H}
+    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICE_IDS_H_CSL}
     )
 add_custom_command(
     OUTPUT ${DEVICES_VHD}
     COMMAND mkdir -p `dirname ${DEVICES_VHD}`
     COMMAND xmlstarlet tr ${DEVICES_VHD_XSL} ${DEVICES_XML} > ${DEVICES_VHD} || rm ${DEVICES_VHD}
-    DEPENDS ${DEVICES_XML_VALIDATED} ${DEVICES_XML} ${DEVICES_VHD_XSL}
+    DEPENDS ${PROJECT_NAME}-validate ${DEVICES_XML} ${DEVICES_VHD_XSL}
     )
-add_custom_target(${PROJECT_NAME}-vhdl-package ALL DEPENDS ${DEVICES_VHD})
+
+# and create a custom target from this, so that cmake can work with this
+add_custom_target(${PROJECT_NAME}-generate ALL DEPENDS ${DEVICES_C} ${DEVICES_H} ${DEVICES_VHD})
+
 # allows cleaning the created stuff, so we don't leave a mess
 set_directory_properties(PROPERTIES
     ADDITIONAL_MAKE_CLEAN_FILES ${DEVICES_XML_VALIDATED}
@@ -60,19 +63,19 @@ set_directory_properties(PROPERTIES
     )
 
 
+# and followed by the usual create-library-blocks
 set(SOURCES_lib
 	src/ProtocolEncode.c
 	src/Header.c
 	src/ProtocolParser.c
-    ${DEVICES_C}
+    ${DEVICE_IDS_C}
 )
-
 set(HEADERS_lib
 	include/${PROJECT_NAME}/Protocol.h
 	include/${PROJECT_NAME}/Header.h
 	include/${PROJECT_NAME}/ParserState.h
 	include/${PROJECT_NAME}/Types.h
-    ${DEVICES_H}
+    ${DEVICE_IDS_H}
 )
 
 # define the lib
