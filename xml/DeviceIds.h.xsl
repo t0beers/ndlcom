@@ -56,7 +56,7 @@ namespace ndlcom
 <!-- device elements -->
 <xsl:template match="device" mode="c-style" >
 <!-- combine each "device" node to a enum entry -->
-<xsl:text>    ndlcomDeviceId</xsl:text><xsl:value-of select="@name"/><xsl:text> = </xsl:text><xsl:value-of select="@id"/>
+<xsl:text>    ndlcomDeviceId_</xsl:text><xsl:value-of select="@name"/><xsl:text> = </xsl:text><xsl:value-of select="@id"/>
 <!-- only print a comma if we are not the last item -->
 <xsl:if test="(following-sibling::device)">,</xsl:if>
 <!-- only print a comment after the enum if someone actually wrote one -->
