@@ -7,6 +7,14 @@ include_directories(include)
 # we are generating header files using a xml -- they are put into this directory:
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
+# for the generated DeviceId-files, we need a tool named xmlstarlet. not
+# everyone has this installed on his computer, so we check for them to remind
+# them...
+find_program(XMLSTARLET xmlstarlet)
+if(${XMLSTARLET} STREQUAL "XMLSTARLET-NOTFOUND")
+    message(FATAL_ERROR "please install xmlstarlet -- doing somethink like 'apt-get install xmlstarlet'")
+endif(${XMLSTARLET} STREQUAL "XMLSTARLET-NOTFOUND")
+
 # the named xml source files:
 set(DEVICES_XML ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.xml)
 set(DEVICES_XSD ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.xsd)
@@ -36,19 +44,19 @@ add_dependencies(${PROJECT_NAME}-validate ${DEVICES_XML_VALIDATED})
 add_custom_command(
     OUTPUT ${DEVICE_IDS_C}
     COMMAND mkdir -p `dirname ${DEVICE_IDS_C}`
-    COMMAND xmlstarlet tr ${DEVICE_IDS_C_XSL} ${DEVICES_XML} > ${DEVICE_IDS_C} || rm ${DEVICE_IDS_C}
+    COMMAND ${XMLSTARLET} tr ${DEVICE_IDS_C_XSL} ${DEVICES_XML} > ${DEVICE_IDS_C} || rm ${DEVICE_IDS_C}
     DEPENDS ${DEVICES_XML} ${DEVICE_IDS_C_XSL}
     )
 add_custom_command(
     OUTPUT ${DEVICE_IDS_H}
     COMMAND mkdir -p `dirname ${DEVICE_IDS_H}`
-    COMMAND xmlstarlet tr ${DEVICE_IDS_H_CSL} ${DEVICES_XML} > ${DEVICE_IDS_H} || rm ${DEVICE_IDS_H}
+    COMMAND ${XMLSTARLET} tr ${DEVICE_IDS_H_CSL} ${DEVICES_XML} > ${DEVICE_IDS_H} || rm ${DEVICE_IDS_H}
     DEPENDS ${DEVICES_XML} ${DEVICE_IDS_H_CSL}
     )
 add_custom_command(
     OUTPUT ${DEVICES_VHD}
     COMMAND mkdir -p `dirname ${DEVICES_VHD}`
-    COMMAND xmlstarlet tr ${DEVICES_VHD_XSL} ${DEVICES_XML} > ${DEVICES_VHD} || rm ${DEVICES_VHD}
+    COMMAND ${XMLSTARLET} tr ${DEVICES_VHD_XSL} ${DEVICES_XML} > ${DEVICES_VHD} || rm ${DEVICES_VHD}
     DEPENDS ${DEVICES_XML} ${DEVICES_VHD_XSL}
     )
 
