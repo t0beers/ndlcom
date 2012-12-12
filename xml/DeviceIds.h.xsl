@@ -42,7 +42,7 @@ namespace ndlcom
         {
             return ndlcomDeviceGetName(id);
         }
-        inline const ndlcomId getId(const char* name)
+        inline ndlcomId getId(const char* name)
         {
             return ndlcomDeviceGetId(name);
         }
