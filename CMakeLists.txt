@@ -78,10 +78,12 @@ set(SOURCES_lib
 	src/ProtocolEncode.c
 	src/Header.c
 	src/ProtocolParser.c
+    src/Message.cpp
     ${DEVICE_IDS_C}
 )
 set(HEADERS_lib
 	include/${PROJECT_NAME}/Protocol.h
+    include/${PROJECT_NAME}/Message.h
 	include/${PROJECT_NAME}/Header.h
 	include/${PROJECT_NAME}/ParserState.h
 	include/${PROJECT_NAME}/Types.h
