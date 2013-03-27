@@ -195,7 +195,14 @@ int16_t protocolParserReceive(
                     /* ...else we have a degenerate packet, proceed directly */
                     else
                     {
-                        parser->mState = mcWAIT_CHECKSUM;
+                        if (parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING)
+                        {
+                            parser->mState = mcCOMPLETE;
+                        }
+                        else
+                        {
+                            parser->mState = mcWAIT_CHECKSUM;
+                        }
                     }
                 }
                 break;
