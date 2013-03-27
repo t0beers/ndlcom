@@ -56,7 +56,7 @@ struct ProtocolParser
         mcCOMPLETE,
     } mState;
     int8_t mLastWasESC;/**< stores if the last received byte was a crc. used to detect escaped bytes */
-    int16_t mNumberOfCRCFails;/**< how often a bad crc was received */
+    uint16_t mNumberOfCRCFails;/**< how often a bad crc was received */
     /** why the parser went into error-state */
     enum ErrorReason
     {
@@ -131,7 +131,6 @@ int16_t protocolParserReceive(
       parser->mLastError = mcNOERROR;
       parser->mDataCRC = 0;
       parser->mLastWasESC = 0;
-      parser->mNumberOfCRCFails = 0;
       parser->mState = mcWAIT_HEADER;
       parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
     }
@@ -290,7 +289,6 @@ void protocolParserGetState(struct ProtocolParser* parser,
                             struct ProtocolParserState* output)
 {
     output->mState = parser->mState;
-    output->mNumberOfEscapes = parser->mLastWasESC;
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
     output->mLastError = parser->mLastError;
 }

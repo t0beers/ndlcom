@@ -22,8 +22,7 @@ extern "C" {
 struct ProtocolParserState
 {
     int8_t mState;/**< actual state of the parser */
-    int8_t mNumberOfEscapes;/**< how many escaped in a raw were received. should be something around zero, most of the time */
-    int8_t mNumberOfCRCFails;/**< how often the crc failed */
+    int16_t mNumberOfCRCFails;/**< how often the crc failed */
     int8_t mLastError;/**< cause of the last error */
 };
 
