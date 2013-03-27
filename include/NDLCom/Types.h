@@ -23,6 +23,9 @@ typedef uint8_t ndlcomCounter;
 /** Type for the data length field in the header */
 typedef uint8_t ndlcomDataLen;
 
+/** The type used for the crc */
+typedef uint8_t ndlcomCrc;
+
 /**
  * @}
  */

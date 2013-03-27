@@ -43,7 +43,7 @@ struct ProtocolParser
     uint8_t* mHeaderRawWritePos; /**< Current write position while receiving header data. */
     uint8_t* mpData; /**< Pointer where the packet content should be written. */
     uint8_t* mpDataWritePos; /**< Current write position of next data byte while receiving user data. */
-    uint8_t  mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
+    ndlcomCrc mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
     uint16_t mDataBufSize; /**< Size of buffer (\see mpData) */
     /** different states the parser may have. */
     enum State

@@ -36,6 +36,7 @@ int16_t protocolEncode(void* pOutputBuffer,
     uint8_t headerRaw[PROTOCOL_HEADERLEN];
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
     const uint8_t* pWriteEnd = pWritePos + outputBufferSize;
+    ndlcomCrc crc = 0;
 
     if (outputBufferSize < 2 + sizeof(struct ProtocolHeader) + pHeader->mDataLen + 1)
     {
@@ -50,7 +51,6 @@ int16_t protocolEncode(void* pOutputBuffer,
     //start byte
     *pWritePos++ = PROTOCOL_FLAG;
     const uint8_t* pRead;
-    uint8_t crc = 0;
 
     //header
     pRead = (const uint8_t*)headerRaw;
@@ -78,10 +78,11 @@ int16_t protocolEncode(void* pOutputBuffer,
     while (pRead != pDataEnd)
     {
         const uint8_t d = *pRead;
-        if (pWritePos == pWriteEnd - 2)
+        if (pWritePos == pWriteEnd - (sizeof(ndlcomCrc)+1))
         {
             return -1;
         }
+
         if (d == PROTOCOL_ESC || d == PROTOCOL_FLAG)
         {
             //we need to send an escaped data byte here:
