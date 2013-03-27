@@ -1,5 +1,5 @@
 /**
- * @file include/protocol.h
+ * @file include/NDLCom/Protocol.h
  * @date 2011
  */
 
@@ -12,7 +12,7 @@
 /**
  * @addtogroup Communication
  * @{
- * @defgroup Communication_Protocol Protocol
+ * @defgroup Communication_NDLCom NDLCom
  * @{
  *
  * C Implentation for easy usage of the iStruct&SeeGrip NDLCom protocol.
@@ -30,7 +30,7 @@
  *      pProtocolParser = protocolParserCreate(bufferRx, sizeof(bufferRx));
  * @endcode
  *
- * To transmit, create a paket by doing
+ * To transmit at the very lowest level, create a paket by doing
  * @code
  *      hdr.mDataLen = sizeof(struct data);
  *      hdr.mReceiverId = 0x01;
@@ -52,22 +52,20 @@
  *  - make crc-counter a 16bit (or even 32?) value to have no overflows
  *
  * @see ProtocolHeader
- * 
+ *
  * @section com1 Compiling
  *
- * To build this marvel into machine-code, do a
+ * To compile this code, it is advised to use the provided cmake-structure based on pkg-config
+ * files. this allows easy inclusion for complete in-source-builds. alternatively it is possible to
+ * "install" the files in a specific directory and reuse them manually.
  *
  * @code
- * $ make # build for avr-architecture (sensorCrumb, needs toolchain)
- * $ make CC=avr-gcc # build for stm32 (anadaq7x7, dms-board, needs toolchain)
- * $ make CC=${TOOLCHAIN}/bin/arm-none-linux-gnueabi-gcc
+ *  $ make # build natively
+ *  $ make instal # build and install natively
  * @endcode
  *
- * To use it in your c/c++-application, include the header include/protocol.h into your c-file and point your
- * compiler to the right direction by doing something like this:
- * @code
- * $ gcc -I/path/to/this/include/directory -L/path/to/this/build/directory -lprotocol main.c -o image
- * @endcode
+ * for crosscompiling it is possible to use cmake's toolchain files, resident in CMake-Modules, by
+ * specifying them via make. see the makefile for adding this manually.
  *
  */
 
@@ -102,6 +100,7 @@ extern "C" {
  */
 #define PROTOCOL_PARSER_DISABLE_FRAMING    1
 
+/* forward declaration */
 struct ProtocolParser;
 
 /**
@@ -146,7 +145,7 @@ struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
 /**
  * @brief Destroy state information (before freeing the used buffer).
  *
- * Currently not needed since no heap memory allocation is done.
+ * Currently not needed since no "private" heap memory allocation is done.
  *\param parser Pointer to state information.
  */
 void protocolParserDestroy(struct ProtocolParser* parser);
@@ -208,9 +207,9 @@ const void* protocolParserGetPacket(struct ProtocolParser* parser);
 /**
  * @brief Detection of telegram starts
  *
- * Different approach for forwarding. allows cutting of datastream in sync with paket-headers by looking at single bytes
- * Simpler and hopefully faster than complete parser. May be used
- * for forwarding of pakets.
+ * Different approach for forwarding. allows cutting of datastream in sync with paket-headers by
+ * looking at single bytes Simpler and hopefully faster than complete parser. May be used for
+ * forwarding of pakets.
  *
  * Internal method is very similar (in fact copied) from the statemachine used in protocolParserReceive().
  *
@@ -245,7 +244,7 @@ void protocolParserGetState(struct ProtocolParser* parser,
 extern const char* protocolParserStateName[];
 
 /**
- * @brief NULL-terminated string containing an error-description. 
+ * @brief NULL-terminated string containing an error-description.
  */
 extern const char* protocolParserErrorString[];
 
@@ -258,4 +257,4 @@ extern const char* protocolParserErrorString[];
  * @}
  */
 
-#endif
+#endif/*NDLCOM_PROTOCOL_H*/

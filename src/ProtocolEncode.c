@@ -8,15 +8,21 @@
 /**
  * @addtogroup Communication
  * @{
- * @addtogroup Communication_Protocol
+ * @addtogroup Communication_NDLCom
  * @{
  */
 
 /**
- * @defgroup Communication_Protocol_Encoder Packet Encoder
- * 
+ * @defgroup Communication_NDLCom_Encoder Packet Encoder
+ *
  * @brief Used to pack some payload into a distinct data-format, which may be sent over
  * your serial connection.
+ *
+ * Encoding sheme based on RFC1662, see https://tools.ietf.org/html/rfc1662.html
+ *
+ * FCS - frame check sequence (aka crc) is calculated over all bytes of the
+ * packet, excluding the FCS itself and the start/stop flag. the FCS is done
+ * before exscaping the start/stop and escape-flags.
  *
  * @{
  */
@@ -69,7 +75,6 @@ int16_t protocolEncode(void* pOutputBuffer,
     //data
     pRead = (const uint8_t*)pData;
     const uint8_t* pDataEnd = pRead + pHeader->mDataLen;
-    //uint8_t last_was_escaped = 0;
     while (pRead != pDataEnd)
     {
         const uint8_t d = *pRead;

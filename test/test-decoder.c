@@ -1,8 +1,7 @@
 /**
- * @file src/test.c
+ * @file test/test-decoder.c
  * @date 2011
  */
-
 #include "NDLCom/Protocol.h"
 
 #include <string.h>
@@ -12,12 +11,12 @@
 /**
  * @addtogroup Communication
  * @{
- * @addtogroup Communication_Protocol
+ * @addtogroup Communication_NDLCom
  * @{
  */
 
 /**
- * @defgroup Communication_Protocol_Test Test Protocol
+ * @defgroup Communication_NDLCom_Test Testing NDLCom
  * @brief Testing some difficult parsing sequences
  *
  * @{

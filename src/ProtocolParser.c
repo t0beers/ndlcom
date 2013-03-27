@@ -8,12 +8,12 @@
 /**
  * @addtogroup Communication
  * @{
- * @addtogroup Communication_Protocol
+ * @addtogroup Communication_NDLCom
  * @{
  */
 
 /**
- * @defgroup Communication_Protocol_C_Parser Protocol C Parser
+ * @defgroup Communication_NDLCom_C_Parser NDLCom C Parser
  *
  * Used to extract protocol-pakets out of a continously flowing raw data-stream,
  * which may have been received by your serial connection
@@ -28,7 +28,7 @@
  * protocolParserReceive a buffer and some state variables are
  * required to reconstruct the packet information.
  * Since only a pointer to this struct is used in the functions listed
- * in protocol/protocol.h the struct definition is not needed to use this
+ * in include/NDLCom/Protocol.h the struct definition is not needed to use this
  * library.
  */
 struct ProtocolParser
@@ -160,6 +160,7 @@ int16_t protocolParserReceive(
                 c ^= 0x20;
             }
         }
+        //handle an escape byte
         else if (c == PROTOCOL_ESC && !(parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING))
         {
             //do nothing now. wait for next byte
@@ -167,6 +168,7 @@ int16_t protocolParserReceive(
             parser->mLastWasESC = 1;
             continue;
         }
+        //handle a protocol flag
         else if (c == PROTOCOL_FLAG && !(parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING))
         {
             //an unescaped FLAG is interpreted as a packet start
@@ -186,10 +188,12 @@ int16_t protocolParserReceive(
                     parser->mHeader.mCounter    = parser->mHeaderRaw[2];
                     parser->mHeader.mDataLen    = parser->mHeaderRaw[3];
                     parser->mpDataWritePos      = parser->mpData;
+                    /* check if there is actual data to come... */
                     if (parser->mHeader.mDataLen)
                     {
                         parser->mState = mcWAIT_DATA;
                     }
+                    /* ...else we have a degenerate packet, proceed directly */
                     else
                     {
                         parser->mState = mcWAIT_CHECKSUM;
@@ -199,15 +203,15 @@ int16_t protocolParserReceive(
             case mcWAIT_DATA:
                 *(parser->mpDataWritePos++) = c;
                 parser->mDataCRC ^= c;
-                if (parser->mpDataWritePos
-                    == parser->mpData + parser->mDataBufSize)
+                // check that our raw-buffer is still in bounds
+                if (parser->mpDataWritePos == parser->mpData + parser->mDataBufSize)
                 {
                     //TODO armin: nice error handling in switch-case
                     parser->mState = mcERROR;
                     return dataRead;
                 }
-                if (parser->mpDataWritePos
-                    == parser->mpData + parser->mHeader.mDataLen)
+                // check if we read "enough" data -- as was advertised in the header
+                if (parser->mpDataWritePos == parser->mpData + parser->mHeader.mDataLen)
                 {
                     if (parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING)
                     {
@@ -231,7 +235,12 @@ int16_t protocolParserReceive(
                 }
                 break;
             case mcCOMPLETE:
-                //call protocolParserDestroyPacket() after reading data
+                /* we reach here if we are "mcCOMPLETE" before any byte was
+                 * parsed, since there is an "if" for the same state after the
+                 * switch-case.
+                 * HINT: you have to manually call
+                 * protocolParserDestroyPacket() after reading data to reset
+                 * the state-machine */
                 return 0;
                 break;
             case mcERROR:

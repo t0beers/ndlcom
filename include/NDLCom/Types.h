@@ -7,7 +7,7 @@
 #define NDLCOM_TYPES_H
 
 /**
- * @addtogroup Communication_Protocol Protocol
+ * @addtogroup Communication_NDLCom NDLCom
  * @{
  *
  */

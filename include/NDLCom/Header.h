@@ -1,5 +1,5 @@
 /**
- * @file include/NDLCom/header.h
+ * @file include/NDLCom/Header.h
  * @date 2011
  */
 
@@ -7,7 +7,7 @@
 #define NDLCOM_HEADER_H
 
 /**
- * @addtogroup Communication_Protocol Protocol
+ * @addtogroup Communication_NDLCom NDLCom
  * @{
  *
  */

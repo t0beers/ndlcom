@@ -1,5 +1,5 @@
 /**
- * @file include/NDLCOM/parser_state.h
+ * @file include/NDLCom/ParserState.h
  * @date 2011
  */
 
@@ -7,7 +7,7 @@
 #define NDLCOM_PARSER_STATE_H
 
 /**
- * @addtogroup Communication_Protocol
+ * @addtogroup Communication_NDLCom
  */
 
 #include <stdint.h>

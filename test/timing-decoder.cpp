@@ -1,9 +1,33 @@
+/**
+ * @file test/timing-decoder.cpp
+ * @date 2012
+ */
 #include "NDLCom/Protocol.h"
 
 #include <iostream>
 #include <random>
 #include <chrono>
 
+/**
+ * @addtogroup Communication
+ * @{
+ * @addtogroup Communication_NDLCom
+ * @{
+ * @addtogroup Communication_NDLCom_Test
+ * @{
+ */
+
+/**
+ * throwing random bytes at the parser/encoder and measuring the time it takes. only intended to be
+ * run in a full-system-environment, not in microcontroller
+ *
+ * as a by-product a nice "fuzzy-tester" for both modules, altough they only test the underlying
+ * state-machine.
+ *
+ * uses quite modern compiler features (c++11 yeah!), is also a small (off-topic) test on what to
+ * expect in this region. so this might not compile everywhere.
+ *
+ */
 int main(int argc, char const *argv[])
 {
     std::random_device rd;
@@ -29,7 +53,8 @@ int main(int argc, char const *argv[])
         data.push_back(number>>16);
         data.push_back(number>>24);
     }
-    std::cout << "will test timing by throwing " << data.size() << "bytes of completely random data at the encoder and decoder" << std::endl;
+    std::cout << "will test timing by throwing " << data.size()
+              << "bytes of completely random data at the encoder and decoder" << std::endl;
 
     std::chrono::high_resolution_clock clock;
     {
@@ -51,7 +76,8 @@ int main(int argc, char const *argv[])
             if (protocolParserHasPacket(parser))
                 protocolParserDestroyPacket(parser);
         }
-        std::cout << "decoding took " << (double)duration.count()/calls << "nanoseconds per byte" << std::endl;
+        std::cout << "decoding took " << (double)duration.count()/calls
+                  << "nanoseconds per byte" << std::endl;
     }
     {
         std::chrono::duration<int, std::nano> duration(0);
@@ -72,8 +98,15 @@ int main(int argc, char const *argv[])
             duration += end - start;
             calls++;
         }
-        std::cout << "encoding took " << (double)duration.count()/calls << "nanoseconds per " << dataLen << "byte-chunk of payload" << std::endl;
+        std::cout << "encoding took " << (double)duration.count()/calls
+                  << "nanoseconds per " << dataLen << "byte-chunk of payload" << std::endl;
     }
 
     exit(EXIT_SUCCESS);
 }
+
+/**
+ * @}
+ * @}
+ * @}
+ */
