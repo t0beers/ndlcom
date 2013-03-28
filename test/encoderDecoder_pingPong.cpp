@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
     std::chrono::duration<int, std::micro> durationEncode(0);
     std::chrono::duration<int, std::micro> durationDecode(0);
 
-    for (int trial=0;trial<trialsOverall;trial++)
+    for (unsigned int trial=0;trial<trialsOverall;trial++)
     {
         ProtocolHeader hdr;
         /* generates numbers in the possible ranges */
