@@ -23,7 +23,10 @@
  * packets on the current architecture.
  *
  * just for reference:
+ * crc xor8 (SVN r7289):
  *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 0.90748us decoding took 5.26462us
+ * crc fcs16:
+ *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 1.04513us decoding took 6.0782us
  *
  */
 int main(int argc, char const *argv[])
