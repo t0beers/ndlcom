@@ -102,7 +102,7 @@ int main(int argc, char const *argv[])
             durationEncode += end - start;
         }
 
-        int i = 0;
+        size_t i = 0;
         while (!protocolParserHasPacket(parser))
         {
             uint8_t byte = encoded[i++];
