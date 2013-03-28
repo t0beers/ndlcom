@@ -243,11 +243,6 @@ void protocolParserGetState(struct ProtocolParser* parser,
  */
 extern const char* protocolParserStateName[];
 
-/**
- * @brief NULL-terminated string containing an error-description.
- */
-extern const char* protocolParserErrorString[];
-
 #if defined (__cplusplus)
 }
 #endif

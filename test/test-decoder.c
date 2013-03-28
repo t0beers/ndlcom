@@ -109,9 +109,9 @@ int testDecoder(const struct TestCase* test)
             {
                 struct ProtocolParserState state;
                 protocolParserGetState(p, &state);
-                printf("Did not detect a valid packet:\n  %s\n  Error: %s\n  State: %s\n",
+                printf("Did not detect a valid packet:\n  %s\n  CrcFails: %i  State: %s\n",
                        test->descr,
-                       protocolParserErrorString[state.mLastError],
+                       state.mNumberOfCRCFails,
                        protocolParserStateName[state.mState]
                        );
                 ++foundErrors;

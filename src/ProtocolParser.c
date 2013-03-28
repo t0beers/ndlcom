@@ -57,13 +57,6 @@ struct ProtocolParser
     } mState;
     int8_t mLastWasESC;/**< stores if the last received byte was a crc. used to detect escaped bytes */
     uint16_t mNumberOfCRCFails;/**< how often a bad crc was received */
-    /** why the parser went into error-state */
-    enum ErrorReason
-    {
-        mcNOERROR=0,
-        mcBAD_CRC,
-        mcDESTROYED,
-    } mLastError;
     int mFlags;
 };
 
@@ -77,10 +70,6 @@ const char* protocolParserStateName[] = {
     0
 };
 
-const char* protocolParserErrorString[] = {
-    "NOERROR", "BAD_CRC", "DESTROYED", 0
-};
-
 struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
 {
     if (!pBuffer || dataBufSize <= sizeof(struct ProtocolParser))
@@ -92,7 +81,6 @@ struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
     parser->mpData = pBuffer + sizeof(struct ProtocolParser);
     parser->mDataBufSize = dataBufSize - sizeof(struct ProtocolParser);
     parser->mState = mcWAIT_STARTFLAG;
-    parser->mLastError = mcNOERROR;
     parser->mDataCRC = 0;
     parser->mLastWasESC = 0;
     parser->mNumberOfCRCFails = 0;
@@ -128,7 +116,6 @@ int16_t protocolParserReceive(
     if (parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING)
     {
       //start of a frame without flags in each function call.
-      parser->mLastError = mcNOERROR;
       parser->mDataCRC = 0;
       parser->mLastWasESC = 0;
       parser->mState = mcWAIT_HEADER;
@@ -297,7 +284,6 @@ void protocolParserGetState(struct ProtocolParser* parser,
 {
     output->mState = parser->mState;
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
-    output->mLastError = parser->mLastError;
 }
 
 /**
