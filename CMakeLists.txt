@@ -25,7 +25,7 @@ set(DEVICES_XML_VALIDATED ${CMAKE_CURRENT_BINARY_DIR}/xml/DeviceIds.xml.validate
 set(DEVICE_IDS_C_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.c.xsl)
 set(DEVICE_IDS_H_CSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.h.xsl)
 set(DEVICES_VHD_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/Devices.vhd.xsl)
-# and the c-files we wanna create:
+# and the resulting files we wanna create:
 set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/src/DeviceIds.c)
 set(DEVICE_IDS_H ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/DeviceIds.h)
 set(DEVICES_VHD ${CMAKE_CURRENT_SOURCE_DIR}/vhdl/Devices.vhd)
@@ -40,7 +40,8 @@ add_custom_command(
 add_custom_target(${PROJECT_NAME}-validate)
 add_dependencies(${PROJECT_NAME}-validate ${DEVICES_XML_VALIDATED})
 
-# three "generate" commands to create c, h and vhd files using the provided xml infrastructure
+# three "generate" commands to create c, h and vhd files using the provided xml
+# infrastructure. using ".. || rm $file" to remove half-created files on failure
 add_custom_command(
     OUTPUT ${DEVICE_IDS_C}
     COMMAND mkdir -p `dirname ${DEVICE_IDS_C}`
@@ -67,8 +68,8 @@ add_dependencies(${PROJECT_NAME}-generate ${PROJECT_NAME}-validate ${DEVICES_C} 
 # allows cleaning the created stuff, so we don't leave a mess
 set_directory_properties(PROPERTIES
     ADDITIONAL_MAKE_CLEAN_FILES ${DEVICES_XML_VALIDATED}
-    ADDITIONAL_MAKE_CLEAN_FILES ${DEVICES_C}
-    ADDITIONAL_MAKE_CLEAN_FILES ${DEVICES_H}
+    ADDITIONAL_MAKE_CLEAN_FILES ${DEVICE_IDS_C}
+    ADDITIONAL_MAKE_CLEAN_FILES ${DEVICE_IDS_H}
     ADDITIONAL_MAKE_CLEAN_FILES ${DEVICES_VHD}
     )
 
