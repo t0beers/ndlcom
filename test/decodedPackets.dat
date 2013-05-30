@@ -1,0 +1,46 @@
+-------------------------------------------------------------------
+-- stimulus file for vhdl simulation
+-- 'T' : NDLCom start flag
+-- 'N' : Qualifier to trigger the transmission of an NDLCom message
+-- 'R' : Set new NDLCom Receiver ID            (dez)
+-- 'S' : Set new NDLCom Sender ID              (dez)
+-- 'F' : Set NDLCom Frame counter manually     (dez)
+-- 'L' : Set NDLCom Length field manually      (dez) -- The number of unescaped
+--                                                      data bytes
+-- 'C' : Set 2 byte NDLCom CRC field manually  (dez) -- Can not be handled
+--                                                      by Software tesbench
+--                                                      by M. Zenzes
+-- 'D' : Set NDLCom data                       (dez)
+-- 'W' : Qualifier to wait for certain time
+-- 'X' : Qualifier to stop simulation
+-------------------------------------------------------------------
+S 1
+R 126
+F 0
+D 126
+--L 13
+N
+--
+S 1
+R 129
+F 1
+D 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+L 16
+N
+--
+S 1
+R 129
+F 2
+D 0 1 2 3 4 5 6 7 8 9 12 11 12 1 14 15 16 17 19 19 20
+L 21
+N
+--
+T 126
+R 126
+S 1
+F 0
+L 1
+D 126
+C 8 242
+E 126
+N

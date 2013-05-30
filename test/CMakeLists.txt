@@ -11,7 +11,7 @@ if (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
     add_executable(timing-decoder timing-decoder.cpp)
     add_executable(encoderDecoder_pingPong encoderDecoder_pingPong.cpp)
 
-    # even if some of them will eat this, they have to be told so, differently
+    # even if some of the compilers will eat the code, they have to be told so, differently
     if (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7)
         set_source_files_properties(timing-decoder.cpp PROPERTIES COMPILE_FLAGS "-std=c++11")
         set_source_files_properties(encoderDecoder_pingPong.cpp PROPERTIES COMPILE_FLAGS "-std=c++11")
@@ -26,3 +26,23 @@ if (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
     add_test(NAME encoderDecoder_pingPong COMMAND ${CMAKE_CURRENT_BINARY_DIR}/encoderDecoder_pingPong 100000)
 
 endif()
+
+# these are two executales, each of them encapsulating the encoder/decoder in a
+# small cmdline tool. both read from characters from stdin in a certain format
+# (see the respective cpp-files), try to do their tasks and output to stdout in
+# their respective other format.
+#
+# q auick note: the two tools are not perfect, and don't catch all sidecases.
+# but they are a start into automatic testing and comparing vhdl/cpp code on
+# the desk, not the robot!
+add_executable(testEncoder testEncoder.cpp)
+target_link_libraries(testEncoder NDLCom)
+add_executable(testDecoder testDecoder.cpp)
+target_link_libraries(testDecoder NDLCom)
+
+# i hate cmake nowadays, their "language" is broken as shit and trying to
+# formulate a "task" such as these trivally done in bash is hard... since that,
+# i hacked together this mini-shell script which does exactly the same as the
+# test-macro...
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testEncoderDecoder.sh.in ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh @ONLY)
+add_test(NAME testEncoderDecoder COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh)

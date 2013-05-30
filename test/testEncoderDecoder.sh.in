@@ -1,0 +1,32 @@
+#!/bin/bash
+
+##
+# we have several packets in two different formats: once as human readable
+# format (defined in a custom, vhdl-compatible format, see cpp-file) and once
+# the resulting encoded form as it would be transmitted over the wire (defined
+# in a space-separated, decimal-byte, packet-per-line, vhdl-compatible format,
+# see cpp-file).
+#
+# they are used as inputs for the two encoder/decoder tools to check them for
+# compliance. all this is intended to be extended with the actual vhdl-code via
+# a testbench, hence the strange message format.
+##
+
+##
+# first test: sending encoded packets using the daisy-chain fearure into the
+# decoder and encoding its output again. the final output should match the
+# initial input.
+##
+diff <(@CMAKE_CURRENT_BINARY_DIR@/testDecoder < @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat \
+        | @CMAKE_CURRENT_BINARY_DIR@/testEncoder) \
+    @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat && echo "first test good" || exit 1
+
+##
+# second test: check if the checked-in encoded packet matches the output of the
+# encoder using the checked-in humand-readable packets.
+##
+diff <(@CMAKE_CURRENT_BINARY_DIR@/testEncoder < @CMAKE_CURRENT_SOURCE_DIR@/decodedPackets.dat) \
+    @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat && echo "second test good" || exit 1
+
+# all well!
+exit 0
