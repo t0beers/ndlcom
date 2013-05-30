@@ -72,7 +72,9 @@ const char* protocolParserStateName[] = {
 
 struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
 {
-    if (!pBuffer || dataBufSize <= sizeof(struct ProtocolParser))
+    // we enforce a correct length: having less memory will lead to
+    // buffer-overflows on big packets.
+    if (!pBuffer || dataBufSize <= (sizeof(struct ProtocolParser)+255))
     {
         return 0;
     }
@@ -196,13 +198,11 @@ int16_t protocolParserReceive(
             case mcWAIT_DATA:
                 *(parser->mpDataWritePos++) = c;
                 parser->mDataCRC ^= c;
-                // check that our raw-buffer is still in bounds
-                if (parser->mpDataWritePos == parser->mpData + parser->mDataBufSize)
-                {
-                    //TODO armin: nice error handling in switch-case
-                    parser->mState = mcERROR;
-                    return dataRead;
-                }
+
+                // no out-of-bound check is performed. since we guarded the
+                // buffer-size in protocolParserCreate to be big anough, this
+                // will hopefully never fail...
+
                 // check if we read "enough" data -- as was advertised in the header
                 if (parser->mpDataWritePos == parser->mpData + parser->mHeader.mDataLen)
                 {
