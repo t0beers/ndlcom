@@ -64,6 +64,7 @@ add_custom_command(
     )
 add_custom_command(
     OUTPUT ${DEVICE_IDS_PERL}
+    COMMAND mkdir -p `dirname ${DEVICE_IDS_PERL}`
     COMMAND ${XMLSTARLET} tr ${DEVICE_IDS_PERL_XSL} ${DEVICES_XML} > ${DEVICE_IDS_PERL} || rm ${DEVICE_IDS_PERL}
     DEPENDS ${DEVICES_XML} ${DEVICE_IDS_PERL_XSL}
     )
