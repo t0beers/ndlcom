@@ -25,10 +25,12 @@ set(DEVICES_XML_VALIDATED ${CMAKE_CURRENT_BINARY_DIR}/xml/DeviceIds.xml.validate
 set(DEVICE_IDS_C_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.c.xsl)
 set(DEVICE_IDS_H_CSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/DeviceIds.h.xsl)
 set(DEVICES_VHD_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/Devices.vhd.xsl)
+set(DEVICE_IDS_PERL_XSL ${CMAKE_CURRENT_SOURCE_DIR}/xml/NDLComDeviceIds.pm.xsl)
 # and the resulting files we wanna create:
 set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/src/DeviceIds.c)
 set(DEVICE_IDS_H ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/DeviceIds.h)
 set(DEVICES_VHD ${CMAKE_CURRENT_SOURCE_DIR}/vhdl/Devices.vhd)
+set(DEVICE_IDS_PERL ${CMAKE_CURRENT_SOURCE_DIR}/perl/NDLComDeviceIds.pm)
 
 # and the block to do that validation
 add_custom_command(
@@ -60,10 +62,15 @@ add_custom_command(
     COMMAND ${XMLSTARLET} tr ${DEVICES_VHD_XSL} ${DEVICES_XML} > ${DEVICES_VHD} || rm ${DEVICES_VHD}
     DEPENDS ${DEVICES_XML} ${DEVICES_VHD_XSL}
     )
+add_custom_command(
+    OUTPUT ${DEVICE_IDS_PERL}
+    COMMAND ${XMLSTARLET} tr ${DEVICE_IDS_PERL_XSL} ${DEVICES_XML} > ${DEVICE_IDS_PERL} || rm ${DEVICE_IDS_PERL}
+    DEPENDS ${DEVICES_XML} ${DEVICE_IDS_PERL_XSL}
+    )
 
 # and create a custom target from this, so that cmake can work with this
-add_custom_target(${PROJECT_NAME}-generate ALL DEPENDS ${DEVICES_VHD})
-add_dependencies(${PROJECT_NAME}-generate ${PROJECT_NAME}-validate ${DEVICES_C} ${DEVICES_H} ${DEVICES_VHD})
+add_custom_target(${PROJECT_NAME}-generate ALL DEPENDS ${DEVICES_VHD} ${DEVICE_IDS_PERL})
+add_dependencies(${PROJECT_NAME}-generate ${PROJECT_NAME}-validate ${DEVICE_IDS_C} ${DEVICE_IDS_H} ${DEVICES_VHD} ${DEVICE_IDS_PERL})
 
 # allows cleaning the created stuff, so we don't leave a mess
 set_directory_properties(PROPERTIES
@@ -71,6 +78,7 @@ set_directory_properties(PROPERTIES
     ADDITIONAL_MAKE_CLEAN_FILES ${DEVICE_IDS_C}
     ADDITIONAL_MAKE_CLEAN_FILES ${DEVICE_IDS_H}
     ADDITIONAL_MAKE_CLEAN_FILES ${DEVICES_VHD}
+    ADDITIONAL_MAKE_CLEAN_FILES ${DEVICE_IDS_PERL}
     )
 
 
@@ -109,6 +117,7 @@ install(TARGETS ${PROJECT_NAME}
 
 install(FILES ${HEADERS_lib} DESTINATION include/${PROJECT_NAME})
 install(FILES ${DEVICES_VHD} DESTINATION vhdl/${PROJECT_NAME})
+install(FILES ${DEVICE_IDS_PERL} DESTINATION perl/${PROJECT_NAME})
 
 # testing the decoder with some corner-cases
 if (NOT CMAKE_CROSSCOMPILING)

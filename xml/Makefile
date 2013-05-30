@@ -1,7 +1,7 @@
 # this is just a simple, non-functional makefile for use during testing. not
 # kept up-to-date after initial writage. ONLY use it if you know what you are
 # doing!
-all: DeviceIds.success Devices.vhd DeviceIds.h DeviceIds.c
+all: DeviceIds.success Devices.vhd DeviceIds.h DeviceIds.c NDLComDeviceIds.pm
 
 %.vhd: %.vhd.xsl DeviceIds.xml
 	xmlstarlet tr $*.vhd.xsl DeviceIds.xml > $@
@@ -12,9 +12,12 @@ all: DeviceIds.success Devices.vhd DeviceIds.h DeviceIds.c
 %.c: %.c.xsl %.xml
 	xmlstarlet tr $*.c.xsl $*.xml > $@
 
+%.pm: %.pm.xsl %.xml
+	xmlstarlet tr $*.pm.xsl $*.xml > $@
+
 %.success: %.xsd %.xml
 	@echo "WARNING: only use this makefile if you know what you are doing. you have been warned!"
 	xmllint --noout --schema $*.xsd $*.xml && touch $@
 
 clean:
-	rm -f DeviceIds.success Devices.vhd DeviceIds.h DeviceIds.c
+	rm -f DeviceIds.success Devices.vhd DeviceIds.h DeviceIds.c NDLComDeviceIds.pm
