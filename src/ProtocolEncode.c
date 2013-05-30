@@ -35,10 +35,13 @@ int16_t protocolEncode(void* pOutputBuffer,
 {
     uint8_t headerRaw[PROTOCOL_HEADERLEN];
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
-    const uint8_t* pWriteEnd = pWritePos + outputBufferSize;
     ndlcomCrc crc = 0;
 
-    if (outputBufferSize < 2 + sizeof(struct ProtocolHeader) + pHeader->mDataLen + 1)
+    /* we need at least: 2bytes for start/stop-flags, the header itself, the
+     * actual data with an unencoded maximum of 255bytes and the crc. since
+     * each byte (except the start/stop flags) _could_ be escaped in theory, we
+     * need doubled number of bytes... */
+    if (outputBufferSize < 2+2*(sizeof(struct ProtocolHeader) + pHeader->mDataLen + sizeof(ndlcomCrc)))
     {
         return -1;
     }
@@ -72,16 +75,14 @@ int16_t protocolEncode(void* pOutputBuffer,
         ++pRead;
     }
 
+    //no further checks if pWritePos is in bound, since we enforced a maximum buffer-size before
+
     //data
     pRead = (const uint8_t*)pData;
     const uint8_t* pDataEnd = pRead + pHeader->mDataLen;
     while (pRead != pDataEnd)
     {
         const uint8_t d = *pRead;
-        if (pWritePos == pWriteEnd - (sizeof(ndlcomCrc)+1))
-        {
-            return -1;
-        }
 
         if (d == PROTOCOL_ESC || d == PROTOCOL_FLAG)
         {
