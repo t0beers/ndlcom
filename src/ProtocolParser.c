@@ -115,15 +115,6 @@ int16_t protocolParserReceive(
     int16_t dataRead = 0;
     const uint8_t* in = (uint8_t*)newData;
 
-    if (parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING)
-    {
-      //start of a frame without flags in each function call.
-      parser->mDataCRC = 0;
-      parser->mLastWasESC = 0;
-      parser->mState = mcWAIT_HEADER;
-      parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
-    }
-
     while (newDataLen--)
     {
         uint8_t c = *in;
@@ -149,7 +140,7 @@ int16_t protocolParserReceive(
             }
         }
         //handle an escape byte
-        else if (c == PROTOCOL_ESC && !(parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING))
+        else if (c == PROTOCOL_ESC)
         {
             //do nothing now. wait for next byte
             //to decide action
@@ -157,7 +148,7 @@ int16_t protocolParserReceive(
             continue;
         }
         //handle a protocol flag
-        else if (c == PROTOCOL_FLAG && !(parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING))
+        else if (c == PROTOCOL_FLAG)
         {
             //an unescaped FLAG is interpreted as a packet start
             protocolParserDestroyPacket(parser);
@@ -181,17 +172,10 @@ int16_t protocolParserReceive(
                     {
                         parser->mState = mcWAIT_DATA;
                     }
-                    /* ...else we have a degenerate packet, proceed directly */
+                    /* ...else we have a degenerate packet with no payload, proceed directly */
                     else
                     {
-                        if (parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING)
-                        {
-                            parser->mState = mcCOMPLETE;
-                        }
-                        else
-                        {
-                            parser->mState = mcWAIT_CHECKSUM;
-                        }
+                        parser->mState = mcWAIT_CHECKSUM;
                     }
                 }
                 break;
@@ -206,14 +190,7 @@ int16_t protocolParserReceive(
                 // check if we read "enough" data -- as was advertised in the header
                 if (parser->mpDataWritePos == parser->mpData + parser->mHeader.mDataLen)
                 {
-                    if (parser->mFlags & PROTOCOL_PARSER_DISABLE_FRAMING)
-                    {
-                        parser->mState = mcCOMPLETE;
-                    }
-                    else
-                    {
-                        parser->mState = mcWAIT_CHECKSUM;
-                    }
+                    parser->mState = mcWAIT_CHECKSUM;
                 }
                 break;
             case mcWAIT_CHECKSUM:

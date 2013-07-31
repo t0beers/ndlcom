@@ -115,36 +115,6 @@ int16_t protocolEncode(void* pOutputBuffer,
     return pWritePos - (uint8_t*)pOutputBuffer;
 }
 
-
-
-int16_t protocolEncodeForUDP(void* pOutputBuffer,
-                   uint16_t outputBufferSize,
-                   const struct ProtocolHeader* pHeader,
-                   const void* pData)
-{
-    uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
-
-    if (outputBufferSize < sizeof(struct ProtocolHeader) + pHeader->mDataLen)
-    {
-        return -1;
-    }
-
-    *pWritePos++ = pHeader->mReceiverId;
-    *pWritePos++ = pHeader->mSenderId;
-    *pWritePos++ = pHeader->mCounter;
-    *pWritePos++ = pHeader->mDataLen;
-
-    //data
-    const uint8_t* pRead = (const uint8_t*)pData;
-    const uint8_t* pDataEnd = pRead + pHeader->mDataLen;
-    while (pRead != pDataEnd)
-    {
-        *pWritePos++ = *pRead++;
-    }
-
-    return pWritePos - (uint8_t*)pOutputBuffer;
-}
-
 /**
  * @}
  */

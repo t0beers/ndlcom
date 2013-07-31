@@ -93,13 +93,6 @@ extern "C" {
  */
 #define PROTOCOL_HEADERLEN 4
 
-/**
- * Flag to disable usage of hdlc flags and escaping.
- * It is assumed that data of exactly one packet is inside the buffer.
- * This can be used to encapsulate packets inside UDP.
- */
-#define PROTOCOL_PARSER_DISABLE_FRAMING    1
-
 /* forward declaration */
 struct ProtocolParser;
 
@@ -116,17 +109,6 @@ struct ProtocolParser;
  * @return Number of bytes used in the output buffer. -1 on error.
  */
 int16_t protocolEncode(void* pOutputBuffer,
-                   uint16_t outputBufferSize,
-                   const struct ProtocolHeader* pHeader,
-                   const void* pData);
-
-
-/**
- * @brief Encode packet for packet transmission (no framing).
- * @sa protocolEncode()
- * @return Number of bytes used in the output buffer. -1 on error.
- */
-int16_t protocolEncodeForUDP(void* pOutputBuffer,
                    uint16_t outputBufferSize,
                    const struct ProtocolHeader* pHeader,
                    const void* pData);
