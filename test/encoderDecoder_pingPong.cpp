@@ -109,6 +109,7 @@ int main(int argc, char const *argv[])
 
             {
                 std::chrono::system_clock::time_point start = clock.now();
+                    /* parsing deliberatively only one byte! we are measuring timing here, remember? */
                     protocolParserReceive(parser,&byte,sizeof(byte));
                 std::chrono::system_clock::time_point end = clock.now();
 
