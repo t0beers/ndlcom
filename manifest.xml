@@ -1,0 +1,19 @@
+<package>
+  <description brief="ndlcom_core">
+
+functions to encode/decode simple serial communication layer2 message format
+called "ndlcom" for "Node Data Link Communication"
+
+
+STRUCTURE
+-- src/ 
+	Contains all source files (*.c)
+-- include/ndlcom_core/ 
+	Contains all header files (*.h)
+-- build/
+	The target directory for the build process, temporary content
+  </description>
+  <author>/</author>
+  <license></license>
+  <url>http://spacegit.dfki.uni-bremen.de/ndlcom/ndlcom_core</url>
+</package>
