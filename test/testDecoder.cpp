@@ -10,7 +10,7 @@
 
 /* global stuff */
 char buffer[1024];
-struct ProtocolParser* parser = protocolParserCreate(buffer, sizeof(buffer));
+struct NDLComParser* parser = ndlcomParserCreate(buffer, sizeof(buffer));
 
 /**
  * a comment describing functionality of this program. for the actual data-format of the output: see
@@ -20,12 +20,12 @@ struct ProtocolParser* parser = protocolParserCreate(buffer, sizeof(buffer));
 /* decoding the byte stream and printing decoded packets in the "vhdl" convention */
 void addByte(const unsigned char byte)
 {
-    unsigned int rcvd = protocolParserReceive(parser,&byte, 1);
+    unsigned int rcvd = ndlcomParserReceive(parser,&byte, 1);
     assert(rcvd == 1);
 
-    if (protocolParserHasPacket(parser)) {
-        const ProtocolHeader *hdr = protocolParserGetHeader(parser);
-        const char* data = (const char*)protocolParserGetPacket(parser);
+    if (ndlcomParserHasPacket(parser)) {
+        const NDLComHeader *hdr = ndlcomParserGetHeader(parser);
+        const char* data = (const char*)ndlcomParserGetPacket(parser);
         std::cout << "S " << (int)hdr->mSenderId << "\n";
         std::cout << "R " << (int)hdr->mReceiverId << "\n";
         std::cout << "F " << (int)hdr->mCounter << "\n";
@@ -41,13 +41,13 @@ void addByte(const unsigned char byte)
         /* by convention a packet is deemed finished by a "N" as a line */
         std::cout << "N\n";
 
-        protocolParserDestroyPacket(parser);
+        ndlcomParserDestroyPacket(parser);
     }
 }
 
 int main(int argc, char const *argv[])
 {
-    parser = protocolParserCreate(buffer, sizeof(buffer));
+    parser = ndlcomParserCreate(buffer, sizeof(buffer));
 
     /* maybe do argument parsing... */
 

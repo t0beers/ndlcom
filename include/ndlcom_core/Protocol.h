@@ -1,5 +1,5 @@
 /**
- * @file include/NDLCom/Protocol.h
+ * @file include/ndlcom_core/Protocol.h
  * @date 2011
  */
 
@@ -25,9 +25,9 @@
  *  #include "ndlcom_core/Protocol.h"
  * @endcode
  *
- * initialize the basic struct ProtocolParserState by doing
+ * initialize the basic struct NDLComParserState by doing
  * @code
- *      pProtocolParser = protocolParserCreate(bufferRx, sizeof(bufferRx));
+ *      pNDLComParser = ndlcomParserCreate(bufferRx, sizeof(bufferRx));
  * @endcode
  *
  * To transmit at the very lowest level, create a paket by doing
@@ -37,7 +37,7 @@
  *      hdr.mSenderId = 0x02;
  *      hdr.mCounter = 0;
  *      hdr.mCounter++;
- *      bufferLength = protocolEncode( (void*)bufferTx,
+ *      bufferLength = ndlcomEncode( (void*)bufferTx,
  *                                    sizeof(bufferTx),
  *                                    &hdr,
  *                                    (const void*)(&data),
@@ -45,13 +45,13 @@
  * @endcode
  * And send the resulting bytes using your usart-routine.
  *
- * It can be stressed, that receiving needs initializing with protocolParserCreate(), while protocolEncode()
+ * It can be stressed, that receiving needs initializing with ndlcomParserCreate(), while ndlcomEncode()
  * is working on-the-fly using a different(!) buffer
  *
  * @todo
  *  - make crc-counter a 16bit (or even 32?) value to have no overflows
  *
- * @see ProtocolHeader
+ * @see struct NDLComHeader
  *
  * @section com1 Compiling
  *
@@ -75,39 +75,8 @@
 extern "C" {
 #endif
 
-/**
- * @brief current escape-byte
- */
-#define PROTOCOL_ESC 0x7d
-/**
- * @brief current flag to denote an escaped byte
- */
-#define PROTOCOL_FLAG 0x7e
-/**
- * @brief current broadcast address
- * @todo check for other occurences
- */
-#define PROTOCOL_ADDR_BROADCAST 0xff
-/**
- * @brief length of the current header
- */
-#define PROTOCOL_HEADERLEN (2*sizeof(ndlcomId)+sizeof(ndlcomCounter)+sizeof(ndlcomDataLen))
-
-/**
- * @brief an decoded message can contain upto 255byte, a header and the crc. no bytes are escaped
- */
-#define PROTOCOL_MAX_DECODED_MESSAGE_SIZE (PROTOCOL_HEADERLEN+255+sizeof(ndlcomCrc))
-
-/**
- * @brief in an encoded message, the worst case would be to escape _each_ single byte of an decoded
- * message, plus the initial start-flag and the optional stop flag. the crc as well.
- */
-#define PROTOCOL_MAX_ENCODED_MESSAGE_SIZE (2+PROTOCOL_MAX_DECODED_MESSAGE_SIZE*2+sizeof(ndlcomCrc))
-
-#define PROTOCOL_PARSER_BUFFER_SIZE (sizeof(struct ProtocolParser)+255)
-
 /* forward declaration */
-struct ProtocolParser;
+struct NDLComParser;
 
 /**
  * @brief Encode packet for serial transmission.
@@ -117,14 +86,14 @@ struct ProtocolParser;
  * @param pHeader Pointer to a PacketHeader struct.
  * @param pData User data inside the packet.
  *              Keep in mind to set pHeader->mDataLen!
- *              (@see struct ProtocolHeader)
+ *              (@see struct NDLComHeader)
  *
  * @return Number of bytes used in the output buffer. -1 on error.
  */
-int16_t protocolEncode(void* pOutputBuffer,
-                   uint16_t outputBufferSize,
-                   const struct ProtocolHeader* pHeader,
-                   const void* pData);
+int16_t ndlcomEncode(void* pOutputBuffer,
+                     uint16_t outputBufferSize,
+                     const NDLComHeader* pHeader,
+                     const void* pData);
 
 
 /**
@@ -135,7 +104,7 @@ int16_t protocolEncode(void* pOutputBuffer,
  *\return 0 on error, otherwise a pointer to be used by other functions
  *     in this file.
  */
-struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize);
+struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize);
 
 /**
  * @brief Destroy state information (before freeing the used buffer).
@@ -143,21 +112,21 @@ struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
  * Currently not needed since no "private" heap memory allocation is done.
  *\param parser Pointer to state information.
  */
-void protocolParserDestroy(struct ProtocolParser* parser);
+void ndlcomParserDestroy(struct NDLComParser* parser);
 
 /**
  * @brief Set parser flags.
  *\param parser Pointer to state information.
  *\param flag Flags to be set.
  */
-void protocolParserSetFlag(struct ProtocolParser* parser, int flag);
+void ndlcomParserSetFlag(struct NDLComParser* parser, int flag);
 
 /**
  * @brief Clear parser flags.
  *\param parser Pointer to state information.
  *\param flag Flags to be cleared.
  */
-void protocolParserClearFlag(struct ProtocolParser* parser, int flag);
+void ndlcomParserClearFlag(struct NDLComParser* parser, int flag);
 
 /**
  * @brief Append as many bytes as possible from a buffer to the internal data structure.
@@ -167,7 +136,7 @@ void protocolParserClearFlag(struct ProtocolParser* parser, int flag);
  *\param buflen Number of bytes to be parsed.
  *\return number of accepted bytes. -1 on error.
  */
- int16_t protocolParserReceive(struct ProtocolParser* parser, const void* buf, uint16_t buflen);
+ int16_t ndlcomParserReceive(struct NDLComParser* parser, const void* buf, uint16_t buflen);
 
 /**
  * @brief Return true if a packet is available.
@@ -177,7 +146,7 @@ void protocolParserClearFlag(struct ProtocolParser* parser, int flag);
  * @param parser Pointer to the parser state-struct to be used
  * @return returns true if a paket was received
  */
-char protocolParserHasPacket(struct ProtocolParser* parser);
+char ndlcomParserHasPacket(struct NDLComParser* parser);
 
 
 /**
@@ -186,18 +155,18 @@ char protocolParserHasPacket(struct ProtocolParser* parser);
  * @param parser Pointer to the parser state-struct to be used
  * @return Pointer to a received protocol-header
  */
-const struct ProtocolHeader* protocolParserGetHeader(struct ProtocolParser* parser);
+const NDLComHeader* ndlcomParserGetHeader(struct NDLComParser* parser);
 
 /**
  * @brief Return pointer to data.
  *
- * The data is available in the header. @see struct protocolHeader
+ * The data is available in the header. @see struct NDLComHeader
  *
  * @param parser Pointer to the parser state-struct to be used
  * @return Pointer to the received payload. by definition of the protocol, the first
  * byte denotes the type of the payload
  */
-const void* protocolParserGetPacket(struct ProtocolParser* parser);
+const void* ndlcomParserGetPacket(struct NDLComParser* parser);
 
 /**
  * @brief Detection of telegram starts
@@ -206,23 +175,23 @@ const void* protocolParserGetPacket(struct ProtocolParser* parser);
  * looking at single bytes Simpler and hopefully faster than complete parser. May be used for
  * forwarding of pakets.
  *
- * Internal method is very similar (in fact copied) from the statemachine used in protocolParserReceive().
+ * Internal method is very similar (in fact copied) from the statemachine used in ndlcomParserReceive().
  *
  * @param c The current byte in the datastream.
  * @return true is new paket detected
 */
-static inline uint8_t protocolDetectNewPaket(const uint8_t c)
+static inline uint8_t ndlcomDetectNewPaket(const uint8_t c)
 {
-    return c == PROTOCOL_FLAG;
+    return c == NDLCOM_START_STOP_FLAG;
 }
 
 /**
  * @brief After using the data pointer allow the parser to receive the next packet.
- *\see protocolParserGetPacket
+ *\see ndlcomParserGetPacket
  *
  * @param parser Pointer to the parser state-struct to be used
  */
-void protocolParserDestroyPacket(struct ProtocolParser* parser);
+void ndlcomParserDestroyPacket(struct NDLComParser* parser);
 
 /**
  * @brief may be used to get the current state. usefull for displaying it.
@@ -230,13 +199,13 @@ void protocolParserDestroyPacket(struct ProtocolParser* parser);
  * @param parser Pointer to the parser state-struct to be used
  * @param output the current state of the parser get written here
  */
-void protocolParserGetState(struct ProtocolParser* parser,
-                            struct ProtocolParserState* output);
+void ndlcomParserGetState(struct NDLComParser* parser,
+                          struct NDLComParserState* output);
 
 /**
  * @brief NULL-terminated string containing the name of the current state
  */
-extern const char* protocolParserStateName[];
+extern const char* ndlcomParserStateName[];
 
 #if defined (__cplusplus)
 }

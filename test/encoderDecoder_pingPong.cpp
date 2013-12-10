@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
 {
 
     char buffer[1024];
-    struct ProtocolParser* parser = protocolParserCreate(buffer, sizeof(buffer));
+    struct NDLComParser* parser = ndlcomParserCreate(buffer, sizeof(buffer));
 
     if (argc != 2)
     {
@@ -51,14 +51,14 @@ int main(int argc, char const *argv[])
     std::seed_seq seed1 (str.begin(),str.end());
 
     std::default_random_engine generator(seed1);
-    std::uniform_int_distribution<ndlcomDataLen> datalenDistribution(std::numeric_limits<ndlcomDataLen>::min(),
-                                                                     std::numeric_limits<ndlcomDataLen>::max());
-    std::uniform_int_distribution<ndlcomId> receiverDistribution(std::numeric_limits<ndlcomId>::min(),
-                                                                 std::numeric_limits<ndlcomId>::max());
-    std::uniform_int_distribution<ndlcomId> senderDistribution(std::numeric_limits<ndlcomId>::min(),
-                                                               std::numeric_limits<ndlcomId>::max());
-    std::uniform_int_distribution<ndlcomCounter> counterDistribution(std::numeric_limits<ndlcomCounter>::min(),
-                                                                     std::numeric_limits<ndlcomCounter>::max());
+    std::uniform_int_distribution<NDLComDataLen> datalenDistribution(std::numeric_limits<NDLComDataLen>::min(),
+                                                                     std::numeric_limits<NDLComDataLen>::max());
+    std::uniform_int_distribution<NDLComId> receiverDistribution(std::numeric_limits<NDLComId>::min(),
+                                                                 std::numeric_limits<NDLComId>::max());
+    std::uniform_int_distribution<NDLComId> senderDistribution(std::numeric_limits<NDLComId>::min(),
+                                                               std::numeric_limits<NDLComId>::max());
+    std::uniform_int_distribution<NDLComCounter> counterDistribution(std::numeric_limits<NDLComCounter>::min(),
+                                                                     std::numeric_limits<NDLComCounter>::max());
     std::uniform_int_distribution<uint8_t> payloadDistribution(std::numeric_limits<uint8_t>::min(),
                                                                std::numeric_limits<uint8_t>::max());
 
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
 
     for (unsigned int trial=0;trial<trialsOverall;trial++)
     {
-        ProtocolHeader hdr;
+        NDLComHeader hdr;
         /* generates numbers in the possible ranges */
         hdr.mReceiverId = receiverDistribution(generator);
         hdr.mSenderId = senderDistribution(generator);
@@ -96,21 +96,21 @@ int main(int argc, char const *argv[])
 
         {
             std::chrono::system_clock::time_point start = clock.now();
-                protocolEncode(encoded, sizeof(encoded), &hdr, data);
+                ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
             std::chrono::system_clock::time_point end = clock.now();
 
             durationEncode += end - start;
         }
 
         size_t i = 0;
-        while (!protocolParserHasPacket(parser))
+        while (!ndlcomParserHasPacket(parser))
         {
             uint8_t byte = encoded[i++];
 
             {
                 std::chrono::system_clock::time_point start = clock.now();
                     /* parsing deliberatively only one byte! we are measuring timing here, remember? */
-                    protocolParserReceive(parser,&byte,sizeof(byte));
+                    ndlcomParserReceive(parser,&byte,sizeof(byte));
                 std::chrono::system_clock::time_point end = clock.now();
 
                 durationDecode += end - start;
@@ -118,17 +118,17 @@ int main(int argc, char const *argv[])
 
             if (i>=sizeof(encoded))
             {
-                struct ProtocolParserState state;
-                protocolParserGetState(parser, &state);
+                struct NDLComParserState state;
+                ndlcomParserGetState(parser, &state);
 
                 std::cout << "trial " << trial << " did not work."
                           << " number of crc-errors: " << (int)state.mNumberOfCRCFails
-                          << " current parser state: " << protocolParserStateName[state.mState] << "...\n";
+                          << " current parser state: " << ndlcomParserStateName[state.mState] << "...\n";
                 exit(EXIT_FAILURE);
             }
         }
 
-        protocolParserDestroyPacket(parser);
+        ndlcomParserDestroyPacket(parser);
 
         delete[] data;
     }

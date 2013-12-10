@@ -1,5 +1,5 @@
 /**
- * @file include/NDLCom/ParserState.h
+ * @file include/ndlcom_core/ParserState.h
  * @date 2011
  */
 
@@ -19,7 +19,7 @@ extern "C" {
 /**
  * @brief actual state of the parser, useful for a gui
  */
-struct ProtocolParserState
+struct NDLComParserState
 {
     int8_t mState;/**< actual state of the parser */
     int16_t mNumberOfCRCFails;/**< how often the crc failed */

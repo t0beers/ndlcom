@@ -1,5 +1,5 @@
 /**
- * @file src/ProtocolParser.c
+ * @file src/Parser.c
  * @date 2011
  */
 #include "ndlcom_core/Protocol.h"
@@ -22,28 +22,28 @@
  */
 
 /**
- * @brief State for protocolParser functions.
+ * @brief State for ndlcomParser functions.
  *
  * Since a packet may be distributed over many sequential calls of
- * protocolParserReceive a buffer and some state variables are
+ * ndlcomParserReceive a buffer and some state variables are
  * required to reconstruct the packet information.
  * Since only a pointer to this struct is used in the functions listed
  * in include/NDLCom/Protocol.h the struct definition is not needed to use this
  * library.
  */
-struct ProtocolParser
+struct NDLComParser
 {
     /** Last completely received header.
      * After receiving all header bytes and converting the byte order the
-     * header data is stored here. \see protocolParserGetHeader
+     * header data is stored here. \see ndlcomParserGetHeader
      */
-    struct ProtocolHeader mHeader;
+    NDLComHeader mHeader;
      /** temporary storage for raw header data (without start bytes) */
-    uint8_t mHeaderRaw[PROTOCOL_HEADERLEN];
+    uint8_t mHeaderRaw[NDLCOM_HEADERLEN];
     uint8_t* mHeaderRawWritePos; /**< Current write position while receiving header data. */
     uint8_t* mpData; /**< Pointer where the packet content should be written. */
     uint8_t* mpDataWritePos; /**< Current write position of next data byte while receiving user data. */
-    ndlcomCrc mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
+    NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
     uint16_t mDataBufSize; /**< Size of buffer (\see mpData) */
     /** different states the parser may have. */
     enum State
@@ -60,7 +60,7 @@ struct ProtocolParser
     int mFlags;
 };
 
-const char* protocolParserStateName[] = {
+const char* ndlcomParserStateName[] = {
     "ERROR",
     "WAIT_STARTFLAG",
     "WAIT_HEADER",
@@ -70,18 +70,18 @@ const char* protocolParserStateName[] = {
     0
 };
 
-struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
+struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
 {
     // we enforce a correct length: having less memory will lead to
     // buffer-overflows on big packets.
-    if (!pBuffer || dataBufSize <= (sizeof(struct ProtocolParser)+255))
+    if (!pBuffer || dataBufSize <= NDLCOM_PARSER_MIN_BUFFER_SIZE)
     {
         return 0;
     }
 
-    struct ProtocolParser* parser = (struct ProtocolParser*)pBuffer;
-    parser->mpData = pBuffer + sizeof(struct ProtocolParser);
-    parser->mDataBufSize = dataBufSize - sizeof(struct ProtocolParser);
+    struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
+    parser->mpData = pBuffer + sizeof(struct NDLComParser);
+    parser->mDataBufSize = dataBufSize - sizeof(struct NDLComParser);
     parser->mState = mcWAIT_STARTFLAG;
     parser->mDataCRC = 0;
     parser->mLastWasESC = 0;
@@ -91,24 +91,24 @@ struct ProtocolParser* protocolParserCreate(void* pBuffer, uint16_t dataBufSize)
     return parser;
 }
 
-void protocolParserSetFlag(struct ProtocolParser* parser, int flag)
+void ndlcomParserSetFlag(struct NDLComParser* parser, int flag)
 {
   parser->mFlags |= flag;
 }
 
-void protocolParserClearFlag(struct ProtocolParser* parser, int flag)
+void ndlcomParserClearFlag(struct NDLComParser* parser, int flag)
 {
   parser->mFlags &= ~flag;
 }
 
-void protocolParserDestroy(struct ProtocolParser* parser)
+void ndlcomParserDestroy(struct NDLComParser* parser)
 {
     //may be used later
     parser->mState = mcERROR;
 }
 
-int16_t protocolParserReceive(
-    struct ProtocolParser* parser,
+int16_t ndlcomParserReceive(
+    struct NDLComParser* parser,
     const void* newData,
     uint16_t newDataLen)
 {
@@ -127,9 +127,9 @@ int16_t protocolParserReceive(
             parser->mLastWasESC = 0;
 
             //a packet was aborted (See RFC1549, Sec. 4):
-            if (c == PROTOCOL_FLAG)
+            if (c == NDLCOM_START_STOP_FLAG)
             {
-                protocolParserDestroyPacket(parser);
+                ndlcomParserDestroyPacket(parser);
                 continue;
             }
             else
@@ -140,7 +140,7 @@ int16_t protocolParserReceive(
             }
         }
         //handle an escape byte
-        else if (c == PROTOCOL_ESC)
+        else if (c == NDLCOM_ESC_CHAR)
         {
             //do nothing now. wait for next byte
             //to decide action
@@ -148,10 +148,10 @@ int16_t protocolParserReceive(
             continue;
         }
         //handle a protocol flag
-        else if (c == PROTOCOL_FLAG)
+        else if (c == NDLCOM_START_STOP_FLAG)
         {
             //an unescaped FLAG is interpreted as a packet start
-            protocolParserDestroyPacket(parser);
+            ndlcomParserDestroyPacket(parser);
             continue;
         }
 
@@ -160,7 +160,7 @@ int16_t protocolParserReceive(
             case mcWAIT_HEADER:
                 *(parser->mHeaderRawWritePos++) = c;
                 parser->mDataCRC ^= c;
-                if (parser->mHeaderRawWritePos - parser->mHeaderRaw == PROTOCOL_HEADERLEN)
+                if (parser->mHeaderRawWritePos - parser->mHeaderRaw == NDLCOM_HEADERLEN)
                 {
                     parser->mHeader.mReceiverId = parser->mHeaderRaw[0];
                     parser->mHeader.mSenderId   = parser->mHeaderRaw[1];
@@ -184,7 +184,7 @@ int16_t protocolParserReceive(
                 parser->mDataCRC ^= c;
 
                 // no out-of-bound check is performed. since we guarded the
-                // buffer-size in protocolParserCreate to be big anough, this
+                // buffer-size in ndlcomParserCreate to be big anough, this
                 // will hopefully never fail...
 
                 // check if we read "enough" data -- as was advertised in the header
@@ -209,12 +209,12 @@ int16_t protocolParserReceive(
                  * parsed, since there is an "if" for the same state after the
                  * switch-case.
                  * HINT: you have to manually call
-                 * protocolParserDestroyPacket() after reading data to reset
+                 * ndlcomParserDestroyPacket() after reading data to reset
                  * the state-machine */
                 return 0;
                 break;
             case mcERROR:
-                protocolParserDestroyPacket(parser);
+                ndlcomParserDestroyPacket(parser);
                 break;
             case mcWAIT_STARTFLAG:
                 break;
@@ -233,22 +233,22 @@ int16_t protocolParserReceive(
 }
 
 
-char protocolParserHasPacket(struct ProtocolParser* parser)
+char ndlcomParserHasPacket(struct NDLComParser* parser)
 {
     return parser->mState == mcCOMPLETE;
 }
 
-const struct ProtocolHeader* protocolParserGetHeader(struct ProtocolParser* parser)
+const NDLComHeader* ndlcomParserGetHeader(struct NDLComParser* parser)
 {
     return &parser->mHeader;
 }
 
-const void* protocolParserGetPacket(struct ProtocolParser* parser)
+const void* ndlcomParserGetPacket(struct NDLComParser* parser)
 {
     return parser->mState == mcCOMPLETE ? parser->mpData : 0;
 }
 
-void protocolParserDestroyPacket(struct ProtocolParser* parser)
+void ndlcomParserDestroyPacket(struct NDLComParser* parser)
 {
     parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = 0;
@@ -256,8 +256,8 @@ void protocolParserDestroyPacket(struct ProtocolParser* parser)
     parser->mLastWasESC = 0;
 }
 
-void protocolParserGetState(struct ProtocolParser* parser,
-                            struct ProtocolParserState* output)
+void ndlcomParserGetState(struct NDLComParser* parser,
+                          struct NDLComParserState* output)
 {
     output->mState = parser->mState;
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;

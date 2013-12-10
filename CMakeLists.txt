@@ -6,9 +6,9 @@ include_directories(include)
 
 # and followed by the usual create-library-blocks
 set(SOURCES_lib
-	src/ProtocolEncode.c
+	src/Encoder.c
 	src/Header.c
-	src/ProtocolParser.c
+	src/Parser.c
 )
 set(HEADERS_lib
 	include/${PROJECT_NAME}/Protocol.h

@@ -34,7 +34,7 @@ int main(int argc, char const *argv[])
     std::vector<char> data;
 
     char buffer[1024];
-    struct ProtocolParser* parser = protocolParserCreate(buffer, sizeof(buffer));
+    struct NDLComParser* parser = ndlcomParserCreate(buffer, sizeof(buffer));
 
     if (argc != 2)
     {
@@ -67,14 +67,14 @@ int main(int argc, char const *argv[])
             it++;
 
             std::chrono::system_clock::time_point start = clock.now();
-                protocolParserReceive(parser,&byte,sizeof(byte));
+                ndlcomParserReceive(parser,&byte,sizeof(byte));
             std::chrono::system_clock::time_point end = clock.now();
 
             duration += end - start;
             calls++;
 
-            if (protocolParserHasPacket(parser))
-                protocolParserDestroyPacket(parser);
+            if (ndlcomParserHasPacket(parser))
+                ndlcomParserDestroyPacket(parser);
         }
         std::cout << "decoding took " << (double)duration.count()/calls
                   << "nanoseconds per byte" << std::endl;
@@ -84,7 +84,7 @@ int main(int argc, char const *argv[])
         int calls = 0;
         int dataLen = 50;
         char output[512];
-        ProtocolHeader hdr;
+        NDLComHeader hdr;
         hdr.mDataLen = dataLen;
         std::vector<char>::const_iterator it = data.cbegin();
         while(it != data.cend()-dataLen)
@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
             it++;
 
             std::chrono::system_clock::time_point start = clock.now();
-                protocolEncode(output, sizeof(output), &hdr, &*it);
+                ndlcomEncode(output, sizeof(output), &hdr, &*it);
             std::chrono::system_clock::time_point end = clock.now();
 
             duration += end - start;

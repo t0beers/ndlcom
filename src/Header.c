@@ -1,3 +1,8 @@
+/**
+ * @file src/Header.c
+ * @date 2012
+ */
+
 #include "ndlcom_core/Header.h"
 
-ndlcomHeaderConfig protocolHeaderConfigDefault = { 0, {0}} ;
+NDLComHeaderConfig ndlcomHeaderConfigDefault = { 0, {0}} ;

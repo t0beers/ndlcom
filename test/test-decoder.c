@@ -85,41 +85,41 @@ static const struct TestCase testDecoderData[] = {
 int testDecoder(const struct TestCase* test)
 {
     int foundErrors = 0;
-    struct ProtocolParser* p;
+    struct NDLComParser* p;
     char buffer[1024];
-    p = protocolParserCreate(buffer, sizeof(buffer));
+    p = ndlcomParserCreate(buffer, sizeof(buffer));
 
     while (test->descr)
     {
         int parsed = 0;
         while(parsed < test->encoded.len)
         {
-            int r = protocolParserReceive(p,
+            int r = ndlcomParserReceive(p,
                                           test->encoded.data + parsed,
                                           test->encoded.len - parsed);
             if (r == -1)
                 break;
-            if (protocolParserHasPacket(p))
+            if (ndlcomParserHasPacket(p))
                 break;
             parsed += r;
         }
         if (test->content.len != -1)
         {
-            if (!protocolParserHasPacket(p))
+            if (!ndlcomParserHasPacket(p))
             {
-                struct ProtocolParserState state;
-                protocolParserGetState(p, &state);
+                struct NDLComParserState state;
+                ndlcomParserGetState(p, &state);
                 printf("Did not detect a valid packet:\n  %s\n  CrcFails: %i  State: %s\n",
                        test->descr,
                        state.mNumberOfCRCFails,
-                       protocolParserStateName[state.mState]
+                       ndlcomParserStateName[state.mState]
                        );
                 ++foundErrors;
             }
             else
             {
-                const unsigned char* data = protocolParserGetPacket(p);
-                const struct ProtocolHeader* hdr = protocolParserGetHeader(p);
+                const unsigned char* data = ndlcomParserGetPacket(p);
+                const NDLComHeader* hdr = ndlcomParserGetHeader(p);
                 //check length
                 if (hdr->mDataLen != test->content.len)
                 {
@@ -137,13 +137,13 @@ int testDecoder(const struct TestCase* test)
                         ++foundErrors;
                     }
                 }
-                protocolParserDestroyPacket(p);
+                ndlcomParserDestroyPacket(p);
             }
         }
         else
         {
             //an invalid packet was received
-            if (protocolParserHasPacket(p))
+            if (ndlcomParserHasPacket(p))
             {
                 printf("Failed to recognize invalid frame:\n  %s\n",
                        test->descr);
@@ -166,7 +166,7 @@ int testEncoder(void)
         uint8_t id;
         int16_t rotX, rotY, rotZ;
     } __attribute((__packed__)) jointAngle = {18, 0, 126, 0};
-    const struct ProtocolHeader hdr =
+    const NDLComHeader hdr =
     {
         1, /* mReceiverId */
         2, /* mSenderId */
@@ -180,7 +180,7 @@ int testEncoder(void)
         STR_FLAG;
 
     uint8_t buf[1024];
-    int outlen = protocolEncode(buf, sizeof(buf),
+    int outlen = ndlcomEncode(buf, sizeof(buf),
                                 &hdr, &jointAngle);
 
     /* compare output with predefined data */

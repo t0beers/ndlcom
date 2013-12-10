@@ -1,5 +1,5 @@
 /**
- * @file include/NDLCom/Types.h
+ * @file include/ndlcom_core/Types.h
  * @date 2011
  */
 
@@ -14,20 +14,67 @@
 
 #include <stdint.h>
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 /** Type for sender and receiver ids in the header. */
-typedef uint8_t ndlcomId;
+typedef uint8_t NDLComId;
 
 /** Type for counter field in the header. */
-typedef uint8_t ndlcomCounter;
+typedef uint8_t NDLComCounter;
 
 /** Type for the data length field in the header */
-typedef uint8_t ndlcomDataLen;
+typedef uint8_t NDLComDataLen;
 
 /** The type used for the crc */
-typedef uint8_t ndlcomCrc;
+typedef uint8_t NDLComCrc;
 
 /* Calculate the number of possible devices */
-enum { protocolHeaderMaxNumberOfDevices = (1 << (sizeof(ndlcomId) * 8)) };
+enum { NDLCOM_MAX_NUMBER_OF_DEVICES = (1 << (sizeof(NDLComId) * 8)) };
+
+/* how much payload a packet can carry in maximum */
+enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
+
+/**
+ * @brief current escape-byte
+ */
+#define NDLCOM_ESC_CHAR 0x7d
+/**
+ * @brief current flag to denote an escaped byte
+ */
+#define NDLCOM_START_STOP_FLAG 0x7e
+/**
+ * @brief current broadcast address
+ * @todo check for other occurences
+ */
+#define NDLCOM_ADDR_BROADCAST 0xff
+/**
+ * @brief length of the current header
+ */
+#define NDLCOM_HEADERLEN (2*sizeof(NDLComId)+sizeof(NDLComCounter)+sizeof(NDLComDataLen))
+
+/**
+ * @brief an decoded message can contain upto 255byte, a header and the crc. no bytes are escaped
+ */
+#define NDLCOM_MAX_DECODED_MESSAGE_SIZE (NDLCOM_HEADERLEN+NDLCOM_MAX_PAYLOAD_SIZE+sizeof(NDLComCrc))
+
+/**
+ * @brief in an encoded message, the worst case would be to escape _each_ single byte of an decoded
+ * message, plus the initial start-flag and the optional stop flag. the crc is included in the
+ * deceded message, and can be escaped as well
+ */
+#define NDLCOM_MAX_ENCODED_MESSAGE_SIZE (2+NDLCOM_MAX_DECODED_MESSAGE_SIZE*2)
+
+/**
+ * i am not that sure what to put here... the struct has to save additional 255bytes, after
+ * de-escaing, nothing more?
+ */
+#define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser)+NDLCOM_MAX_PAYLOAD_SIZE)
+
+#if defined (__cplusplus)
+}
+#endif
 
 /**
  * @}

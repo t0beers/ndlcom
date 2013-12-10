@@ -1,5 +1,5 @@
 /**
- * @file src/ProtocolEncode.c
+ * @file src/Encoder.c
  * @date 2011
  */
 
@@ -28,20 +28,20 @@
  */
 
 
-int16_t protocolEncode(void* pOutputBuffer,
+int16_t ndlcomEncode(void* pOutputBuffer,
                    uint16_t outputBufferSize,
-                   const struct ProtocolHeader* pHeader,
+                   const NDLComHeader* pHeader,
                    const void* pData)
 {
-    uint8_t headerRaw[PROTOCOL_HEADERLEN];
+    uint8_t headerRaw[NDLCOM_HEADERLEN];
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
-    ndlcomCrc crc = 0;
+    NDLComCrc crc = 0;
 
     /* we need at least: 2bytes for start/stop-flags, the header itself, the
      * actual data with an unencoded maximum of 255bytes and the crc. since
      * each byte (except the start/stop flags) _could_ be escaped in theory, we
      * need doubled number of bytes... */
-    if (outputBufferSize < 2+2*(sizeof(struct ProtocolHeader) + pHeader->mDataLen + sizeof(ndlcomCrc)))
+    if (outputBufferSize < 2+2*(sizeof(NDLComHeader) + pHeader->mDataLen + sizeof(NDLComCrc)))
     {
         return -1;
     }
@@ -52,19 +52,19 @@ int16_t protocolEncode(void* pOutputBuffer,
     headerRaw[3] = pHeader->mDataLen;
 
     //start byte
-    *pWritePos++ = PROTOCOL_FLAG;
+    *pWritePos++ = NDLCOM_START_STOP_FLAG;
     const uint8_t* pRead;
 
     //header
     pRead = (const uint8_t*)headerRaw;
-    const uint8_t* pHeaderEnd = pRead + PROTOCOL_HEADERLEN;
+    const uint8_t* pHeaderEnd = pRead + NDLCOM_HEADERLEN;
     while (pRead != pHeaderEnd)
     {
         const uint8_t d = *pRead;
-        if (d == PROTOCOL_ESC || d == PROTOCOL_FLAG)
+        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
         {
             //we need to send an escaped byte here:
-            *pWritePos++ = PROTOCOL_ESC;
+            *pWritePos++ = NDLCOM_ESC_CHAR;
             *pWritePos++ = 0x20 ^ d;
         }
         else
@@ -84,10 +84,10 @@ int16_t protocolEncode(void* pOutputBuffer,
     {
         const uint8_t d = *pRead;
 
-        if (d == PROTOCOL_ESC || d == PROTOCOL_FLAG)
+        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
         {
             //we need to send an escaped data byte here:
-            *pWritePos++ = PROTOCOL_ESC;
+            *pWritePos++ = NDLCOM_ESC_CHAR;
             *pWritePos++ = 0x20 ^ d;
         }
         else
@@ -99,9 +99,9 @@ int16_t protocolEncode(void* pOutputBuffer,
     }
 
     //crc
-    if (crc == PROTOCOL_ESC || crc == PROTOCOL_FLAG)
+    if (crc == NDLCOM_ESC_CHAR || crc == NDLCOM_START_STOP_FLAG)
     {
-        *pWritePos++ = PROTOCOL_ESC;
+        *pWritePos++ = NDLCOM_ESC_CHAR;
         *pWritePos++ = 0x20 ^ crc;
     }
     else
@@ -110,7 +110,7 @@ int16_t protocolEncode(void* pOutputBuffer,
     }
 
     //flag at end of packet
-    *pWritePos++ = PROTOCOL_FLAG;
+    *pWritePos++ = NDLCOM_START_STOP_FLAG;
 
     return pWritePos - (uint8_t*)pOutputBuffer;
 }
