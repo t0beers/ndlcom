@@ -25,7 +25,8 @@ void addByte(const unsigned char byte)
 
     if (ndlcomParserHasPacket(parser)) {
         const NDLComHeader *hdr = ndlcomParserGetHeader(parser);
-        const char* data = (const char*)ndlcomParserGetPacket(parser);
+        const unsigned char* data =
+            static_cast<const unsigned char*>(ndlcomParserGetPacket(parser));
         std::cout << "S " << (int)hdr->mSenderId << "\n";
         std::cout << "R " << (int)hdr->mReceiverId << "\n";
         std::cout << "F " << (int)hdr->mCounter << "\n";
