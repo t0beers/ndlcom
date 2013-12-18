@@ -40,6 +40,12 @@ target_link_libraries(testEncoder ndlcom_core)
 add_executable(testDecoder testDecoder.cpp)
 target_link_libraries(testDecoder ndlcom_core)
 
+# simple c-program that does some common checks with the ndlcomDoCrc-function.
+# intended to show the weakness of the current 8bit-xor and for later use with
+# the crc16...
+add_executable(testCrc testCrc.c)
+target_link_libraries(testCrc ndlcom_core)
+
 # i hate cmake nowadays, their "language" is broken as shit and trying to
 # formulate a "task" such as these trivally done in bash is hard... since that,
 # i hacked together this mini-shell script which does exactly the same as the
