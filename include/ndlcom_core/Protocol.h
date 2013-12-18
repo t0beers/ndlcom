@@ -10,11 +10,6 @@
 #include "ndlcom_core/ParserState.h"
 
 /**
- * @addtogroup Communication
- * @{
- * @defgroup Communication_NDLCom NDLCom
- * @{
- *
  * C Implentation for easy usage of the iStruct&SeeGrip NDLCom protocol.
  *
  * This code is intended to be build into a static library, which then in turn may
@@ -45,7 +40,8 @@
  * @endcode
  * And send the resulting bytes using your usart-routine.
  *
- * It can be stressed, that receiving needs initializing with ndlcomParserCreate(), while ndlcomEncode()
+ * It can be stressed, that receiving needs initializing with ndlcomParserCreate(), while
+ * ndlcomEncode()
  * is working on-the-fly using a different(!) buffer
  *
  * @todo
@@ -210,10 +206,5 @@ extern const char* ndlcomParserStateName[];
 #if defined (__cplusplus)
 }
 #endif
-
-/**
- * @}
- * @}
- */
 
 #endif/*NDLCOM_PROTOCOL_H*/

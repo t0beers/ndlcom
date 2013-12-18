@@ -6,15 +6,6 @@
 #include "ndlcom_core/Protocol.h"
 
 /**
- * @addtogroup Communication
- * @{
- * @addtogroup Communication_NDLCom
- * @{
- */
-
-/**
- * @defgroup Communication_NDLCom_Encoder Packet Encoder
- *
  * @brief Used to pack some payload into a distinct data-format, which may be sent over
  * your serial connection.
  *
@@ -23,15 +14,13 @@
  * FCS - frame check sequence (aka crc) is calculated over all bytes of the
  * packet, excluding the FCS itself and the start/stop flag. the FCS is done
  * before exscaping the start/stop and escape-flags.
- *
- * @{
  */
 
 
 int16_t ndlcomEncode(void* pOutputBuffer,
-                   uint16_t outputBufferSize,
-                   const NDLComHeader* pHeader,
-                   const void* pData)
+                     uint16_t outputBufferSize,
+                     const NDLComHeader* pHeader,
+                     const void* pData)
 {
     uint8_t headerRaw[NDLCOM_HEADERLEN];
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
@@ -75,7 +64,8 @@ int16_t ndlcomEncode(void* pOutputBuffer,
         ++pRead;
     }
 
-    //no further checks if pWritePos is in bound, since we enforced a maximum buffer-size before
+    //no further checks if pWritePos is within bound, since we enforced a
+    //maximum buffer-size before
 
     //data
     pRead = (const uint8_t*)pData;
@@ -114,12 +104,3 @@ int16_t ndlcomEncode(void* pOutputBuffer,
 
     return pWritePos - (uint8_t*)pOutputBuffer;
 }
-
-/**
- * @}
- */
-
-/**
- * @}
- * @}
- */

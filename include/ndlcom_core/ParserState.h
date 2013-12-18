@@ -6,10 +6,6 @@
 #ifndef NDLCOM_PARSER_STATE_H
 #define NDLCOM_PARSER_STATE_H
 
-/**
- * @addtogroup Communication_NDLCom
- */
-
 #include <stdint.h>
 
 #if defined (__cplusplus)
@@ -29,9 +25,5 @@ struct NDLComParserState
 #if defined (__cplusplus)
 }
 #endif
-
-/**
- * @}
- */
 
 #endif

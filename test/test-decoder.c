@@ -9,20 +9,6 @@
 #include <stdint.h>
 
 /**
- * @addtogroup Communication
- * @{
- * @addtogroup Communication_NDLCom
- * @{
- */
-
-/**
- * @defgroup Communication_NDLCom_Test Testing NDLCom
- * @brief Testing some difficult parsing sequences
- *
- * @{
- */
-
-/**
  * ESC sequence as a const char* for easier test case creation.
  */
 #define STR_ESC  "\x7d"
@@ -226,12 +212,3 @@ int main(int argc, char** argv)
 
     return 0; /* success */
 }
-
-/**
- * @}
- */
-
-/**
- * @}
- * @}
- */

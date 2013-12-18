@@ -9,15 +9,6 @@
 #include <chrono>
 
 /**
- * @addtogroup Communication
- * @{
- * @addtogroup Communication_NDLCom
- * @{
- * @addtogroup Communication_NDLCom_Test
- * @{
- */
-
-/**
  * throwing random bytes at the parser/encoder and measuring the time it takes. only intended to be
  * run in a full-system-environment, not in microcontroller
  *
@@ -104,9 +95,3 @@ int main(int argc, char const *argv[])
 
     exit(EXIT_SUCCESS);
 }
-
-/**
- * @}
- * @}
- * @}
- */

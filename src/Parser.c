@@ -6,13 +6,6 @@
 #include <stdio.h>
 
 /**
- * @addtogroup Communication
- * @{
- * @addtogroup Communication_NDLCom
- * @{
- */
-
-/**
  * @defgroup Communication_NDLCom_C_Parser NDLCom C Parser
  *
  * Used to extract protocol-pakets out of a continously flowing raw data-stream,
@@ -262,12 +255,3 @@ void ndlcomParserGetState(struct NDLComParser* parser,
     output->mState = parser->mState;
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
 }
-
-/**
- * @}
- */
-
-/**
- * @}
- * @}
- */

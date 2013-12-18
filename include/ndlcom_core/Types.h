@@ -6,12 +6,6 @@
 #ifndef NDLCOM_TYPES_H
 #define NDLCOM_TYPES_H
 
-/**
- * @addtogroup Communication_NDLCom NDLCom
- * @{
- *
- */
-
 #include <stdint.h>
 
 #if defined (__cplusplus)
@@ -40,15 +34,19 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
  * @brief current escape-byte
  */
 #define NDLCOM_ESC_CHAR 0x7d
+
 /**
  * @brief current flag to denote an escaped byte
  */
 #define NDLCOM_START_STOP_FLAG 0x7e
+
 /**
  * @brief current broadcast address
  * @todo check for other occurences
  */
+
 #define NDLCOM_ADDR_BROADCAST 0xff
+
 /**
  * @brief length of the current header
  */
@@ -75,9 +73,5 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
 #if defined (__cplusplus)
 }
 #endif
-
-/**
- * @}
- */
 
 #endif

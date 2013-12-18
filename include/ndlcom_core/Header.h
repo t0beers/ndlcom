@@ -6,12 +6,6 @@
 #ifndef NDLCOM_HEADER_H
 #define NDLCOM_HEADER_H
 
-/**
- * @addtogroup Communication_NDLCom NDLCom
- * @{
- *
- */
-
 #include "ndlcom_core/Types.h"
 
 #if defined (__cplusplus)
@@ -101,9 +95,5 @@ static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId id)
 #if defined (__cplusplus)
 }
 #endif
-
-/**
- * @}
- */
 
 #endif

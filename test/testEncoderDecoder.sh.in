@@ -13,10 +13,11 @@
 ##
 
 ##
-# first test: sending encoded packets using the daisy-chain fearure into the
+# first test: sending encoded packets using the daisy-chain feature into the
 # decoder and encoding its output again. the final output should match the
 # initial input.
 ##
+echo "first test:"
 diff <(@CMAKE_CURRENT_BINARY_DIR@/testDecoder < @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat \
         | @CMAKE_CURRENT_BINARY_DIR@/testEncoder) \
     @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat && echo "first test good" || exit 1
@@ -25,8 +26,9 @@ diff <(@CMAKE_CURRENT_BINARY_DIR@/testDecoder < @CMAKE_CURRENT_SOURCE_DIR@/encod
 # second test: check if the checked-in encoded packet matches the output of the
 # encoder using the checked-in humand-readable packets.
 ##
+echo "second test:"
 diff <(@CMAKE_CURRENT_BINARY_DIR@/testEncoder < @CMAKE_CURRENT_SOURCE_DIR@/decodedPackets.dat) \
     @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat && echo "second test good" || exit 1
 
-# all well!
+echo "all well"
 exit 0

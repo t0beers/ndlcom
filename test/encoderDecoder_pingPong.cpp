@@ -9,15 +9,6 @@
 #include <chrono>
 
 /**
- * @addtogroup Communication
- * @{
- * @addtogroup Communication_NDLCom
- * @{
- * @addtogroup Communication_NDLCom_Test
- * @{
- */
-
-/**
  * small test-program to check if the current encoder is correctly working with the current decoder.
  * is also used to measure the actual timing of the two -- how long it takes to encode/decode random
  * packets on the current architecture.
@@ -140,9 +131,3 @@ int main(int argc, char const *argv[])
 
     exit(EXIT_SUCCESS);
 }
-
-/**
- * @}
- * @}
- * @}
- */

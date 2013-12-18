@@ -6,15 +6,15 @@ include_directories(include)
 
 # and followed by the usual create-library-blocks
 set(SOURCES_lib
-	src/Encoder.c
-	src/Header.c
-	src/Parser.c
+    src/Encoder.c
+    src/Header.c
+    src/Parser.c
 )
 set(HEADERS_lib
-	include/${PROJECT_NAME}/Protocol.h
-	include/${PROJECT_NAME}/Header.h
-	include/${PROJECT_NAME}/ParserState.h
-	include/${PROJECT_NAME}/Types.h
+    include/${PROJECT_NAME}/Protocol.h
+    include/${PROJECT_NAME}/Header.h
+    include/${PROJECT_NAME}/ParserState.h
+    include/${PROJECT_NAME}/Types.h
 )
 
 # define the lib

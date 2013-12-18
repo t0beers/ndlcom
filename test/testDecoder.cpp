@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
     /* maybe do argument parsing... */
 
     char ch[1024];
-    /* reading linewise from stdin until eof. each line is one packet */
+    /* reading linewise from stdin until eof. each line is hopefully one packet */
     while (std::cin.getline(ch, sizeof(ch)))
     {
         std::string line(ch);
