@@ -31,13 +31,15 @@ void addByte(const unsigned char byte)
         std::cout << "R " << (int)hdr->mReceiverId << "\n";
         std::cout << "F " << (int)hdr->mCounter << "\n";
         std::cout << "L " << (int)hdr->mDataLen << "\n";
-        /* printing content of data-array as well, where only the last entry is followed by a
-         * newline */
-        std::cout << "D ";
-        for (int i=0;i<hdr->mDataLen-1;i++) {
-            std::cout << (int)(data[i]) << " ";
+        /* if there is a payload: printing content of data-array as well, where only the last entry
+         * is followed by a newline */
+        if (hdr->mDataLen>0) {
+            std::cout << "D ";
+            for (int i=0;i<hdr->mDataLen-1;i++) {
+                std::cout << (int)(data[i]) << " ";
+            }
+            std::cout << (int)(data[hdr->mDataLen-1]) << "\n";
         }
-        std::cout << (int)(data[hdr->mDataLen-1]) << "\n";
 
         /* by convention a packet is deemed finished by a "N" as a line */
         std::cout << "N\n";
