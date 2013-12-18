@@ -22,7 +22,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
                      const NDLComHeader* pHeader,
                      const void* pData)
 {
-    uint8_t headerRaw[NDLCOM_HEADERLEN];
+    uint8_t headerRaw[sizeof(NDLComHeader)];
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
     NDLComCrc crc = NDLCOM_CRC_INITIAL_VALUE;
 
@@ -46,7 +46,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
 
     //header
     pRead = (const uint8_t*)headerRaw;
-    const uint8_t* pHeaderEnd = pRead + NDLCOM_HEADERLEN;
+    const uint8_t* pHeaderEnd = pRead + sizeof(NDLComHeader);
     while (pRead != pHeaderEnd)
     {
         const uint8_t d = *pRead;

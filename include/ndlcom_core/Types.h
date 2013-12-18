@@ -48,7 +48,7 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
 /**
  * @brief length of the current header
  */
-#define NDLCOM_HEADERLEN (2*sizeof(NDLComId)+sizeof(NDLComCounter)+sizeof(NDLComDataLen))
+#define NDLCOM_HEADERLEN (sizeof(NDLComHeader))
 
 /**
  * @brief an decoded message can contain upto 255byte, a header and the crc. no bytes are escaped
