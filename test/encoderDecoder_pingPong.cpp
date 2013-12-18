@@ -44,16 +44,21 @@ int main(int argc, char const *argv[])
     std::seed_seq seed1 (str.begin(),str.end());
 
     std::default_random_engine generator(seed1);
-    std::uniform_int_distribution<NDLComDataLen> datalenDistribution(std::numeric_limits<NDLComDataLen>::min(),
-                                                                     std::numeric_limits<NDLComDataLen>::max());
-    std::uniform_int_distribution<NDLComId> receiverDistribution(std::numeric_limits<NDLComId>::min(),
-                                                                 std::numeric_limits<NDLComId>::max());
-    std::uniform_int_distribution<NDLComId> senderDistribution(std::numeric_limits<NDLComId>::min(),
-                                                               std::numeric_limits<NDLComId>::max());
-    std::uniform_int_distribution<NDLComCounter> counterDistribution(std::numeric_limits<NDLComCounter>::min(),
-                                                                     std::numeric_limits<NDLComCounter>::max());
-    std::uniform_int_distribution<uint8_t> payloadDistribution(std::numeric_limits<uint8_t>::min(),
-                                                               std::numeric_limits<uint8_t>::max());
+    std::uniform_int_distribution<NDLComDataLen> datalenDistribution(
+            std::numeric_limits<NDLComDataLen>::min(),
+            std::numeric_limits<NDLComDataLen>::max());
+    std::uniform_int_distribution<NDLComId> receiverDistribution(
+            std::numeric_limits<NDLComId>::min(),
+            std::numeric_limits<NDLComId>::max());
+    std::uniform_int_distribution<NDLComId> senderDistribution(
+            std::numeric_limits<NDLComId>::min(),
+            std::numeric_limits<NDLComId>::max());
+    std::uniform_int_distribution<NDLComCounter> counterDistribution(
+            std::numeric_limits<NDLComCounter>::min(),
+            std::numeric_limits<NDLComCounter>::max());
+    std::uniform_int_distribution<uint8_t> payloadDistribution(
+            std::numeric_limits<uint8_t>::min(),
+            std::numeric_limits<uint8_t>::max());
 
     /* used for timing measurements */
     std::chrono::high_resolution_clock clock;
