@@ -24,7 +24,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
 {
     uint8_t headerRaw[NDLCOM_HEADERLEN];
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
-    NDLComCrc crc = 0;
+    NDLComCrc crc = NDLCOM_CRC_INITIAL_VALUE;
 
     /* we need at least: 2bytes for start/stop-flags, the header itself, the
      * actual data with an unencoded maximum of 255bytes and the crc. since
@@ -50,6 +50,9 @@ int16_t ndlcomEncode(void* pOutputBuffer,
     while (pRead != pHeaderEnd)
     {
         const uint8_t d = *pRead;
+
+        crc = ndlcomDoCrc(crc, &d);
+
         if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
         {
             //we need to send an escaped byte here:
@@ -60,7 +63,6 @@ int16_t ndlcomEncode(void* pOutputBuffer,
         {
             *pWritePos++ = d;
         }
-        crc ^= d;
         ++pRead;
     }
 
@@ -74,6 +76,8 @@ int16_t ndlcomEncode(void* pOutputBuffer,
     {
         const uint8_t d = *pRead;
 
+        crc = ndlcomDoCrc(crc, &d);
+
         if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
         {
             //we need to send an escaped data byte here:
@@ -84,7 +88,6 @@ int16_t ndlcomEncode(void* pOutputBuffer,
         {
             *pWritePos++ = d;
         }
-        crc ^= d;
         ++pRead;
     }
 

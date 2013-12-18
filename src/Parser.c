@@ -3,6 +3,7 @@
  * @date 2011
  */
 #include "ndlcom_core/Protocol.h"
+#include "ndlcom_core/Crc.h"
 #include <stdio.h>
 
 /**
@@ -76,7 +77,7 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
     parser->mpData = pBuffer + sizeof(struct NDLComParser);
     parser->mDataBufSize = dataBufSize - sizeof(struct NDLComParser);
     parser->mState = mcWAIT_STARTFLAG;
-    parser->mDataCRC = 0;
+    parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mLastWasESC = 0;
     parser->mNumberOfCRCFails = 0;
     parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
@@ -152,7 +153,7 @@ int16_t ndlcomParserReceive(
         {
             case mcWAIT_HEADER:
                 *(parser->mHeaderRawWritePos++) = c;
-                parser->mDataCRC ^= c;
+                parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
                 if (parser->mHeaderRawWritePos - parser->mHeaderRaw == NDLCOM_HEADERLEN)
                 {
                     parser->mHeader.mReceiverId = parser->mHeaderRaw[0];
@@ -174,7 +175,7 @@ int16_t ndlcomParserReceive(
                 break;
             case mcWAIT_DATA:
                 *(parser->mpDataWritePos++) = c;
-                parser->mDataCRC ^= c;
+                parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
 
                 // no out-of-bound check is performed. since we guarded the
                 // buffer-size in ndlcomParserCreate to be big anough, this
@@ -244,7 +245,7 @@ const void* ndlcomParserGetPacket(struct NDLComParser* parser)
 void ndlcomParserDestroyPacket(struct NDLComParser* parser)
 {
     parser->mState = mcWAIT_HEADER;
-    parser->mDataCRC = 0;
+    parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
     parser->mLastWasESC = 0;
 }

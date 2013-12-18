@@ -7,6 +7,7 @@
 #define NDLCOM_TYPES_H
 
 #include <stdint.h>
+#include "ndlcom_core/Crc.h"
 
 #if defined (__cplusplus)
 extern "C" {
@@ -20,9 +21,6 @@ typedef uint8_t NDLComCounter;
 
 /** Type for the data length field in the header */
 typedef uint8_t NDLComDataLen;
-
-/** The type used for the crc */
-typedef uint8_t NDLComCrc;
 
 /* Calculate the number of possible devices */
 enum { NDLCOM_MAX_NUMBER_OF_DEVICES = (1 << (sizeof(NDLComId) * 8)) };
