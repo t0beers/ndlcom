@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ndlcom>
+    <device name="ERROR" id="0" />
+
+    <device name="ControlGUI" id="1">comments possible</device>
+
+    <device name="mdaq2" id="2"/>
+    <device name="FL_thorax" id="3"/>
+    <device name="FL_basal_a" id="10"/>
+    <device name="FL_basal_b" id="10"/>
+
+    <device name="BROADCAST" id="255"/>
+</ndlcom>
