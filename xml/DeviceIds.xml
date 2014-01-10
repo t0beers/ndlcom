@@ -5,10 +5,19 @@
 
     <device name="ControlGUI" id="1">comments possible</device>
 
-    <device name="mdaq2" id="2"/>
-    <device name="FL_thorax" id="3"/>
-    <device name="FL_basal_a" id="10"/>
-    <device name="FL_basal_b" id="10"/>
+    <device name="mdaq2" id="105"/>
 
-    <device name="BROADCAST" id="255"/>
+    <device name="FL_thorax" id="10"/>
+    <device name="FL_basal_a" id="11"/>
+    <device name="FL_basal_b" id="12"/>
+
+    <device name="FR_thorax" id="20"/>
+    <device name="FR_basal_a" id="21"/>
+    <device name="FR_basal_b" id="22"/>
+
+    <device name="arm_motor1" id="50"/>
+    <device name="arm_motor2" id="51"/>
+    <device name="arm_motor3" id="52"/>
+
+    <device name="BROADCAST" id="255">Note that this is a special combination of deviceId/deviceName, and it is forbidden to be changed</device>
 </ndlcom>
