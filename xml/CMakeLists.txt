@@ -1,4 +1,5 @@
 
+# at first check if we got told _what_ deviceids.xml to actually use.
 if(${PROJECT_NAME}_DEVICE_IDS)
     set(DEVICES_XML
         ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT_NAME}_DEVICE_IDS}.xml)
@@ -9,7 +10,15 @@ if(${PROJECT_NAME}_DEVICE_IDS)
         message(FATAL_ERROR "-- ${PROJECT_NAME}: xml-file ${DEVICES_XML} does not exist")
     endif()
 else()
-    message(FATAL_ERROR "-- ${PROJECT_NAME}: set cmake variable \"${PROJECT_NAME}_DEVICE_IDS\" in some top-level CMakeLists.txt (name of the file without ending)")
+    message(FATAL_ERROR "-- ${PROJECT_NAME}: set cmake variable \"${PROJECT_NAME}_DEVICE_IDS\" to specify which device ids to compile in. either as variable in top-level CMakeLists.txt or as commandline argument to cmake")
+    # variable some top-level CMakeLists like so:
+    #set(${PROJECT_NAME}_DEVICE_IDS DeviceIds)
+    #
+    # cmake-commandline argument like so:
+    #rm -rf build && mkdir build && cd build && cmake -Dndlcom_core_DEVICE_IDS=sherpa .. && cd .. && make -C build
+    #
+    # another possibility is to modifiy the autoproj/overrides.rb in your rock-project:
+    #echo 'Autobuild::Package['ndlcom_core'].define "ndlcom_core_DEVICE_IDS", "sherpa"' >> $ROCK_BASE/autoproj/overrides.rb
 endif()
 
 
@@ -34,13 +43,16 @@ set(DEVICE_IDS_H_XSL    ${CMAKE_CURRENT_SOURCE_DIR}/generate/DeviceIds.h.xsl)
 set(DEVICE_IDS_VHD_XSL  ${CMAKE_CURRENT_SOURCE_DIR}/generate/Devices.vhd.xsl)
 set(DEVICE_IDS_PERL_XSL ${CMAKE_CURRENT_SOURCE_DIR}/generate/NDLComDeviceIds.pm.xsl)
 set(DEVICE_IDS_YML_XSL  ${CMAKE_CURRENT_SOURCE_DIR}/generate/NDLComDeviceIds.yml.xsl)
+set(DEVICE_IDS_RB_XSL   ${CMAKE_CURRENT_SOURCE_DIR}/generate/NDLComDeviceIds.rb.xsl)
 
 # and the resulting files we wanna create:
 set(DEVICE_IDS_C        ${CMAKE_CURRENT_BINARY_DIR}/src/DeviceIds.c)
 set(DEVICE_IDS_H        ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/DeviceIds.h)
-set(DEVICE_IDS_VHD         ${CMAKE_CURRENT_BINARY_DIR}/vhdl/Devices.vhd)
-set(DEVICE_IDS_PERL     ${CMAKE_CURRENT_BINARY_DIR}/perl/NDLComDeviceIds.pm)
-set(DEVICE_IDS_YML      ${CMAKE_CURRENT_BINARY_DIR}/yml/NDLComDeviceIds.yml)
+# these are not used in the build-process, but are installed later
+set(DEVICE_IDS_VHD      ${CMAKE_CURRENT_BINARY_DIR}/NDLComDevicesIds.vhd)
+set(DEVICE_IDS_PERL     ${CMAKE_CURRENT_BINARY_DIR}/NDLComDeviceIds.pm)
+set(DEVICE_IDS_YML      ${CMAKE_CURRENT_BINARY_DIR}/NDLComDeviceIds.yml)
+set(DEVICE_IDS_RB       ${CMAKE_CURRENT_BINARY_DIR}/NDLComDeviceIds.rb)
 
 ##
 #  plumbing area. go away.
@@ -88,6 +100,7 @@ add_custom_target(${PROJECT_NAME}-generate ALL DEPENDS
     ${DEVICE_IDS_VHD}
     ${DEVICE_IDS_PERL}
     ${DEVICE_IDS_YML}
+    ${DEVICE_IDS_RB}
     )
 add_dependencies(${PROJECT_NAME}-generate ${PROJECT_NAME}-validate)
 
@@ -97,10 +110,17 @@ add_custom_command_generated_from_xml(${DEVICE_IDS_H_XSL}    ${DEVICE_IDS_H})
 add_custom_command_generated_from_xml(${DEVICE_IDS_VHD_XSL}  ${DEVICE_IDS_VHD})
 add_custom_command_generated_from_xml(${DEVICE_IDS_PERL_XSL} ${DEVICE_IDS_PERL})
 add_custom_command_generated_from_xml(${DEVICE_IDS_YML_XSL}  ${DEVICE_IDS_YML})
+add_custom_command_generated_from_xml(${DEVICE_IDS_RB_XSL}   ${DEVICE_IDS_RB})
 
 # some of the stuff is needed by others. provide it!
 # the choosen directory names are not representative, and might as well be changed
 install(FILES ${DEVICE_IDS_H}    DESTINATION include/${PROJECT_NAME})
-install(FILES ${DEVICE_IDS_PERL} DESTINATION lib/perl/${PROJECT_NAME})
-install(FILES ${DEVICE_IDS_VHD}  DESTINATION lib/vhdl/${PROJECT_NAME})
-#install(FILES ${DEVICE_IDS_RB}  DESTINATION lib/ruby/${PROJECT_NAME})
+install(FILES ${DEVICE_IDS_PERL} DESTINATION lib/perl)
+install(FILES ${DEVICE_IDS_VHD}  DESTINATION lib/vhdl)
+# FIXME do this properly...? the crosscompiling guys will hate this
+if (NOT CMAKE_CROSSCOMPILING)
+    find_package(Ruby QUIET)
+    message("-- ${PROJECT_NAME}: not cross-compiling, installing ruby scripts under version ${RUBY_VERSION}")
+    install(FILES ${DEVICE_IDS_YML}  DESTINATION lib/ruby/${RUBY_VERSION})
+    install(FILES ${DEVICE_IDS_RB}   DESTINATION lib/ruby/${RUBY_VERSION})
+endif (NOT CMAKE_CROSSCOMPILING)

@@ -2,20 +2,25 @@ cmake_minimum_required(VERSION 2.8)
 
 project(ndlcom_core)
 
-# uiuiui...
-# will look at the cmake-variable defining the DeviceIds.xml to actually use
-#set(${PROJECT_NAME}_DEVICE_IDS DeviceIds)
+# uiuiui... somebody will hang mir for this ;-)
+#
+# this submodule will look at the cmake-variable which hopefully defines the
+# $NAME.xml to actually use for generating some c/h files and some other
+# exports.
 add_subdirectory(xml)
 
-# this little block will take care that we use
+# this little block will take care that we use the generated c-file inside the
+# compiled library
 set(DEVICE_IDS_C ${CMAKE_BINARY_DIR}/xml/src/DeviceIds.c)
 # this takes care that cmake tries to create the source file prior to compiling it
 #
 # TODO: due to internet outtage, the link to cmake-mailing list where exactly
 # this question was asked (and answered) could not be looked up...
 set_source_files_properties(${DEVICE_IDS_C} PROPERTIES GENERATED true)
+set_source_files_properties(${DEVICE_IDS_H} PROPERTIES GENERATED true)
 # to find the generated "DeviceIds.h"
 include_directories(${CMAKE_BINARY_DIR}/xml/include)
+# you did it. from now on, the rest of the cmakelists is quite ordinary
 
 # nothing special here
 include_directories(include)

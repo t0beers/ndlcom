@@ -1,19 +1,20 @@
 <package>
   <description brief="ndlcom_core">
+Node Data Link Communication
+----------------------------
+
+Originally written by Moritz, Tobias, Armin and Martin.
+Done for iStruct and SeeGrip, 2010-2013.
 
 functions to encode/decode simple serial communication layer2 message format
 called "ndlcom" for "Node Data Link Communication"
 
-
-STRUCTURE
--- src/ 
-	Contains all source files (*.c)
--- include/ndlcom_core/ 
-	Contains all header files (*.h)
--- build/
-	The target directory for the build process, temporary content
+See also README.
   </description>
-  <author>/</author>
-  <license></license>
-  <url>http://spacegit.dfki.uni-bremen.de/ndlcom/ndlcom_core</url>
+  <author>Armin Burchardt</author>
+  <author>Moritz Schilling/moritz.schilling@dfki.de</author>
+  <author>Tobias Stark/tobias.stark@dfki.de</author>
+  <author>Martin Zenzes/martin.zenzes@dfki.de</author>
+  <license>GPL2</license>
+  <url>spacegit.dfki.uni-bremen.de/ndlcom/orogen-ndlcom</url>
 </package>
