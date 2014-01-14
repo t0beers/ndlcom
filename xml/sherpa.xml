@@ -6,7 +6,8 @@
     <device name="highlevel" id="1"/>
     <device name="monster" id="3"/>
 
-    <device name="mdaq2" id="95"/>
+    <device name="DMSBoard_12" id="94"/>
+    <device name="mdaq2"      id="95"/>
 
     <device name="FL_thorax" id="10"/>
     <device name="FL_basal_a" id="11"/>

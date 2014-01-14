@@ -1,9 +1,9 @@
 /**
- * @file ndlcom_tools/RoutingTable.hpp
+ * @file ndlcom_core/RoutingTable.hpp
  * @date 2012
  */
-#ifndef NDLCOM_TOOLS_ROUTINGTABLE_HPP
-#define NDLCOM_TOOLS_ROUTINGTABLE_HPP
+#ifndef NDLCOM_CORE_ROUTINGTABLE_HPP
+#define NDLCOM_CORE_ROUTINGTABLE_HPP
 
 #include "ndlcom_core/Types.h"
 #include "ndlcom_core/Header.h"
@@ -140,4 +140,4 @@ namespace ndlcom
 
 
 
-#endif /*NDLCOM_TOOLS_ROUTINGTABLE_HPP*/
+#endif /*NDLCOM_CORE_ROUTINGTABLE_HPP*/

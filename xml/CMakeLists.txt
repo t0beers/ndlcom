@@ -1,13 +1,14 @@
 
 # at first check if we got told _what_ deviceids.xml to actually use.
 if(${PROJECT_NAME}_DEVICE_IDS)
-    set(DEVICES_XML
-        ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT_NAME}_DEVICE_IDS}.xml)
 
-    message("-- ${PROJECT_NAME}: using DeviceIds xml-file "${DEVICES_XML}  )
+    # the project-dependent xml source file to use
+    set(DEVICES_XML ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT_NAME}_DEVICE_IDS}.xml)
 
     if(NOT EXISTS ${DEVICES_XML})
         message(FATAL_ERROR "-- ${PROJECT_NAME}: xml-file ${DEVICES_XML} does not exist")
+    else()
+        message("-- ${PROJECT_NAME}: using DeviceIds xml-file "${DEVICES_XML}  )
     endif()
 else()
     message(FATAL_ERROR "-- ${PROJECT_NAME}: set cmake variable \"${PROJECT_NAME}_DEVICE_IDS\" to specify which device ids to compile in. either as variable in top-level CMakeLists.txt or as commandline argument to cmake")
@@ -30,8 +31,6 @@ if(${XMLSTARLET} STREQUAL "XMLSTARLET-NOTFOUND")
     message(FATAL_ERROR "${PROJECT_NAME}: you have to install 'xmlstarlet' -- doing somethink like 'apt-get install xmlstarlet' on a debian system")
 endif(${XMLSTARLET} STREQUAL "XMLSTARLET-NOTFOUND")
 
-# the named xml source files:
-#set(DEVICES_XML ${CMAKE_CURRENT_SOURCE_DIR}/DeviceIds.xml)
 # the schema describing the device-id database, used for validation
 set(DEVICES_XSD ${CMAKE_CURRENT_SOURCE_DIR}/schema/DeviceIds.xsd)
 # and a temporary file we create to indicate a successfull validation of the schema
@@ -117,10 +116,10 @@ add_custom_command_generated_from_xml(${DEVICE_IDS_RB_XSL}   ${DEVICE_IDS_RB})
 install(FILES ${DEVICE_IDS_H}    DESTINATION include/${PROJECT_NAME})
 install(FILES ${DEVICE_IDS_PERL} DESTINATION lib/perl)
 install(FILES ${DEVICE_IDS_VHD}  DESTINATION lib/vhdl)
-# FIXME do this properly...? the crosscompiling guys will hate this
+# FIXME do this properly...? the crosscompiling guys will hate this. hi peter ;-)
 if (NOT CMAKE_CROSSCOMPILING)
     find_package(Ruby QUIET)
-    message("-- ${PROJECT_NAME}: not cross-compiling, installing ruby scripts under version ${RUBY_VERSION}")
+    message("-- ${PROJECT_NAME}: installing ruby-scripts under version ${RUBY_VERSION}")
     install(FILES ${DEVICE_IDS_YML}  DESTINATION lib/ruby/${RUBY_VERSION})
     install(FILES ${DEVICE_IDS_RB}   DESTINATION lib/ruby/${RUBY_VERSION})
 endif (NOT CMAKE_CROSSCOMPILING)
