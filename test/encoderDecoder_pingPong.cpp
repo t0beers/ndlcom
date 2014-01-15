@@ -61,7 +61,6 @@ int main(int argc, char const *argv[])
             std::numeric_limits<uint8_t>::max());
 
     /* used for timing measurements */
-    std::chrono::high_resolution_clock clock;
     std::chrono::duration<long int, std::micro> durationEncode(0);
     std::chrono::duration<long int, std::micro> durationDecode(0);
 
@@ -93,9 +92,9 @@ int main(int argc, char const *argv[])
         char encoded[1024];
 
         {
-            std::chrono::system_clock::time_point start = clock.now();
+            auto start = std::chrono::high_resolution_clock::now();
                 ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
-            std::chrono::system_clock::time_point end = clock.now();
+            auto end = std::chrono::high_resolution_clock::now();
 
             durationEncode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         }
@@ -106,12 +105,12 @@ int main(int argc, char const *argv[])
             uint8_t byte = encoded[i++];
 
             {
-                std::chrono::system_clock::time_point start = clock.now();
+                auto start = std::chrono::high_resolution_clock::now();
                     /* parsing deliberatively only one byte! we are measuring timing here, remember? */
                     ndlcomParserReceive(parser,&byte,sizeof(byte));
-                std::chrono::system_clock::time_point end = clock.now();
+                auto end = std::chrono::high_resolution_clock::now();
 
-                durationDecode += end - start;
+                durationDecode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             }
 
             if (i>=sizeof(encoded))
