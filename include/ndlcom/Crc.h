@@ -1,5 +1,5 @@
 /**
- * @file include/ndlcom_core/Crc.h
+ * @file include/ndlcom/Crc.h
  * @date 2013
  */
 #ifndef NDLCOM_CRC_H

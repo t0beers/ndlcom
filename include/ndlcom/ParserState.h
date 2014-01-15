@@ -1,5 +1,5 @@
 /**
- * @file include/ndlcom_core/ParserState.h
+ * @file include/ndlcom/ParserState.h
  * @date 2011
  */
 

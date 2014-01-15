@@ -3,7 +3,7 @@
  * @date 2011
  */
 
-#include "ndlcom_core/Protocol.h"
+#include "ndlcom/Protocol.h"
 
 /**
  * @brief Used to pack some payload into a distinct data-format, which may be sent over

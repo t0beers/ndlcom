@@ -1,5 +1,5 @@
 add_executable(test-decoder test-decoder.c)
-target_link_libraries(test-decoder ndlcom_core)
+target_link_libraries(test-decoder ndlcom)
 add_test(NAME test-decoder COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test-decoder)
 
 # i played a little bit with c++11 -- my first time, actually, while in "production"
@@ -20,8 +20,8 @@ if (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
         set_source_files_properties(encoderDecoder_pingPong.cpp PROPERTIES COMPILE_FLAGS "-std=c++0x")
     endif()
 
-    target_link_libraries(timing-decoder ndlcom_core)
-    target_link_libraries(encoderDecoder_pingPong ndlcom_core rt)
+    target_link_libraries(timing-decoder ndlcom)
+    target_link_libraries(encoderDecoder_pingPong ndlcom rt)
     add_test(NAME timing-decoder COMMAND ${CMAKE_CURRENT_BINARY_DIR}/timing-decoder 10000000)
     add_test(NAME encoderDecoder_pingPong COMMAND ${CMAKE_CURRENT_BINARY_DIR}/encoderDecoder_pingPong 100000)
 
@@ -36,15 +36,15 @@ endif()
 # but they are a start into automatic testing and comparing vhdl/cpp code on
 # the desk, not the robot!
 add_executable(testEncoder testEncoder.cpp)
-target_link_libraries(testEncoder ndlcom_core)
+target_link_libraries(testEncoder ndlcom)
 add_executable(testDecoder testDecoder.cpp)
-target_link_libraries(testDecoder ndlcom_core)
+target_link_libraries(testDecoder ndlcom)
 
 # simple c-program that does some common checks with the ndlcomDoCrc-function.
 # intended to show the weakness of the current 8bit-xor and for later use with
 # the crc16...
 add_executable(testCrc testCrc.c)
-target_link_libraries(testCrc ndlcom_core)
+target_link_libraries(testCrc ndlcom)
 
 # i hate cmake nowadays, their "language" is broken as shit and trying to
 # formulate a "task" such as these trivally done in bash is hard... since that,

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(ndlcom_core)
+project(ndlcom)
 
 # uiuiui... somebody will hang mir for this ;-)
 #

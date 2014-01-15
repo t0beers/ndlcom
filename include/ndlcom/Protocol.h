@@ -1,13 +1,13 @@
 /**
- * @file include/ndlcom_core/Protocol.h
+ * @file include/ndlcom/Protocol.h
  * @date 2011
  */
 
 #ifndef NDLCOM_PROTOCOL_H
 #define NDLCOM_PROTOCOL_H
 
-#include "ndlcom_core/Header.h"
-#include "ndlcom_core/ParserState.h"
+#include "ndlcom/Header.h"
+#include "ndlcom/ParserState.h"
 
 /**
  * C Implentation for easy usage of the iStruct&SeeGrip NDLCom protocol.
@@ -17,7 +17,7 @@
  *
  * To use, include the header-file:
  * @code
- *  #include "ndlcom_core/Protocol.h"
+ *  #include "ndlcom/Protocol.h"
  * @endcode
  *
  * initialize the basic struct NDLComParserState by doing

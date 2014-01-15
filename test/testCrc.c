@@ -14,8 +14,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
-#include "ndlcom_core/Types.h"
-#include "ndlcom_core/Crc.h"
+#include "ndlcom/Types.h"
+#include "ndlcom/Crc.h"
 
 struct TestCase {
     const char* name;

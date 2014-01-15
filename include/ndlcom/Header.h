@@ -1,12 +1,12 @@
 /**
- * @file include/ndlcom_core/Header.h
+ * @file include/ndlcom/Header.h
  * @date 2011
  */
 
 #ifndef NDLCOM_HEADER_H
 #define NDLCOM_HEADER_H
 
-#include "ndlcom_core/Types.h"
+#include "ndlcom/Types.h"
 
 #if defined (__cplusplus)
 extern "C" {

@@ -1,5 +1,5 @@
 /**
- * @file include/ndlcom_core/Types.h
+ * @file include/ndlcom/Types.h
  * @date 2011
  */
 
@@ -7,7 +7,7 @@
 #define NDLCOM_TYPES_H
 
 #include <stdint.h>
-#include "ndlcom_core/Crc.h"
+#include "ndlcom/Crc.h"
 
 #if defined (__cplusplus)
 extern "C" {

@@ -2,7 +2,7 @@
  * @file test/test-decoder.c
  * @date 2011
  */
-#include "ndlcom_core/Protocol.h"
+#include "ndlcom/Protocol.h"
 
 #include <string.h>
 #include <stdio.h>

@@ -1,13 +1,13 @@
 /**
- * @file ndlcom_core/RoutingTable.hpp
+ * @file ndlcom/RoutingTable.hpp
  * @date 2012
  */
-#ifndef NDLCOM_CORE_ROUTINGTABLE_HPP
-#define NDLCOM_CORE_ROUTINGTABLE_HPP
+#ifndef ndlcom_ROUTINGTABLE_HPP
+#define ndlcom_ROUTINGTABLE_HPP
 
-#include "ndlcom_core/Types.h"
-#include "ndlcom_core/Header.h"
-#include "ndlcom_core/DeviceIds.h"
+#include "ndlcom/Types.h"
+#include "ndlcom/Header.h"
+#include "ndlcom/DeviceIds.h"
 
 #include <vector>
 #include <limits>
@@ -140,4 +140,4 @@ namespace ndlcom
 
 
 
-#endif /*NDLCOM_CORE_ROUTINGTABLE_HPP*/
+#endif /*ndlcom_ROUTINGTABLE_HPP*/

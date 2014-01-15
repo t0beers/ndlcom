@@ -2,8 +2,8 @@
  * @file src/Parser.c
  * @date 2011
  */
-#include "ndlcom_core/Protocol.h"
-#include "ndlcom_core/Crc.h"
+#include "ndlcom/Protocol.h"
+#include "ndlcom/Crc.h"
 #include <stdio.h>
 
 /**

@@ -3,7 +3,7 @@
  * @date 2012
  */
 
-#include "ndlcom_core/Header.h"
+#include "ndlcom/Header.h"
 
 /**
  * @brief The ndlcom-protocol defines the packet-counter variable.
@@ -13,6 +13,6 @@
  * (static) table is used to fill the correct packet counter. it is essentially
  * an array with one entry for each node, storing the last used packet counter.
  *
- * @see include/ndlcom_core/Header.h
+ * @see include/ndlcom/Header.h
  */
 NDLComHeaderConfig ndlcomHeaderConfigDefault = { 0, {0}} ;

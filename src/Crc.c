@@ -3,7 +3,7 @@
  * @date 2013
  */
 
-#include "ndlcom_core/Crc.h"
+#include "ndlcom/Crc.h"
 
 inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *c)
 {

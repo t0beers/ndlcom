@@ -2,7 +2,7 @@
  * @file test/timing-decoder.cpp
  * @date 2012
  */
-#include "ndlcom_core/Protocol.h"
+#include "ndlcom/Protocol.h"
 
 #include <iostream>
 #include <random>

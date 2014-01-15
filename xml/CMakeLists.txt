@@ -16,7 +16,7 @@ else()
     #set(${PROJECT_NAME}_DEVICE_IDS DeviceIds)
     #
     # cmake-commandline argument like so:
-    #rm -rf build && mkdir build && cd build && cmake -Dndlcom_core_DEVICE_IDS=sherpa .. && cd .. && make -C build
+    #rm -rf build && mkdir build && cd build && cmake -Dndlcom_DEVICE_IDS=sherpa .. && cd .. && make -C build
     #
     # another possibility is to modifiy the autoproj/overrides.rb in your rock-project:
     #echo 'Autobuild::Package['ndlcom_core'].define "ndlcom_core_DEVICE_IDS", "sherpa"' >> $ROCK_BASE/autoproj/overrides.rb
