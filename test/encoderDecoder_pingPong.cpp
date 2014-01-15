@@ -62,8 +62,8 @@ int main(int argc, char const *argv[])
 
     /* used for timing measurements */
     std::chrono::high_resolution_clock clock;
-    std::chrono::duration<int, std::micro> durationEncode(0);
-    std::chrono::duration<int, std::micro> durationDecode(0);
+    std::chrono::duration<long int, std::micro> durationEncode(0);
+    std::chrono::duration<long int, std::micro> durationDecode(0);
 
     for (unsigned int trial=0;trial<trialsOverall;trial++)
     {
@@ -97,7 +97,7 @@ int main(int argc, char const *argv[])
                 ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
             std::chrono::system_clock::time_point end = clock.now();
 
-            durationEncode += end - start;
+            durationEncode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         }
 
         size_t i = 0;
