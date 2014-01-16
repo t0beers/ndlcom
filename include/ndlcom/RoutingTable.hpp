@@ -85,7 +85,7 @@ namespace ndlcom
             {
                 std::vector<T> retval = table[receiverId];
 
-                // will throw away all routes equal to "origin" -- don't echo messages on
+                // will discard all routes equal to "origin" -- don't echo messages on
                 // the port where they where received in the first place
                 retval.erase(std::remove(retval.begin(),
                              retval.end(),
