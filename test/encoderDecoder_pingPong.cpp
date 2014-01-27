@@ -99,7 +99,7 @@ int main(int argc, char const *argv[])
                 protocolEncode(encoded, sizeof(encoded), &hdr, data);
             std::chrono::system_clock::time_point end = clock.now();
 
-            durationEncode += end - start;
+            durationEncode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         }
 
         size_t i = 0;
@@ -113,7 +113,7 @@ int main(int argc, char const *argv[])
                     protocolParserReceive(parser,&byte,sizeof(byte));
                 std::chrono::system_clock::time_point end = clock.now();
 
-                durationDecode += end - start;
+                durationDecode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             }
 
             if (i>=sizeof(encoded))
