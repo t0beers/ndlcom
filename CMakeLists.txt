@@ -25,6 +25,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # the usual create-library-blocks
 set(SOURCES_lib
+    src/Message.cpp
     src/Encoder.c
     src/Header.c
     src/Parser.c
@@ -34,6 +35,7 @@ set(SOURCES_lib
     ${DEVICE_IDS_C}
 )
 set(HEADERS_lib
+    include/${PROJECT_NAME}/Message.h
     include/${PROJECT_NAME}/Protocol.h
     include/${PROJECT_NAME}/Header.h
     include/${PROJECT_NAME}/ParserState.h
