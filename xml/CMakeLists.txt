@@ -8,12 +8,12 @@ if(${PROJECT_NAME}_DEVICE_IDS)
     if(NOT EXISTS ${DEVICES_XML})
         message(FATAL_ERROR "-- ${PROJECT_NAME}: xml-file ${DEVICES_XML} does not exist")
     else()
-        message("-- ${PROJECT_NAME}: using DeviceIds xml-file "${DEVICES_XML}  )
+        message("-- ${PROJECT_NAME}: using DeviceIds xml-file " ${DEVICES_XML}  )
     endif()
 else()
     message(FATAL_ERROR "-- ${PROJECT_NAME}: set cmake variable \"${PROJECT_NAME}_DEVICE_IDS\" to specify which device ids to compile in. either as variable in top-level CMakeLists.txt or as commandline argument to cmake")
     # variable some top-level CMakeLists like so:
-    #set(${PROJECT_NAME}_DEVICE_IDS DeviceIds)
+    #set(${PROJECT_NAME}_DEVICE_IDS charlie)
     #
     # cmake-commandline argument like so:
     #rm -rf build && mkdir build && cd build && cmake -Dndlcom_DEVICE_IDS=sherpa .. && cd .. && make -C build

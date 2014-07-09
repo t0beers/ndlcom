@@ -17,7 +17,7 @@ extern "C" {
  *
  * Contains all used data-structures.
  */
-typedef struct
+typedef struct NDLComHeader
 {
     /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
     NDLComId mReceiverId;
@@ -34,7 +34,7 @@ typedef struct
  * should be used in packet headers.
  * Do not access the members directly, use the function below to do so.
  */
-typedef struct
+typedef struct NDLComHeaderConfig
 {
     NDLComId mSenderId;
     NDLComId mCounterForReceiver[NDLCOM_MAX_NUMBER_OF_DEVICES];

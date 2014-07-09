@@ -11,13 +11,13 @@ add_subdirectory(xml)
 
 # this little block will take care that we use the generated c-file inside the
 # compiled library
-set(DEVICE_IDS_C ${CMAKE_BINARY_DIR}/xml/src/DeviceIds.c)
+set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/xml/src/DeviceIds.c)
 # this takes care that cmake tries to create the source file prior to compiling it
 # see also http://www.cmake.org/pipermail/cmake/2014-January/056738.html
 set_source_files_properties(${DEVICE_IDS_C} PROPERTIES GENERATED true)
 set_source_files_properties(${DEVICE_IDS_H} PROPERTIES GENERATED true)
 # to find the generated "DeviceIds.h" for use during compiling of the lib
-include_directories(${CMAKE_BINARY_DIR}/xml/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/xml/include)
 # so. you did it. from now on, the rest of the cmakelists is quite ordinary...
 
 # nothing special here
@@ -25,6 +25,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # the usual create-library-blocks
 set(SOURCES_lib
+    src/Message.cpp
     src/Encoder.c
     src/Header.c
     src/Parser.c
@@ -34,6 +35,7 @@ set(SOURCES_lib
     ${DEVICE_IDS_C}
 )
 set(HEADERS_lib
+    include/${PROJECT_NAME}/Message.hpp
     include/${PROJECT_NAME}/Protocol.h
     include/${PROJECT_NAME}/Header.h
     include/${PROJECT_NAME}/ParserState.h
@@ -48,7 +50,7 @@ set(HEADERS_lib
 )
 
 # define the lib
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
     ${SOURCES_lib}
     )
 
