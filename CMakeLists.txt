@@ -35,7 +35,7 @@ set(SOURCES_lib
     ${DEVICE_IDS_C}
 )
 set(HEADERS_lib
-    include/${PROJECT_NAME}/Message.h
+    include/${PROJECT_NAME}/Message.hpp
     include/${PROJECT_NAME}/Protocol.h
     include/${PROJECT_NAME}/Header.h
     include/${PROJECT_NAME}/ParserState.h

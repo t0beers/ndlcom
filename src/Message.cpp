@@ -1,4 +1,4 @@
-#include "ndlcom/Message.h"
+#include "ndlcom/Message.hpp"
 
 #include <string.h>
 #include <cassert>
