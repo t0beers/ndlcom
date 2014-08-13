@@ -10,18 +10,5 @@ STRUCTURE
 	Contains all source files (*.c)
 -- include/ndlcom_core/ 
 	Contains all header files (*.h)
--- xml
-
-    Contains a set of xml file, transformations and schemas to generate a set of
-    deviceId<->deviceName mappings. This is compiled into the c-library for easy,
-    unified and quick access on all supported plattforms. Tools for some other
-    languages are additionally generated.
-    
-    For this to work, cmake has to be given the xml-file to use. Either on the
-    cmake-commandline:
-    $ rm -rf build && mkdir build && cd build && cmake -Dndlcom_core_DEVICE_IDS=sherpa .. && cd .. && make -C build
-    or in the top-level CMakeLists of your project:
-    echo "set(${PROJECT_NAME}_DEVICE_IDS DeviceIds)" >> $TOP_LEVEL/CMakeLists.txt
-
 -- build/
 	The target directory for the build process, temporary content

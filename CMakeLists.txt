@@ -2,24 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(ndlcom)
 
-# uiuiui... somebody will hang mir for this ;-)
-#
-# this submodule will look at the cmake-variable which hopefully defines the
-# $NAME.xml to actually use for generating some c/h files and some other
-# exports.
-add_subdirectory(xml)
-
-# this little block will take care that we use the generated c-file inside the
-# compiled library
-set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/xml/src/DeviceIds.c)
-# this takes care that cmake tries to create the source file prior to compiling it
-# see also http://www.cmake.org/pipermail/cmake/2014-January/056738.html
-set_source_files_properties(${DEVICE_IDS_C} PROPERTIES GENERATED true)
-set_source_files_properties(${DEVICE_IDS_H} PROPERTIES GENERATED true)
-# to find the generated "DeviceIds.h" for use during compiling of the lib
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/xml/include)
-# so. you did it. from now on, the rest of the cmakelists is quite ordinary...
-
 # nothing special here
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -30,9 +12,6 @@ set(SOURCES_lib
     src/Header.c
     src/Parser.c
     src/Crc.c
-    # the generated c-file, containing a const char-array for a runtime mapping
-    # of deviceName<->deviceId
-    ${DEVICE_IDS_C}
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Message.hpp
@@ -41,9 +20,6 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/ParserState.h
     include/${PROJECT_NAME}/Types.h
     include/${PROJECT_NAME}/Crc.h
-    # the generated header file, containing defines (enums in fact) for a
-    # compile-time-safe mapping of deviceName<->deviceId
-    ${DEVICE_IDS_H}
     # this is a templated "static routing table". if you don't need it, just
     # don't include it. in this case, your compiler would never see this file
     include/${PROJECT_NAME}/RoutingTable.hpp
@@ -53,10 +29,6 @@ set(HEADERS_lib
 add_library(${PROJECT_NAME}
     ${SOURCES_lib}
     )
-
-# this is needed explicitly to have the generated source/header files ready
-# when we begin compiling the actual library
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-generate)
 
 # installing:
 install(TARGETS ${PROJECT_NAME}

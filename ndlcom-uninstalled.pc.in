@@ -6,4 +6,4 @@ Name: @PROJECT_NAME@
 Description: Parser and encoder for iStruct's and SeeGrip's NDLCom.
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -l@PROJECT_NAME@
-Cflags: -I${includedir} -I@CMAKE_CURRENT_BINARY_DIR@/xml/include
+Cflags: -I${includedir}
