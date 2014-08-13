@@ -3,3 +3,5 @@
 vhdl
 # same for perl:
 perl
+build
+compile_commands.json
