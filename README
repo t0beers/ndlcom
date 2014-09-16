@@ -1,3 +1,9 @@
+ATTENTION: this code here is "deprecated", in the sense that it was developed as
+successing incantation of the istruct-ndlcom but never took off. do not use this
+repository, use the following one:
+
+https://git.hb.dfki.de/istruct/repo/blob/master/bootstrap-gitlab-repo.md 
+
 ndlcom_core
 -----------
 
