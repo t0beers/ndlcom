@@ -3,22 +3,28 @@ cmake_minimum_required(VERSION 2.8)
 project(ndlcom)
 
 # uiuiui... somebody will hang mir for this ;-)
-#
+# >> not hang but...slap!
 # this submodule will look at the cmake-variable which hopefully defines the
 # $NAME.xml to actually use for generating some c/h files and some other
 # exports.
-add_subdirectory(xml)
 
-# this little block will take care that we use the generated c-file inside the
-# compiled library
-set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/xml/src/DeviceIds.c)
-# this takes care that cmake tries to create the source file prior to compiling it
-# see also http://www.cmake.org/pipermail/cmake/2014-January/056738.html
-set_source_files_properties(${DEVICE_IDS_C} PROPERTIES GENERATED true)
-set_source_files_properties(${DEVICE_IDS_H} PROPERTIES GENERATED true)
-# to find the generated "DeviceIds.h" for use during compiling of the lib
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/xml/include)
-# so. you did it. from now on, the rest of the cmakelists is quite ordinary...
+set(DEVICE_IDS_C "")
+set(DEVICE_IDS_H "")
+
+if(${PROJECT_NAME}_DEVICE_IDS)
+    add_subdirectory(xml)
+
+    # this little block will take care that we use the generated c-file inside the
+    # compiled library
+    set(DEVICE_IDS_C ${CMAKE_CURRENT_BINARY_DIR}/xml/src/DeviceIds.c)
+    # this takes care that cmake tries to create the source file prior to compiling it
+    # see also http://www.cmake.org/pipermail/cmake/2014-January/056738.html
+    set_source_files_properties(${DEVICE_IDS_C} PROPERTIES GENERATED true)
+    set_source_files_properties(${DEVICE_IDS_H} PROPERTIES GENERATED true)
+    # to find the generated "DeviceIds.h" for use during compiling of the lib
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/xml/include)
+    # so. you did it. from now on, the rest of the cmakelists is quite ordinary...
+endif()
 
 # nothing special here
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -52,7 +58,12 @@ set(HEADERS_lib
 # define the lib
 add_library(${PROJECT_NAME}
     ${SOURCES_lib}
+    ${HEADERS_lib}
     )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    COMPILE_FLAGS "-fPIC"       #for use in ROCK components
+)
 
 # this is needed explicitly to have the generated source/header files ready
 # when we begin compiling the actual library
