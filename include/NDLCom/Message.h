@@ -69,6 +69,6 @@ namespace ndlcom
 
             int msg_size() const { return mHdr.mDataLen+sizeof(ndlcomHeader); };
     };
-};
+}
 
 #endif /*MESSAGE_H*/
