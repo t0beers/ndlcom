@@ -281,3 +281,11 @@ void ndlcomParserGetState(struct NDLComParser* parser,
     output->mState = parser->mState;
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
 }
+
+uint16_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser) {   
+    return parser->mNumberOfCRCFails;
+}
+
+void ndlcomParserResetNumberOfCRCFails(struct NDLComParser* parser) {
+    parser->mNumberOfCRCFails = 0;
+}

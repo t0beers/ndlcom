@@ -198,6 +198,23 @@ void ndlcomParserDestroyPacket(struct NDLComParser* parser);
 void ndlcomParserGetState(struct NDLComParser* parser,
                           struct NDLComParserState* output);
 
+
+/**
+ * @brief Return the number of CRC failures.
+ *
+ * @param parser Pointer to the parser state-struct to be used
+ * @return the number of CRC failures
+ */
+uint16_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser);
+
+/**
+ * @brief Reset CRC failure counter.
+ *
+ * @param parser Pointer to the parser state-struct to be used
+ */
+void ndlcomParserResetNumberOfCRCFails(struct NDLComParser* parser);
+
+
 /**
  * @brief NULL-terminated string containing the name of the current state
  */
