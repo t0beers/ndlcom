@@ -2,20 +2,11 @@
  * @file test/encoderDecoder_pingPong.cpp
  * @date 2012
  */
-#include "NDLCom/Protocol.h"
+#include "ndlcom/Protocol.h"
 
 #include <iostream>
 #include <random>
 #include <chrono>
-
-/**
- * @addtogroup Communication
- * @{
- * @addtogroup Communication_NDLCom
- * @{
- * @addtogroup Communication_NDLCom_Test
- * @{
- */
 
 /**
  * small test-program to check if the current encoder is correctly working with the current decoder.
@@ -25,6 +16,8 @@
  * just for reference:
  * crc xor8 (SVN r7289):
  *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 0.90748us decoding took 5.26462us
+ * crc xor8 (spacegit eff0c8):
+ *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 1.09439us decoding took 5.59621us
  * crc fcs16:
  *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 1.04513us decoding took 6.0782us
  *
@@ -33,7 +26,7 @@ int main(int argc, char const *argv[])
 {
 
     char buffer[1024];
-    struct ProtocolParser* parser = protocolParserCreate(buffer, sizeof(buffer));
+    struct NDLComParser* parser = ndlcomParserCreate(buffer, sizeof(buffer));
 
     if (argc != 2)
     {
@@ -51,25 +44,29 @@ int main(int argc, char const *argv[])
     std::seed_seq seed1 (str.begin(),str.end());
 
     std::default_random_engine generator(seed1);
-    std::uniform_int_distribution<ndlcomDataLen> datalenDistribution(std::numeric_limits<ndlcomDataLen>::min(),
-                                                                     std::numeric_limits<ndlcomDataLen>::max());
-    std::uniform_int_distribution<ndlcomId> receiverDistribution(std::numeric_limits<ndlcomId>::min(),
-                                                                 std::numeric_limits<ndlcomId>::max());
-    std::uniform_int_distribution<ndlcomId> senderDistribution(std::numeric_limits<ndlcomId>::min(),
-                                                               std::numeric_limits<ndlcomId>::max());
-    std::uniform_int_distribution<ndlcomCounter> counterDistribution(std::numeric_limits<ndlcomCounter>::min(),
-                                                                     std::numeric_limits<ndlcomCounter>::max());
-    std::uniform_int_distribution<uint8_t> payloadDistribution(std::numeric_limits<uint8_t>::min(),
-                                                               std::numeric_limits<uint8_t>::max());
+    std::uniform_int_distribution<NDLComDataLen> datalenDistribution(
+            std::numeric_limits<NDLComDataLen>::min(),
+            std::numeric_limits<NDLComDataLen>::max());
+    std::uniform_int_distribution<NDLComId> receiverDistribution(
+            std::numeric_limits<NDLComId>::min(),
+            std::numeric_limits<NDLComId>::max());
+    std::uniform_int_distribution<NDLComId> senderDistribution(
+            std::numeric_limits<NDLComId>::min(),
+            std::numeric_limits<NDLComId>::max());
+    std::uniform_int_distribution<NDLComCounter> counterDistribution(
+            std::numeric_limits<NDLComCounter>::min(),
+            std::numeric_limits<NDLComCounter>::max());
+    std::uniform_int_distribution<uint8_t> payloadDistribution(
+            std::numeric_limits<uint8_t>::min(),
+            std::numeric_limits<uint8_t>::max());
 
     /* used for timing measurements */
-    std::chrono::high_resolution_clock clock;
-    std::chrono::duration<int, std::micro> durationEncode(0);
-    std::chrono::duration<int, std::micro> durationDecode(0);
+    std::chrono::duration<long int, std::micro> durationEncode(0);
+    std::chrono::duration<long int, std::micro> durationDecode(0);
 
     for (unsigned int trial=0;trial<trialsOverall;trial++)
     {
-        ProtocolHeader hdr;
+        NDLComHeader hdr;
         /* generates numbers in the possible ranges */
         hdr.mReceiverId = receiverDistribution(generator);
         hdr.mSenderId = senderDistribution(generator);
@@ -95,40 +92,40 @@ int main(int argc, char const *argv[])
         char encoded[1024];
 
         {
-            std::chrono::system_clock::time_point start = clock.now();
-                protocolEncode(encoded, sizeof(encoded), &hdr, data);
-            std::chrono::system_clock::time_point end = clock.now();
+            auto start = std::chrono::high_resolution_clock::now();
+                ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
+            auto end = std::chrono::high_resolution_clock::now();
 
             durationEncode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         }
 
         size_t i = 0;
-        while (!protocolParserHasPacket(parser))
+        while (!ndlcomParserHasPacket(parser))
         {
             uint8_t byte = encoded[i++];
 
             {
-                std::chrono::system_clock::time_point start = clock.now();
+                auto start = std::chrono::high_resolution_clock::now();
                     /* parsing deliberatively only one byte! we are measuring timing here, remember? */
-                    protocolParserReceive(parser,&byte,sizeof(byte));
-                std::chrono::system_clock::time_point end = clock.now();
+                    ndlcomParserReceive(parser,&byte,sizeof(byte));
+                auto end = std::chrono::high_resolution_clock::now();
 
                 durationDecode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             }
 
             if (i>=sizeof(encoded))
             {
-                struct ProtocolParserState state;
-                protocolParserGetState(parser, &state);
+                struct NDLComParserState state;
+                ndlcomParserGetState(parser, &state);
 
                 std::cout << "trial " << trial << " did not work."
                           << " number of crc-errors: " << (int)state.mNumberOfCRCFails
-                          << " current parser state: " << protocolParserStateName[state.mState] << "...\n";
+                          << " current parser state: " << ndlcomParserStateName[state.mState] << "...\n";
                 exit(EXIT_FAILURE);
             }
         }
 
-        protocolParserDestroyPacket(parser);
+        ndlcomParserDestroyPacket(parser);
 
         delete[] data;
     }
@@ -140,9 +137,3 @@ int main(int argc, char const *argv[])
 
     exit(EXIT_SUCCESS);
 }
-
-/**
- * @}
- * @}
- * @}
- */

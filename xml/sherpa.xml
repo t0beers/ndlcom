@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ndlcom>
+    <device name="ERROR" id="0" />
+
+    <device name="highlevel" id="1"/>
+    <device name="monster" id="3"/>
+
+    <device name="DMSBoard_12" id="94"/>
+    <device name="mdaq2"      id="95"/>
+
+    <device name="FL_thorax" id="10"/>
+    <device name="FL_basal_a" id="11"/>
+    <device name="FL_basal_b" id="12"/>
+
+    <device name="FR_thorax" id="20"/>
+    <device name="FR_basal_a" id="21"/>
+    <device name="FR_basal_b" id="22"/>
+
+    <device name="arm_motor1" id="50"/>
+    <device name="arm_motor2" id="51"/>
+    <device name="arm_motor3" id="52"/>
+
+    <device name="RRHipJoint1" id="40"/>
+    <device name="RRHipJoint2" id="41"/>
+    <device name="RRHipJoint3" id="42"/>
+    <device name="RRKneeJoint" id="43"/>
+    <device name="RRAnkleJoint" id="44"/>
+    <device name="RRToeJoint" id="45"/>
+    <device name="RRFootSensorBoard1" id="46"/>
+    <device name="RRFootSensorBoard2" id="47"/>
+
+    <device name="BROADCAST" id="255">Note that this is a special combination of deviceId/deviceName, and it is forbidden to be changed</device>
+</ndlcom>

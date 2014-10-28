@@ -1,7 +1,4 @@
-# the vhdl guy wanna have their file containing the generated deviceIds in a
-# folder besides the build-dir, which is "vhdl". so we ignore it:
-vhdl
-# same for perl:
-perl
-build
+build/
+*.sw?
+.gdb_history
 compile_commands.json

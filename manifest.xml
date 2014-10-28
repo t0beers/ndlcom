@@ -1,6 +1,21 @@
 <package>
-    <description brief="protocol">
-       iStruct library for framing
-    </description>
+  <description brief="ndlcom_core">
+Node Data Link Communication
+----------------------------
 
+Originally written by Moritz, Tobias, Armin and Martin.
+Done for iStruct and SeeGrip, 2010-2013.
+
+functions to encode/decode simple serial communication layer2 message format
+called "ndlcom" for "Node Data Link Communication"
+
+See also README.
+  </description>
+  <author>Armin Burchardt</author>
+  <author>Moritz Schilling/moritz.schilling@dfki.de</author>
+  <author>Tobias Stark/tobias.stark@dfki.de</author>
+  <author>Martin Zenzes/martin.zenzes@dfki.de</author>
+  <license>GPL2</license>
+  <url>spacegit.dfki.uni-bremen.de/ndlcom/orogen-ndlcom</url>
+  <depend package="xmlstarlet"/>
 </package>

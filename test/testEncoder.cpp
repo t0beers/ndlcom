@@ -2,7 +2,7 @@
  * @file test/testEncoder.cpp
  * @date 2012
  */
-#include "NDLCom/Protocol.h"
+#include "ndlcom/Protocol.h"
 
 #include <iostream>
 #include <fstream>
@@ -23,7 +23,7 @@ const std::string dataline("D");
 const std::string finished("N");
 
 /* where we'll work on */
-ProtocolHeader header;
+NDLComHeader header;
 unsigned char payload[255];
 
 /**
@@ -66,10 +66,10 @@ bool fillContent(std::istringstream& iss, T* tgt)
 
 
 /* encoding it and couting as decimal-numbers */
-void outputPacket(const ProtocolHeader &hdr, unsigned char* data)
+void outputPacket(const NDLComHeader &hdr, unsigned char* data)
 {
     unsigned char encoded[1024];
-    size_t sz = protocolEncode(encoded, sizeof(encoded), &hdr, data);
+    size_t sz = ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
 
     /* writing the encoded content to stdout, where the last entry has a newline instead of a space
      * appended */

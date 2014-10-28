@@ -1,4 +1,4 @@
-#include "NDLCom/Message.h"
+#include "ndlcom/Message.hpp"
 
 #include <string.h>
 #include <cassert>
@@ -15,7 +15,7 @@ Message::Message() :
 }
 
 #ifdef linux
-Message::Message(const struct timespec& time, const ndlcomHeader& hdr, const void* decodedData) :
+Message::Message(const struct timespec& time, const NDLComHeader& hdr, const void* decodedData) :
     mHdr(hdr),
     mpDecodedData(new char[mHdr.mDataLen]),
     mTimestamp(time)
@@ -28,7 +28,7 @@ Message::Message(const struct timespec& time, const ndlcomHeader& hdr, const voi
 }
 #endif/*linux*/
 
-Message::Message(const ndlcomHeader& hdr, const void* decodedData) :
+Message::Message(const NDLComHeader& hdr, const void* decodedData) :
     mHdr(hdr),
     mpDecodedData(new char[mHdr.mDataLen]),
     mTimestamp()
@@ -46,7 +46,7 @@ Message::Message(const ndlcomHeader& hdr, const void* decodedData) :
     mOrigin="internal";
 }
 
-Message::Message(const ndlcomHeader* hdr, const void* decodedData) :
+Message::Message(const NDLComHeader* hdr, const void* decodedData) :
     mHdr(*hdr),
     mpDecodedData(new char[mHdr.mDataLen]),
     mTimestamp()
