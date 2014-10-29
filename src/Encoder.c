@@ -91,15 +91,31 @@ int16_t ndlcomEncode(void* pOutputBuffer,
         ++pRead;
     }
 
-    //crc
-    if (crc == NDLCOM_ESC_CHAR || crc == NDLCOM_START_STOP_FLAG)
+    /* some algorithms want to complement the crc after creation. failing to do
+     * so will "break" the recognition of valid crc later by comparing it with
+     * NDLCOM_FCS_GOOD_VALUE (0xf0b8). the crc will, after going through the
+     * complete parser, be zero instead, so the "GOOD_VALUE" is just different.
+     */
+    //crc ^= 0xffff;
+
+    // crc
+    pRead = (const uint8_t*)&crc;
+    const uint8_t* pCrcEnd = pRead + sizeof(NDLComCrc);
+    while (pRead != pCrcEnd)
     {
-        *pWritePos++ = NDLCOM_ESC_CHAR;
-        *pWritePos++ = 0x20 ^ crc;
-    }
-    else
-    {
-        *pWritePos++ = crc;
+        const uint8_t d = *pRead;
+
+        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
+        {
+            //we need to send an escaped data byte here:
+            *pWritePos++ = NDLCOM_ESC_CHAR;
+            *pWritePos++ = 0x20 ^ d;
+        }
+        else
+        {
+            *pWritePos++ = d;
+        }
+        ++pRead;
     }
 
     //flag at end of packet

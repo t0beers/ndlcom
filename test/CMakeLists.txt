@@ -46,6 +46,9 @@ target_link_libraries(testDecoder ndlcom)
 add_executable(testCrc testCrc.c)
 target_link_libraries(testCrc ndlcom)
 
+# will print the precomputed table for the crc16
+add_executable(printTable printTable.c)
+
 # i hate cmake nowadays, their "language" is broken as shit and trying to
 # formulate a "task" such as these trivally done in bash is hard... since that,
 # i hacked together this mini-shell script which does exactly the same as the

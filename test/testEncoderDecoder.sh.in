@@ -18,9 +18,9 @@
 # initial input.
 ##
 echo "first test:"
-diff <(@CMAKE_CURRENT_BINARY_DIR@/testDecoder < @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat \
+diff <(@CMAKE_CURRENT_BINARY_DIR@/testDecoder < @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc16.dat \
         | @CMAKE_CURRENT_BINARY_DIR@/testEncoder) \
-    @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat && echo "first test good" || exit 1
+    @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc16.dat && echo "first test good" || exit 1
 
 ##
 # second test: check if the checked-in encoded packet matches the output of the
@@ -28,7 +28,7 @@ diff <(@CMAKE_CURRENT_BINARY_DIR@/testDecoder < @CMAKE_CURRENT_SOURCE_DIR@/encod
 ##
 echo "second test:"
 diff <(@CMAKE_CURRENT_BINARY_DIR@/testEncoder < @CMAKE_CURRENT_SOURCE_DIR@/decodedPackets.dat) \
-    @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc8.dat && echo "second test good" || exit 1
+    @CMAKE_CURRENT_SOURCE_DIR@/encodedPackets_crc16.dat && echo "second test good" || exit 1
 
 echo "all well"
 exit 0

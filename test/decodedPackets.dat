@@ -6,7 +6,9 @@
 -- 'S' : Set new NDLCom Sender ID              (dez)
 -- 'F' : Set NDLCom Frame counter manually     (dez)
 -- 'L' : Set NDLCom Length field manually      (dez) -- The number of unescaped
---                                                      data bytes
+--                                                      data bytes. will fill
+--                                                      the undefined payload
+--                                                      bytes with zeros?
 -- 'C' : Set 2 byte NDLCom CRC field manually  (dez) -- Can not be handled
 --                                                      by Software tesbench
 --                                                      by M. Zenzes
@@ -14,12 +16,54 @@
 -- 'W' : Qualifier to wait for certain time
 -- 'X' : Qualifier to stop simulation
 -------------------------------------------------------------------
+--
+-- very simple packet, minimal with all zeros. nevertheless, this is a valid
+-- ndlcom-packet
+--
+R 0
+S 0
+F 0
+L 0
+N
+--
+-- some more zeros inside the payload. here, the length field will not be zero
+--
+R 0
+S 0
+F 0
+D 0 0 0 0 0 0
+N
+--
+-- only the receiver is set to "one", rest is zero
+--
+R 1
+S 0
+F 0
+L 0
+N
+--
+-- first of original hendriks examples, to test escaping of header (receiver)
+-- and payload (first data-field)
+--
 S 1
 R 126
 F 0
 D 126
+-- setting the length to 13 manually would result in a lot of zeros following
+-- in the assumed payload:
 --L 13
 N
+--
+-- this one is such that the 16bit crc of the "0x6f92" type has an crc where
+-- the first byte has to be escaped
+--
+R 93
+S 121
+F 252
+D 47 98 168
+N
+--
+-- nothing sepcial here:
 --
 S 1
 R 129
@@ -28,12 +72,17 @@ D 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 L 16
 N
 --
+-- and so on:
+--
 S 1
 R 129
 F 2
 D 0 1 2 3 4 5 6 7 8 9 12 11 12 1 14 15 16 17 19 19 20
 L 21
 N
+--
+-- blabla, just to have some characters here. no meaning included (although
+-- this has some kind of meaning as well...)
 --
 T 126
 R 126
@@ -44,3 +93,4 @@ D 126
 C 8 242
 E 126
 N
+-- vim: set ft=vhdl comments+=b\:-- :

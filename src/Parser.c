@@ -46,7 +46,8 @@ struct NDLComParser
         mcWAIT_STARTFLAG,
         mcWAIT_HEADER,
         mcWAIT_DATA,
-        mcWAIT_CHECKSUM,
+        mcWAIT_FIRST_CRC_BYTE,
+        mcWAIT_SECOND_CRC_BYTE,
         mcCOMPLETE,
     } mState;
     int8_t mLastWasESC;/**< stores if the last received byte was a crc. used to detect escaped bytes */
@@ -59,7 +60,8 @@ const char* ndlcomParserStateName[] = {
     "WAIT_STARTFLAG",
     "WAIT_HEADER",
     "WAIT_DATA",
-    "WAIT_CHECKSUM",
+    "WAIT_FIRST_CRC_BYTE",
+    "WAIT_SECOND_CRC_BYTE",
     "COMPLETE",
     0
 };
@@ -169,7 +171,7 @@ int16_t ndlcomParserReceive(
                     /* ...else we have a degenerate packet with no payload, proceed directly */
                     else
                     {
-                        parser->mState = mcWAIT_CHECKSUM;
+                        parser->mState = mcWAIT_FIRST_CRC_BYTE;
                     }
                 }
                 break;
@@ -184,10 +186,13 @@ int16_t ndlcomParserReceive(
                 // check if we read "enough" data -- as was advertised in the header
                 if (parser->mpDataWritePos == parser->mpData + parser->mHeader.mDataLen)
                 {
-                    parser->mState = mcWAIT_CHECKSUM;
+                    parser->mState = mcWAIT_FIRST_CRC_BYTE;
                 }
                 break;
-            case mcWAIT_CHECKSUM:
+            // the crc arrives in two seperate bytes in the crc16 case. handling
+            // them one after the other
+#ifndef NDLCOM_CRC16
+            case mcWAIT_FIRST_CRC_BYTE:
                 if (c == parser->mDataCRC)
                 {
                     parser->mState = mcCOMPLETE;
@@ -198,6 +203,26 @@ int16_t ndlcomParserReceive(
                     parser->mState = mcWAIT_STARTFLAG;
                 }
                 break;
+#else
+            case mcWAIT_FIRST_CRC_BYTE:
+                parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
+                parser->mState = mcWAIT_SECOND_CRC_BYTE;
+                break;
+            // only after the second one was received and stuffed into the
+            // crc-chain, we can decide wether we got something good.
+            case mcWAIT_SECOND_CRC_BYTE:
+                parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
+                if (parser->mDataCRC == NDLCOM_CRC_REAL_GOOD_VALUE)
+                {
+                    parser->mState = mcCOMPLETE;
+                }
+                else
+                {
+                    parser->mNumberOfCRCFails++;
+                    parser->mState = mcWAIT_STARTFLAG;
+                }
+                break;
+#endif
             case mcCOMPLETE:
                 /* we reach here if we are "mcCOMPLETE" before any byte was
                  * parsed, since there is an "if" for the same state after the
@@ -255,4 +280,12 @@ void ndlcomParserGetState(struct NDLComParser* parser,
 {
     output->mState = parser->mState;
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
+}
+
+uint16_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser) {   
+    return parser->mNumberOfCRCFails;
+}
+
+void ndlcomParserResetNumberOfCRCFails(struct NDLComParser* parser) {
+    parser->mNumberOfCRCFails = 0;
 }
