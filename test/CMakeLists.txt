@@ -1,7 +1,3 @@
-add_executable(test-decoder test-decoder.c)
-target_link_libraries(test-decoder ndlcom)
-add_test(NAME test-decoder COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test-decoder)
-
 # i played a little bit with c++11 -- my first time, actually, while in "production"
 # sadly, not all compiler will eat this shit...
 # see http://stackoverflow.com/questions/4058565/check-gcc-minor-in-cmake/4065761#4065761

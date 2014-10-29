@@ -30,18 +30,7 @@ add_library(${PROJECT_NAME}
     ${SOURCES_lib}
     ${HEADERS_lib}
     )
-
-<<<<<<< HEAD
-=======
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    COMPILE_FLAGS "-fPIC"       #for use in ROCK components
-)
-
-# this is needed explicitly to have the generated source/header files ready
-# when we begin compiling the actual library
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-generate)
-
->>>>>>> 46646052946c56adbd05c956979d9fe070f7e122
+#
 # installing:
 install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
@@ -54,7 +43,7 @@ if (NOT CMAKE_CROSSCOMPILING)
         COMPILE_FLAGS "-fPIC"       #for use in shared libraries (MARS, Rock and so on)
     )
     # testing has to be enabled explicitly!
-    #enable_testing()
+    enable_testing()
     add_subdirectory(test)
 endif (NOT CMAKE_CROSSCOMPILING)
 
