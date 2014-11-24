@@ -25,7 +25,7 @@ typedef uint8_t NDLComCrc;
  *
  * the algorithm is actually a simple concatenated xor...
  */
-inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *c);
+NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *c);
 
 /** crc 16 */
 #else
@@ -49,7 +49,7 @@ typedef uint16_t NDLComCrc;
  * @param len length of data-array to add to the crc, in bytes
  * @return the new fcs/crc for the given start-value and the covered memory array
  */
-inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *d);
+NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *d);
 
 #endif
 
