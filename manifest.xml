@@ -17,5 +17,4 @@ See also README.
   <author>Martin Zenzes/martin.zenzes@dfki.de</author>
   <license>GPL2</license>
   <url>spacegit.dfki.uni-bremen.de/ndlcom/orogen-ndlcom</url>
-  <depend package="xmlstarlet"/>
 </package>
