@@ -119,7 +119,7 @@ int main(int argc, char const *argv[])
                 ndlcomParserGetState(parser, &state);
 
                 std::cout << "trial " << trial << " did not work."
-                          << " number of crc-errors: " << (int)state.mNumberOfCRCFails
+                          << " number of crc-errors: " << state.mNumberOfCRCFails
                           << " current parser state: " << ndlcomParserStateName[state.mState] << "...\n";
                 exit(EXIT_FAILURE);
             }
