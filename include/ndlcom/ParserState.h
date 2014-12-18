@@ -18,7 +18,7 @@ extern "C" {
 struct NDLComParserState
 {
     int8_t mState;/**< actual state of the parser */
-    int16_t mNumberOfCRCFails;/**< how often the crc failed */
+    uint32_t mNumberOfCRCFails;/**< how often the crc failed */
     int8_t mLastError;/**< cause of the last error */
 };
 

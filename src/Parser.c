@@ -51,7 +51,7 @@ struct NDLComParser
         mcCOMPLETE,
     } mState;
     int8_t mLastWasESC;/**< stores if the last received byte was a crc. used to detect escaped bytes */
-    uint16_t mNumberOfCRCFails;/**< how often a bad crc was received */
+    uint32_t mNumberOfCRCFails;/**< how often a bad crc was received */
     int mFlags;
 };
 
@@ -282,7 +282,7 @@ void ndlcomParserGetState(struct NDLComParser* parser,
     output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
 }
 
-uint16_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser) {   
+uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser) {
     return parser->mNumberOfCRCFails;
 }
 

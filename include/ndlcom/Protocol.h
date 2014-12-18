@@ -205,7 +205,7 @@ void ndlcomParserGetState(struct NDLComParser* parser,
  * @param parser Pointer to the parser state-struct to be used
  * @return the number of CRC failures
  */
-uint16_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser);
+uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser);
 
 /**
  * @brief Reset CRC failure counter.
