@@ -4,6 +4,8 @@ project(ndlcom)
 
 # nothing special here
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# adding fPIC to be able to later link as part of a shared library
+add_definitions(-fPIC)
 
 # the usual create-library-blocks
 set(SOURCES_lib
