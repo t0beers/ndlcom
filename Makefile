@@ -1,4 +1,4 @@
-# 423d7ddbc -- unique string to find this makefile without sourcecontrol...
+# m5097dabk -- unique string to find this makefile without sourcecontrol...
 
 # allows automatical multicore build sessions!
 JOBS?=$(shell getconf _NPROCESSORS_ONLN)
@@ -15,8 +15,8 @@ override CMAKE_FLAGS+=-DCMAKE_TOOLCHAIN_FILE=../../CMake-Modules/${ARCH}.cmake
 endif
 
 # by default, we use a compiler dependent build and install directory.
-INSTALLDIR=$(shell readlink -m ~/DFKI.install/$(ARCH))
-BUILDDIR=$(shell readlink -m ./build/$(ARCH))
+INSTALLDIR?=$(shell readlink -m ~/DFKI.install/$(ARCH))
+BUILDDIR?=$(shell readlink -m ./build/$(ARCH))
 
 # SILENCE!
 override MAKEFLAGS+=--no-print-directory
