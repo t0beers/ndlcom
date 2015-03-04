@@ -199,6 +199,7 @@ int16_t ndlcomParserReceive(
             // them one after the other
 #ifndef NDLCOM_CRC16
             case mcWAIT_FIRST_CRC_BYTE:
+            case mcWAIT_SECOND_CRC_BYTE:
                 if (c == parser->mDataCRC)
                 {
                     parser->mState = mcCOMPLETE;
