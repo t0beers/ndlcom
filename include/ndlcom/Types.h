@@ -62,12 +62,6 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
  */
 #define NDLCOM_MAX_ENCODED_MESSAGE_SIZE (2+NDLCOM_MAX_DECODED_MESSAGE_SIZE*2)
 
-/**
- * i am not that sure what to put here... the struct has to save additional 255bytes, after
- * de-escaing, nothing more?
- */
-#define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser)+NDLCOM_MAX_PAYLOAD_SIZE)
-
 #if defined (__cplusplus)
 }
 #endif

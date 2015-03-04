@@ -66,6 +66,12 @@ const char* ndlcomParserStateName[] = {
     0
 };
 
+
+/** i am not that sure what to put here... the struct has to save additional
+ * 255bytes, after de-escaing, nothing more?
+ */
+#define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser)+NDLCOM_MAX_PAYLOAD_SIZE)
+
 struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
 {
     // we enforce a correct length: having less memory will lead to
