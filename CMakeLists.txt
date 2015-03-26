@@ -23,9 +23,6 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/ParserState.h
     include/${PROJECT_NAME}/Types.h
     include/${PROJECT_NAME}/Crc.h
-    # this is a templated "static routing table". if you don't need it, just
-    # don't include it. in this case, your compiler would never see this file
-    include/${PROJECT_NAME}/RoutingTable.hpp
     include/${PROJECT_NAME}/Routing.h
 )
 
