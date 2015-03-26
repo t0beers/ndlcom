@@ -30,7 +30,6 @@ set(HEADERS_lib
 # define the lib
 add_library(${PROJECT_NAME}
     ${SOURCES_lib}
-    ${HEADERS_lib}
     )
 #
 # installing:
