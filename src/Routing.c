@@ -5,23 +5,23 @@
 
 /* Due to DK (Donkey Kong :P): This macro determines the routing table size by
  * the size of the NDLComHeader.mReceiverId size */
-#define ROUTING_TABLE_SIZE (1 << (sizeof(NDLComId) * 8))
+#define NDLCOM_ROUTING_TABLE_SIZE (1 << (sizeof(NDLComId) * 8))
 
 /* This array contains the interface given the receiver_id as index */
-static void *routingTable[ROUTING_TABLE_SIZE];
+static void *routingTable[NDLCOM_ROUTING_TABLE_SIZE];
 
 void ndlcomInitRoutingTable() {
     /* Default to all interfaces for all entries */
-    int i = 0;
-    for (; i < ROUTING_TABLE_SIZE; ++i)
-        routingTable[i] = INTERFACE_ID_ALL;
+    int i;
+    for (i = 0; i < NDLCOM_ROUTING_TABLE_SIZE; ++i)
+        routingTable[i] = NDLCOM_ROUTING_ALL_INTERFACES;
 }
 
-void *ndlcomGetInterfaceByReceiverId(NDLComId receiverId) {
+void *ndlcomGetInterfaceByReceiverId(const NDLComId receiverId) {
     return routingTable[receiverId];
 }
 
-void ndlcomUpdateRoutingTable(NDLComId senderId, void *pInterface) {
+void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface) {
     if (senderId == NDLCOM_ADDR_BROADCAST)
         return;
     routingTable[senderId] = pInterface;

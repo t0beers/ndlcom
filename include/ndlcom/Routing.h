@@ -12,13 +12,19 @@
 
 #include "ndlcom/Types.h"
 
-/** This is the default interface id, which means, that a packet with a certain
- * senderId has not been observed yet*/
-#define INTERFACE_ID_ALL 0
-
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 extern "C" {
 #endif
+
+/**
+ * This is the default interface id, which means, that a packet with a certain
+ * senderId has not been observed yet. this means someone should send the
+ * packet to _all_ interfaces, until we get a proper response.
+ *
+ * NOTE: this is also the value which is implicitly returned for broadcast
+ * packages
+ */
+#define NDLCOM_ROUTING_ALL_INTERFACES NULL
 
 /**
  * @brief Setting all entries, using all interfaces as default
@@ -28,25 +34,26 @@ void ndlcomInitRoutingTable();
 /**
  * @brief Routing Table look up
  *
- * Should be used by comm.c
+ * this functions handles broadcast (and unknown) packages automagically
+ * by return the special value NDLCOM_ROUTING_ALL_INTERFACES in this case
  *
- * @param receiver_id the destination of the packet
- * @return the interface to use
+ * @param receiverId the destination of the packet
+ * @return identifier of the interface to use. NULL for "any interface"
  */
-void *ndlcomGetInterfaceByReceiverId(NDLComId receiverId);
+void *ndlcomGetInterfaceByReceiverId(const NDLComId receiverId);
 
 /**
  * @brief Updates the routing table entries
  *
  * Should be used by usart.c
  *
- * @param sender_id the id of the sender of an incoming packet
- * @param interface the id of the interface on which the packet was received
+ * @param senderId the id of the sender of an incoming packet
+ * @param pInterface the id of the interface on which the packet was received
  * @return none
  */
-void ndlcomUpdateRoutingTable(NDLComId senderId, void *pInterface);
+void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface);
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif
 
