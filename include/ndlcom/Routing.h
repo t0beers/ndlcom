@@ -24,7 +24,7 @@ extern "C" {
  * NOTE: this is also the value which is implicitly returned for broadcast
  * packages
  */
-#define NDLCOM_ROUTING_ALL_INTERFACES NULL
+#define NDLCOM_ROUTING_ALL_INTERFACES 0
 
 /**
  * @brief Setting all entries, using all interfaces as default
