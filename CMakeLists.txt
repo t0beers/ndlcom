@@ -14,6 +14,7 @@ set(SOURCES_lib
     src/Header.c
     src/Parser.c
     src/Crc.c
+    src/Routing.c
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Message.hpp
@@ -22,15 +23,12 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/ParserState.h
     include/${PROJECT_NAME}/Types.h
     include/${PROJECT_NAME}/Crc.h
-    # this is a templated "static routing table". if you don't need it, just
-    # don't include it. in this case, your compiler would never see this file
-    include/${PROJECT_NAME}/RoutingTable.hpp
+    include/${PROJECT_NAME}/Routing.h
 )
 
 # define the lib
 add_library(${PROJECT_NAME}
     ${SOURCES_lib}
-    ${HEADERS_lib}
     )
 #
 # installing:
