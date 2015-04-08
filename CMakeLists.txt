@@ -4,8 +4,6 @@ project(ndlcom)
 
 # nothing special here
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-# adding fPIC to be able to later link as part of a shared library
-add_definitions(-fPIC)
 
 # the usual create-library-blocks
 set(SOURCES_lib
@@ -39,9 +37,9 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 if (NOT CMAKE_CROSSCOMPILING)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        COMPILE_FLAGS "-fPIC"       #for use in shared libraries (MARS, Rock and so on)
-    )
+    # for use in shared libraries (MARS, Rock and so on). deliberately only
+    # added in the "non-cross" case to keep codesizes small in embedded.
+    add_definitions(-fPIC)
     # testing has to be enabled explicitly!
     enable_testing()
     add_subdirectory(test)
