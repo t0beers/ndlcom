@@ -431,17 +431,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="384.55233"
-     inkscape:cy="234.97592"
+     inkscape:zoom="2.8284272"
+     inkscape:cx="468.65921"
+     inkscape:cy="187.41318"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g4015"
      showgrid="true"
      units="mm"
-     inkscape:window-width="1916"
-     inkscape:window-height="1032"
+     inkscape:window-width="1920"
+     inkscape:window-height="1080"
      inkscape:window-x="1920"
-     inkscape:window-y="46"
+     inkscape:window-y="0"
      inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -539,7 +539,8 @@
            sodipodi:role="line"
            id="tspan3137"
            x="132.87402"
-           y="1043.5042">0x00-0xFF</tspan></text>
+           y="1043.5042"
+           style="font-size:5px">\texttt{0x00} - \texttt{0xFF}</tspan></text>
     </g>
     <rect
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -586,14 +587,14 @@
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="275.44632"
-       y="867.33911"
+       x="275.44629"
+       y="885.05554"
        id="text3592-0-6-93-0-0"><tspan
          sodipodi:role="line"
-         x="275.44632"
-         y="867.33911"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
-         id="tspan3857-4">data[0]</tspan></text>
+         x="275.44629"
+         y="885.05554"
+         style="font-size:5px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
+         id="tspan3857-4">\texttt{data[0]}</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 266.58803,849.62241 62.00792,1.1e-4 15.94488,5.315 -10.62992,5.315 7.08661,3.5433 -8.85827,5.3149 14.17323,3.5433 -8.85826,5.315 8.85826,5.315 -17.71653,1.7716 8.85826,8.8583 -70.86618,-1.1e-4 z"
@@ -603,14 +604,14 @@
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="381.74557"
-       y="867.33893"
+       x="381.74554"
+       y="885.05536"
        id="text3592-0-6-93-0-0-9"><tspan
          sodipodi:role="line"
-         x="381.74557"
-         y="867.33893"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
-         id="tspan3857-4-6">data[n-1]</tspan></text>
+         x="381.74554"
+         y="885.05536"
+         style="font-size:5px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
+         id="tspan3857-4-6">\texttt{data[n-1]}</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
@@ -955,7 +956,23 @@
            sodipodi:role="line"
            id="tspan3163"
            x="132.87405"
-           y="1043.5043">4 bytes</tspan></text>
+           y="1043.5043">(4 bytes)</tspan></text>
+      <text
+         id="text3592-0-11-7"
+         y="1025.7875"
+         x="221.45668"
+         style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           id="tspan3635-1-0-8"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
+           y="1025.7875"
+           x="221.45668"
+           sodipodi:role="line">Payload</tspan><tspan
+           id="tspan4113-8-1"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
+           y="1038.2875"
+           x="221.45668"
+           sodipodi:role="line" /></text>
     </g>
     <path
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 3;stroke-dashoffset:0"
@@ -994,7 +1011,8 @@
          sodipodi:role="line"
          id="tspan3143"
          x="186.86368"
-         y="1044.5045">0x00-0xFE</tspan></text>
+         y="1044.5045"
+         style="font-size:5px">\texttt{0x00} - \texttt{0xFE}</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
@@ -1005,7 +1023,7 @@
          sodipodi:role="line"
          id="tspan3149"
          x="275.44635"
-         y="1044.5045">0-255</tspan></text>
+         y="1044.5045">0 - 255</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
@@ -1016,7 +1034,7 @@
          sodipodi:role="line"
          id="tspan3155"
          x="364.02902"
-         y="1044.5045">n = 0-255</tspan></text>
+         y="1044.5045">n = 0 - 255</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
@@ -1027,7 +1045,7 @@
          sodipodi:role="line"
          id="tspan3159"
          x="98.280998"
-         y="885.05579">0x7E</tspan></text>
+         y="885.05579">\texttt{0x7E}</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
@@ -1038,7 +1056,7 @@
          sodipodi:role="line"
          id="tspan3167"
          x="629.77704"
-         y="885.05573">0x7E</tspan></text>
+         y="885.05573">\texttt{0x7E}</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 3;stroke-dashoffset:0"
        d="m 376.43061,805.33138 -17.71654,0"
@@ -1070,7 +1088,7 @@
            style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
            y="867.33911"
            x="452.61169"
-           sodipodi:role="line">CRC-16</tspan></text>
+           sodipodi:role="line">Checksum</tspan></text>
       <text
          sodipodi:linespacing="125%"
          id="text3169"
@@ -1081,24 +1099,14 @@
            id="tspan3966"
            y="885.05554"
            x="452.61166"
-           sodipodi:role="line">AUG-CCITT</tspan></text>
+           sodipodi:role="line"
+           style="font-size:5px">\texttt{AUG-CCITT}</tspan></text>
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
          id="path3166"
          d="m 532.33606,849.62248 0,44.29134"
          style="fill:none;stroke:#000000;stroke-width:0.99921262;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:0.9992126, 0.9992126;stroke-dashoffset:0" />
-      <text
-         id="text3592-0-6-93-4-6"
-         y="867.33899"
-         x="541.19434"
-         style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-         xml:space="preserve"><tspan
-           id="tspan4490-5"
-           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch"
-           y="867.33899"
-           x="541.19434"
-           sodipodi:role="line">CRC-16</tspan></text>
       <text
          sodipodi:linespacing="125%"
          id="text3169-5"
@@ -1109,7 +1117,8 @@
            id="tspan3966-3"
            y="885.05542"
            x="541.19427"
-           sodipodi:role="line">AUG-CCITT</tspan></text>
+           sodipodi:role="line"
+           style="font-size:5px">\texttt{AUG-CCITT}</tspan></text>
     </g>
   </g>
 </svg>
