@@ -109,23 +109,21 @@ int16_t ndlcomParserReceive(
         in++;
         dataRead++;
 
+        // abort a packet _always_ after reading a START_STOP_FLAG. (See
+        // RFC1549, Sec. 4):
+        if (c == NDLCOM_START_STOP_FLAG)
+        {
+            ndlcomParserDestroyPacket(parser);
+            continue;
+        }
+
         //handle char after ESC
         if(parser->mLastWasESC)
         {
             parser->mLastWasESC = 0;
 
-            //a packet was aborted (See RFC1549, Sec. 4):
-            if (c == NDLCOM_START_STOP_FLAG)
-            {
-                ndlcomParserDestroyPacket(parser);
-                continue;
-            }
-            else
-            {
-                //handle as normal data below, but with
-                //complemented bit 6:
-                c ^= 0x20;
-            }
+            // handle as normal data below, but with complemented bit 6:
+            c ^= 0x20;
         }
         //handle an escape byte
         else if (c == NDLCOM_ESC_CHAR)
@@ -133,15 +131,6 @@ int16_t ndlcomParserReceive(
             //do nothing now. wait for next byte
             //to decide action
             parser->mLastWasESC = 1;
-            continue;
-        }
-        //handle a protocol flag
-        else if (c == NDLCOM_START_STOP_FLAG)
-        {
-            // NDLCOM_START_STOP_FLAG is a packet start. we'll always perform a
-            // full state-reset and wait for the next byte (eg: continue) upon
-            // receiving one.
-            ndlcomParserDestroyPacket(parser);
             continue;
         }
 
