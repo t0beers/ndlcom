@@ -6,10 +6,13 @@
 #ifndef NDLCOM_TYPES_H
 #define NDLCOM_TYPES_H
 
-#include <stdint.h>
+/* this file declares the size/type of "NDLComCrc", depending on which mode is
+ * chosen, 8xor or 16fcs */
 #include "ndlcom/Crc.h"
 
-#if defined (__cplusplus)
+#include <stdint.h>
+
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -51,18 +54,25 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
 #define NDLCOM_HEADERLEN (sizeof(NDLComHeader))
 
 /**
- * @brief an decoded message can contain upto 255byte, a header and the crc. no bytes are escaped
+ * @brief worst-case size of rx-buffer
+ *
+ * an decoded message can contain upto 255byte, a header and the crc. no bytes
+ * are escaped
  */
-#define NDLCOM_MAX_DECODED_MESSAGE_SIZE (NDLCOM_HEADERLEN+NDLCOM_MAX_PAYLOAD_SIZE+sizeof(NDLComCrc))
+#define NDLCOM_MAX_DECODED_MESSAGE_SIZE                                        \
+    (NDLCOM_HEADERLEN + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
 
 /**
- * @brief in an encoded message, the worst case would be to escape _each_ single byte of an decoded
- * message, plus the initial start-flag and the optional stop flag. the crc is included in the
- * deceded message, and can be escaped as well
+ * @brief worst-case size of tx-buffer
+ *
+ * in an encoded message, the worst case would be to escape _each_ single byte
+ * of an decoded message, plus the initial start-flag and the optional stop
+ * flag. the crc is included in the deceded message, and can be escaped as well
  */
-#define NDLCOM_MAX_ENCODED_MESSAGE_SIZE (2+NDLCOM_MAX_DECODED_MESSAGE_SIZE*2)
+#define NDLCOM_MAX_ENCODED_MESSAGE_SIZE                                        \
+    (2 + NDLCOM_MAX_DECODED_MESSAGE_SIZE * 2)
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif
 
