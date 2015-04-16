@@ -240,7 +240,7 @@ char ndlcomParserHasPacket(struct NDLComParser* parser)
 
 const NDLComHeader* ndlcomParserGetHeader(struct NDLComParser* parser)
 {
-    return &parser->mHeader;
+    return parser->mState == mcCOMPLETE ? &parser->mHeader : 0;
 }
 
 const void* ndlcomParserGetPacket(struct NDLComParser* parser)
