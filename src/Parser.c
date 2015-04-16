@@ -4,7 +4,6 @@
  */
 #include "ndlcom/Protocol.h"
 #include "ndlcom/Crc.h"
-#include <stdio.h>
 
 /**
  * @defgroup Communication_NDLCom_C_Parser NDLCom C Parser
