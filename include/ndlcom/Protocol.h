@@ -111,20 +111,6 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize);
 void ndlcomParserDestroy(struct NDLComParser* parser);
 
 /**
- * @brief Set parser flags.
- *\param parser Pointer to state information.
- *\param flag Flags to be set.
- */
-void ndlcomParserSetFlag(struct NDLComParser* parser, int flag);
-
-/**
- * @brief Clear parser flags.
- *\param parser Pointer to state information.
- *\param flag Flags to be cleared.
- */
-void ndlcomParserClearFlag(struct NDLComParser* parser, int flag);
-
-/**
  * @brief Append as many bytes as possible from a buffer to the internal data structure.
  *
  *\param parser Pointer to state information.
