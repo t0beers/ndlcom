@@ -36,7 +36,6 @@ struct NDLComParser
     uint8_t* mpData; /**< Pointer where the packet content should be written. */
     uint8_t* mpDataWritePos; /**< Current write position of next data byte while receiving user data. */
     NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
-    uint16_t mDataBufSize; /**< Size of buffer (\see mpData) */
     /** different states the parser may have. */
     enum State
     {
@@ -78,7 +77,6 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
 
     struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
     parser->mpData = pBuffer + sizeof(struct NDLComParser);
-    parser->mDataBufSize = dataBufSize - sizeof(struct NDLComParser);
     parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mLastWasESC = 0;
