@@ -86,7 +86,7 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mLastWasESC = 0;
     parser->mNumberOfCRCFails = 0;
-    parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
+    parser->mHeaderRawWritePos = parser->mHeaderRaw;
     parser->mFlags = 0;
     return parser;
 }
@@ -275,7 +275,7 @@ void ndlcomParserDestroyPacket(struct NDLComParser* parser)
 {
     parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
-    parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
+    parser->mHeaderRawWritePos = parser->mHeaderRaw;
     parser->mLastWasESC = 0;
 }
 
