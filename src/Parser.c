@@ -150,7 +150,9 @@ int16_t ndlcomParserReceive(
         //handle a protocol flag
         else if (c == NDLCOM_START_STOP_FLAG)
         {
-            //an unescaped FLAG is interpreted as a packet start
+            // NDLCOM_START_STOP_FLAG is a packet start. we'll always perform a
+            // full state-reset and wait for the next byte (eg: continue) upon
+            // receiving one.
             ndlcomParserDestroyPacket(parser);
             continue;
         }
