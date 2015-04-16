@@ -44,7 +44,7 @@ struct NDLComParser
         mcWAIT_DATA,
         mcWAIT_FIRST_CRC_BYTE,
         mcWAIT_SECOND_CRC_BYTE,
-        mcCOMPLETE,
+        mcCOMPLETE
     } mState;
     int8_t mLastWasESC;/**< stores if the last received byte was a crc. used to detect escaped bytes */
     uint32_t mNumberOfCRCFails;/**< how often a bad crc was received */
@@ -68,16 +68,16 @@ const char* ndlcomParserStateName[] = {
 
 struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize)
 {
-    // we enforce a correct length: having less memory will lead to
-    // buffer-overflows on big packets.
-    if (!pBuffer || dataBufSize < NDLCOM_PARSER_MIN_BUFFER_SIZE)
+    struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
+
+    /* we enforce a correct length: having less memory will lead to
+     * buffer-overflows on big packets. */
+    if (!parser || dataBufSize < NDLCOM_PARSER_MIN_BUFFER_SIZE)
     {
         return 0;
     }
 
-    struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
-
-    // call all neccesary initialization functions
+    /* call all neccesary initialization functions */
     ndlcomParserDestroyPacket(parser);
     ndlcomParserResetNumberOfCRCFails(parser);
 
@@ -86,7 +86,7 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize)
 
 void ndlcomParserDestroy(struct NDLComParser* parser)
 {
-    //may be used later
+    /* may be used later */
     parser->mState = mcERROR;
 }
 
@@ -104,27 +104,25 @@ int16_t ndlcomParserReceive(
         in++;
         dataRead++;
 
-        // abort a packet _always_ after reading a START_STOP_FLAG. (See
-        // RFC1549, Sec. 4):
+        /* abort a packet _always_ after reading a START_STOP_FLAG. (See RFC1549, Sec. 4): */
         if (c == NDLCOM_START_STOP_FLAG)
         {
             ndlcomParserDestroyPacket(parser);
             continue;
         }
 
-        //handle char after ESC
+        /* handle char after ESC */
         if(parser->mLastWasESC)
         {
             parser->mLastWasESC = 0;
 
-            // handle as normal data below, but with complemented bit 6:
+            /* handle as normal data below, but with complemented bit 6: */
             c ^= 0x20;
         }
-        //handle an escape byte
+        /* handle an escape byte */
         else if (c == NDLCOM_ESC_CHAR)
         {
-            //do nothing now. wait for next byte
-            //to decide action
+            /* do nothing now. wait for next byte to decide action */
             parser->mLastWasESC = 1;
             continue;
         }
@@ -152,18 +150,18 @@ int16_t ndlcomParserReceive(
                 *(parser->mpDataWritePos++) = c;
                 parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
 
-                // no out-of-bound check is performed. since we guarded the
-                // buffer-size in ndlcomParserCreate to be big anough, this
-                // will hopefully never fail...
+                /* no out-of-bound check is performed. since we guarded the
+                 * buffer-size in ndlcomParserCreate to be big anough, this
+                 * will hopefully never fail... */
 
-                // check if we read "enough" data -- as was advertised in the header
+                /* did we read "enough" data -- as was advertised in the header? */
                 if (parser->mpDataWritePos ==
                     parser->mpData + parser->mHeader.hdr.mDataLen) {
                     parser->mState = mcWAIT_FIRST_CRC_BYTE;
                 }
                 break;
-            // the crc arrives in two seperate bytes in the crc16 case. handling
-            // them one after the other
+            /* the crc arrives in two seperate bytes in the crc16 case.
+             * handling them one after the other */
 #ifndef NDLCOM_CRC16
             case mcWAIT_FIRST_CRC_BYTE:
             case mcWAIT_SECOND_CRC_BYTE:
@@ -182,8 +180,8 @@ int16_t ndlcomParserReceive(
                 parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
                 parser->mState = mcWAIT_SECOND_CRC_BYTE;
                 break;
-            // only after the second one was received and stuffed into the
-            // crc-chain, we can decide wether we got something good.
+            /* only after the second one was received and stuffed into the
+             * crc-chain, we can decide wether we got something good. */
             case mcWAIT_SECOND_CRC_BYTE:
                 parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
                 if (parser->mDataCRC == NDLCOM_CRC_REAL_GOOD_VALUE)
@@ -209,10 +207,10 @@ int16_t ndlcomParserReceive(
             case mcERROR:
                 ndlcomParserDestroyPacket(parser);
                 break;
-                //TODO
-        } //of switch
+                /* TODO */
+        }
 
-        //abort processing if a complete packet was received
+        /* abort processing if a complete packet was received */
         if (parser->mState == mcCOMPLETE)
         {
             return dataRead;
@@ -261,3 +259,4 @@ uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser* parser) {
 void ndlcomParserResetNumberOfCRCFails(struct NDLComParser* parser) {
     parser->mNumberOfCRCFails = 0;
 }
+

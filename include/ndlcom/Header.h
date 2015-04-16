@@ -79,7 +79,7 @@ static inline void ndlcomHeaderPrepare(NDLComHeader* pHeader,
                                        NDLComId recv,
                                        NDLComDataLen length)
 {
-    return ndlcomHeaderPrepareWithConfig(pHeader, recv, length, &ndlcomHeaderConfigDefault);
+    ndlcomHeaderPrepareWithConfig(pHeader, recv, length, &ndlcomHeaderConfigDefault);
 }
 
 /**

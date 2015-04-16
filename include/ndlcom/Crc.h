@@ -38,7 +38,7 @@ typedef uint16_t NDLComCrc;
 #define NDLCOM_CRC_INITIAL_VALUE 0xffff
 #define NDLCOM_CRC_GOOD_VALUE 0xf0b8
 
-// don't ask me, it seems that this is also needed:
+/* don't ask me, it seems that this is also needed: */
 #define NDLCOM_CRC_REAL_GOOD_VALUE 0x0000
 
 /**
@@ -58,3 +58,4 @@ NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *d);
 #endif
 
 #endif/*NDLCOM_CRC_H*/
+
