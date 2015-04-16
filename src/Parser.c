@@ -27,14 +27,12 @@
  */
 struct NDLComParser
 {
-    /** Last completely received header.
-     * After receiving all header bytes and converting the byte order the
-     * header data is stored here. \see ndlcomParserGetHeader
-     */
-    NDLComHeader mHeader;
-     /** temporary storage for raw header data (without start bytes) */
-    uint8_t mHeaderRaw[NDLCOM_HEADERLEN];
-    uint8_t* mHeaderRawWritePos; /**< Current write position while receiving header data. */
+    /** decoded header */
+    union {
+        uint8_t raw[NDLCOM_HEADERLEN];
+        NDLComHeader hdr;
+    } mHeader;
+    uint8_t* mpHeaderWritePos; /**< Current write position while receiving header data. */
     uint8_t* mpData; /**< Pointer where the packet content should be written. */
     uint8_t* mpDataWritePos; /**< Current write position of next data byte while receiving user data. */
     NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
@@ -85,7 +83,7 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mLastWasESC = 0;
     parser->mNumberOfCRCFails = 0;
-    parser->mHeaderRawWritePos = parser->mHeaderRaw;
+    parser->mpHeaderWritePos = parser->mHeader.raw;
     return parser;
 }
 
@@ -137,17 +135,13 @@ int16_t ndlcomParserReceive(
         switch (parser->mState)
         {
             case mcWAIT_HEADER:
-                *(parser->mHeaderRawWritePos++) = c;
+                *(parser->mpHeaderWritePos++) = c;
                 parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
-                if (parser->mHeaderRawWritePos - parser->mHeaderRaw == NDLCOM_HEADERLEN)
+                if (parser->mpHeaderWritePos - parser->mHeader.raw == NDLCOM_HEADERLEN)
                 {
-                    parser->mHeader.mReceiverId = parser->mHeaderRaw[0];
-                    parser->mHeader.mSenderId   = parser->mHeaderRaw[1];
-                    parser->mHeader.mCounter    = parser->mHeaderRaw[2];
-                    parser->mHeader.mDataLen    = parser->mHeaderRaw[3];
                     parser->mpDataWritePos      = parser->mpData;
                     /* check if there is actual data to come... */
-                    if (parser->mHeader.mDataLen)
+                    if (parser->mHeader.hdr.mDataLen)
                     {
                         parser->mState = mcWAIT_DATA;
                     }
@@ -167,8 +161,8 @@ int16_t ndlcomParserReceive(
                 // will hopefully never fail...
 
                 // check if we read "enough" data -- as was advertised in the header
-                if (parser->mpDataWritePos == parser->mpData + parser->mHeader.mDataLen)
-                {
+                if (parser->mpDataWritePos ==
+                    parser->mpData + parser->mHeader.hdr.mDataLen) {
                     parser->mState = mcWAIT_FIRST_CRC_BYTE;
                 }
                 break;
@@ -240,7 +234,7 @@ char ndlcomParserHasPacket(struct NDLComParser* parser)
 
 const NDLComHeader* ndlcomParserGetHeader(struct NDLComParser* parser)
 {
-    return parser->mState == mcCOMPLETE ? &parser->mHeader : 0;
+    return parser->mState == mcCOMPLETE ? &parser->mHeader.hdr : 0;
 }
 
 const void* ndlcomParserGetPacket(struct NDLComParser* parser)
@@ -252,7 +246,7 @@ void ndlcomParserDestroyPacket(struct NDLComParser* parser)
 {
     parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
-    parser->mHeaderRawWritePos = parser->mHeaderRaw;
+    parser->mpHeaderWritePos = parser->mHeader.raw;
     parser->mLastWasESC = 0;
 }
 
