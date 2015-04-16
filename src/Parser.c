@@ -136,7 +136,6 @@ int16_t ndlcomParserReceive(
                 parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
                 if (parser->mpHeaderWritePos - parser->mHeader.raw == NDLCOM_HEADERLEN)
                 {
-                    parser->mpDataWritePos      = parser->mpData;
                     /* check if there is actual data to come... */
                     if (parser->mHeader.hdr.mDataLen)
                     {
@@ -244,6 +243,7 @@ void ndlcomParserDestroyPacket(struct NDLComParser* parser)
     parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mpHeaderWritePos = parser->mHeader.raw;
+    parser->mpDataWritePos = parser->mpData;
     parser->mLastWasESC = 0;
 }
 
