@@ -43,7 +43,6 @@ struct NDLComParser
     enum State
     {
         mcERROR=0,
-        mcWAIT_STARTFLAG,
         mcWAIT_HEADER,
         mcWAIT_DATA,
         mcWAIT_FIRST_CRC_BYTE,
@@ -57,7 +56,6 @@ struct NDLComParser
 
 const char* ndlcomParserStateName[] = {
     "ERROR",
-    "WAIT_STARTFLAG",
     "WAIT_HEADER",
     "WAIT_DATA",
     "WAIT_FIRST_CRC_BYTE",
@@ -84,11 +82,11 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
     struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
     parser->mpData = pBuffer + sizeof(struct NDLComParser);
     parser->mDataBufSize = dataBufSize - sizeof(struct NDLComParser);
-    parser->mState = mcWAIT_STARTFLAG;
+    parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
     parser->mLastWasESC = 0;
     parser->mNumberOfCRCFails = 0;
-    parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
+    parser->mHeaderRawWritePos = parser->mHeaderRaw;
     parser->mFlags = 0;
     return parser;
 }
@@ -152,7 +150,9 @@ int16_t ndlcomParserReceive(
         //handle a protocol flag
         else if (c == NDLCOM_START_STOP_FLAG)
         {
-            //an unescaped FLAG is interpreted as a packet start
+            // NDLCOM_START_STOP_FLAG is a packet start. we'll always perform a
+            // full state-reset and wait for the next byte (eg: continue) upon
+            // receiving one.
             ndlcomParserDestroyPacket(parser);
             continue;
         }
@@ -207,7 +207,7 @@ int16_t ndlcomParserReceive(
                 else
                 {
                     parser->mNumberOfCRCFails++;
-                    parser->mState = mcWAIT_STARTFLAG;
+                    ndlcomParserDestroyPacket(parser);
                 }
                 break;
 #else
@@ -226,7 +226,7 @@ int16_t ndlcomParserReceive(
                 else
                 {
                     parser->mNumberOfCRCFails++;
-                    parser->mState = mcWAIT_STARTFLAG;
+                    ndlcomParserDestroyPacket(parser);
                 }
                 break;
 #endif
@@ -242,9 +242,6 @@ int16_t ndlcomParserReceive(
             case mcERROR:
                 ndlcomParserDestroyPacket(parser);
                 break;
-            case mcWAIT_STARTFLAG:
-                break;
-                ;
                 //TODO
         } //of switch
 
@@ -278,7 +275,7 @@ void ndlcomParserDestroyPacket(struct NDLComParser* parser)
 {
     parser->mState = mcWAIT_HEADER;
     parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
-    parser->mHeaderRawWritePos = (uint8_t*)&parser->mHeaderRaw;
+    parser->mHeaderRawWritePos = parser->mHeaderRaw;
     parser->mLastWasESC = 0;
 }
 
