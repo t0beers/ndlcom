@@ -9,6 +9,8 @@
 #include "ndlcom/Header.h"
 #include "ndlcom/ParserState.h"
 
+#include <stddef.h>
+
 /**
  * C Implentation for easy usage of the iStruct&SeeGrip NDLCom protocol.
  *
@@ -100,7 +102,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
  *\return 0 on error, otherwise a pointer to be used by other functions
  *     in this file.
  */
-struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize);
+struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize);
 
 /**
  * @brief Destroy state information (before freeing the used buffer).

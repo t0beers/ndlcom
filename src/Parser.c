@@ -66,7 +66,7 @@ const char* ndlcomParserStateName[] = {
  */
 #define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser)+NDLCOM_MAX_PAYLOAD_SIZE)
 
-struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
+struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize)
 {
     // we enforce a correct length: having less memory will lead to
     // buffer-overflows on big packets.
