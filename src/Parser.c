@@ -76,11 +76,11 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize)
 
     struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
     parser->mpData = pBuffer + sizeof(struct NDLComParser);
-    parser->mState = mcWAIT_HEADER;
-    parser->mDataCRC = NDLCOM_CRC_INITIAL_VALUE;
-    parser->mLastWasESC = 0;
-    parser->mNumberOfCRCFails = 0;
-    parser->mpHeaderWritePos = parser->mHeader.raw;
+
+    // call all neccesary initialization functions
+    ndlcomParserDestroyPacket(parser);
+    ndlcomParserResetNumberOfCRCFails(parser);
+
     return parser;
 }
 
