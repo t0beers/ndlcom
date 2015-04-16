@@ -51,7 +51,6 @@ struct NDLComParser
     } mState;
     int8_t mLastWasESC;/**< stores if the last received byte was a crc. used to detect escaped bytes */
     uint32_t mNumberOfCRCFails;/**< how often a bad crc was received */
-    int mFlags;
 };
 
 const char* ndlcomParserStateName[] = {
@@ -87,18 +86,7 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize)
     parser->mLastWasESC = 0;
     parser->mNumberOfCRCFails = 0;
     parser->mHeaderRawWritePos = parser->mHeaderRaw;
-    parser->mFlags = 0;
     return parser;
-}
-
-void ndlcomParserSetFlag(struct NDLComParser* parser, int flag)
-{
-  parser->mFlags |= flag;
-}
-
-void ndlcomParserClearFlag(struct NDLComParser* parser, int flag)
-{
-  parser->mFlags &= ~flag;
 }
 
 void ndlcomParserDestroy(struct NDLComParser* parser)
