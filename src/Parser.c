@@ -32,7 +32,8 @@ struct NDLComParser
         NDLComHeader hdr;
     } mHeader;
     uint8_t* mpHeaderWritePos; /**< Current write position while receiving header data. */
-    uint8_t* mpData; /**< Pointer where the packet content should be written. */
+    /** storage for a decoded payload */
+    uint8_t mpData[NDLCOM_MAX_PAYLOAD_SIZE];
     uint8_t* mpDataWritePos; /**< Current write position of next data byte while receiving user data. */
     NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while receiving. */
     /** different states the parser may have. */
@@ -63,19 +64,18 @@ const char* ndlcomParserStateName[] = {
 /** i am not that sure what to put here... the struct has to save additional
  * 255bytes, after de-escaing, nothing more?
  */
-#define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser)+NDLCOM_MAX_PAYLOAD_SIZE)
+#define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser))
 
 struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize)
 {
     // we enforce a correct length: having less memory will lead to
     // buffer-overflows on big packets.
-    if (!pBuffer || dataBufSize <= NDLCOM_PARSER_MIN_BUFFER_SIZE)
+    if (!pBuffer || dataBufSize < NDLCOM_PARSER_MIN_BUFFER_SIZE)
     {
         return 0;
     }
 
     struct NDLComParser* parser = (struct NDLComParser*)pBuffer;
-    parser->mpData = pBuffer + sizeof(struct NDLComParser);
 
     // call all neccesary initialization functions
     ndlcomParserDestroyPacket(parser);
