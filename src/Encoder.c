@@ -51,6 +51,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
     {
         const uint8_t d = *pRead;
 
+        // NOTE: calculating the checksum prior to escaping
         crc = ndlcomDoCrc(crc, &d);
 
         if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
@@ -76,6 +77,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
     {
         const uint8_t d = *pRead;
 
+        // NOTE: calculating the checksum prior to escaping
         crc = ndlcomDoCrc(crc, &d);
 
         if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
