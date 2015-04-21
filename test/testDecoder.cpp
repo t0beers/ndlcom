@@ -2,7 +2,7 @@
  * @file test/testDecoder.cpp
  * @date 2012
  */
-#include "ndlcom/Protocol.h"
+#include "ndlcom/Parser.h"
 
 #include <iostream>
 #include <cassert>

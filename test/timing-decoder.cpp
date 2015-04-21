@@ -2,7 +2,8 @@
  * @file test/timing-decoder.cpp
  * @date 2012
  */
-#include "ndlcom/Protocol.h"
+#include "ndlcom/Parser.h"
+#include "ndlcom/Encoder.h"
 
 #include <iostream>
 #include <random>
@@ -40,7 +41,7 @@ int main(int argc, char const *argv[]) {
 
     /* fill up our data-buffer with single "bytes", formed from the 4-byte
      * numbers returned by rd() */
-    while (data.size() < numberOfBytesToProcess) {
+    while ((long long int)data.size() < numberOfBytesToProcess) {
         unsigned int number = rd();
         data.push_back(number);
         data.push_back(number >> 8);

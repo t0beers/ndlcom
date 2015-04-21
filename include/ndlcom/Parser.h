@@ -1,10 +1,10 @@
 /**
- * @file include/ndlcom/Protocol.h
+ * @file include/ndlcom/Parser.h
  * @date 2011
  */
 
-#ifndef NDLCOM_PROTOCOL_H
-#define NDLCOM_PROTOCOL_H
+#ifndef NDLCOM_PARSER_H
+#define NDLCOM_PARSER_H
 
 #include "ndlcom/Header.h"
 #include "ndlcom/ParserState.h"
@@ -20,7 +20,7 @@
  *
  * To use, include the header-file:
  * @code
- *  #include "ndlcom/Protocol.h"
+ *  #include "ndlcom/Parser.h"
  * @endcode
  *
  * initialize the basic struct NDLComParserState by doing
@@ -73,21 +73,6 @@ extern "C" {
 
 /* forward declaration */
 struct NDLComParser;
-
-/**
- * @brief Encode packet for serial transmission.
- *
- * @param pOutputBuffer Data will be written into this buffer.
- * @param outputBufferSize Size of the buffer.
- * @param pHeader Pointer to a PacketHeader struct.
- * @param pData User data inside the packet.
- *              Keep in mind to set pHeader->mDataLen!
- *              (@see struct NDLComHeader)
- *
- * @return Number of bytes used in the output buffer. -1 on error.
- */
-int16_t ndlcomEncode(void *pOutputBuffer, uint16_t outputBufferSize,
-                     const NDLComHeader *pHeader, const void *pData);
 
 /**
  * @brief Create new parser state information in buffer.
@@ -208,4 +193,4 @@ extern const char *ndlcomParserStateName[];
 }
 #endif
 
-#endif /*NDLCOM_PROTOCOL_H*/
+#endif /*NDLCOM_PARSER_H*/
