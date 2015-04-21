@@ -15,11 +15,24 @@
  *
  * just for reference:
  * crc xor8 (SVN r7289):
- *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 0.90748us decoding took 5.26462us
+ *  x86_64, 2.8GHz i7:
+ *  all 100000 trials worked! encoding took 0.90748us decoding took 5.26462us
  * crc xor8 (spacegit eff0c8):
- *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 1.09439us decoding took 5.59621us
+ *  x86_64, 2.8GHz i7:
+ *  all 100000 trials worked! encoding took 1.09439us decoding took 5.59621us
  * crc fcs16:
- *  x86_64, 2.8GHz i7: all 100000 trials worked! encoding took 1.04513us decoding took 6.0782us
+ *  x86_64, 2.8GHz i7:
+ *  all 100000 trials worked! encoding took 1.04513us decoding took 6.0782us
+ *
+ * a newer revision with crc16, gitlab 7a01f70:
+ *  x86_64, 2.8GHz i7, gcc-4.6:
+ *  all 100000 trials worked! encoding took 1.2729us decoding took 5.73017us
+ *  x86_64, 2.8GHz i7, gcc-4.8:
+ *  all 100000 trials worked! encoding took 0.7258us decoding took 0.06258us
+ *  x86_64, 2.8GHz i7, gcc-4.9:
+ *  all 100000 trials worked! encoding took 0.69116us decoding took 0.06745us
+ *  x86_64, 2.8GHz i7, clang-3.7:
+ *  all 100000 trials worked! encoding took 0.74204us decoding took 0.06868us
  *
  */
 int main(int argc, char const *argv[])
