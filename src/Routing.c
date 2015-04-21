@@ -1,7 +1,5 @@
 #include "ndlcom/Routing.h"
-#include "ndlcom/Protocol.h"
-
-#include <string.h>
+#include "ndlcom/Types.h"
 
 /* Due to DK (Donkey Kong :P): This macro determines the routing table size by
  * the size of the NDLComHeader.mReceiverId size */
