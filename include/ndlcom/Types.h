@@ -2,12 +2,12 @@
  * @file include/ndlcom/Types.h
  * @date 2011
  */
-
 #ifndef NDLCOM_TYPES_H
 #define NDLCOM_TYPES_H
 
-/* this file declares the size/type of "NDLComCrc", depending on which mode is
- * chosen, 8xor or 16fcs */
+/**
+ * this header-file declares the size/type of "NDLComCrc", depending on which
+ * mode is chosen, 8bit XOR or 16bit FCS */
 #include "ndlcom/Crc.h"
 
 #include <stdint.h>
@@ -43,7 +43,6 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
 
 /**
  * @brief current broadcast address
- * @todo check for other occurences
  */
 
 #define NDLCOM_ADDR_BROADCAST 0xff
@@ -67,7 +66,7 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
  *
  * in an encoded message, the worst case would be to escape _each_ single byte
  * of an decoded message, plus the initial start-flag and the optional stop
- * flag. the crc is included in the deceded message, and can be escaped as well
+ * flag. The CRC is included in the decoded message, and can be escaped as well
  */
 #define NDLCOM_MAX_ENCODED_MESSAGE_SIZE                                        \
     (2 + NDLCOM_MAX_DECODED_MESSAGE_SIZE * 2)

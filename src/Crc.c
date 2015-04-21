@@ -7,9 +7,9 @@
 
 #ifndef NDLCOM_CRC16
 /**
- * the "old" crc8, based on simple xor
+ * the "old" 8bit XOR
  */
-inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *c)
+inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
 {
     return currentCrc ^ *c;
 }
@@ -17,10 +17,10 @@ inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *c)
 #else
 
 /**
- * Encoding sheme based on RFC1662, see https://tools.ietf.org/html/rfc1662.html
- * heaviliy modified for C99 and ndlcom-compliance
+ * Encoding scheme based on RFC1662, see https://tools.ietf.org/html/rfc1662.html
+ * heavily modified for C99 and NDLCom-compliance
  *
- * FCS - frame check sequence (aka crc) is calculated over all bytes of the
+ * FCS - Frame Check Sequence (aka CRC) is calculated over all bytes of the
  * packet, excluding the FCS itself.
  *
  * in NDLCom, the FCS is done after escaping the start/stop and escape-flags.
@@ -67,9 +67,9 @@ static const uint16_t ndlcomCrc16Table[256] = {
 };
 
 /*
- * Calculate a new fcs given the current fcs and the new data.
+ * Calculate a new FCS given the current FCS and a new data byte
  */
-inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const unsigned char *c)
+inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
 {
     return (currentCrc >> 8) ^ ndlcomCrc16Table[(currentCrc ^ *c) & 0xff];
 }

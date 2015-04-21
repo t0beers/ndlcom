@@ -1,7 +1,5 @@
 #include "ndlcom/Routing.h"
-#include "ndlcom/Protocol.h"
-
-#include <string.h>
+#include "ndlcom/Types.h"
 
 /* Due to DK (Donkey Kong :P): This macro determines the routing table size by
  * the size of the NDLComHeader.mReceiverId size */
@@ -22,8 +20,8 @@ void *ndlcomGetInterfaceByReceiverId(const NDLComId receiverId) {
 }
 
 void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface) {
-    /* this does never put broadcast senderIds into the routing table. it
-     * simply does not make any sense. note that, by never populating the
+    /* This does never put broadcast senderIds into the routing table. It
+     * simply does not make any sense. Note that, by never populating the
      * entry, we automatically reply NDLCOM_ROUTING_ALL_INTERFACES in case
      * someone queries the table for the NDLCOM_ADDR_BROADCAST */
     if (senderId == NDLCOM_ADDR_BROADCAST)
