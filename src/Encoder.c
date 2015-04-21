@@ -9,11 +9,11 @@
  * @brief Used to pack some payload into a distinct data-format, which may be sent over
  * your serial connection.
  *
- * Encoding sheme based on RFC1662, see https://tools.ietf.org/html/rfc1662.html
+ * Encoding scheme based on RFC1662, see https://tools.ietf.org/html/rfc1662.html
  *
  * FCS - frame check sequence (aka crc) is calculated over all bytes of the
  * packet, excluding the FCS itself and the start/stop flag. the FCS is done
- * before exscaping the start/stop and escape-flags.
+ * before escaping the start/stop and escape-flags.
  */
 
 
@@ -30,10 +30,13 @@ int16_t ndlcomEncode(void* pOutputBuffer,
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
     NDLComCrc crc = NDLCOM_CRC_INITIAL_VALUE;
 
-    /* we need at least: 2bytes for start/stop-flags, the header itself, the
-     * actual data with an unencoded maximum of 255bytes and the crc. since
+    /* We need at least: 2bytes for start/stop-flags, the header itself, the
+     * actual data with an decoded maximum of 255bytes and the CRC. Since
      * each byte (except the start/stop flags) _could_ be escaped in theory, we
-     * need doubled number of bytes... */
+     * need doubled number of bytes...
+     *
+     * Calculating the needed buffer size based on the given mDataLen allows
+     * smaller buffers for smaller packets */
     if (outputBufferSize < 2+2*(sizeof(NDLComHeader) + pHeader->mDataLen + sizeof(NDLComCrc)))
     {
         return -1;
@@ -96,14 +99,14 @@ int16_t ndlcomEncode(void* pOutputBuffer,
         ++pRead;
     }
 
-    /* some algorithms want to complement the crc after creation. failing to do
-     * so will "break" the recognition of valid crc later by comparing it with
-     * NDLCOM_FCS_GOOD_VALUE (0xf0b8). the crc will, after going through the
+    /* Some algorithms want to complement the CRC after creation. Failing to do
+     * so will "break" the recognition of valid CRC later by comparing it with
+     * NDLCOM_FCS_GOOD_VALUE (0xf0b8). The CRC will, after going through the
      * complete parser, be zero instead, so the "GOOD_VALUE" is just different.
      */
     /*crc ^= 0xffff;*/
 
-    /* crc */
+    /* checksum */
     pRead = (const uint8_t*)&crc;
     pCrcEnd = pRead + sizeof(NDLComCrc);
     while (pRead != pCrcEnd)

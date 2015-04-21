@@ -13,13 +13,12 @@ extern "C" {
 #endif
 
 /**
- * @brief actual state of the parser, useful for a gui
+ * @brief actual state of the parser, useful for a GUI
  */
-struct NDLComParserState
-{
-    int8_t mState;/**< actual state of the parser */
-    uint32_t mNumberOfCRCFails;/**< how often the crc failed */
-    int8_t mLastError;/**< cause of the last error */
+struct NDLComParserState {
+    int8_t mState;              /**< actual state of the parser */
+    uint32_t mNumberOfCRCFails; /**< how often the CRC failed */
+    int8_t mLastError;          /**< cause of the last error */
 };
 
 #if defined (__cplusplus)

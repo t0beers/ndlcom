@@ -8,17 +8,16 @@
 
 #include "ndlcom/Types.h"
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
 /**
- * @brief The byteformat of a header
+ * @brief The byte format of a header
  *
  * Contains all used data-structures.
  */
-typedef struct NDLComHeader
-{
+typedef struct NDLComHeader {
     /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
     NDLComId mReceiverId;
     /** id of the sender of the packet. */
@@ -29,70 +28,66 @@ typedef struct NDLComHeader
     NDLComDataLen mDataLen;
 } __attribute__((packed)) NDLComHeader;
 
-/*
- * Keeps track of used counters and has the default sender id which
- * should be used in packet headers.
- * Do not access the members directly, use the function below to do so.
+/**
+ * Keeps track of used counters and has the default sender id which should be
+ * used in packet headers.  Do not access the members directly, use the
+ * function below to do so.
  */
-typedef struct NDLComHeaderConfig
-{
+struct NDLComHeaderConfig {
+    /** this will define which Id to use as _our_ senderId */
     NDLComId mSenderId;
+    /** and a table with the current counter for each target-device */
     NDLComId mCounterForReceiver[NDLCOM_MAX_NUMBER_OF_DEVICES];
-} NDLComHeaderConfig;
+};
 
-/*
- * There is one static instance of NDLComHeaderConfig.
- */
-extern NDLComHeaderConfig ndlcomHeaderConfigDefault;
+extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
 
 /**
  * @brief Set all fields of the header.
  * Since this function increments the packet counter in the header,
  * you should actually send the packet to the receiver.
  * @param pHeader This data structure will be modified
- * @param recv Receiver Id.
- * @param length Length of data packet (often the size of a c-struct).
+ * @param receiverId Receiver Id.
+ * @param dataLength Length of data packet (often the size of a c-struct).
  * @param pConfig Pointer to a structure holding the sender id and
  *                keeping track of packet counters.
  */
-static void ndlcomHeaderPrepareWithConfig(NDLComHeader* pHeader,
-                                          NDLComId recv,
-                                          NDLComDataLen length,
-                                          NDLComHeaderConfig* pConfig)
-{
-    pHeader->mReceiverId = recv;
+static inline void ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, NDLComId receiverId,
+                                   NDLComDataLen dataLength,
+                                   struct NDLComHeaderConfig *pConfig) {
+    pHeader->mReceiverId = receiverId;
     pHeader->mSenderId = pConfig->mSenderId;
-    pHeader->mCounter = pConfig->mCounterForReceiver[recv]++;
-    pHeader->mDataLen = length;
+    pHeader->mCounter = pConfig->mCounterForReceiver[receiverId]++;
+    pHeader->mDataLen = dataLength;
 }
 
 /**
  * @brief Set all fields of the header.
- * Since this function increments the packet counter in the header,
- * you should actually send the packet to the receiver.
- * Wrapper for ndlcomHeaderPrepareWithConfig using a common config structure.
+ *
+ * Since this function increments the packet counter in the header, you should
+ * actually send the packet to the receiver.  Wrapper for
+ * "ndlcomHeaderPrepareWithConfig()" using a static NDLComHeaderConfig
+ * structure.
+ *
  * @param pHeader This data structure will be modified
- * @param recv Receiver Id.
- * @param length Length of data packet (often the size of a c-struct).
+ * @param receiverId Receiver Id.
+ * @param dataLength Length of data packet (often the size of a c-struct).
  */
-static inline void ndlcomHeaderPrepare(NDLComHeader* pHeader,
-                                       NDLComId recv,
-                                       NDLComDataLen length)
-{
-    ndlcomHeaderPrepareWithConfig(pHeader, recv, length, &ndlcomHeaderConfigDefault);
+static inline void ndlcomHeaderPrepare(NDLComHeader *pHeader, NDLComId receiverId,
+                         NDLComDataLen dataLength) {
+    ndlcomHeaderPrepareWithConfig(pHeader, receiverId, dataLength,
+                                  &ndlcomHeaderConfigDefault);
 }
 
 /**
  * @brief Set default sender id.
+ * @param newSenderId the new id to store in the static NDLComHeaderConfig
  */
-static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId id)
-{
-    ndlcomHeaderConfigDefault.mSenderId = id;
+static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId newSenderId) {
+    ndlcomHeaderConfigDefault.mSenderId = newSenderId;
 }
 
-
-
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif
 
