@@ -1,10 +1,10 @@
 /**
- * @file include/ndlcom/Protocol.h
+ * @file include/ndlcom/Parser.h
  * @date 2011
  */
 
-#ifndef NDLCOM_PROTOCOL_H
-#define NDLCOM_PROTOCOL_H
+#ifndef NDLCOM_PARSER_H
+#define NDLCOM_PARSER_H
 
 #include "ndlcom/Header.h"
 #include "ndlcom/ParserState.h"
@@ -20,7 +20,7 @@
  *
  * To use, include the header-file:
  * @code
- *  #include "ndlcom/Protocol.h"
+ *  #include "ndlcom/Parser.h"
  * @endcode
  *
  * initialize the basic struct NDLComParserState by doing
@@ -193,4 +193,4 @@ extern const char *ndlcomParserStateName[];
 }
 #endif
 
-#endif /*NDLCOM_PROTOCOL_H*/
+#endif /*NDLCOM_PARSER_H*/

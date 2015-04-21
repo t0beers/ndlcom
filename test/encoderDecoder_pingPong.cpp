@@ -2,7 +2,7 @@
  * @file test/encoderDecoder_pingPong.cpp
  * @date 2012
  */
-#include "ndlcom/Protocol.h"
+#include "ndlcom/Parser.h"
 #include "ndlcom/Encoder.h"
 
 #include <iostream>

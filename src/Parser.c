@@ -2,7 +2,7 @@
  * @file src/Parser.c
  * @date 2011
  */
-#include "ndlcom/Protocol.h"
+#include "ndlcom/Parser.h"
 #include "ndlcom/Crc.h"
 
 /**
@@ -16,7 +16,7 @@
  * Since a packet may be distributed over many sequential calls of
  * ndlcomParserReceive() a buffer and some state variables are required to
  * reconstruct the packet information.  Since only a pointer to this struct is
- * used in the functions listed in include/NDLCom/Protocol.h the struct
+ * used in the functions listed in "ndlcom/Parser.h" the struct
  * definition is not needed to use this library.
  */
 struct NDLComParser {

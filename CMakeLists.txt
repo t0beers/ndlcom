@@ -16,7 +16,7 @@ set(SOURCES_lib
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Message.hpp
-    include/${PROJECT_NAME}/Protocol.h
+    include/${PROJECT_NAME}/Parser.h
     include/${PROJECT_NAME}/Header.h
     include/${PROJECT_NAME}/ParserState.h
     include/${PROJECT_NAME}/Encoder.h
