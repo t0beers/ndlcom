@@ -9,6 +9,8 @@
 #include "ndlcom/Header.h"
 #include "ndlcom/ParserState.h"
 
+#include <stddef.h>
+
 /**
  * C Implentation for easy usage of the iStruct&SeeGrip NDLCom protocol.
  *
@@ -100,7 +102,7 @@ int16_t ndlcomEncode(void* pOutputBuffer,
  *\return 0 on error, otherwise a pointer to be used by other functions
  *     in this file.
  */
-struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize);
+struct NDLComParser* ndlcomParserCreate(void* pBuffer, size_t dataBufSize);
 
 /**
  * @brief Destroy state information (before freeing the used buffer).
@@ -109,20 +111,6 @@ struct NDLComParser* ndlcomParserCreate(void* pBuffer, uint16_t dataBufSize);
  *\param parser Pointer to state information.
  */
 void ndlcomParserDestroy(struct NDLComParser* parser);
-
-/**
- * @brief Set parser flags.
- *\param parser Pointer to state information.
- *\param flag Flags to be set.
- */
-void ndlcomParserSetFlag(struct NDLComParser* parser, int flag);
-
-/**
- * @brief Clear parser flags.
- *\param parser Pointer to state information.
- *\param flag Flags to be cleared.
- */
-void ndlcomParserClearFlag(struct NDLComParser* parser, int flag);
 
 /**
  * @brief Append as many bytes as possible from a buffer to the internal data structure.

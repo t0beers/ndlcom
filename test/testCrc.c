@@ -37,7 +37,7 @@ void printCheck(const struct TestCase* test, int xor)
     for (i=0;i<test->len;i++)
         crc = ndlcomDoCrc(crc, (const unsigned char*)&test->string[i]);
 
-    // when a "0" is passed into the xor, it is basically skipped
+    /* when a "0" is passed into the xor, it is basically skipped */
     crc ^= xor;
 
     printf("testcase \"%s\": \"%s\" with len %lu and final xor 0x%04x is: 0x%04x\n",
@@ -53,12 +53,13 @@ int main(int argc, char *argv[])
     const struct TestCase* test = myCases;
     while (*test->name)
     {
-        // xoring with 0 is a nop
+        /* xoring with 0 is a nop */
         printCheck(test, 0x0000);
-        // just to double-check this, try again with 0xffff
+        /* just to double-check this, try again with 0xffff */
         printCheck(test, 0xffff);
         test++;
     }
 
     return 0;
 }
+
