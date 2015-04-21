@@ -75,21 +75,6 @@ extern "C" {
 struct NDLComParser;
 
 /**
- * @brief Encode packet for serial transmission.
- *
- * @param pOutputBuffer Data will be written into this buffer.
- * @param outputBufferSize Size of the buffer.
- * @param pHeader Pointer to a PacketHeader struct.
- * @param pData User data inside the packet.
- *              Keep in mind to set pHeader->mDataLen!
- *              (@see struct NDLComHeader)
- *
- * @return Number of bytes used in the output buffer. -1 on error.
- */
-int16_t ndlcomEncode(void *pOutputBuffer, uint16_t outputBufferSize,
-                     const NDLComHeader *pHeader, const void *pData);
-
-/**
  * @brief Create new parser state information in buffer.
  * @param pBuffer Pointer to buffer.
  * @param dataBufSize Size of buffer.

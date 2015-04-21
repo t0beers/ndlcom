@@ -2,7 +2,7 @@
  * @file test/testEncoder.cpp
  * @date 2012
  */
-#include "ndlcom/Protocol.h"
+#include "ndlcom/Encoder.h"
 
 #include <iostream>
 #include <fstream>

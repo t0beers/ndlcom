@@ -19,6 +19,7 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Protocol.h
     include/${PROJECT_NAME}/Header.h
     include/${PROJECT_NAME}/ParserState.h
+    include/${PROJECT_NAME}/Encoder.h
     include/${PROJECT_NAME}/Types.h
     include/${PROJECT_NAME}/Crc.h
     include/${PROJECT_NAME}/Routing.h

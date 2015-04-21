@@ -3,7 +3,7 @@
  * @date 2011
  */
 
-#include "ndlcom/Protocol.h"
+#include "ndlcom/Encoder.h"
 
 /**
  * @brief Used to pack some payload into a distinct data-format, which may be sent over
@@ -16,12 +16,8 @@
  * before escaping the start/stop and escape-flags.
  */
 
-
-int16_t ndlcomEncode(void* pOutputBuffer,
-                     uint16_t outputBufferSize,
-                     const NDLComHeader* pHeader,
-                     const void* pData)
-{
+size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
+                    const NDLComHeader *pHeader, const void *pData) {
     uint8_t headerRaw[NDLCOM_HEADERLEN];
     const uint8_t* pRead;
     const uint8_t* pHeaderEnd;
