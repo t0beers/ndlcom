@@ -18,10 +18,10 @@ extern "C" {
  * function below to do so.
  */
 struct NDLComHeaderConfig {
+    /** a table with the current counter for each target-device */
+    NDLComId mCounterForReceiver[NDLCOM_MAX_NUMBER_OF_DEVICES];
     /** this will define which Id to use as _our_ senderId */
     NDLComId mSenderId;
-    /** and a table with the current counter for each target-device */
-    NDLComId mCounterForReceiver[NDLCOM_MAX_NUMBER_OF_DEVICES];
 };
 
 extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
