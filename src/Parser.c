@@ -43,18 +43,18 @@ struct NDLComParser {
         uint8_t raw[NDLCOM_HEADERLEN];
         NDLComHeader hdr;
     } mHeader;
+    NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while
+                           receiving. */
+    int8_t mLastWasESC; /**< stores if the last received byte was a crc. used
+                          to detect escaped bytes */
     uint8_t *mpHeaderWritePos; /**< Current write position while receiving
                                   header data. */
     /** storage for a decoded payload */
     uint8_t mpData[NDLCOM_MAX_PAYLOAD_SIZE];
     uint8_t * mpDataWritePos; /**< Current write position of next data byte
                                 while receiving user data. */
-    NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while
-                           receiving. */
     /** different states the parser may have. */
     enum ParserState mState;
-    int8_t mLastWasESC; /**< stores if the last received byte was a crc. used
-                          to detect escaped bytes */
     uint32_t mNumberOfCRCFails; /**< how often a bad crc was received */
 };
 
