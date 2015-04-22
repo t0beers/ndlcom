@@ -10,15 +10,6 @@
  * data-stream, which may have been received by your serial connection
  */
 
-enum ParserState {
-    mcERROR = 0,
-    mcWAIT_HEADER,
-    mcWAIT_DATA,
-    mcWAIT_FIRST_CRC_BYTE,
-    mcWAIT_SECOND_CRC_BYTE,
-    mcCOMPLETE
-};
-
 const char *ndlcomParserStateName[] = {"ERROR",
                                        "WAIT_HEADER",
                                        "WAIT_DATA",
@@ -26,37 +17,6 @@ const char *ndlcomParserStateName[] = {"ERROR",
                                        "WAIT_SECOND_CRC_BYTE",
                                        "COMPLETE",
                                        0};
-
-
-/**
- * @brief State for ndlcomParser functions.
- *
- * Since a packet may be distributed over many sequential calls of
- * ndlcomParserReceive() a buffer and some state variables are required to
- * reconstruct the packet information.  Since only a pointer to this struct is
- * used in the functions listed in "ndlcom/Parser.h" the struct
- * definition is not needed to use this library.
- */
-struct NDLComParser {
-    /** decoded header */
-    union {
-        uint8_t raw[NDLCOM_HEADERLEN];
-        NDLComHeader hdr;
-    } mHeader;
-    NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while
-                           receiving. */
-    int8_t mLastWasESC; /**< stores if the last received byte was a crc. used
-                          to detect escaped bytes */
-    uint8_t *mpHeaderWritePos; /**< Current write position while receiving
-                                  header data. */
-    /** storage for a decoded payload */
-    uint8_t mpData[NDLCOM_MAX_PAYLOAD_SIZE];
-    uint8_t * mpDataWritePos; /**< Current write position of next data byte
-                                while receiving user data. */
-    /** different states the parser may have. */
-    enum ParserState mState;
-    uint32_t mNumberOfCRCFails; /**< how often a bad crc was received */
-};
 
 /** the size needed by the "struct NDLComParser" */
 #define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser))

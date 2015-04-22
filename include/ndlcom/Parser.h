@@ -71,8 +71,40 @@
 extern "C" {
 #endif
 
-/* forward declaration */
-struct NDLComParser;
+/**
+ * @brief State for ndlcomParser functions.
+ *
+ * Since a packet may be distributed over many sequential calls of
+ * ndlcomParserReceive(), a buffer and some state variables are required to
+ * reconstruct the packet information.
+ */
+struct NDLComParser {
+    /** decoded header */
+    union {
+        uint8_t raw[NDLCOM_HEADERLEN];
+        NDLComHeader hdr;
+    } mHeader;
+    NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while
+                           receiving. */
+    int8_t mLastWasESC; /**< stores if the last received byte was a crc. used
+                          to detect escaped bytes */
+    uint8_t *mpHeaderWritePos; /**< Current write position while receiving
+                                  header data. */
+    /** storage for a decoded payload */
+    uint8_t mpData[NDLCOM_MAX_PAYLOAD_SIZE];
+    uint8_t * mpDataWritePos; /**< Current write position of next data byte
+                                while receiving user data. */
+    /** different states the parser may have. */
+    enum ParserState {
+        mcERROR = 0,
+        mcWAIT_HEADER,
+        mcWAIT_DATA,
+        mcWAIT_FIRST_CRC_BYTE,
+        mcWAIT_SECOND_CRC_BYTE,
+        mcCOMPLETE
+    } mState;
+    uint32_t mNumberOfCRCFails; /**< how often a bad crc was received */
+};
 
 /**
  * @brief Create new parser state information in buffer.
