@@ -45,6 +45,7 @@ typedef struct NDLComHeader {
     NDLComCounter mCounter;
     /** Length of following data structure, limited to 255 bytes. */
     NDLComDataLen mDataLen;
+    /* is "packed" because the header will be used in ndlcom-messages */
 } __attribute__((packed)) NDLComHeader;
 
 /**
@@ -72,7 +73,7 @@ typedef struct NDLComHeader {
  * @brief worst-case size of rx-buffer
  *
  * an decoded message can contain upto 255byte, a header and the crc. no bytes
- * are escaped
+ * are escaped and there are no start/stop flags
  */
 #define NDLCOM_MAX_DECODED_MESSAGE_SIZE                                        \
     (NDLCOM_HEADERLEN + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
@@ -85,7 +86,7 @@ typedef struct NDLComHeader {
  * flag. The CRC is included in the decoded message, and can be escaped as well
  */
 #define NDLCOM_MAX_ENCODED_MESSAGE_SIZE                                        \
-    (2 + NDLCOM_MAX_DECODED_MESSAGE_SIZE * 2)
+    (2 + 2 * NDLCOM_MAX_DECODED_MESSAGE_SIZE)
 
 #if defined(__cplusplus)
 }
