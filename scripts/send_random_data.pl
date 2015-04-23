@@ -14,11 +14,16 @@
 use strict;
 use Device::SerialPort;
 use Time::HiRes qw(time usleep clock_gettime CLOCK_MONOTONIC);
+use Getopt::Long;
 
 # options, change as you wish
 my $port = "/dev/ttyUSB1";
 my $baudrate = 921600;
 my $load_percent = 85;
+# or use the commandline
+GetOptions("port=s" => \$port,
+           "baudrate=i" => \$baudrate,
+           "load_percent=i" => \$load_percent);
 
 # additional preparations
 my $delay_between_byte_s = 1.0 / ($baudrate / 9.0) / ($load_percent / 100.0);
