@@ -2,7 +2,8 @@
 
 Functions to encode/decode simple serial communication OSI-layer2 message
 format. Named _ndlcom_ for _Node Data Link Communication_. Developed at DFKI in
-the iStruct and SeeGrip projects.
+the iStruct and SeeGrip projects. See the [long](doc/NDLCom_long_en.md)
+explanation.
 
 To obtain something more profound see the
 [documents](https://git.hb.dfki.de/istruct/documents/blob/master/README.md)

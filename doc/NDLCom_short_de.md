@@ -1,0 +1,3 @@
+# NDLCom
+
+Moderne robotische Systeme verfügen über eine Vielzahl von dezentralen Sensor- und Steuerelektroniken, welche zum Teil untereinander kommunizieren wollen. Das NDLCom Protokoll ermöglicht es kleine Datenpakete in einem einfachen Netzwerk zwischen Mikrocontrollern, FPGAs und Computern auszutauschen. Dabei ist jeder Teilnehmer mit einer Punkt-zu-Punkt Verbindung zu mindestens einem Nachbarn verbunden und jeder Teilnehmer muss empfangene Nachrichten entsprechend der Empfängeradresse weiterleiten. Implementierungen für das Empfangen, Weiterleiten und Dekodieren von Nachrichten sind für C/C++ und VHDL vorhanden. Das Darstellen, Loggen und Exportieren von empfangenen Daten ist in einer graphischen Benutzerumgebung möglich.
