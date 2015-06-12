@@ -22,9 +22,9 @@ if(HAS_CPP_11 OR HAS_CPP_0X)
     target_link_libraries(timing-decoder ndlcom)
     target_link_libraries(encoderDecoder_pingPong ndlcom rt)
     add_test(NAME timing-decoder
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/timing-decoder 10000000)
+        COMMAND timing-decoder 10000000)
     add_test(NAME encoderDecoder_pingPong
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/encoderDecoder_pingPong 100000)
+        COMMAND encoderDecoder_pingPong 100000)
 
 endif()
 
@@ -48,9 +48,11 @@ target_link_libraries(testDecoder ndlcom)
 # the crc16...
 add_executable(testCrc testCrc.c)
 target_link_libraries(testCrc ndlcom)
+add_test(NAME testCrc COMMAND testCrc)
 
 # will print the precomputed table for the crc16
 add_executable(printTable printTable.c)
+add_test(NAME printTable COMMAND printTable)
 
 # i hate cmake nowadays, their "language" is broken as shit and trying to
 # formulate a "task" such as these trivally done in bash is hard... since that,
