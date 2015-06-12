@@ -42,8 +42,8 @@ if (NOT CMAKE_CROSSCOMPILING)
     # added in the "non-cross" case to keep codesizes small in embedded.
     add_definitions(-fPIC)
     # testing has to be enabled explicitly!
-    enable_testing()
-    add_subdirectory(test)
+    #enable_testing()
+    #add_subdirectory(test)
 endif (NOT CMAKE_CROSSCOMPILING)
 
 # pkg-config, to be installed:

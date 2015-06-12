@@ -33,9 +33,11 @@ endif()
 # (see the respective cpp-files), try to do their tasks and output to stdout in
 # their respective other format.
 #
-# q auick note: the two tools are not perfect, and don't catch all sidecases.
+# quick note: the two tools are not perfect, and don't catch all sidecases.
 # but they are a start into automatic testing and comparing vhdl/cpp code on
 # the desk, not the robot!
+#
+# both are used in the "testEncoderDecoder" test
 add_executable(testEncoder testEncoder.cpp)
 target_link_libraries(testEncoder ndlcom)
 add_executable(testDecoder testDecoder.cpp)
@@ -54,5 +56,7 @@ add_executable(printTable printTable.c)
 # formulate a "task" such as these trivally done in bash is hard... since that,
 # i hacked together this mini-shell script which does exactly the same as the
 # test-macro...
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testEncoderDecoder.sh.in ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh @ONLY)
-add_test(NAME testEncoderDecoder COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testEncoderDecoder.sh.in
+    ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh @ONLY)
+add_test(NAME testEncoderDecoder
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh)
