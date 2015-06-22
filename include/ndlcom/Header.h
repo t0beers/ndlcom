@@ -92,6 +92,9 @@ static inline void ndlcomHeaderPrepare(NDLComHeader *pHeader, NDLComId receiverI
  */
 static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId newSenderId) {
     ndlcomHeaderConfigDefault.mSenderId = newSenderId;
+
+    // FIXME: when changing the senderId (personality), the routing table has
+    // to be cleared?
 }
 
 #if defined(__cplusplus)
