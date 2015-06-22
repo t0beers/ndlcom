@@ -23,7 +23,9 @@ void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface) {
     /* This does never put broadcast senderIds into the routing table. It
      * simply does not make any sense. Note that, by never populating the
      * entry, we automatically reply NDLCOM_ROUTING_ALL_INTERFACES in case
-     * someone queries the table for the NDLCOM_ADDR_BROADCAST */
+     * someone queries the table for the NDLCOM_ADDR_BROADCAST.
+     *
+     * could add a check to not use our own senderId accidentally... */
     if (senderId == NDLCOM_ADDR_BROADCAST)
         return;
     routingTable[senderId] = pInterface;

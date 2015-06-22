@@ -43,6 +43,13 @@ struct NDLComHeaderConfig {
 extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
 
 /**
+ * obtain the current default "senderId" used by this process, eg its
+ * "personality" */
+static inline NDLComId ndlcomHeaderConfigGetDefaultSenderId() {
+    return ndlcomHeaderConfigDefault.mSenderId;
+};
+
+/**
  * @brief Set all fields of the header.
  * Since this function increments the packet counter in the header,
  * you should actually send the packet to the receiver.
@@ -85,6 +92,9 @@ static inline void ndlcomHeaderPrepare(NDLComHeader *pHeader, NDLComId receiverI
  */
 static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId newSenderId) {
     ndlcomHeaderConfigDefault.mSenderId = newSenderId;
+
+    // FIXME: when changing the senderId (personality), the routing table has
+    // to be cleared?
 }
 
 #if defined(__cplusplus)
