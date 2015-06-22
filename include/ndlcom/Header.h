@@ -43,6 +43,13 @@ struct NDLComHeaderConfig {
 extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
 
 /**
+ * obtain the current default "senderId" used by this process, eg its
+ * "personality" */
+static inline NDLComId ndlcomHeaderConfigGetDefaultSenderId() {
+    return ndlcomHeaderConfigDefault.mSenderId;
+};
+
+/**
  * @brief Set all fields of the header.
  * Since this function increments the packet counter in the header,
  * you should actually send the packet to the receiver.
