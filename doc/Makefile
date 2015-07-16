@@ -15,3 +15,6 @@ standalone_%.tex: %.svg standalone_inscape_export.tex
 
 %.png: %.pdf
 	pdftoppm -png $< > $@
+
+clean:
+	rm -f inkscape_* protocol.pdf
