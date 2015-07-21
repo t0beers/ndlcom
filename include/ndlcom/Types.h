@@ -32,6 +32,22 @@ enum { NDLCOM_MAX_NUMBER_OF_DEVICES = (1 << (sizeof(NDLComId) * 8)) };
 enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
 
 /**
+ * @brief The byte format of a header
+ *
+ * Contains all used data-structures.
+ */
+typedef struct NDLComHeader {
+    /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
+    NDLComId mReceiverId;
+    /** id of the sender of the packet. */
+    NDLComId mSenderId;
+    /** Frame counter. */
+    NDLComCounter mCounter;
+    /** Length of following data structure, limited to 255 bytes. */
+    NDLComDataLen mDataLen;
+} __attribute__((packed)) NDLComHeader;
+
+/**
  * @brief current escape-byte
  */
 #define NDLCOM_ESC_CHAR 0x7d

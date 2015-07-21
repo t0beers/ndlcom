@@ -6,7 +6,7 @@
 #ifndef NDLCOM_PARSER_H
 #define NDLCOM_PARSER_H
 
-#include "ndlcom/Header.h"
+#include "ndlcom/Types.h"
 #include "ndlcom/ParserState.h"
 
 #include <stddef.h>

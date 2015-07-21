@@ -13,22 +13,6 @@ extern "C" {
 #endif
 
 /**
- * @brief The byte format of a header
- *
- * Contains all used data-structures.
- */
-typedef struct NDLComHeader {
-    /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
-    NDLComId mReceiverId;
-    /** id of the sender of the packet. */
-    NDLComId mSenderId;
-    /** Frame counter. */
-    NDLComCounter mCounter;
-    /** Length of following data structure, limited to 255 bytes. */
-    NDLComDataLen mDataLen;
-} __attribute__((packed)) NDLComHeader;
-
-/**
  * Keeps track of used counters and has the default sender id which should be
  * used in packet headers.  Do not access the members directly, use the
  * function below to do so.
