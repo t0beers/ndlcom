@@ -50,8 +50,6 @@ void addByte(const unsigned char byte)
 
 int main(int argc, char const *argv[])
 {
-    parser = ndlcomParserCreate(buffer, sizeof(buffer));
-
     /* maybe do argument parsing... */
 
     char ch[1024];

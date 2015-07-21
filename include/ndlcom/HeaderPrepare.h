@@ -1,32 +1,16 @@
 /**
- * @file include/ndlcom/Header.h
+ * @file include/ndlcom/HeaderPrepare.h
  * @date 2011
  */
 
-#ifndef NDLCOM_HEADER_H
-#define NDLCOM_HEADER_H
+#ifndef NDLCOM_HEADER_PREPARE_H
+#define NDLCOM_HEADER_PREPARE_H
 
 #include "ndlcom/Types.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/**
- * @brief The byte format of a header
- *
- * Contains all used data-structures.
- */
-typedef struct NDLComHeader {
-    /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
-    NDLComId mReceiverId;
-    /** id of the sender of the packet. */
-    NDLComId mSenderId;
-    /** Frame counter. */
-    NDLComCounter mCounter;
-    /** Length of following data structure, limited to 255 bytes. */
-    NDLComDataLen mDataLen;
-} __attribute__((packed)) NDLComHeader;
 
 /**
  * Keeps track of used counters and has the default sender id which should be
@@ -101,4 +85,4 @@ static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId newSenderId) {
 }
 #endif
 
-#endif
+#endif//NDLCOM_HEADER_PREPARE_H

@@ -8,14 +8,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # the usual create-library-blocks
 set(SOURCES_lib
     src/Encoder.c
-    src/Header.c
+    src/HeaderPrepare.c
     src/Parser.c
     src/Crc.c
     src/Routing.c
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Parser.h
-    include/${PROJECT_NAME}/Header.h
+    include/${PROJECT_NAME}/HeaderPrepare.h
     include/${PROJECT_NAME}/ParserState.h
     include/${PROJECT_NAME}/Encoder.h
     include/${PROJECT_NAME}/Types.h

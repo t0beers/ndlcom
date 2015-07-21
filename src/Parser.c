@@ -10,6 +10,24 @@
  * data-stream, which may have been received by your serial connection
  */
 
+enum ParserState {
+    mcERROR = 0,
+    mcWAIT_HEADER,
+    mcWAIT_DATA,
+    mcWAIT_FIRST_CRC_BYTE,
+    mcWAIT_SECOND_CRC_BYTE,
+    mcCOMPLETE
+};
+
+const char *ndlcomParserStateName[] = {"ERROR",
+                                       "WAIT_HEADER",
+                                       "WAIT_DATA",
+                                       "WAIT_FIRST_CRC_BYTE",
+                                       "WAIT_SECOND_CRC_BYTE",
+                                       "COMPLETE",
+                                       0};
+
+
 /**
  * @brief State for ndlcomParser functions.
  *
@@ -34,22 +52,11 @@ struct NDLComParser {
     NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while
                            receiving. */
     /** different states the parser may have. */
-    enum State {
-        mcERROR = 0,
-        mcWAIT_HEADER,
-        mcWAIT_DATA,
-        mcWAIT_FIRST_CRC_BYTE,
-        mcWAIT_SECOND_CRC_BYTE,
-        mcCOMPLETE
-    } mState;
+    enum ParserState mState;
     int8_t mLastWasESC; /**< stores if the last received byte was a crc. used
                           to detect escaped bytes */
     uint32_t mNumberOfCRCFails; /**< how often a bad crc was received */
 };
-
-const char *ndlcomParserStateName[] = {
-    "ERROR",                "WAIT_HEADER", "WAIT_DATA", "WAIT_FIRST_CRC_BYTE",
-    "WAIT_SECOND_CRC_BYTE", "COMPLETE",    0};
 
 /** the size needed by the "struct NDLComParser" */
 #define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser))

@@ -6,7 +6,7 @@
 #ifndef NDLCOM_ENCODER_H
 #define NDLCOM_ENCODER_H
 
-#include "ndlcom/Header.h"
+#include "ndlcom/Types.h"
 
 #include <stddef.h>
 
