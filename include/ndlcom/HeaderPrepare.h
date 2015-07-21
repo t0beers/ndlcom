@@ -1,10 +1,10 @@
 /**
- * @file include/ndlcom/Header.h
+ * @file include/ndlcom/HeaderPrepare.h
  * @date 2011
  */
 
-#ifndef NDLCOM_HEADER_H
-#define NDLCOM_HEADER_H
+#ifndef NDLCOM_HEADER_PREPARE_H
+#define NDLCOM_HEADER_PREPARE_H
 
 #include "ndlcom/Types.h"
 
@@ -85,4 +85,4 @@ static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId newSenderId) {
 }
 #endif
 
-#endif
+#endif//NDLCOM_HEADER_PREPARE_H
