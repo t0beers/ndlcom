@@ -15,4 +15,4 @@
  *
  * @see include/ndlcom/HeaderPrepare.h
  */
-struct NDLComHeaderConfig ndlcomHeaderConfigDefault = {0, {0}};
+struct NDLComHeaderConfig ndlcomHeaderConfigDefault = {{0}, 0};
