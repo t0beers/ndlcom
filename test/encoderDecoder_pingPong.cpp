@@ -6,15 +6,24 @@
 #include "ndlcom/Encoder.h"
 
 #include <iostream>
+#include <sstream>
 #include <random>
 #include <chrono>
 
 /**
- * small test-program to check if the current encoder is correctly working with the current decoder.
- * is also used to measure the actual timing of the two -- how long it takes to encode/decode random
- * packets on the current architecture.
+ * small test-program to check if the current encoder is correctly working with
+ * the current decoder.  is also used to measure the actual timing of the two,
+ * so how long it takes to encode/decode random packets on the current
+ * architecture.
+ *
+ * call using:
+ *
+
+   ./build/x86_64-linux-gnu/test/encoderDecoder_pingPong 100000
+
  *
  * just for reference:
+ *
  * crc xor8 (SVN r7289):
  *  x86_64, 2.8GHz i7:
  *  all 100000 trials worked! encoding took 0.90748us decoding took 5.26462us
@@ -35,51 +44,61 @@
  *  x86_64, 2.8GHz i7, clang-3.7:
  *  all 100000 trials worked! encoding took 0.74204us decoding took 0.06868us
  *
+ * TODO:
+ * - implement a multithreaded version! worker-threads anyone?
+ * - add optarg
+ *   - commandline argument to set the "seed"
+ *   - commandline argument to switch processing between byte-wise, random-chunk and full-chunk
  */
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
 
-    char buffer[1024];
-    struct NDLComParser* parser = ndlcomParserCreate(buffer, sizeof(buffer));
+    char buffer[sizeof(struct NDLComParser)];
+    struct NDLComParser *parser = ndlcomParserCreate(buffer, sizeof(buffer));
 
-    if (argc != 2)
-    {
-        std::cerr << "usage: give one argument: the number of pingPong games to play\n";
+    unsigned long long int trialsOverall = 100000;
+    if (argc == 1) {
+        std::cerr << "no argument given, assuming default value of "
+                  << trialsOverall << " pingPong games to play\n";
+    } else if (argc == 2) {
+        std::istringstream ss(argv[1]);
+        ss >> trialsOverall;
+    } else {
+        std::cerr << "usage: give one optional argument: the number of "
+                     "pingPong games to play\n";
         exit(EXIT_FAILURE);
     }
 
-    unsigned int trialsOverall = atoi(argv[1]);
-
-    std::cerr << "creating " << trialsOverall << " completely random packets. encode "
-              << "and decode them again. while doing this the timing is measured for benchmarking\n";
+    std::cerr << "creating " << trialsOverall
+              << " completely random packets. encode and decode them again. "
+                 "while doing this the timing is measured for benchmarking\n";
 
     /* these are used to build a "perfect" random packet */
     std::string str("some random seed");
-    std::seed_seq seed1 (str.begin(),str.end());
+    std::seed_seq seed1(str.begin(), str.end());
 
     std::default_random_engine generator(seed1);
     std::uniform_int_distribution<NDLComDataLen> datalenDistribution(
-            std::numeric_limits<NDLComDataLen>::min(),
-            std::numeric_limits<NDLComDataLen>::max());
+        std::numeric_limits<NDLComDataLen>::min(),
+        std::numeric_limits<NDLComDataLen>::max());
     std::uniform_int_distribution<NDLComId> receiverDistribution(
-            std::numeric_limits<NDLComId>::min(),
-            std::numeric_limits<NDLComId>::max());
+        std::numeric_limits<NDLComId>::min(),
+        std::numeric_limits<NDLComId>::max());
     std::uniform_int_distribution<NDLComId> senderDistribution(
-            std::numeric_limits<NDLComId>::min(),
-            std::numeric_limits<NDLComId>::max());
+        std::numeric_limits<NDLComId>::min(),
+        std::numeric_limits<NDLComId>::max());
     std::uniform_int_distribution<NDLComCounter> counterDistribution(
-            std::numeric_limits<NDLComCounter>::min(),
-            std::numeric_limits<NDLComCounter>::max());
+        std::numeric_limits<NDLComCounter>::min(),
+        std::numeric_limits<NDLComCounter>::max());
     std::uniform_int_distribution<uint8_t> payloadDistribution(
-            std::numeric_limits<uint8_t>::min(),
-            std::numeric_limits<uint8_t>::max());
+        std::numeric_limits<uint8_t>::min(),
+        std::numeric_limits<uint8_t>::max());
 
-    /* used for timing measurements */
-    std::chrono::duration<long int, std::micro> durationEncode(0);
-    std::chrono::duration<long int, std::micro> durationDecode(0);
+    /* used for timing measurements. using 64bit to store micro-seconds gives
+     * us a long time. several million years? */
+    std::chrono::duration<uint64_t, std::micro> durationEncode(0);
+    std::chrono::duration<uint64_t, std::micro> durationDecode(0);
 
-    for (unsigned int trial=0;trial<trialsOverall;trial++)
-    {
+    for (unsigned long long int trial = 0; trial < trialsOverall; trial++) {
         NDLComHeader hdr;
         /* generates numbers in the possible ranges */
         hdr.mReceiverId = receiverDistribution(generator);
@@ -95,46 +114,52 @@ int main(int argc, char const *argv[])
         /*           << "\n"; */
 
         std::random_device rd;
-        char* data = new char[hdr.mDataLen];
+        char *data = new char[hdr.mDataLen];
 
         /* fill up our data-buffer with single "bytes" */
-        for (int i=0;i<hdr.mDataLen;i++)
-        {
+        for (int i = 0; i < hdr.mDataLen; i++) {
             data[i] = payloadDistribution(generator);
         }
 
-        char encoded[1024];
+        char encoded[NDLCOM_MAX_ENCODED_MESSAGE_SIZE];
 
         {
             auto start = std::chrono::high_resolution_clock::now();
-                ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
+            ndlcomEncode(encoded, sizeof(encoded), &hdr, data);
             auto end = std::chrono::high_resolution_clock::now();
 
-            durationEncode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+            durationEncode +=
+                std::chrono::duration_cast<std::chrono::microseconds>(end -
+                                                                      start);
         }
 
         size_t i = 0;
-        while (!ndlcomParserHasPacket(parser))
-        {
+        while (!ndlcomParserHasPacket(parser)) {
             uint8_t byte = encoded[i++];
 
             {
                 auto start = std::chrono::high_resolution_clock::now();
-                    /* parsing deliberatively only one byte! we are measuring timing here, remember? */
-                    ndlcomParserReceive(parser,&byte,sizeof(byte));
+                /* parsing deliberatively only one byte! we are measuring timing
+                 * here, remember? */
+                ndlcomParserReceive(parser, &byte, sizeof(byte));
                 auto end = std::chrono::high_resolution_clock::now();
 
-                durationDecode += std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+                durationDecode +=
+                    std::chrono::duration_cast<std::chrono::microseconds>(
+                        end - start);
             }
 
-            if (i>=sizeof(encoded))
-            {
+            /* if we parsed all available bytes, but still do not found a
+             * packet something is odd... */
+            if (i >= sizeof(encoded)) {
                 struct NDLComParserState state;
                 ndlcomParserGetState(parser, &state);
 
                 std::cout << "trial " << trial << " did not work."
-                          << " number of crc-errors: " << state.mNumberOfCRCFails
-                          << " current parser state: " << ndlcomParserStateName[state.mState] << "...\n";
+                          << " number of crc-errors: "
+                          << state.mNumberOfCRCFails
+                          << " current parser state: "
+                          << ndlcomParserStateName[state.mState] << "...\n";
                 exit(EXIT_FAILURE);
             }
         }
@@ -144,9 +169,10 @@ int main(int argc, char const *argv[])
         delete[] data;
     }
 
-    std::cout << "all " << trialsOverall << " trials worked!"
-              << " encoding took " << (double)durationEncode.count()/trialsOverall << "us"
-              << " decoding took " << (double)durationDecode.count()/trialsOverall << "us"
+    std::cout << "all " << trialsOverall << " trials worked! encoding took "
+              << (double)durationEncode.count() / trialsOverall << "us"
+              << " decoding took "
+              << (double)durationDecode.count() / trialsOverall << "us"
               << "\n";
 
     exit(EXIT_SUCCESS);
