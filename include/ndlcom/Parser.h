@@ -132,8 +132,8 @@ void ndlcomParserDestroy(struct NDLComParser *parser);
  * @param buflen Number of bytes to be parsed.
  * @return number of accepted bytes. -1 on error.
  */
-int16_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
-                            uint16_t buflen);
+size_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
+                           size_t buflen);
 
 /**
  * @brief Return true if a packet is available.
