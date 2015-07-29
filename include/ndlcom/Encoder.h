@@ -33,7 +33,7 @@ extern "C" {
  *
  * @return Number of bytes used in the output buffer. 0 on too-small-buffer.
  */
-size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
+size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
                     const NDLComHeader *pHeader, const void *pData);
 
 #if defined(__cplusplus)

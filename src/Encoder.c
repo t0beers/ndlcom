@@ -16,7 +16,7 @@
  * before escaping the start/stop and escape-flags.
  */
 
-size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
+size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
                     const NDLComHeader *pHeader, const void *pData) {
     const uint8_t* pRead;
     const uint8_t* pHeaderEnd;
