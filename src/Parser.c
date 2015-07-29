@@ -178,10 +178,8 @@ void ndlcomParserDestroyPacket(struct NDLComParser *parser) {
     parser->mLastWasESC = 0;
 }
 
-void ndlcomParserGetState(struct NDLComParser *parser,
-                          struct NDLComParserState *output) {
-    output->mState = parser->mState;
-    output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
+const char* ndlcomParserGetState(const struct NDLComParser *parser) {
+    return ndlcomParserStateName[parser->mState];
 }
 
 uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser *parser) {

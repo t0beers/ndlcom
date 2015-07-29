@@ -7,7 +7,6 @@
 #define NDLCOM_PARSER_H
 
 #include "ndlcom/Types.h"
-#include "ndlcom/ParserState.h"
 
 #include <stddef.h>
 
@@ -192,13 +191,12 @@ static inline uint8_t ndlcomDetectNewPaket(const uint8_t c) {
 void ndlcomParserDestroyPacket(struct NDLComParser *parser);
 
 /**
- * @brief may be used to get the current state. usefull for displaying it.
+ * @brief can be used to get the name of the current parser-state
  *
  * @param parser Pointer to the parser state-struct to be used
- * @param output the current state of the parser get written here
+ * @return name of the current state
  */
-void ndlcomParserGetState(struct NDLComParser *parser,
-                          struct NDLComParserState *output);
+const char* ndlcomParserGetState(const struct NDLComParser *parser);
 
 /**
  * @brief Return the number of CRC failures.
@@ -214,11 +212,6 @@ uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser *parser);
  * @param parser Pointer to the parser state-struct to be used
  */
 void ndlcomParserResetNumberOfCRCFails(struct NDLComParser *parser);
-
-/**
- * @brief NULL-terminated string containing the name of the current state
- */
-extern const char *ndlcomParserStateName[];
 
 #if defined(__cplusplus)
 }
