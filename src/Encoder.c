@@ -18,7 +18,6 @@
 
 size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
                     const NDLComHeader *pHeader, const void *pData) {
-    uint8_t headerRaw[NDLCOM_HEADERLEN];
     const uint8_t* pRead;
     const uint8_t* pHeaderEnd;
     const uint8_t* pDataEnd;
@@ -38,16 +37,11 @@ size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
         return 0;
     }
 
-    headerRaw[0] = pHeader->mReceiverId;
-    headerRaw[1] = pHeader->mSenderId;
-    headerRaw[2] = pHeader->mCounter;
-    headerRaw[3] = pHeader->mDataLen;
-
     /* start byte */
     *pWritePos++ = NDLCOM_START_STOP_FLAG;
 
     /* header */
-    pRead = (const uint8_t*)headerRaw;
+    pRead = (const uint8_t*)pHeader;
     pHeaderEnd = pRead + sizeof(NDLComHeader);
     while (pRead != pHeaderEnd)
     {
