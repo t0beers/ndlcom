@@ -31,7 +31,19 @@ extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
  * "personality" */
 static inline NDLComId ndlcomHeaderConfigGetDefaultSenderId() {
     return ndlcomHeaderConfigDefault.mSenderId;
-};
+}
+
+/**
+ * @brief Set default sender id.
+ *
+ * NOTE: when changing the senderId (personality), the routing table should
+ * also be cleared.
+ *
+ * @param newSenderId the new id to store in the static NDLComHeaderConfig
+ */
+static inline void ndlcomHeaderConfigDefaultSenderId(const NDLComId newSenderId) {
+    ndlcomHeaderConfigDefault.mSenderId = newSenderId;
+}
 
 /**
  * @brief Set all fields of the header.
@@ -43,9 +55,10 @@ static inline NDLComId ndlcomHeaderConfigGetDefaultSenderId() {
  * @param pConfig Pointer to a structure holding the sender id and
  *                keeping track of packet counters.
  */
-static inline void ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, NDLComId receiverId,
-                                   NDLComDataLen dataLength,
-                                   struct NDLComHeaderConfig *pConfig) {
+static inline void
+ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, const NDLComId receiverId,
+                              const NDLComDataLen dataLength,
+                              struct NDLComHeaderConfig *pConfig) {
     pHeader->mReceiverId = receiverId;
     pHeader->mSenderId = pConfig->mSenderId;
     pHeader->mCounter = pConfig->mCounterForReceiver[receiverId]++;
@@ -64,25 +77,15 @@ static inline void ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, NDLComId
  * @param receiverId Receiver Id.
  * @param dataLength Length of data packet (often the size of a c-struct).
  */
-static inline void ndlcomHeaderPrepare(NDLComHeader *pHeader, NDLComId receiverId,
-                         NDLComDataLen dataLength) {
+static inline void ndlcomHeaderPrepare(NDLComHeader *pHeader,
+                                       const NDLComId receiverId,
+                                       const NDLComDataLen dataLength) {
     ndlcomHeaderPrepareWithConfig(pHeader, receiverId, dataLength,
                                   &ndlcomHeaderConfigDefault);
-}
-
-/**
- * @brief Set default sender id.
- * @param newSenderId the new id to store in the static NDLComHeaderConfig
- */
-static inline void ndlcomHeaderConfigDefaultSenderId(NDLComId newSenderId) {
-    ndlcomHeaderConfigDefault.mSenderId = newSenderId;
-
-    // FIXME: when changing the senderId (personality), the routing table has
-    // to be cleared?
 }
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif//NDLCOM_HEADER_PREPARE_H
+#endif/*NDLCOM_HEADER_PREPARE_H*/
