@@ -152,14 +152,12 @@ int main(int argc, char const *argv[]) {
             /* if we parsed all available bytes, but still do not found a
              * packet something is odd... */
             if (i >= sizeof(encoded)) {
-                struct NDLComParserState state;
-                ndlcomParserGetState(parser, &state);
 
                 std::cout << "trial " << trial << " did not work."
                           << " number of crc-errors: "
-                          << state.mNumberOfCRCFails
+                          << ndlcomParserGetNumberOfCRCFails(parser)
                           << " current parser state: "
-                          << ndlcomParserStateName[state.mState] << "...\n";
+                          << ndlcomParserGetState(parser) << "...\n";
                 exit(EXIT_FAILURE);
             }
         }

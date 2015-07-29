@@ -7,7 +7,6 @@
 #define NDLCOM_PARSER_H
 
 #include "ndlcom/Types.h"
-#include "ndlcom/ParserState.h"
 
 #include <stddef.h>
 
@@ -113,7 +112,8 @@ struct NDLComParser {
  * @return 0 on error, otherwise a pointer to be used by other functions
  *     in this file.
  */
-struct NDLComParser *ndlcomParserCreate(void *pBuffer, size_t dataBufSize);
+struct NDLComParser *ndlcomParserCreate(void *pBuffer,
+                                        const size_t dataBufSize);
 
 /**
  * @brief Destroy state information (before freeing the used buffer).
@@ -130,10 +130,10 @@ void ndlcomParserDestroy(struct NDLComParser *parser);
  * @param parser Pointer to state information.
  * @param buf Pointer to received data that should be parsed.
  * @param buflen Number of bytes to be parsed.
- * @return number of accepted bytes. -1 on error.
+ * @return number of accepted bytes
  */
-size_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
-                           size_t buflen);
+size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
+                           size_t newDataLen);
 
 /**
  * @brief Return true if a packet is available.
@@ -143,7 +143,7 @@ size_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
  * @param parser Pointer to the parser state-struct to be used
  * @return returns true if a packet was received
  */
-char ndlcomParserHasPacket(struct NDLComParser *parser);
+char ndlcomParserHasPacket(const struct NDLComParser *parser);
 
 /**
  * @brief Return pointer to header.
@@ -151,7 +151,7 @@ char ndlcomParserHasPacket(struct NDLComParser *parser);
  * @param parser Pointer to the parser state-struct to be used
  * @return Pointer to a received protocol-header
  */
-const NDLComHeader *ndlcomParserGetHeader(struct NDLComParser *parser);
+const NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser);
 
 /**
  * @brief Return pointer to data.
@@ -162,7 +162,7 @@ const NDLComHeader *ndlcomParserGetHeader(struct NDLComParser *parser);
  * @return Pointer to the received payload. By definition of the protocol, the
  * first byte denotes the type of the payload
  */
-const void *ndlcomParserGetPacket(struct NDLComParser *parser);
+const void *ndlcomParserGetPacket(const struct NDLComParser *parser);
 
 /**
  * @brief Detection of telegram starts
@@ -192,13 +192,12 @@ static inline uint8_t ndlcomDetectNewPaket(const uint8_t c) {
 void ndlcomParserDestroyPacket(struct NDLComParser *parser);
 
 /**
- * @brief may be used to get the current state. usefull for displaying it.
+ * @brief can be used to get the name of the current parser-state
  *
  * @param parser Pointer to the parser state-struct to be used
- * @param output the current state of the parser get written here
+ * @return name of the current state
  */
-void ndlcomParserGetState(struct NDLComParser *parser,
-                          struct NDLComParserState *output);
+const char* ndlcomParserGetState(const struct NDLComParser *parser);
 
 /**
  * @brief Return the number of CRC failures.
@@ -206,7 +205,7 @@ void ndlcomParserGetState(struct NDLComParser *parser,
  * @param parser Pointer to the parser state-struct to be used
  * @return the number of CRC failures
  */
-uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser *parser);
+uint32_t ndlcomParserGetNumberOfCRCFails(const struct NDLComParser *parser);
 
 /**
  * @brief Reset CRC failure counter.
@@ -214,11 +213,6 @@ uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser *parser);
  * @param parser Pointer to the parser state-struct to be used
  */
 void ndlcomParserResetNumberOfCRCFails(struct NDLComParser *parser);
-
-/**
- * @brief NULL-terminated string containing the name of the current state
- */
-extern const char *ndlcomParserStateName[];
 
 #if defined(__cplusplus)
 }

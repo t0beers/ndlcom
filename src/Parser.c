@@ -21,7 +21,8 @@ const char *ndlcomParserStateName[] = {"ERROR",
 /** the size needed by the "struct NDLComParser" */
 #define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser))
 
-struct NDLComParser *ndlcomParserCreate(void *pBuffer, size_t dataBufSize) {
+struct NDLComParser *ndlcomParserCreate(void *pBuffer,
+                                        const size_t dataBufSize) {
     struct NDLComParser *parser = (struct NDLComParser *)pBuffer;
 
     /* we enforce a correct length: having less memory will lead to
@@ -158,15 +159,15 @@ size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
     return dataRead;
 }
 
-char ndlcomParserHasPacket(struct NDLComParser *parser) {
+char ndlcomParserHasPacket(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE;
 }
 
-const NDLComHeader *ndlcomParserGetHeader(struct NDLComParser *parser) {
+const NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE ? &parser->mHeader.hdr : 0;
 }
 
-const void *ndlcomParserGetPacket(struct NDLComParser *parser) {
+const void *ndlcomParserGetPacket(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE ? parser->mpData : 0;
 }
 
@@ -178,13 +179,11 @@ void ndlcomParserDestroyPacket(struct NDLComParser *parser) {
     parser->mLastWasESC = 0;
 }
 
-void ndlcomParserGetState(struct NDLComParser *parser,
-                          struct NDLComParserState *output) {
-    output->mState = parser->mState;
-    output->mNumberOfCRCFails = parser->mNumberOfCRCFails;
+const char* ndlcomParserGetState(const struct NDLComParser *parser) {
+    return ndlcomParserStateName[parser->mState];
 }
 
-uint32_t ndlcomParserGetNumberOfCRCFails(struct NDLComParser *parser) {
+uint32_t ndlcomParserGetNumberOfCRCFails(const struct NDLComParser *parser) {
     return parser->mNumberOfCRCFails;
 }
 
