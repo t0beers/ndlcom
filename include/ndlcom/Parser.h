@@ -130,7 +130,7 @@ void ndlcomParserDestroy(struct NDLComParser *parser);
  * @param parser Pointer to state information.
  * @param buf Pointer to received data that should be parsed.
  * @param buflen Number of bytes to be parsed.
- * @return number of accepted bytes. -1 on error.
+ * @return number of accepted bytes
  */
 size_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
                            size_t buflen);
