@@ -12,11 +12,10 @@
 #include <stddef.h>
 
 /**
- * C Implementation for easy usage of the NDLCom protocol.
+ * @brief C Implementation of the core parser for the NDLCom protocol.
  *
- * This code is intended to be build into a static library, which then in turn
- * may be linked into your binary. There, the makefile supports different
- * architectures.
+ * This code is intended to be built into a library, which then in turn may be
+ * linked into your binary.
  *
  * To use, include the header-file:
  * @code
@@ -25,7 +24,8 @@
  *
  * initialize the basic struct NDLComParserState by doing
  * @code
- *      pNDLComParser = ndlcomParserCreate(bufferRx, sizeof(bufferRx));
+ *      uint8_t buffer[sizeof(NDLComParsrer)];
+ *      NDLComParser* pNDLComParser = ndlcomParserCreate(buffer, sizeof(buffer));
  * @endcode
  *
  * To transmit at the very lowest level, create a packet by doing
@@ -33,20 +33,18 @@
  *      hdr.mDataLen = sizeof(struct data);
  *      hdr.mReceiverId = 0x01;
  *      hdr.mSenderId = 0x02;
- *      hdr.mCounter = 0;
  *      hdr.mCounter++;
- *      bufferLength = ndlcomEncode( (void*)bufferTx,
- *                                    sizeof(bufferTx),
- *                                    &hdr,
- *                                    (const void*)(&data),
- *                                    sizeof(struct data) );
+ *      size_t bufferLength = ndlcomEncode( (void*)bufferTx,
+ *                                          sizeof(bufferTx),
+ *                                          &hdr,
+ *                                          (const void*)(&data),
+ *                                          sizeof(struct data) );
  * @endcode
  *
  * And send the resulting bytes using your usart-routine.
  *
- * It can be stressed, that receiving needs initializing with
- * ndlcomParserCreate(), while ndlcomEncode() is working on-the-fly using a
- * different buffer
+ * Note that receiving needs initializing with ndlcomParserCreate(), while
+ * ndlcomEncode() is working on-the-fly using a different buffer.
  *
  * @see struct NDLComHeader
  *
@@ -59,7 +57,7 @@
  *
  * @code
  *  $ make # build natively
- *  $ make instal # build and install natively
+ *  $ make install # build and install natively
  * @endcode
  *
  * For cross-compiling it is possible to use CMake's toolchain files, resident
@@ -84,16 +82,16 @@ struct NDLComParser {
         uint8_t raw[NDLCOM_HEADERLEN];
         NDLComHeader hdr;
     } mHeader;
-    NDLComCrc mDataCRC; /**< Checksum of data (header + packet content) while
-                           receiving. */
-    int8_t mLastWasESC; /**< stores if the last received byte was a crc. used
-                          to detect escaped bytes */
-    uint8_t *mpHeaderWritePos; /**< Current write position while receiving
-                                  header data. */
+    /** Checksum of data (header + packet content) while receiving. */
+    NDLComCrc mDataCRC;
+    /** stores if the last received byte was a escaped byte */
+    int8_t mLastWasESC;
+    /**< Current write position while receiving header data. */
+    uint8_t *mpHeaderWritePos;
     /** storage for a decoded payload */
     uint8_t mpData[NDLCOM_MAX_PAYLOAD_SIZE];
-    uint8_t * mpDataWritePos; /**< Current write position of next data byte
-                                while receiving user data. */
+    /** Current write position of next data byte while receiving user data. */
+    uint8_t * mpDataWritePos;
     /** different states the parser may have. */
     enum ParserState {
         mcERROR = 0,
@@ -103,7 +101,8 @@ struct NDLComParser {
         mcWAIT_SECOND_CRC_BYTE,
         mcCOMPLETE
     } mState;
-    uint32_t mNumberOfCRCFails; /**< how often a bad crc was received */
+    /** how often a bad crc was received */
+    uint32_t mNumberOfCRCFails;
 };
 
 /**
@@ -133,8 +132,8 @@ void ndlcomParserDestroy(struct NDLComParser *parser);
  * @param buflen Number of bytes to be parsed.
  * @return number of accepted bytes. -1 on error.
  */
-int16_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
-                            uint16_t buflen);
+size_t ndlcomParserReceive(struct NDLComParser *parser, const void *buf,
+                           size_t buflen);
 
 /**
  * @brief Return true if a packet is available.

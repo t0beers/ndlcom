@@ -42,9 +42,9 @@ void ndlcomParserDestroy(struct NDLComParser *parser) {
     parser->mState = mcERROR;
 }
 
-int16_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
-                            uint16_t newDataLen) {
-    int16_t dataRead = 0;
+size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
+                           size_t newDataLen) {
+    size_t dataRead = 0;
     const uint8_t *in = (uint8_t *)newData;
 
     while (newDataLen--) {

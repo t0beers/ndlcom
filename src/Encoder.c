@@ -18,7 +18,6 @@
 
 size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
                     const NDLComHeader *pHeader, const void *pData) {
-    uint8_t headerRaw[NDLCOM_HEADERLEN];
     const uint8_t* pRead;
     const uint8_t* pHeaderEnd;
     const uint8_t* pDataEnd;
@@ -26,28 +25,23 @@ size_t ndlcomEncode(void *pOutputBuffer, size_t outputBufferSize,
     uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
     NDLComCrc crc = NDLCOM_CRC_INITIAL_VALUE;
 
-    /* We need at least: 2bytes for start/stop-flags, the header itself, the
-     * actual data with an decoded maximum of 255bytes and the CRC. Since
-     * each byte (except the start/stop flags) _could_ be escaped in theory, we
-     * need doubled number of bytes...
+    /**
+     * this calulation in done for the worst-case in "ndlcom/Types.h", but
+     * calculating the needed buffer size here, based on the given mDataLen
+     * allows smaller buffers for smaller packets.
      *
-     * Calculating the needed buffer size based on the given mDataLen allows
-     * smaller buffers for smaller packets */
-    if (outputBufferSize < 2+2*(sizeof(NDLComHeader) + pHeader->mDataLen + sizeof(NDLComCrc)))
-    {
-        return -1;
+     * return "0" if it fails, noting "we did not do anything".
+     */
+    if (outputBufferSize <
+        (2 + 2 * (sizeof(NDLComHeader) + pHeader->mDataLen + sizeof(NDLComCrc)))) {
+        return 0;
     }
-
-    headerRaw[0] = pHeader->mReceiverId;
-    headerRaw[1] = pHeader->mSenderId;
-    headerRaw[2] = pHeader->mCounter;
-    headerRaw[3] = pHeader->mDataLen;
 
     /* start byte */
     *pWritePos++ = NDLCOM_START_STOP_FLAG;
 
     /* header */
-    pRead = (const uint8_t*)headerRaw;
+    pRead = (const uint8_t*)pHeader;
     pHeaderEnd = pRead + sizeof(NDLComHeader);
     while (pRead != pHeaderEnd)
     {
