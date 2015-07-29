@@ -21,7 +21,7 @@ struct NDLComHeaderConfig {
     /** a table with the current counter for each target-device */
     NDLComId mCounterForReceiver[NDLCOM_MAX_NUMBER_OF_DEVICES];
     /** this will define which Id to use as _our_ senderId */
-    NDLComId mSenderId;
+    NDLComId mOwnSenderId;
 };
 
 extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
@@ -30,7 +30,7 @@ extern struct NDLComHeaderConfig ndlcomHeaderConfigDefault;
  * obtain the current default "senderId" used by this process, eg its
  * "personality" */
 static inline NDLComId ndlcomHeaderConfigGetDefaultSenderId() {
-    return ndlcomHeaderConfigDefault.mSenderId;
+    return ndlcomHeaderConfigDefault.mOwnSenderId;
 }
 
 /**
@@ -42,7 +42,7 @@ static inline NDLComId ndlcomHeaderConfigGetDefaultSenderId() {
  * @param newSenderId the new id to store in the static NDLComHeaderConfig
  */
 static inline void ndlcomHeaderConfigDefaultSenderId(const NDLComId newSenderId) {
-    ndlcomHeaderConfigDefault.mSenderId = newSenderId;
+    ndlcomHeaderConfigDefault.mOwnSenderId = newSenderId;
 }
 
 /**
@@ -60,7 +60,7 @@ ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, const NDLComId receiverId,
                               const NDLComDataLen dataLength,
                               struct NDLComHeaderConfig *pConfig) {
     pHeader->mReceiverId = receiverId;
-    pHeader->mSenderId = pConfig->mSenderId;
+    pHeader->mSenderId = pConfig->mOwnSenderId;
     pHeader->mCounter = pConfig->mCounterForReceiver[receiverId]++;
     pHeader->mDataLen = dataLength;
 }
