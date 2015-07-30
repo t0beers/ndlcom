@@ -65,18 +65,13 @@ struct NDLComHeader {
 #define NDLCOM_ADDR_BROADCAST 0xff
 
 /**
- * @brief length of the current header
- */
-#define NDLCOM_HEADERLEN (sizeof(struct NDLComHeader))
-
-/**
  * @brief worst-case size of rx-buffer
  *
  * an decoded message can contain upto 255byte, a header and the crc. no bytes
  * are escaped and there are no start/stop flags
  */
 #define NDLCOM_MAX_DECODED_MESSAGE_SIZE                                        \
-    (NDLCOM_HEADERLEN + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
+    (sizeof(struct NDLComHeader) + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
 
 /**
  * @brief worst-case size of tx-buffer

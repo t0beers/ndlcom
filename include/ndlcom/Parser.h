@@ -78,7 +78,7 @@ extern "C" {
 struct NDLComParser {
     /** decoded header */
     union {
-        uint8_t raw[NDLCOM_HEADERLEN];
+        uint8_t raw[sizeof(struct NDLComHeader)];
         struct NDLComHeader hdr;
     } mHeader;
     /** Checksum of data (header + packet content) while receiving. */
