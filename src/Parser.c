@@ -79,7 +79,7 @@ size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
             *(parser->mpHeaderWritePos++) = c;
             parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
             if (parser->mpHeaderWritePos - parser->mHeader.raw ==
-                NDLCOM_HEADERLEN) {
+                sizeof(struct NDLComHeader)) {
                 /* check if there is actual data to come... */
                 if (parser->mHeader.hdr.mDataLen) {
                     parser->mState = mcWAIT_DATA;
@@ -163,7 +163,7 @@ char ndlcomParserHasPacket(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE;
 }
 
-const NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser) {
+const struct NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE ? &parser->mHeader.hdr : 0;
 }
 

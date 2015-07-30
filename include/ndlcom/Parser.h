@@ -78,8 +78,8 @@ extern "C" {
 struct NDLComParser {
     /** decoded header */
     union {
-        uint8_t raw[NDLCOM_HEADERLEN];
-        NDLComHeader hdr;
+        uint8_t raw[sizeof(struct NDLComHeader)];
+        struct NDLComHeader hdr;
     } mHeader;
     /** Checksum of data (header + packet content) while receiving. */
     NDLComCrc mDataCRC;
@@ -151,7 +151,7 @@ char ndlcomParserHasPacket(const struct NDLComParser *parser);
  * @param parser Pointer to the parser state-struct to be used
  * @return Pointer to a received protocol-header
  */
-const NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser);
+const struct NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser);
 
 /**
  * @brief Return pointer to data.

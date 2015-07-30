@@ -36,7 +36,7 @@ enum { NDLCOM_MAX_PAYLOAD_SIZE = (1 << (sizeof(NDLComDataLen) * 8)) };
  *
  * Contains all used data-structures.
  */
-typedef struct NDLComHeader {
+struct NDLComHeader {
     /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
     NDLComId mReceiverId;
     /** id of the sender of the packet. */
@@ -46,7 +46,7 @@ typedef struct NDLComHeader {
     /** Length of following data structure, limited to 255 bytes. */
     NDLComDataLen mDataLen;
     /* is "packed" because the header will be used in ndlcom-messages */
-} __attribute__((packed)) NDLComHeader;
+} __attribute__((packed));
 
 /**
  * @brief current escape-byte
@@ -65,18 +65,13 @@ typedef struct NDLComHeader {
 #define NDLCOM_ADDR_BROADCAST 0xff
 
 /**
- * @brief length of the current header
- */
-#define NDLCOM_HEADERLEN (sizeof(NDLComHeader))
-
-/**
  * @brief worst-case size of rx-buffer
  *
  * an decoded message can contain upto 255byte, a header and the crc. no bytes
  * are escaped and there are no start/stop flags
  */
 #define NDLCOM_MAX_DECODED_MESSAGE_SIZE                                        \
-    (NDLCOM_HEADERLEN + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
+    (sizeof(struct NDLComHeader) + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
 
 /**
  * @brief worst-case size of tx-buffer
