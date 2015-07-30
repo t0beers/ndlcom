@@ -5,14 +5,12 @@
 
 #include "ndlcom/HeaderPrepare.h"
 
-/**
- * @brief The NDLCom-protocol defines the packet-counter variable.
- *
- * it has to be incremented for each packet transmitted to a received node -
- * regardless of the payload used in the packet. Therefore, a globally unique
- * (static) table is used to fill the correct packet counter. It is essentially
- * an array with one entry for each node, storing the last used packet counter.
- *
- * @see include/ndlcom/HeaderPrepare.h
- */
-struct NDLComHeaderConfig ndlcomHeaderConfigDefault = {{0}, 0};
+#include <string.h>
+
+void ndlcomHeaderPrepareInit(struct NDLComHeaderConfig *config,
+                             const NDLComId senderId) {
+    config->mOwnSenderId = senderId;
+    /* we became a new personality, so reset the packet counters to use for new
+     * packages */
+    memset(config->mCounterForReceiver, 0, sizeof(config->mCounterForReceiver));
+}
