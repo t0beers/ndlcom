@@ -163,7 +163,7 @@ char ndlcomParserHasPacket(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE;
 }
 
-const NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser) {
+const struct NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE ? &parser->mHeader.hdr : 0;
 }
 

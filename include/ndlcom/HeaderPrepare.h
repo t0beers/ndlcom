@@ -56,7 +56,7 @@ static inline void ndlcomHeaderConfigDefaultSenderId(const NDLComId newSenderId)
  *                keeping track of packet counters.
  */
 static inline void
-ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, const NDLComId receiverId,
+ndlcomHeaderPrepareWithConfig(struct NDLComHeader *pHeader, const NDLComId receiverId,
                               const NDLComDataLen dataLength,
                               struct NDLComHeaderConfig *pConfig) {
     pHeader->mReceiverId = receiverId;
@@ -77,7 +77,7 @@ ndlcomHeaderPrepareWithConfig(NDLComHeader *pHeader, const NDLComId receiverId,
  * @param receiverId Receiver Id.
  * @param dataLength Length of data packet (often the size of a c-struct).
  */
-static inline void ndlcomHeaderPrepare(NDLComHeader *pHeader,
+static inline void ndlcomHeaderPrepare(struct NDLComHeader *pHeader,
                                        const NDLComId receiverId,
                                        const NDLComDataLen dataLength) {
     ndlcomHeaderPrepareWithConfig(pHeader, receiverId, dataLength,

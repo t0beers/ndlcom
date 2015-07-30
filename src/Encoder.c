@@ -17,7 +17,7 @@
  */
 
 size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
-                    const NDLComHeader *pHeader, const void *pData) {
+                    const struct NDLComHeader *pHeader, const void *pData) {
     const uint8_t* pRead;
     const uint8_t* pHeaderEnd;
     const uint8_t* pDataEnd;
@@ -32,8 +32,9 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
      *
      * return "0" if it fails, noting "we did not do anything".
      */
-    if (outputBufferSize <
-        (2 + 2 * (sizeof(NDLComHeader) + pHeader->mDataLen + sizeof(NDLComCrc)))) {
+    if (outputBufferSize < (2 +
+                            2 * (sizeof(struct NDLComHeader) +
+                                 pHeader->mDataLen + sizeof(NDLComCrc)))) {
         return 0;
     }
 
@@ -42,7 +43,7 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
 
     /* header */
     pRead = (const uint8_t*)pHeader;
-    pHeaderEnd = pRead + sizeof(NDLComHeader);
+    pHeaderEnd = pRead + sizeof(struct NDLComHeader);
     while (pRead != pHeaderEnd)
     {
         const uint8_t d = *pRead;
