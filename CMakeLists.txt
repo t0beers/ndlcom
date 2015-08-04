@@ -30,8 +30,8 @@ add_library(${PROJECT_NAME}
 #
 # installing:
 install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
 )
 
