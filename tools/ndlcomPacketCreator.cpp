@@ -1,8 +1,19 @@
 /**
- * escape a ndlcom-header from commandline and print in hex
+ * escape a ndlcom-header and optional payload from commandline and print
+ * escaped packet in hex to stdout.
+ *
+ * chaining different options together allows crafting partly-random packets:
+ *
+ * a random header (-H) with one byte (-l 1) of random payload (-P):
+ *      ./ndlcomEncode -H -l 1 -P
+ *
+ * by default (if not random) the payload is all zeros, receiver is "0xff"
+ * (broadcast) and sender is "0x01".
+ *
+ * more to come?
  *
  * <martin.zenzes@dfki.de> 2015
- * 
+ *
  */
 #include <getopt.h>
 #include <iostream>
