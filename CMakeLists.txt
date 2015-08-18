@@ -30,8 +30,8 @@ add_library(${PROJECT_NAME}
 #
 # installing:
 install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
 )
 
@@ -42,6 +42,7 @@ if (NOT CMAKE_CROSSCOMPILING)
     # testing has to be enabled explicitly!
     #enable_testing()
     #add_subdirectory(test)
+    add_subdirectory(tools)
 endif (NOT CMAKE_CROSSCOMPILING)
 
 # pkg-config, to be installed:
