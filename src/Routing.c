@@ -1,25 +1,21 @@
 #include "ndlcom/Routing.h"
-#include "ndlcom/Types.h"
 
-/* Due to DK (Donkey Kong :P): This macro determines the routing table size by
- * the size of the NDLComHeader.mReceiverId size */
-#define NDLCOM_ROUTING_TABLE_SIZE (1 << (sizeof(NDLComId) * 8))
+void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable) {
 
-/* This array contains the interface given the receiver_id as index */
-static void *routingTable[NDLCOM_ROUTING_TABLE_SIZE];
-
-void ndlcomInitRoutingTable() {
-    /* Default to all interfaces for all entries */
+    /* before we know anything about the world we have to default to "all
+     * interfaces" for all deviceIds */
     int i;
-    for (i = 0; i < NDLCOM_ROUTING_TABLE_SIZE; ++i)
-        routingTable[i] = NDLCOM_ROUTING_ALL_INTERFACES;
+    for (i = 0; i < NDLCOM_MAX_NUMBER_OF_DEVICES; ++i)
+        routingTable->table[i] = NDLCOM_ROUTING_ALL_INTERFACES;
 }
 
-void *ndlcomGetInterfaceByReceiverId(const NDLComId receiverId) {
-    return routingTable[receiverId];
+void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
+                                  const NDLComId receiverId) {
+    return routingTable->table[receiverId];
 }
 
-void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface) {
+void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
+                              const NDLComId senderId, void *pInterface) {
     /* This does never put broadcast senderIds into the routing table. It
      * simply does not make any sense. Note that, by never populating the
      * entry, we automatically reply NDLCOM_ROUTING_ALL_INTERFACES in case
@@ -28,5 +24,5 @@ void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface) {
      * could add a check to not use our own senderId accidentally... */
     if (senderId == NDLCOM_ADDR_BROADCAST)
         return;
-    routingTable[senderId] = pInterface;
+    routingTable->table[senderId] = pInterface;
 }

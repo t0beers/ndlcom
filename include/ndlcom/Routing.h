@@ -4,7 +4,7 @@
  *
  * @date 11.11.2011
  *
- * @author Schilling
+ * @author Schilling, Zenzes
  */
 
 #ifndef NDLCOM_ROUTING_H_
@@ -15,6 +15,15 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+/**
+ *
+ * stores a "void*" identifier for every known deviceId.
+ *
+ */
+struct NDLComRoutingTable {
+    void *table[NDLCOM_MAX_NUMBER_OF_DEVICES];
+};
 
 /**
  * This is the default interface id, which means, that a packet with a certain
@@ -29,7 +38,7 @@ extern "C" {
 /**
  * @brief Setting all entries, using all interfaces as default
  */
-void ndlcomInitRoutingTable();
+void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable);
 
 /**
  * @brief Routing Table look up
@@ -40,18 +49,18 @@ void ndlcomInitRoutingTable();
  * @param receiverId the destination of the packet
  * @return identifier of the interface to use. NULL for "any interface"
  */
-void *ndlcomGetInterfaceByReceiverId(const NDLComId receiverId);
+void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
+                                  const NDLComId receiverId);
 
 /**
  * @brief Updates the routing table entries
- *
- * Should be used by usart.c
  *
  * @param senderId the id of the sender of an incoming packet
  * @param pInterface the id of the interface on which the packet was received
  * @return none
  */
-void ndlcomUpdateRoutingTable(const NDLComId senderId, void *pInterface);
+void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
+                              const NDLComId senderId, void *pInterface);
 
 #if defined(__cplusplus)
 }
