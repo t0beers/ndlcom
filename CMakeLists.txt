@@ -42,6 +42,7 @@ if (NOT CMAKE_CROSSCOMPILING)
     # testing has to be enabled explicitly!
     #enable_testing()
     #add_subdirectory(test)
+    add_subdirectory(tools)
 endif (NOT CMAKE_CROSSCOMPILING)
 
 # pkg-config, to be installed:

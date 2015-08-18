@@ -1,6 +1,9 @@
-//
-// escape a ndlcom-header from commandline and print in hex
-//
+/**
+ * escape a ndlcom-header from commandline and print in hex
+ *
+ * <martin.zenzes@dfki.de> 2015
+ * 
+ */
 #include <getopt.h>
 #include <iostream>
 #include <sstream>

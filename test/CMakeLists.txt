@@ -54,9 +54,6 @@ add_test(NAME testCrc COMMAND testCrc)
 add_executable(printTable printTable.c)
 add_test(NAME printTable COMMAND printTable)
 
-add_executable(ndlcomEncode ndlcomEncode.cpp)
-target_link_libraries(ndlcomEncode ndlcom)
-
 # i hate cmake nowadays, their "language" is broken as shit and trying to
 # formulate a "task" such as these trivally done in bash is hard... since that,
 # i hacked together this mini-shell script which does exactly the same as the
