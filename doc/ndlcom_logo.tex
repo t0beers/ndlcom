@@ -1,0 +1,105 @@
+% standalone latex picture see http://tex.stackexchange.com/a/51761
+%
+% compile and view with:
+%
+%    pdflatex logo.tex && xdg-open logo.pdf
+%
+\documentclass[crop,tikz]{standalone}
+% for centered placement of things:
+\usetikzlibrary{fit}
+% nice fading effect:
+\usetikzlibrary{fadings}
+% ubuntu standard font
+\usepackage[T1]{fontenc}
+\usepackage{dejavu}
+% and go:
+\begin{document}
+% prepare some styles:
+\tikzstyle{device}=[draw,circle,opacity=0.4,inner sep=0.4mm]
+\tikzstyle{line}=[opacity=0.2]
+\tikzstyle{maintext}=[inner sep=0.4mm]
+\tikzstyle{background_rectangle}=[rectangle, thick, draw, draw opacity=0.6, fill, fill opacity=0.1,rounded corners=2mm]
+\tikzset{fading text/.style={}}
+\newdimen\nodeDist
+\nodeDist=3.5mm
+% another command copied from somewhere:
+\tikzset{
+    position/.style args={#1:#2 from #3}{
+        at=(#3.#1), anchor=#1, shift=(#1:#2)
+    }
+}
+% declare background layer:
+\pgfdeclarelayer{bg}
+% set the order of the layers (main is the standard layer)
+\pgfsetlayers{bg,main}
+% fading text, see http://www.texample.net/tikz/examples/text-fading/ 
+\newcommand\fadingtext[2][]{%
+  \begin{tikzfadingfrompicture}[name = fading letter]
+    \node[text = transparent!0, inner xsep = 0pt, outer xsep = 0pt] {#2};
+  \end{tikzfadingfrompicture}%
+  \begin{tikzpicture}[baseline = (textnode.base)]
+    \node[inner sep = 0pt, outer sep = 0pt] (textnode) {\phantom{#2}}; 
+    \shade[path fading = fading letter, fading text, #1, fit fading = false]
+    (textnode.south west) rectangle (textnode.north east);% 
+  \end{tikzpicture}% 
+}
+% all the nodes, which we need to "fit" stuff later
+\edef\devices{}
+%
+% -------------------------------------
+%
+\begin{tikzpicture}
+    % core node, very special
+    \node[device] (core) at (0,0) {};
+    % first "leg", upper right
+    \node[device, position=45:{\nodeDist} from core] (leg1device1) {};
+    \node[device, position=90:{\nodeDist} from leg1device1] (leg1device2) {};
+    \node[device, position=0:{\nodeDist} from leg1device1] (leg1device3) {};
+    \draw[line] (core) -- (leg1device1);
+    \draw[line] (leg1device1) -- (leg1device2);
+    \draw[line] (leg1device1) -- (leg1device3);
+    % second "leg", upper left
+    \node[device, position=-225:{\nodeDist} from core] (leg2device1) {};
+    \node[device, position=-225:{\nodeDist} from leg2device1] (leg2device2) {};
+    \node[device, position=-225:{\nodeDist} from leg2device2] (leg2device3) {};
+    \draw[line] (core) -- (leg2device1);
+    \draw[line] (leg2device1) -- (leg2device2);
+    \draw[line] (leg2device2) -- (leg2device3);
+    % third "leg", lower left
+    \node[device, position=-135:{\nodeDist} from core] (leg3device1) {};
+    \draw[line] (core) -- (leg3device1);
+    % fourth "leg", lower right
+    \node[device, position=-45:{\nodeDist} from core] (leg4device1) {};
+    \node[device, position=-90:{\nodeDist} from leg4device1] (leg4device2) {};
+    \node[device, position=0:{\nodeDist} from leg4device1] (leg4device3) {};
+    \node[device, position=-45:{\nodeDist} from leg4device1] (leg4device4) {};
+    \draw[line] (core) -- (leg4device1);
+    \draw[line] (leg4device1) -- (leg4device2);
+    \draw[line] (leg4device1) -- (leg4device3);
+    \draw[line] (leg4device1) -- (leg4device4);
+    % build a list of all devices for centering the main-text
+    \xdef\devices{
+        (core)
+        (leg1device1)
+        (leg1device2)
+        (leg1device3)
+        (leg2device1)
+        (leg2device2)
+        (leg2device3)
+        (leg3device1)
+        (leg4device1)
+        (leg4device2)
+        (leg4device3)
+        (leg4device4)
+    }
+    \coordinate[fit={\devices}] (center_of_network);
+    % the actual text
+    \node[maintext] (text) at (center_of_network) {
+        \huge\sf\fadingtext[bottom color=blue,top color=blue!50]{NDLCom}};
+    % and the background layer
+    \begin{pgfonlayer}{bg}
+        % fit centered around all the nodes we have so far:
+        \node[background_rectangle, fit={(text) \devices}] {};
+    \end{pgfonlayer}{gb}
+\end{tikzpicture}
+\end{document}

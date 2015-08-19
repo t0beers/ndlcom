@@ -1,4 +1,7 @@
-all: protocol.pdf
+all: protocol.pdf ndlcom_logo.pdf
+
+ndlcom_logo.pdf: ndlcom_logo.tex
+	pdflatex $<
 
 inkscape_%.pdf inkscape_%.pdf_tex: %.svg
 	inkscape --file=$< --export-area-drawing --without-gui --export-pdf=$@ --export-latex
