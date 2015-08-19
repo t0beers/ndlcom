@@ -1,0 +1,3 @@
+add_executable(ndlcomPacketCreator ndlcomPacketCreator.cpp)
+target_link_libraries(ndlcomPacketCreator ndlcom)
+
