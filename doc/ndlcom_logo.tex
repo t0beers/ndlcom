@@ -18,7 +18,10 @@
 \tikzstyle{device}=[draw,circle,opacity=0.4,inner sep=0.4mm]
 \tikzstyle{line}=[opacity=0.2]
 \tikzstyle{maintext}=[inner sep=0.4mm]
-\tikzstyle{background_rectangle}=[rectangle, thick, draw, draw opacity=0.6, fill, fill opacity=0.1,rounded corners=2mm]
+% two variants of the background rectangle. one invisible:
+\tikzstyle{background_rectangle}=[rectangle]
+% and one with slightly transparent background and border. might be nice for icons?
+%\tikzstyle{background_rectangle}=[rectangle, thick, draw, draw opacity=0.6, fill, fill opacity=0.1, rounded corners=2mm]
 \tikzset{fading text/.style={}}
 \newdimen\nodeDist
 \nodeDist=3.5mm
