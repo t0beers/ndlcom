@@ -142,5 +142,5 @@ int main(int argc, char *argv[]) {
         std::printf("0x%02x ", (int)((uint8_t *)escapedBuffer)[i]);
     }
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }

@@ -20,4 +20,4 @@ standalone_%.tex: %.svg standalone_inscape_export.tex
 	pdftoppm -png $< > $@
 
 clean:
-	rm -f inkscape_* protocol.pdf
+	rm -f inkscape_* protocol.pdf ndlcom_logo.pdf

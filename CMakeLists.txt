@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 2.8)
 
 project(ndlcom)
 
+option(NDLCOM_ENABLE_TESTING
+    "will enable testing, add the 'test' subdirectory and add some additional
+    compiler-flags for debugging"
+    OFF)
+
+# we will need to execute binaries, which is not possible while cross-compiling
+if(CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
+    message(FATAL_ERROR "${PROJECT_NAME}: cannot enable testing while in cross-compiling mode")
+endif(CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
+
+if(NDLCOM_ENABLE_TESTING)
+    add_definitions(-g -O0 -Wall -Wpedantic)
+endif(NDLCOM_ENABLE_TESTING)
+
 # nothing special here
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -39,11 +53,14 @@ if (NOT CMAKE_CROSSCOMPILING)
     # for use in shared libraries (MARS, Rock and so on). deliberately only
     # added in the "non-cross" case to keep codesizes small in embedded.
     add_definitions(-fPIC)
-    # testing has to be enabled explicitly!
-    #enable_testing()
-    #add_subdirectory(test)
     add_subdirectory(tools)
 endif (NOT CMAKE_CROSSCOMPILING)
+
+# testing has to be enabled explicitly!
+if(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(test)
+endif(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in
