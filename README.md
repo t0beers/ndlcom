@@ -1,7 +1,5 @@
 ![ndlcom_logo](doc/ndlcom_logo.png)
 
-# NDLCom
-
 Functions to encode/decode simple serial communication OSI-layer2 message
 format. Named _ndlcom_ for _Node Data Link Communication_. Developed at DFKI in
 the iStruct and SeeGrip projects. See the [here](doc/NDLCom_short_en.md) for a
@@ -16,7 +14,7 @@ Makefile acting as a cmake-wrapper.
 
 ## Structure
 
-- `src Contains all source files of the C-language
+- `src` Contains all source files of the C-language
 - `test` some crudge limited programs used for testing and benchmarking, called using `make test`
 - `include/ndlcom` Contains all header files used by the library
 - `build/...` The target directory used during the build process, temporary content
