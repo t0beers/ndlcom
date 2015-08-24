@@ -23,6 +23,8 @@ override MAKEFLAGS+=--no-print-directory
 
 # configure cmake:
 override CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
+# this test-flags are more project specific:
+override CMAKE_DEBUG_FLAGS+=-DNDLCOM_ENABLE_TESTING=ON
 
 ## working area ###
 
@@ -55,8 +57,9 @@ link_dependency_graph: build
 compile: build
 	${MAKE} -j$(JOBS) -C $(BUILDDIR)
 
-test: compile
-	${MAKE} -j$(JOBS) -C $(BUILDDIR) test
+test: build
+	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) $(CMAKE_FLAGS) $(CMAKE_DEBUG_FLAGS)"
+	${MAKE} -j$(JOBS) -C $(BUILDDIR) all test
 
 install: compile
 	${MAKE} -j$(JOBS) -C $(BUILDDIR) install
