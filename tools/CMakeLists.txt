@@ -17,5 +17,15 @@ if(SEEMS_TO_BE_POSIX)
         # ubuntu 12.04 needs "rt" explicitly
         rt)
 
+    add_executable(ndlcomBridge
+        ndlcomBridge.cpp
+        ndlcomBridgeExternalInterface.cpp
+        ndlcomBridgeInternalHandler.cpp
+        )
+    target_link_libraries(ndlcomBridge
+        ndlcom
+        # ubuntu 12.04 needs "rt" explicitly
+        rt
+        )
 
 endif(SEEMS_TO_BE_POSIX)
