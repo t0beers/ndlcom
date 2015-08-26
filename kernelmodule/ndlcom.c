@@ -65,6 +65,14 @@ ssize_t ndlcom_read(struct file *fp, char __user *buf, size_t buf_size, loff_t *
 
     struct recv_buf_t *recv_buf = fp->private_data;
 
+    // when we are asked to do "non-blocking read" return EAGAIN if there is no
+    // data
+    if (fp->flags & O_NDELAY) {
+        if (recv_buf->wpos == recv_buf->rpos) {
+            return -EAGAIN;
+        }
+    }
+
     // wait for data if buffer is empty
     while (recv_buf->wpos == recv_buf->rpos) {
         if (wait_event_interruptible(read_wait_queue, recv_buf->wpos != recv_buf->rpos)) {
