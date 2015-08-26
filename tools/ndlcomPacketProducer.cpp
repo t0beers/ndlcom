@@ -24,8 +24,6 @@
 #include "ndlcom/Types.h"
 #include "ndlcom/Encoder.h"
 
-void help(const char *name) { std::cout << "\nhere comes dragons!\n"; }
-
 void fillRandomHeader(struct NDLComHeader *header) {
 
     header->mSenderId = (NDLComId)rand();
@@ -40,6 +38,27 @@ void fillRandomPayload(struct NDLComHeader *header,
     for (NDLComDataLen i = 0; i < header->mDataLen; i++) {
         payload[i] = (uint8_t)rand();
     }
+}
+
+void help(const char *name) {
+    printf("encode ndlcom-packages into hex-form. control different properties\n"
+           "via commandline. it is possible to chain arguments to have a more\n"
+           "fine control. for example:\n"
+           "\n"
+           "create random header, but empty payload:\n"
+           "\t%s -H -l 0\n"
+           "specifiy header, use 10 bytes of random payload:\n"
+           "\t%s -P -s 3 -r 255 -l 10\n"
+           "\n"
+           "options:\n"
+           "--randomPacket\t-R\tcreate completely random packet\n"
+           "--randomHeader\t-H\tmake current header random\n"
+           "--randomPayload\t-P\tmake current payload random. defaults to zero\n"
+           "--senderId\t-s\tuse given integer as senderId\n"
+           "--receiverId\t-r\tuse given integer as receiverId\n"
+           "--dataLen\t-l\tuse given integer as dataLen\n"
+           "--counter\t-c\tuse given integer as packet counter\n",
+           name,name);
 }
 
 int main(int argc, char *argv[]) {

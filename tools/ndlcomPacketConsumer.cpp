@@ -31,8 +31,6 @@
 #include "ndlcom/Types.h"
 #include "ndlcom/Parser.h"
 
-void help(const char *name) { std::cout << "\nhere comes dragons!\n"; }
-
 size_t readBytesBlocking(void *buf, size_t count) {
     size_t readSoFar = 0;
     unsigned int byte = 0;
@@ -108,6 +106,19 @@ void printPackage(const struct NDLComHeader *header, const void *payload) {
     printf("\n");
 }
 
+void help(const char *name) {
+    printf("\n%s\n\n"
+           "print ndlcom-packages in a 'standardized' form to stdout\n"
+           "\n"
+           "options:\n"
+           "--noheader\t\t-H\tdon't print the header\n"
+           "--payload\t\t-P\tprint the payload\n"
+           "--notimestamp\t\t-S\tdon't print the timestamp\n"
+           "--filter-receiverId\t-r\tadd given Id to the filter list\n"
+           "--filter-senderId\t-r\tadd given Id to the filter list\n"
+           , name);
+}
+
 int main(int argc, char *argv[]) {
 
     // these allow filtering only for wanted ids
@@ -120,10 +131,10 @@ int main(int argc, char *argv[]) {
         int option_index = 0;
         static struct option long_options[] = {
             {"noheader", no_argument, 0, 'H'},
-            {"print-payload", no_argument, 0, 'P'},
+            {"payload", no_argument, 0, 'P'},
             {"notimestamp", no_argument, 0, 'S'},
-            {"filter-receiver", required_argument, 0, 'r'},
-            {"filter-sender", required_argument, 0, 's'},
+            {"filter-receiverId", required_argument, 0, 'r'},
+            {"filter-senderId", required_argument, 0, 's'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
         c = getopt_long(argc, argv, "HPSr:s:h", long_options, &option_index);
