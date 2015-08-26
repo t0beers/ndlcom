@@ -15,8 +15,13 @@
  * <martin.zenzes@dfki.de> 2015
  *
  */
+#include <time.h>
+#include <string.h>
+#include <vector>
+#include <algorithm>
 #include <getopt.h>
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cstdio>
 #include <stdexcept>
@@ -65,8 +70,6 @@ bool print_header = true;
 bool print_payload = false;
 bool print_timestamp = true;
 
-#include <time.h>
-#include <string.h>
 void printPackage(const struct NDLComHeader *header, const void *payload) {
 
     if (print_timestamp) {
@@ -107,6 +110,10 @@ void printPackage(const struct NDLComHeader *header, const void *payload) {
 
 int main(int argc, char *argv[]) {
 
+    // these allow filtering only for wanted ids
+    std::vector<NDLComId> filterSenderId;
+    std::vector<NDLComId> filterReceiverId;
+
     /* option handling is based on the manpage optarg(3). */
     int c;
     while (1) {
@@ -115,9 +122,11 @@ int main(int argc, char *argv[]) {
             {"noheader", no_argument, 0, 'H'},
             {"print-payload", no_argument, 0, 'P'},
             {"notimestamp", no_argument, 0, 'S'},
+            {"filter-receiver", required_argument, 0, 'r'},
+            {"filter-sender", required_argument, 0, 's'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "HPSh", long_options, &option_index);
+        c = getopt_long(argc, argv, "HPSr:s:h", long_options, &option_index);
         if (c == -1) {
             break;
         }
@@ -132,6 +141,20 @@ int main(int argc, char *argv[]) {
         }
         case 'S': {
             print_timestamp = false;
+            break;
+        }
+        case 'r': {
+            std::istringstream ss(optarg);
+            int temp;
+            ss >> temp;
+            filterReceiverId.push_back((NDLComId)temp);
+            break;
+        }
+        case 's': {
+            std::istringstream ss(optarg);
+            int temp;
+            ss >> temp;
+            filterSenderId.push_back((NDLComId)temp);
             break;
         }
         case 'h':
@@ -161,9 +184,21 @@ int main(int argc, char *argv[]) {
             bytesProcessed += ndlcomParserReceive(
                 &parser, buffer + bytesProcessed, bytesRead - bytesProcessed);
             if (ndlcomParserHasPacket(&parser)) {
-                printPackage(ndlcomParserGetHeader(&parser),
-                             ndlcomParserGetPacket(&parser));
+                const struct NDLComHeader* header = ndlcomParserGetHeader(&parser);
+                const void* payload = ndlcomParserGetPacket(&parser);
 
+                if (!filterSenderId.empty() &&
+                    std::find(filterSenderId.begin(), filterSenderId.end(),
+                              (int)header->mSenderId) == filterSenderId.end())
+                    goto skipPrint;
+                if (!filterReceiverId.empty() &&
+                    std::find(filterReceiverId.begin(), filterReceiverId.end(),
+                              (int)header->mReceiverId) !=
+                        filterReceiverId.end())
+                    goto skipPrint;
+
+                printPackage(header, payload);
+skipPrint:
                 ndlcomParserDestroyPacket(&parser);
             }
 
