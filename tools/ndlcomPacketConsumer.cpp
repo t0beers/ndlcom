@@ -4,7 +4,12 @@
  *
  * print ndlcom-packages in a "standardized" form to stdout. packet-misses and
  * "arbritrary" filtering would be nice
- * 
+ *
+ * one possibility is to pipe the output of the "Producer" into the "Consumer",
+ * to get a nice formatting:
+ *      $ ndlcomPacketProducer | ndlcomPacketConsumer
+ *      [2015-08-26 17:41:39.180734630] [sender: 0x01 receiver: 0xff counter:   0 length:   0]
+ *
  * TODO: implement signal handling for clean exiting when issuing ctrl-c...
  *
  * <martin.zenzes@dfki.de> 2015
@@ -16,6 +21,7 @@
 #include <cstdio>
 #include <stdexcept>
 #include <errno.h>
+#include <unistd.h>
 
 #include "ndlcom/Types.h"
 #include "ndlcom/Parser.h"
@@ -27,11 +33,12 @@ size_t readBytesBlocking(void *buf, size_t count) {
     unsigned int byte = 0;
     int amount = -1;
     while (readSoFar < count) {
-        // TODO: receving a signal does not cause "fscanf" to return with EINTR...?
+        // TODO: receving a signal does not cause "fscanf" to return with
+        // EINTR...?
         int scanRet = fscanf(stdin, " 0x%02x%n", &byte, &amount);
 
         if (scanRet == EOF) {
-            std::cerr << "EOF?\n";
+            /* std::cerr << "EOF?\n"; */
             // no more data...?
             break;
         } else if (scanRet == 0) {
@@ -39,7 +46,7 @@ size_t readBytesBlocking(void *buf, size_t count) {
             // be doable more efficiently...
             char t[2];
             // should not return EOF, "fscanf()" should have handled this
-            std::cerr << "throw away?\n";
+            /* std::cerr << "throw away?\n"; */
             fgets(t, 2, stdin);
             /* std::cout << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
@@ -161,6 +168,9 @@ int main(int argc, char *argv[]) {
             }
 
         } while (bytesRead != bytesProcessed);
+
+        // TODO: implement select() to minimize polling
+        usleep(10000);
 
     } while (true);
 
