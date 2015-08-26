@@ -7,8 +7,8 @@ check_function_exists(usleep SEEMS_TO_BE_POSIX)
 if(SEEMS_TO_BE_POSIX)
     message(STATUS "${PROJECT_NAME}: assuming POSIX and building tools")
 
-    add_executable(ndlcomPacketCreator ndlcomPacketCreator.cpp)
-    target_link_libraries(ndlcomPacketCreator ndlcom
+    add_executable(ndlcomPacketProducer ndlcomPacketProducer.cpp)
+    target_link_libraries(ndlcomPacketProducer ndlcom
         # ubuntu 12.04 needs "rt" explicitly
         rt)
 
