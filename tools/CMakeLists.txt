@@ -12,4 +12,10 @@ if(SEEMS_TO_BE_POSIX)
         # ubuntu 12.04 needs "rt" explicitly
         rt)
 
+    add_executable(ndlcomPacketConsumer ndlcomPacketConsumer.cpp)
+    target_link_libraries(ndlcomPacketConsumer ndlcom
+        # ubuntu 12.04 needs "rt" explicitly
+        rt)
+
+
 endif(SEEMS_TO_BE_POSIX)
