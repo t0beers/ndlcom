@@ -61,6 +61,8 @@ static struct file* exclusive_writer = NULL;
 
 ssize_t ndlcom_read(struct file *fp, char __user *buf, size_t buf_size, loff_t *f_pos)
 {
+    // TODO: implement O_NDELAY, use "fp->f_flags"
+
     struct recv_buf_t *recv_buf = fp->private_data;
 
     // wait for data if buffer is empty
@@ -83,6 +85,8 @@ ssize_t ndlcom_read(struct file *fp, char __user *buf, size_t buf_size, loff_t *
 
 ssize_t ndlcom_write(struct file *fp, const char __user *buf, size_t count, loff_t *f_pos)
 {
+    // TODO: implement O_NDELAY, use "fp->f_flags"
+
     // there _should_ only be one fp with writable permission in userspace at
     // any given time, so we don't need locking.
     //
@@ -93,6 +97,7 @@ ssize_t ndlcom_write(struct file *fp, const char __user *buf, size_t count, loff
     if (copy_from_user(fpga_mem_base, buf, 1)) {
         return -EFAULT;
     }
+    // TODO: add memory barrier here
 
     return 1;
 }
@@ -192,6 +197,7 @@ irqreturn_t irq_handler(int irq, void * dev_id)
     // copying the data from fpga-memory will automatically clear the pending
     // interrupt which caused us to be triggered
     uint8_t data = (uint8_t)(*((volatile uint32_t *)fpga_mem_base));
+    // TODO: add memory barrier here
 
     // pointer to entry in linked-list of buffers
     struct recv_buf_t *act_recv_buf = recv_buf_head;
