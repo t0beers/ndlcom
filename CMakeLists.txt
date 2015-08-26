@@ -53,8 +53,10 @@ if (NOT CMAKE_CROSSCOMPILING)
     # for use in shared libraries (MARS, Rock and so on). deliberately only
     # added in the "non-cross" case to keep codesizes small in embedded.
     add_definitions(-fPIC)
-    add_subdirectory(tools)
 endif (NOT CMAKE_CROSSCOMPILING)
+
+# some tooling for debugging and playing around
+add_subdirectory(tools)
 
 # testing has to be enabled explicitly!
 if(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
