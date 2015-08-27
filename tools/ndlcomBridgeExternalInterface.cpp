@@ -273,12 +273,13 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
     std::string pipename_in = std::string(pipename + "_in");
     std::string pipename_out = std::string(pipename + "_out");
 
-    int fd_in = open(pipename_in.c_str(), O_RDONLY | O_NDELAY);
+    int fd_in = open(pipename_in.c_str(), O_RDWR | O_NDELAY);
     if (fd_in == -1) {
+        // fifo might not be there yet, try again
         if (mkfifo(pipename_in.c_str(), 0644) != 0) {
             throw std::runtime_error(strerror(errno));
         }
-        fd_in = open(pipename_in.c_str(), O_RDONLY | O_NDELAY);
+        fd_in = open(pipename_in.c_str(), O_RDWR | O_NDELAY);
         if (fd_in == -1) {
             throw std::runtime_error(strerror(errno));
         }
@@ -306,8 +307,8 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
         throw std::runtime_error(pipename_out + " is not a fifo?");
 
     // convert the file-descriptors to streams
-    str_in = fdopen(fd_in, "r");
-    str_out = fdopen(fd_out, "w");
+    str_in = fdopen(fd_in, "rw");
+    str_out = fdopen(fd_out, "rw");
 }
 
 NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
