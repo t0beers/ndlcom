@@ -114,7 +114,7 @@ void help(const char *_name) {
            "route from one hex-encoded pipe to another:\n"
            "\t%s -u pipe://pipeA -u pipe://pipeB --print-all\n"
            "the following will create random packages:\n"
-           "\twhile(true); do sleep 0.5; %s/ndlcomPacketCreator -H > pipeA_in; done\n"
+           "\twhile (true); do sleep 0.5 ; %s/ndlcomPacketProducer -H > pipeA_in; done\n"
            "now use the following command to print the packages in realtime:\n"
            "\ttail -f pipeB_out | %s/ndlcomPacketConsumer\n"
            "but be careful about buffering... does not work as smoothly as advertised.\n"
