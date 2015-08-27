@@ -16,16 +16,24 @@
 
 void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId) {
 
-    /* NOTE: using the routing table to accept messages directed to us is
-     * dangerous, somebody might override it from outside and prevent us from
-     * receiving messages...
-     */
-    ndlcomRoutingTableInit(&bridge->routingTable);
-
-    ndlcomHeaderPrepareInit(&bridge->headerConfig, ownSenderId);
-
     INIT_LIST_HEAD(&bridge->internalHandlerList);
     INIT_LIST_HEAD(&bridge->externalInterfaceList);
+
+    // this will also initialize the routing table
+    ndlcomBridgeSetOwnSenderId(bridge, ownSenderId);
+}
+
+void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
+                                const NDLComId ownSenderId) {
+
+    /* resets the packet-counters to use for each receiver, and is used to
+     * store our own deviceId at a convenient place */
+    ndlcomHeaderPrepareInit(&bridge->headerConfig, ownSenderId);
+
+    /* we have to (re-)initialize the routing table, as we probably changed our
+     * position inside the network. this also gets rid of our new "own id",
+     * which might be already there */
+    ndlcomRoutingTableInit(&bridge->routingTable);
 }
 
 /* after messages where received by a "struct ExternalInterface" or after they

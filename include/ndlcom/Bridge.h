@@ -66,6 +66,17 @@ struct NDLComBridge {
 void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId);
 
 /**
+ * @brief change the id of the given bridge used for new packages
+ *
+ * re-initializes the routing table as well.
+ *
+ * @param bridge
+ * @param ownSenderId
+ */
+void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
+                                const NDLComId ownSenderId);
+
+/**
  * @brief create a new package and send it away
  *
  * sending messages from the internal side to whomever they may concern.
