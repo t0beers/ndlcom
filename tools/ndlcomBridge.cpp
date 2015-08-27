@@ -33,8 +33,6 @@ double mainLoopFrequency_hz = 100.0;
 
 std::vector<class NDLComBridgeExternalInterface*> allInterfaces;
 
-void help(const char *name) { std::cout << "\nhere comes dragons!\n"; }
-
 void signal_handler(int signal) {
     stopMainLoop = true;
 }
@@ -101,6 +99,34 @@ class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri)
     }
 
     return NULL;
+}
+
+void help(const char *_name) {
+    std::string name(_name);
+    size_t pos = name.find_last_of("/");
+    std::string folder(name.substr(0, pos));
+
+    printf("connect various interfaces and route messages. for exampe:\n"
+           "\n"
+           "route messages from serial to udp on localhost, usable\n"
+           "by CommonGui but with different id:\n"
+           "\t%s --uri udp://localhost:34001:34000 --uri serial:///dev/ttyUSB0:921600 --ownSenderId 9\n"
+           "route from one hex-encoded pipe to another:\n"
+           "\t%s -u pipe://pipeA -u pipe://pipeB --print-all\n"
+           "the following will create random packages:\n"
+           "\twhile(true); do sleep 0.5; %s/ndlcomPacketCreator -H > pipeA_in; done\n"
+           "now use the following command to print the packages in realtime:\n"
+           "\ttail -f pipeB_out | %s/ndlcomPacketConsumer\n"
+           "but be careful about buffering... does not work as smoothly as advertised.\n"
+           "\n"
+           "options:\n"
+           "--uri\t\t-u\tcreate interface. possible: 'fpga', 'serial', 'pipe' and 'udp'\n"
+           "--ownSenderId\t-i\tdeviceId used for the bridge itself\n"
+           "--frequency\t-f\tpolling of the main-loop in Hz\n"
+           "--print-all\t-A\tprint every packet\n"
+           "--print-own\t-O\tprint packet directed to our own device\n"
+           "--print-miss\t-A\tprint miss events in the packet stream\n",
+           name.c_str(),name.c_str(),folder.c_str(),folder.c_str());
 }
 
 int main(int argc, char *argv[]) {
