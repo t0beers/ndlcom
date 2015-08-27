@@ -11,9 +11,14 @@
 // for "struct sockaddr_in" and "socklen_t"
 #include <arpa/inet.h>
 
+/**
+ * virtual base-class to wrap "struct NDLComExternalInterface" into a cpp-class
+ *
+ * stores private reference of the NDLComBridge this interface is connected to.
+ */
 class NDLComBridgeExternalInterface {
   public:
-    NDLComBridgeExternalInterface(NDLComBridge &_bridge);
+    NDLComBridgeExternalInterface(NDLComBridge &_bridge, uint8_t flags = 0);
     virtual ~NDLComBridgeExternalInterface();
 
     static void writeWrapper(void *context, const void *buf,
@@ -41,6 +46,11 @@ class NDLComBridgeStream : public NDLComBridgeExternalInterface {
     void writeEscapedBytes(const void *buf, size_t count);
 };
 
+/**
+ * reading and writing on a serial port with the given baudrate
+ *
+ * straightforward.
+ */
 class NDLComBridgeSerial : public NDLComBridgeStream {
   public:
     NDLComBridgeSerial(NDLComBridge &_bridge, std::string device_name,
@@ -52,6 +62,17 @@ class NDLComBridgeSerial : public NDLComBridgeStream {
     int fd;
 };
 
+/**
+ * use NDLCom-fpga-kernel module, usable on ZynqBrain for example.
+ *
+ * this is basically a device where encoded messages can be read and written
+ * to.
+ *
+ * NOTE: this still needs to be tested on real hardware. but should work, it's
+ * a straight-forward interface.
+ *
+ * note that we do not allow any flags here...
+ */
 class NDLComBridgeFpga : public NDLComBridgeStream {
   public:
     NDLComBridgeFpga(NDLComBridge &_bridge,
@@ -62,10 +83,18 @@ class NDLComBridgeFpga : public NDLComBridgeStream {
     int fd;
 };
 
+/**
+ * passing messages through an udp interface
+ *
+ * tcp is not far away, should be "easy" to add.
+ *
+ * has distinct send- and receive-ports to allows usage on localhost.
+ */
 class NDLComBridgeUdp : public NDLComBridgeExternalInterface {
   public:
     NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
-                    unsigned int in_port, unsigned int out_port);
+                    unsigned int in_port, unsigned int out_port,
+                    uint8_t flags = 0);
     ~NDLComBridgeUdp();
 
     size_t readEscapedBytes(void *buf, size_t count);
@@ -79,6 +108,24 @@ class NDLComBridgeUdp : public NDLComBridgeExternalInterface {
     // length-argument... and the pointer cannot even be a const-one...
     // manman... serious? why?
     socklen_t len;
+};
+
+/**
+ * outputs data on a unix "named pipe" in hex-encoded form ("0x04" and so on)
+ * input is also possible.
+ */
+class NDLComBridgeNamedPipe : public NDLComBridgeExternalInterface {
+  public:
+    NDLComBridgeNamedPipe(NDLComBridge &_bridge, std::string pipename,
+                          uint8_t flags = 0);
+    ~NDLComBridgeNamedPipe();
+
+    size_t readEscapedBytes(void *buf, size_t count);
+    void writeEscapedBytes(const void *buf, size_t count);
+
+  private:
+    FILE *str_in;
+    FILE *str_out;
 };
 
 #endif /*NDLCOMBRIDGEEXTERNALINTERFACE_H*/

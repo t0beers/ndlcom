@@ -28,4 +28,8 @@ if(SEEMS_TO_BE_POSIX)
         rt
         )
 
+    # TODO: write and add a shellbased-test-script which couples multiple
+    # "ndlcomBridge", "ndlcomPacketProducer" and "ndlcomPacketConsumer"
+    # together to tests some things
+
 endif(SEEMS_TO_BE_POSIX)

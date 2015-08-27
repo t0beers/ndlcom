@@ -5,19 +5,22 @@
 #include <errno.h>
 #include <cstdio>
 
+// serial:
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
+// udp:
+#include <netdb.h>
+
 NDLComBridgeExternalInterface::NDLComBridgeExternalInterface(
-    NDLComBridge &_bridge)
+    NDLComBridge &_bridge, uint8_t flags)
     : bridge(_bridge) {
     ndlcomExternalInterfaceInit(
         &external, NDLComBridgeExternalInterface::writeWrapper,
-        NDLComBridgeExternalInterface::readWrapper, this);
+        NDLComBridgeExternalInterface::readWrapper, flags, this);
 
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
@@ -40,15 +43,15 @@ size_t NDLComBridgeExternalInterface::readWrapper(void *context, void *buf,
     return self->readEscapedBytes(buf, count);
 }
 
-NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &bridge)
-    : NDLComBridgeExternalInterface(bridge), fd_read(NULL), fd_write(NULL) {}
+NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &_bridge)
+    : NDLComBridgeExternalInterface(_bridge), fd_read(NULL), fd_write(NULL) {}
 
 NDLComBridgeStream::~NDLComBridgeStream() {
     if (fd_write) {
-        std::fclose(fd_write);
+        fclose(fd_write);
     }
     if (fd_read) {
-        std::fclose(fd_read);
+        fclose(fd_read);
     }
 }
 
@@ -67,7 +70,7 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
 }
 
 void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
-    printf("trying to write %lu bytes\n", count);
+    /* printf("trying to write %lu bytes\n", count); */
     if (!fd_write)
         return;
     size_t alreadyWritten = 0;
@@ -80,12 +83,13 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         }
         alreadyWritten += written;
     }
-    printf("wrote %lu bytes\n", alreadyWritten);
+    /* printf("wrote %lu bytes\n", alreadyWritten); */
     return;
 }
 
 NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
-                                       std::string device_name, speed_t baudrate)
+                                       std::string device_name,
+                                       speed_t baudrate)
     : NDLComBridgeStream(_bridge) {
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
@@ -125,7 +129,8 @@ NDLComBridgeSerial::~NDLComBridgeSerial() {
 NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
                                    std::string device_name)
     : NDLComBridgeStream(_bridge) {
-    fd = open("/dev/NDLCom", O_RDWR);
+    // does non-blocking read work?
+    fd = open("/dev/NDLCom", O_RDWR | O_NDELAY);
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
     }
@@ -133,23 +138,13 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
     fd_write = fdopen(fd, "w");
 }
 
-NDLComBridgeFpga::~NDLComBridgeFpga() {
-    close(fd);
-}
-
-#include <arpa/inet.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
 
 NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
-                                 unsigned int in_port, unsigned int out_port)
-    : NDLComBridgeExternalInterface(_bridge), len(sizeof(struct sockaddr_in)) {
+                                 unsigned int in_port, unsigned int out_port,
+                                 uint8_t flags)
+    : NDLComBridgeExternalInterface(_bridge, flags),
+      len(sizeof(struct sockaddr_in)) {
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
     // conversion to ipv6 needs more than changing this... also convert all
@@ -216,7 +211,7 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
 NDLComBridgeUdp::~NDLComBridgeUdp() { close(fd); }
 
 size_t NDLComBridgeUdp::readEscapedBytes(void *buf, size_t count) {
-    printf("trying to read\n");
+    /* printf("trying to read\n"); */
     struct sockaddr_in addr_recv;
 again:
     ssize_t bytesRead =
@@ -236,13 +231,13 @@ again:
         // TODO: is this correct?
         throw std::runtime_error(strerror(errno));
     }
-    printf("read %lu bytes from '%s:%d'\n", bytesRead,
-           inet_ntoa(addr_recv.sin_addr), ntohs(addr_recv.sin_port));
+    /* printf("read %lu bytes from '%s:%d'\n", bytesRead, */
+    /*        inet_ntoa(addr_recv.sin_addr), ntohs(addr_recv.sin_port)); */
     return bytesRead;
 }
 
 void NDLComBridgeUdp::writeEscapedBytes(const void *buf, size_t count) {
-    printf("trying to write %lu bytes\n", count);
+    /* printf("trying to write %lu bytes\n", count); */
     size_t alreadyWritten = 0;
 again:
     while (alreadyWritten < count) {
@@ -261,9 +256,114 @@ again:
             }
             throw std::runtime_error(strerror(errno));
         }
-        printf("wrote %lu bytes to '%s:%d'\n", written,
-               inet_ntoa(addr_out.sin_addr), ntohs(addr_out.sin_port));
+        /* printf("wrote %lu bytes to '%s:%d'\n", written, */
+        /*        inet_ntoa(addr_out.sin_addr), ntohs(addr_out.sin_port)); */
         alreadyWritten += written;
     }
+    return;
+}
+
+NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
+                                             std::string pipename,
+                                             uint8_t flags)
+    : NDLComBridgeExternalInterface(_bridge, flags) {
+
+    struct stat status_in;
+    struct stat status_out;
+    std::string pipename_in = std::string(pipename + "_in");
+    std::string pipename_out = std::string(pipename + "_out");
+
+    int fd_in = open(pipename_in.c_str(), O_RDONLY | O_NDELAY);
+    if (fd_in == -1) {
+        if (mkfifo(pipename_in.c_str(), 0644) != 0) {
+            throw std::runtime_error(strerror(errno));
+        }
+        fd_in = open(pipename_in.c_str(), O_RDONLY | O_NDELAY);
+        if (fd_in == -1) {
+            throw std::runtime_error(strerror(errno));
+        }
+    }
+    if (fstat(fd_in, &status_in) == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+    if (!S_ISFIFO(status_in.st_mode))
+        throw std::runtime_error(pipename_in + " is not a fifo?");
+
+    int fd_out = open(pipename_out.c_str(), O_RDWR | O_NDELAY);
+    if (fd_out == -1) {
+        if (mkfifo(pipename_out.c_str(), 0644) != 0) {
+            throw std::runtime_error(strerror(errno));
+        }
+        fd_out = open(pipename_out.c_str(), O_RDWR | O_NDELAY);
+        if (fd_out == -1) {
+            throw std::runtime_error(strerror(errno));
+        }
+    }
+    if (fstat(fd_out, &status_out) == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+    if (!S_ISFIFO(status_out.st_mode))
+        throw std::runtime_error(pipename_out + " is not a fifo?");
+
+    // convert the file-descriptors to streams
+    str_in = fdopen(fd_in, "r");
+    str_out = fdopen(fd_out, "w");
+}
+
+NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
+    // calling "fclose" will close the underlying fd as well
+    fclose(str_in);
+    fclose(str_out);
+    // we do _not_ delete the pipes on exit, even if we created them!
+}
+
+size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
+    // wanna accept strings like "0xff 0x88..." and convert them to raw bytes
+    // into the provided char-array, which is returned to the caller for
+    // parsing. non-blocking!
+
+    size_t readSoFar = 0;
+    unsigned int byte = 0;
+    int amount = -1;
+    while (readSoFar < count) {
+        int scanRet = fscanf(str_in, " 0x%02x%n", &byte, &amount);
+
+        if (scanRet == EINTR) {
+            // ignore signals (sigpipe comes to mind)
+            continue;
+        }
+        if (scanRet == EOF) {
+            break;
+        } else if (scanRet == 0) {
+            // could not read anything... discard some bytes. TODO: this should
+            // be doable more efficiently...
+            char t[2];
+            // should not return EOF, "fscanf()" should have handled this
+            fgets(t, 2, str_in);
+            /* std::cout << "found nothing, destroyed: " << t << "\n"; */
+        } else if (scanRet == 1) {
+            /* std::cout << "jo, did read: 0x" << std::hex << byte << std::dec
+             */
+            /*           << " from " << amount << "bytes\n"; */
+            ((uint8_t *)buf)[readSoFar++] = (uint8_t)byte;
+        } else {
+            throw std::runtime_error("huh? I'm lost");
+        }
+    }
+
+    /* std::cout << "all in all, got " << readSoFar << "bytes\n"; */
+
+    return readSoFar;
+}
+
+void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
+    // simple
+    for (size_t i = 0; i < count; ++i) {
+        fprintf(str_out, "0x%02x ", (int)((uint8_t *)buf)[i]);
+    }
+
+    fprintf(str_out, "\n");
+    fflush(str_out);
+
     return;
 }

@@ -1,11 +1,11 @@
 /**
- * <martin.zenzes@dfki.de> 2015
- *
  * TODO:
  * - add "debug mirror" class of ports. supposed so send out _all_ messages
  *   going through the bridge, and accept messages, using "internal" as
  *   "origin"
  * - what about security? ssh? accept all connection?
+ *
+ * <martin.zenzes@dfki.de> 2015
  *
  */
 #include <getopt.h>
@@ -39,9 +39,15 @@ void signal_handler(int signal) {
     stopMainLoop = true;
 }
 
+class NDLComBridgePrintAll* printAll = NULL;
+class NDLComBridgePrintOwnId* printOwn = NULL;
+class NDLComBridgePrintMissEvents* printMiss = NULL;
+
 class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri) {
     std::string serial = "serial://";
     std::string udp = "udp://";
+    std::string pipe = "pipe://";
+    std::string fpga = "fpga://";
 
     if (uri.compare(0, serial.length(), serial) == 0) {
         size_t begin_device = uri.find(serial) + serial.size();
@@ -51,7 +57,8 @@ class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri)
         std::stringstream baudstring(uri.substr(begin_baud));
         speed_t baudrate;
         baudstring >> baudrate;
-        std::cout << "opening '" << device << "' with " << baudrate << "baud\n";
+        std::cout << "opening serial '" << device << "' with " << baudrate
+                  << "baud\n";
         return new NDLComBridgeSerial(bridge, device, baudrate);
     } else if (uri.compare(0, udp.length(), udp) == 0) {
         size_t begin_hostname = uri.find(udp) + udp.size();
@@ -61,15 +68,36 @@ class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri)
             uri.substr(begin_hostname, begin_inport - begin_hostname - 1));
         std::stringstream inportstring(
             uri.substr(begin_inport, begin_outport - begin_inport - 1));
-        std::stringstream outportstring(
-            uri.substr(begin_outport));
+        std::stringstream outportstring(uri.substr(begin_outport));
         unsigned int inport;
         unsigned int outport;
         inportstring >> inport;
         outportstring >> outport;
-        std::cout << "opening '" << hostname << "' with inport " << inport
+        if (inport == 0) {
+            inport = 34000;
+            std::cout << "falling back to default inport of '" << inport
+                      << "'\n";
+        }
+        if (outport == 0) {
+            outport = 34001;
+            std::cout << "falling back to default outport of '" << outport
+                      << "'\n";
+        }
+        std::cout << "opening udp '" << hostname << "' with inport " << inport
                   << " and outport " << outport << "\n";
         return new NDLComBridgeUdp(bridge, hostname, inport, outport);
+    } else if (uri.compare(0, pipe.length(), pipe) == 0) {
+        size_t begin_pipename = uri.find(pipe) + pipe.size();
+        std::string pipename(uri.substr(begin_pipename));
+        std::cout << "opening pipe '" << pipename << "'\n";
+        return new NDLComBridgeNamedPipe(bridge, pipename);
+    } else if (uri.compare(0, fpga.length(), fpga) == 0) {
+        size_t begin_fpganame = uri.find(fpga) + fpga.size();
+        std::string fpganame(uri.substr(begin_fpganame));
+        if (fpganame.empty())
+            fpganame = "/dev/NDLCom";
+        std::cout << "opening fpga '" << fpganame << "'\n";
+        return new NDLComBridgeFpga(bridge, fpganame);
     }
 
     return NULL;
@@ -87,9 +115,12 @@ int main(int argc, char *argv[]) {
             {"uri", required_argument, 0, 'u'},
             {"ownSenderId", required_argument, 0, 'i'},
             {"frequency", required_argument, 0, 'f'},
+            {"print-all", no_argument, 0, 'A'},
+            {"print-own", no_argument, 0, 'O'},
+            {"print-miss", no_argument, 0, 'M'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "u:i:f:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "u:i:f:AOMh", long_options, &option_index);
         if (c == -1) {
             break;
         }
@@ -117,6 +148,34 @@ int main(int argc, char *argv[]) {
             ss >> mainLoopFrequency_hz;
             break;
         }
+        // these will be deleted implicitly on programm exit
+        case 'A': {
+            if (printAll == NULL) {
+                printAll = new NDLComBridgePrintAll(bridge);
+            } else {
+                help(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+            break;
+        }
+        case 'O': {
+            if (printOwn == NULL) {
+                printOwn = new NDLComBridgePrintOwnId(bridge);
+            } else {
+                help(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+            break;
+        }
+        case 'M': {
+            if (printMiss == NULL) {
+                printMiss = new NDLComBridgePrintMissEvents(bridge);
+            } else {
+                help(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+            break;
+        }
         case 'h':
         case '?':
         default:
@@ -131,10 +190,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // initialize this object _after_ "ndlcomBridgeInit()" was called
-    class NDLComBridgePrintAll printAllReceivedPackages(bridge);
-    class NDLComBridgePrintOwnId printOwnPackages(bridge);
-
     std::signal(SIGINT, signal_handler);
 
     useconds_t usleep_us = round(1. / mainLoopFrequency_hz * 1000000);
@@ -145,8 +200,7 @@ int main(int argc, char *argv[]) {
     while (!stopMainLoop) {
         //printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
-
-        ndlcomBridgeSend(&bridge, 0x01, 0, 0);
+        ndlcomBridgeSend(&bridge, 0x09, 0, 0);
 
         usleep(usleep_us);
     }
@@ -158,6 +212,20 @@ int main(int argc, char *argv[]) {
         delete *it;
     }
     allInterfaces.clear();
+
+    /* more cleaning up */
+    if (printAll) {
+        delete printAll;
+        printAll = NULL;
+    }
+    if (printOwn) {
+        delete printOwn;
+        printOwn = NULL;
+    }
+    if (printMiss) {
+        delete printMiss;
+        printMiss = NULL;
+    }
 
     std::cout << "quitting\n";
 
