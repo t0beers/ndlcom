@@ -11,6 +11,9 @@ void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable) {
 
 void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
                                   const NDLComId receiverId) {
+    /* handle broadcastId special */
+    if (receiverId == NDLCOM_ADDR_BROADCAST)
+        return NDLCOM_ROUTING_ALL_INTERFACES;
     return routingTable->table[receiverId];
 }
 
