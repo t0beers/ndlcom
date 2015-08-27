@@ -4,6 +4,7 @@
 #include "ndlcom/HeaderPrepare.h"
 #include "ndlcom/Routing.h"
 #include "ndlcom/Interfaces.h"
+#include "ndlcom/list.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -52,18 +53,8 @@ struct NDLComBridge {
      */
     struct NDLComHeaderConfig headerConfig;
 
-    struct listI_t {
-        struct NDLComInternalHandler* handler;
-        struct list_t* next;
-    } listI;
-    struct listE_t {
-        struct NDLComExternalInterface* interface;
-        struct list_t* next;
-    } listE;
-
-    /* and linked lists of internal and external interfaces */
-    struct NDLComInternalHandler *internalInterfaces;
-    struct NDLComExternalInterface *externalInterfaces;
+    struct list_head internalHandlerList;
+    struct list_head externalInterfaceList;
 };
 
 /**
@@ -127,12 +118,11 @@ void ndlcomBridgeRegisterInternalHandler(
 void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge, struct NDLComExternalInterface *interface);
 
-/* TODO: */
 void ndlcomBridgeDeregisterInternalHandler(
-    struct NDLComBridge *bridge, const struct NDLComInternalHandler *interface);
+    struct NDLComBridge *bridge, struct NDLComInternalHandler *interface);
+
 void ndlcomBridgeDeregisterExternalInterface(
-    struct NDLComBridge *bridge,
-    const struct NDLComExternalInterface *interface);
+    struct NDLComBridge *bridge, struct NDLComExternalInterface *interface);
 
 #if defined(__cplusplus)
 }

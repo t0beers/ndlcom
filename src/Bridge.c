@@ -14,16 +14,6 @@
 #define NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE NDLCOM_MAX_ENCODED_MESSAGE_SIZE
 #endif
 
-void ndlcomBridgeProcessExternalInterface(
-    struct NDLComBridge *bridge, struct NDLComExternalInterface *external);
-
-/* processing packages after they are in "header,payload" form. decide
- * where to put them. also used for newly sent packages from the inside. */
-void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
-                                        const struct NDLComHeader *header,
-                                        const void *payload, void *origin);
-
-
 void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId) {
 
     /* NOTE: using the routing table to accept messages directed to us is
@@ -34,12 +24,12 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId) {
 
     ndlcomHeaderPrepareInit(&bridge->headerConfig, ownSenderId);
 
-    bridge->internalInterfaces = 0;
-    bridge->externalInterfaces = 0;
+    INIT_LIST_HEAD(&bridge->internalHandlerList);
+    INIT_LIST_HEAD(&bridge->externalInterfaceList);
 }
 
-/* after messages where received on a external interface or after they are
- * assembled at the internal interface go through this function.
+/* after messages where received by a "struct ExternalInterface" or after they
+ * are assembled at the InternalHandler go through this function.
  *
  * FIXME: we do not know (yet) if the message has to go outside _at all_. this
  * might lead to encoding too much...
@@ -67,14 +57,15 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
     if ((header->mReceiverId == NDLCOM_ADDR_BROADCAST) ||
         (destination == NDLCOM_ROUTING_ALL_INTERFACES)) {
 
-        /* start looping the linked list */
-        struct NDLComExternalInterface *external = bridge->externalInterfaces;
-        while (external) {
+        /* loop through all interfaces */
+        struct NDLComExternalInterface *externalInterface;
+        list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
+                            list) {
             /* don't echo messages back to their origin */
-            if (origin != external)
-                external->write(external->context, txBuffer, len);
-            /* step on */
-            external = external->next;
+            if (origin != externalInterface) {
+                externalInterface->write(externalInterface->context, txBuffer,
+                                         len);
+            }
         }
 
     }
@@ -97,8 +88,7 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
              */
         }
         /* think about this... routing table can still return "0" when asked
-         * where to route packets for _us_
-         */
+         * where to route packets for _us_ */
         else {
             destination->write(destination->context, txBuffer, len);
         }
@@ -119,7 +109,7 @@ void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
                          const struct NDLComHeader *header, const void *payload,
                          const size_t size) {
     /* in the end, transmitting a message from internal is nothing but
-     * forwarding with the internal interface as origin
+     * forwarding with the bridge as origin.
      *
      * NOTE: this origin does not have to be used... the forwarder can also
      * look at the senderId. but it needs a unique (nonzero) pointer... little
@@ -129,105 +119,95 @@ void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, &bridge);
 }
 
-/* the "main" function: going sequentially through all interfaces and
- * trying to read bytes for processing. handle all detected messages.
- */
-void ndlcomBridgeProcess(struct NDLComBridge *bridge) {
-
-    struct NDLComExternalInterface *external = bridge->externalInterfaces;
-    while (external) {
-        ndlcomBridgeProcessExternalInterface(bridge, external);
-        external = external->next;
-    }
-}
-
 void ndlcomBridgeProcessExternalInterface(
-    struct NDLComBridge *bridge, struct NDLComExternalInterface *external) {
+    struct NDLComBridge *bridge, struct NDLComExternalInterface *externalInterface) {
 
     uint8_t rawReadBuffer[NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE];
     size_t bytesRead;
     size_t bytesProcessed;
+    const struct NDLComInternalHandler *internalHandler;
 
     const struct NDLComHeader *header;
     const void *payload;
-    const struct NDLComInternalHandler *inter;
 
     do {
         bytesProcessed = 0;
-        bytesRead = external->read(external->context, rawReadBuffer,
+        bytesRead = externalInterface->read(externalInterface->context, rawReadBuffer,
                                    sizeof(rawReadBuffer));
 
         do {
             bytesProcessed += ndlcomParserReceive(
-                &external->parser, rawReadBuffer + bytesProcessed,
+                &externalInterface->parser, rawReadBuffer + bytesProcessed,
                 bytesRead - bytesProcessed);
 
-            if (ndlcomParserHasPacket(&external->parser)) {
+            if (ndlcomParserHasPacket(&externalInterface->parser)) {
 
-                header = ndlcomParserGetHeader(&external->parser);
-                payload = ndlcomParserGetPacket(&external->parser);
+                header = ndlcomParserGetHeader(&externalInterface->parser);
+                payload = ndlcomParserGetPacket(&externalInterface->parser);
 
                 /* always update the routing table with the pointer to the
                  * ExternalInterface where the message came from.
                  */
                 ndlcomRoutingTableUpdate(&bridge->routingTable,
-                                         header->mSenderId, external);
+                                         header->mSenderId, externalInterface);
 
-                /* first this: call the internal handlers. they accept the
+                /* first this: call the InternalHandlers. they accept the
                  * already decoded message:
                  */
-                inter = bridge->internalInterfaces;
-                while (inter) {
-                    inter->handler(inter->context, header, payload);
-                    inter = inter->next;
+                list_for_each_entry(internalHandler,
+                                    &bridge->internalHandlerList, list) {
+                    internalHandler->handler(internalHandler->context, header,
+                                             payload);
                 }
 
                 /* try to forward the message */
                 ndlcomBridgeProcessOutgoingMessage(bridge, header, payload,
-                                                   external);
+                                                   externalInterface);
 
                 /* and cleaning up the parser, for the next loop */
-                ndlcomParserDestroyPacket(&external->parser);
+                ndlcomParserDestroyPacket(&externalInterface->parser);
             }
 
         } while (bytesRead != bytesProcessed);
     } while (bytesRead > 0);
 }
 
-void ndlcomBridgeRegisterInternalHandler(
-    struct NDLComBridge *bridge, struct NDLComInternalHandler *interface) {
+/* the "main" function: going sequentially through all interfaces and
+ * trying to read bytes for processing. handle all detected messages.
+ */
+void ndlcomBridgeProcess(struct NDLComBridge *bridge) {
 
-    /* note the given datastructure in the "NDLComBridge": traverse linked list
-     * of known internal interfaces from "bridge" until leaf
-     */
-    if (bridge->internalInterfaces) {
-        struct NDLComInternalHandler *leaf = bridge->internalInterfaces;
-        while (leaf->next) {
-            leaf = leaf->next;
-        }
-        leaf->next = interface;
+    struct NDLComExternalInterface *externalInterface;
+    list_for_each_entry(externalInterface, &bridge->externalInterfaceList, list) {
+        ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
     }
-    /* first interface added... */
-    else {
-        bridge->internalInterfaces = interface;
-    }
+
+}
+
+void ndlcomBridgeRegisterInternalHandler(
+    struct NDLComBridge *bridge,
+    struct NDLComInternalHandler *internalHandler) {
+
+    list_add(&internalHandler->list, &bridge->internalHandlerList);
 }
 
 void ndlcomBridgeRegisterExternalInterface(
-    struct NDLComBridge *bridge, struct NDLComExternalInterface *interface) {
+    struct NDLComBridge *bridge,
+    struct NDLComExternalInterface *externalInterface) {
 
-    /* note the given datastructure in the "NDLComBridge": traverse linked list
-     * of known internal interfaces from "bridge" until leaf
-     */
-    if (bridge->externalInterfaces) {
-        struct NDLComExternalInterface *leaf = bridge->externalInterfaces;
-        while (leaf->next) {
-            leaf = leaf->next;
-        }
-        leaf->next = interface;
-    }
-    /* first interface added... */
-    else {
-        bridge->externalInterfaces = interface;
-    }
+    list_add(&externalInterface->list, &bridge->externalInterfaceList);
+}
+
+void ndlcomBridgeDeregisterInternalHandler(
+    struct NDLComBridge *bridge,
+    struct NDLComInternalHandler *internalHandler) {
+
+    list_del(&internalHandler->list);
+}
+
+void ndlcomBridgeDeregisterExternalInterface(
+    struct NDLComBridge *bridge,
+    struct NDLComExternalInterface *externalInterface) {
+
+    list_del(&externalInterface->list);
 }

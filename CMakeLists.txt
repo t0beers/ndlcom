@@ -39,6 +39,7 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Routing.h
     include/${PROJECT_NAME}/Interfaces.h
     include/${PROJECT_NAME}/Bridge.h
+    include/${PROJECT_NAME}/list.h
 )
 
 # define the lib

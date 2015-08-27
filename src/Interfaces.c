@@ -1,18 +1,22 @@
 #include "ndlcom/Interfaces.h"
 
-void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internal,
+void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internalHandler,
                                NDLComHandlerFkt handler, void *context) {
-    internal->context = context;
-    internal->handler = handler;
-    internal->next = 0;
+    internalHandler->context = context;
+    internalHandler->handler = handler;
+
+    INIT_LIST_HEAD(&internalHandler->list);
 }
 
-void ndlcomExternalInterfaceInit(struct NDLComExternalInterface *external,
-                                 NDLComWriteEscapedBytes write,
-                                 NDLComReadEscapedBytes read, void *context) {
-    external->context = context;
-    external->read = read;
-    external->write = write;
-    external->next = 0;
-    ndlcomParserCreate(&external->parser, sizeof(struct NDLComParser));
+void ndlcomExternalInterfaceInit(
+    struct NDLComExternalInterface *externalInterface,
+    NDLComWriteEscapedBytes write, NDLComReadEscapedBytes read, void *context) {
+
+    externalInterface->context = context;
+    externalInterface->read = read;
+    externalInterface->write = write;
+
+    ndlcomParserCreate(&externalInterface->parser, sizeof(struct NDLComParser));
+
+    INIT_LIST_HEAD(&externalInterface->list);
 }
