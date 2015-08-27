@@ -13,39 +13,36 @@ extern "C" {
 /**
  * @brief encapsulate routing and handling of NDLCom messages
  *
- * A bridge has a number of internal and external interfaces. A bridge has one
- * routing table and one senderId (personality)
+ * A "NDLComBridge" has a number of internal and external interfaces. A
+ * "NDLComBridge" has one routing table and one senderId (eg: a personality).
  *
- * todo:
- * - nice testing would be two bridges in one programm, talking to each other.
- *   use this for benchmarking and stress testing...
- * benchmarking:
- * - need commandline options for "multiInterfaceTest"
- * - measure average _user_ time spent in "process" via commandline option?
- * - time is strongly kernel dependent...
- * - shell script sets up some bridge processes with pipes, connect pipes via
- *   "tail -f"
+ * TODO:
  * - fix this strange "pipe does only work after bridge restart" problem...
+ * - really nice would be a cpp-class for doing the packet-statistics of the
+ *   CommStat2 widget. thinking about an ncurses interface for the
+ *   ndlcomBridge...
  *
- * questions:
+ * open questions:
  * - does a bridge have one and only one ownSenderId?
- * - does a bridge have one and only one receiverId? maybe we wanna listen to
- *   more than one...
+ * - does it make sense to have a bridge _without_ ownId? and then implement
+ *   the whole "own packet handling" as part of an "InternalHandler"...
+ *   gut-feeling says: this would lead to problems in routing, where we have to
+ *   treat the "internal" stuff special. broadcasts for example? this might
+ *   lead to problems when different "internal" things send messages... do they
+ *   see each other? should not be the case... or?
  *
- * design decisions
+ * explicit design decisions
  * - receiving of packages _always_ leads to complete de-escaping them.
  *   forwarding is done in the "header,payload" form. no cut-through
- *   forwarding of escaped bytes...
+ *   forwarding of still escaped bytes...
  * - always keep embedded/bare-metal in mind: try to avoid calls to
- *   malloc!
- * - processing done after single-point-of-entry, no threading, non-blocking
- *   IO... effectively polling the interfaces...
- * - iff this sticks to c++, go through the code and root-out exceptions by
- *   enforcing "noexcept"
+ *   malloc in the "core", keep c++ out
+ * - processing done after calling a single-point-of-entry. no threading, users
+ *   have to provide non-blocking IO... effectively polling the interfaces...
  */
 struct NDLComBridge {
 
-    /* the whole bridge has one global RoutingTable */
+    /** the whole bridge has one global RoutingTable */
     struct NDLComRoutingTable routingTable;
     /**
      * it also encodes correct packetCounters. this struct is also used to
@@ -79,8 +76,8 @@ struct NDLComBridge {
 /**
  * @brief initializes the datastructure
  *
- * @param bridge
- * @param ownSenderId
+ * @param bridge pointer to "struct NDLComBridge" which has to be initialized.
+ * @param ownSenderId provide an "NDLComId" during initialization. can be changed later.
  */
 void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId);
 
