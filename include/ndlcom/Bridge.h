@@ -53,8 +53,27 @@ struct NDLComBridge {
      */
     struct NDLComHeaderConfig headerConfig;
 
+    /**
+     * these are called for _each_ single message after it was decoded, prior
+     * to beeing forwarded.
+     */
     struct list_head internalHandlerList;
+
+    /**
+     * only called if the receiver is _our_ node
+     */
+    struct list_head ownIdInternelHandlerList;
+
+    /**
+     * these are the interfaces which are used to receive and transmit bytes
+     * from the real world
+     */
     struct list_head externalInterfaceList;
+
+    /**
+     * used to mirror all messages, independent from the routing table
+     */
+    struct list_head debugMirrorInterfaceList;
 };
 
 /**

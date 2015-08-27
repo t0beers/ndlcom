@@ -8,6 +8,25 @@
 extern "C" {
 #endif
 
+/**
+ * causes an "internal handler" to be only called when the receiverId is our
+ * own Id or the broadcast id. by default, the internal handlers are called for
+ * _every_ packet going through the bridge
+ */
+#define NDLCOM_INTERNAL_HANDLER_FLAGS_ONLY_OWN_ID 0x01
+
+/**
+ * this flag will cause the added interface to be a "debug mirror". it's
+ * purpose is to treat incoming messages as if they originate from the internal
+ * side, for write out _all_ messages passing through the bridge, additionally
+ * to the normal "routing".
+ */
+#define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR 0x01
+
+/**
+ * callback-function for handling internal packets. note that you have to
+ * _know_ was is passed in the "context" pointer.
+ */
 typedef void (*NDLComHandlerFkt)(void *context,
                                  const struct NDLComHeader *header,
                                  const void *payload);
@@ -17,12 +36,15 @@ struct NDLComInternalHandler {
      * three usecases for the "context" pointer:
      * - reply to a message by sending messages to the outside --
      *   bridge-pointer as context
-     * - print received messages to stdout -- no context
-     * - count missEvents, do statistics... -- own "this" as context
+     * - print all received messages to stdout -- no context
+     * - count missEvents, do statistics... -- own "this" as context, where
+     *   additional data can be stored
      *
-     * not so godd: you have to know what you do...
+     * not so good: you have to know what you do...
      */
     void *context;
+    /** influences the behaviour of the internal handler */
+    uint8_t flags;
     /** function called to handle all decoded packets */
     NDLComHandlerFkt handler;
     /** stored  inside a doubly linked list as part of a "NDLComBridge" */
@@ -36,17 +58,29 @@ struct NDLComInternalHandler {
  * @param context
  */
 void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internalHandler,
-                               NDLComHandlerFkt handler, void *context);
+                               NDLComHandlerFkt handler, const uint8_t flags,
+                               void *context);
 
-
+/**
+ * callback function "write" of escaped data. note that this function will be
+ * in the critical path of the "ndlcomBridgeProcess()" function. is should
+ * complete fast and never block.
+ */
 typedef void (*NDLComWriteEscapedBytes)(void *context, const void *buf,
                                         const size_t count);
+/**
+ * callback function "read" of escaped data. note that this function will be
+ * in the critical path of the "ndlcomBridgeProcess()" function. is should
+ * complete fast and never block.
+ */
 typedef size_t (*NDLComReadEscapedBytes)(void *context, void *buf,
                                          const size_t count);
 
 struct NDLComExternalInterface {
     /* the context will be provided in the read/write functions */
     void *context;
+    /** influences the behaviour of the external interface */
+    uint8_t flags;
     /* every interface needs its parser */
     struct NDLComParser parser;
     NDLComReadEscapedBytes read;
@@ -64,7 +98,8 @@ struct NDLComExternalInterface {
  */
 void ndlcomExternalInterfaceInit(
     struct NDLComExternalInterface *externalInterface,
-    NDLComWriteEscapedBytes write, NDLComReadEscapedBytes read, void *context);
+    NDLComWriteEscapedBytes write, NDLComReadEscapedBytes read,
+    const uint8_t flags, void *context);
 
 #if defined(__cplusplus)
 }
