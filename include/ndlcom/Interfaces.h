@@ -21,7 +21,7 @@ struct NDLComInternalHandler {
     void *context;
     /** called to handle all decoded packets */
     NDLComHandlerFkt handler;
-    /** poor-mans linked list: we have probably many than this interface */
+    /** poor-mans linked list: we have probably more than this single interface */
     struct NDLComInternalHandler *next;
 };
 

@@ -3,6 +3,17 @@
 #include "ndlcom/HeaderPrepare.h"
 #include "ndlcom/Routing.h"
 
+/**
+ * the size if the temporary rxBuffer, used between kernel and parser
+ *
+ * one encoded message seems like a good guess...
+ *
+ * can be inflluenced at compile-time
+ */
+#ifndef NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE
+#define NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE NDLCOM_MAX_ENCODED_MESSAGE_SIZE
+#endif
+
 void ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge, struct NDLComExternalInterface *external);
 
@@ -36,8 +47,11 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId) {
 void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                                         const struct NDLComHeader *header,
                                         const void *payload, void *origin) {
-    /* at first the message needs to be encoded */
-    uint8_t txBuffer[NDLCOM_MAX_ENCODED_MESSAGE_SIZE];
+    /* at first the message needs to be encoded
+     *
+     * NOTE: variable length array, so eventually safe some stack?
+     */
+    uint8_t txBuffer[NDLCOM_MAX_ENCODED_MESSAGE_SIZE_FOR_PACKET(header)];
     size_t len = ndlcomEncode(txBuffer, sizeof(txBuffer), header, payload);
 
     /* ask routing table */
@@ -64,8 +78,7 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         }
 
     }
-    /* TODO: what if somehow our "ownSenderId" is added into the routing table?
-       */
+    /* TODO: if somehow our "ownSenderId" is added into the routing table?  */
     else {
         /* NOTE: when throwing random messages at one interface,
          * this interface will slowly accumulate all deviceIds. so
@@ -109,12 +122,11 @@ void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
      * forwarding with the internal interface as origin
      *
      * NOTE: this origin does not have to be used... the forwarder can also
-     * look at the senderId
-     *
-     * FIXME: just have some (nonzero) unique pointer... dangerous since it
-     * might be casted to an "NDLComExternalInterface"...
+     * look at the senderId. but it needs a unique (nonzero) pointer... little
+     * bit dangerous since it might be casted to an "struct
+     * NDLComExternalInterface"...
      */
-    ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, 0);
+    ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, &bridge);
 }
 
 /* the "main" function: going sequentially through all interfaces and
@@ -132,7 +144,7 @@ void ndlcomBridgeProcess(struct NDLComBridge *bridge) {
 void ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge, struct NDLComExternalInterface *external) {
 
-    uint8_t rawReadBuffer[256];
+    uint8_t rawReadBuffer[NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE];
     size_t bytesRead;
     size_t bytesProcessed;
 

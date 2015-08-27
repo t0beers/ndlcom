@@ -43,11 +43,23 @@ extern "C" {
  *   enforcing "noexcept"
  */
 struct NDLComBridge {
+
     /* the whole bridge has one global RoutingTable */
     struct NDLComRoutingTable routingTable;
-
-    /* encodes corrent packetCounters and senderId */
+    /**
+     * it also encodes correct packetCounters. this struct is also used to
+     * store the ownSenderId.
+     */
     struct NDLComHeaderConfig headerConfig;
+
+    struct listI_t {
+        struct NDLComInternalHandler* handler;
+        struct list_t* next;
+    } listI;
+    struct listE_t {
+        struct NDLComExternalInterface* interface;
+        struct list_t* next;
+    } listE;
 
     /* and linked lists of internal and external interfaces */
     struct NDLComInternalHandler *internalInterfaces;
