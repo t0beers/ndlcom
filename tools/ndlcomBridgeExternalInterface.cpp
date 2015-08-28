@@ -43,8 +43,9 @@ size_t NDLComBridgeExternalInterface::readWrapper(void *context, void *buf,
     return self->readEscapedBytes(buf, count);
 }
 
-NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &_bridge)
-    : NDLComBridgeExternalInterface(_bridge), fd_read(NULL), fd_write(NULL) {}
+NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &_bridge, uint8_t flags)
+    : NDLComBridgeExternalInterface(_bridge, flags), fd_read(NULL),
+      fd_write(NULL) {}
 
 NDLComBridgeStream::~NDLComBridgeStream() {
     if (fd_write) {
@@ -89,8 +90,8 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
 
 NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
                                        std::string device_name,
-                                       speed_t baudrate)
-    : NDLComBridgeStream(_bridge) {
+                                       speed_t baudrate, uint8_t flags)
+    : NDLComBridgeStream(_bridge, flags) {
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
@@ -169,10 +170,12 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     }
 
     // FIXME: if multiple results are provided: how to choose?
-    for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next) {
-        printf("hostname: '%s' resolved to '%s'\n", hostname.c_str(),
-               inet_ntoa(((struct sockaddr_in *)rp->ai_addr)->sin_addr));
-    }
+    /* int ctr = 0; */
+    /* for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next) { */
+    /*     printf("hostname %i: '%s' resolved to '%s'\n", ctr++,
+     * hostname.c_str(), */
+    /*            inet_ntoa(((struct sockaddr_in *)rp->ai_addr)->sin_addr)); */
+    /* } */
 
     // copy the resulting address to "addr_in" variable
     memcpy(&addr_in, (struct sockaddr_in *)result->ai_addr,
@@ -364,6 +367,8 @@ void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
     }
 
     fprintf(str_out, "\n");
+    // writing to pipes is not soo reliable... do not fully understand what is
+    // going on there...
     fflush(str_out);
 
     return;

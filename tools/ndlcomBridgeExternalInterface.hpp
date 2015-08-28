@@ -35,7 +35,7 @@ class NDLComBridgeExternalInterface {
 
 class NDLComBridgeStream : public NDLComBridgeExternalInterface {
   public:
-    NDLComBridgeStream(NDLComBridge &_bridge);
+    NDLComBridgeStream(NDLComBridge &_bridge, uint8_t flags = 0);
     ~NDLComBridgeStream();
 
   protected:
@@ -54,7 +54,7 @@ class NDLComBridgeStream : public NDLComBridgeExternalInterface {
 class NDLComBridgeSerial : public NDLComBridgeStream {
   public:
     NDLComBridgeSerial(NDLComBridge &_bridge, std::string device_name,
-                       speed_t baudrate);
+                       speed_t baudrate, uint8_t flags = 0);
     ~NDLComBridgeSerial();
 
   private:

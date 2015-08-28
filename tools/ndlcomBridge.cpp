@@ -31,17 +31,16 @@ bool stopMainLoop = false;
 
 double mainLoopFrequency_hz = 100.0;
 
-std::vector<class NDLComBridgeExternalInterface*> allInterfaces;
+std::vector<class NDLComBridgeExternalInterface *> allInterfaces;
 
-void signal_handler(int signal) {
-    stopMainLoop = true;
-}
+void signal_handler(int signal) { stopMainLoop = true; }
 
-class NDLComBridgePrintAll* printAll = NULL;
-class NDLComBridgePrintOwnId* printOwn = NULL;
-class NDLComBridgePrintMissEvents* printMiss = NULL;
+class NDLComBridgePrintAll *printAll = NULL;
+class NDLComBridgePrintOwnId *printOwn = NULL;
+class NDLComBridgePrintMissEvents *printMiss = NULL;
 
-class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri) {
+class NDLComBridgeExternalInterface *
+parseUriAndCreateInterface(std::string uri, uint8_t flags = 0) {
     std::string serial = "serial://";
     std::string udp = "udp://";
     std::string pipe = "pipe://";
@@ -57,7 +56,7 @@ class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri)
         baudstring >> baudrate;
         std::cout << "opening serial '" << device << "' with " << baudrate
                   << "baud\n";
-        return new NDLComBridgeSerial(bridge, device, baudrate);
+        return new NDLComBridgeSerial(bridge, device, baudrate, flags);
     } else if (uri.compare(0, udp.length(), udp) == 0) {
         size_t begin_hostname = uri.find(udp) + udp.size();
         size_t begin_inport = uri.find(":", begin_hostname) + 1;
@@ -83,12 +82,12 @@ class NDLComBridgeExternalInterface* parseUriAndCreateInterface(std::string uri)
         }
         std::cout << "opening udp '" << hostname << "' with inport " << inport
                   << " and outport " << outport << "\n";
-        return new NDLComBridgeUdp(bridge, hostname, inport, outport);
+        return new NDLComBridgeUdp(bridge, hostname, inport, outport, flags);
     } else if (uri.compare(0, pipe.length(), pipe) == 0) {
         size_t begin_pipename = uri.find(pipe) + pipe.size();
         std::string pipename(uri.substr(begin_pipename));
         std::cout << "opening pipe '" << pipename << "'\n";
-        return new NDLComBridgeNamedPipe(bridge, pipename);
+        return new NDLComBridgeNamedPipe(bridge, pipename, flags);
     } else if (uri.compare(0, fpga.length(), fpga) == 0) {
         size_t begin_fpganame = uri.find(fpga) + fpga.size();
         std::string fpganame(uri.substr(begin_fpganame));
@@ -106,27 +105,39 @@ void help(const char *_name) {
     size_t pos = name.find_last_of("/");
     std::string folder(name.substr(0, pos));
 
-    printf("connect various interfaces and route messages. for exampe:\n"
+    printf("connect various interfaces and route messages. for example:\n"
            "\n"
            "route messages from serial to udp on localhost, usable\n"
            "by CommonGui but with different id:\n"
-           "\t%s --uri udp://localhost:34001:34000 --uri serial:///dev/ttyUSB0:921600 --ownSenderId 9\n"
+           "\t%s --uri udp://localhost:34001:34000 --uri "
+           "serial:///dev/ttyUSB0:921600 --ownSenderId 9\n"
            "route from one hex-encoded pipe to another:\n"
+           "\n"
            "\t%s -u pipe://pipeA -u pipe://pipeB --print-all\n"
+           "\n"
            "the following will create random packages:\n"
-           "\twhile (true); do sleep 0.5 ; %s/ndlcomPacketProducer -H > pipeA_in; done\n"
+           "\n"
+           "\twhile (true); do sleep 0.5 ; %s/ndlcomPacketProducer -H > "
+           "pipeA_in; done\n"
+           "\n"
            "now use the following command to print the packages in realtime:\n"
+           "\n"
            "\ttail -f pipeB_out | %s/ndlcomPacketConsumer\n"
-           "but be careful about buffering... does not work as smoothly as advertised.\n"
+           "\n"
+           "but be careful about buffering... does not work as smoothly as "
+           "advertised.\n"
            "\n"
            "options:\n"
-           "--uri\t\t-u\tcreate interface. possible: 'fpga', 'serial', 'pipe' and 'udp'\n"
+           "--uri\t\t-u\tcreate interface. possible: 'fpga', 'serial', 'pipe' "
+           "and 'udp'\n"
+           "--mirrorUri\t-m\tcreate mirror interface. possible: 'fpga', "
+           "'serial', 'pipe' and 'udp'\n"
            "--ownSenderId\t-i\tdeviceId used for the bridge itself\n"
            "--frequency\t-f\tpolling of the main-loop in Hz\n"
            "--print-all\t-A\tprint every packet\n"
            "--print-own\t-O\tprint packet directed to our own device\n"
            "--print-miss\t-A\tprint miss events in the packet stream\n",
-           name.c_str(),name.c_str(),folder.c_str(),folder.c_str());
+           name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
 }
 
 int main(int argc, char *argv[]) {
@@ -139,6 +150,7 @@ int main(int argc, char *argv[]) {
         int option_index = 0;
         static struct option long_options[] = {
             {"uri", required_argument, 0, 'u'},
+            {"mirrorUri", required_argument, 0, 'm'},
             {"ownSenderId", required_argument, 0, 'i'},
             {"frequency", required_argument, 0, 'f'},
             {"print-all", no_argument, 0, 'A'},
@@ -146,7 +158,8 @@ int main(int argc, char *argv[]) {
             {"print-miss", no_argument, 0, 'M'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "u:i:f:AOMh", long_options, &option_index);
+        c = getopt_long(argc, argv, "u:m:i:f:AOMh", long_options,
+                        &option_index);
         if (c == -1) {
             break;
         }
@@ -154,6 +167,18 @@ int main(int argc, char *argv[]) {
         case 'u': {
             class NDLComBridgeExternalInterface *ret =
                 parseUriAndCreateInterface(optarg);
+            if (!ret) {
+                std::cerr << "invalid uri: '" << optarg << "'\n";
+                exit(EXIT_FAILURE);
+            } else {
+                allInterfaces.push_back(ret);
+            }
+            break;
+        }
+        case 'm': {
+            class NDLComBridgeExternalInterface *ret =
+                parseUriAndCreateInterface(
+                    optarg, NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
