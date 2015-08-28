@@ -201,9 +201,18 @@ size_t ndlcomEncodeFinalize(void *outputBuffer, const size_t outputBufferSize) {
     return 1;
 }
 
+/* wrapper for the "normal" behaviour: just the header and the payload */
 size_t ndlcomEncode(void *outputBuffer, const size_t outputBufferSize,
                     const struct NDLComHeader *header, const void *data) {
 
+    return ndlcomEncodeVar(outputBuffer, outputBufferSize, header, 1, data,
+                           header->mDataLen);
+}
+
+/* core-functionality: var-arg based, chunk-wise message encoding */
+size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
+                       const struct NDLComHeader *header,
+                       size_t additionalSections, ...) {
     NDLComCrc crc;
     size_t wrote = 0;
 
@@ -216,9 +225,31 @@ size_t ndlcomEncode(void *outputBuffer, const size_t outputBufferSize,
                                        outputBufferSize - wrote, header,
                                        sizeof(struct NDLComHeader), &crc);
 
-    wrote += ndlcomEncodeAppendPayload((uint8_t *)outputBuffer + wrote,
-                                       outputBufferSize - wrote, data,
-                                       header->mDataLen, &crc);
+    /* since we have the variable-argument feature we do not know the length of
+     * the sections combined. for later testing for consistency with the number
+     * given in the header */
+    size_t i, overallPayloadLen = 0;
+    /* var-var... C at its best... */
+    va_list ap;
+    va_start(ap, additionalSections);
+    for (i = 0; i < additionalSections; i++) {
+        /* each "section" is a pair of "const void*" and "const size_t" */
+        const void *data = va_arg(ap, const void *);
+        const size_t dataLen = va_arg(ap, const size_t);
+        /* don't forget the counting */
+        overallPayloadLen += dataLen;
+        /* now encode the obtained chunk */
+        wrote += ndlcomEncodeAppendPayload((uint8_t *)outputBuffer + wrote,
+                                           outputBufferSize - wrote, data,
+                                           dataLen, &crc);
+    }
+    va_end(ap);
+
+    /* little bit of checking */
+    if (overallPayloadLen != header->mDataLen) {
+        /* dis is phöse! cheater! */
+        return 0;
+    }
 
     /**
      * The actual content of the message is encoded at this stage, the crc has

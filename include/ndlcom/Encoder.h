@@ -9,6 +9,7 @@
 #include "ndlcom/Types.h"
 
 #include <stddef.h>
+#include <stdarg.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -35,6 +36,10 @@ extern "C" {
  */
 size_t ndlcomEncode(void *outputBuffer, const size_t outputBufferSize,
                     const struct NDLComHeader *header, const void *data);
+
+size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
+                       const struct NDLComHeader *header,
+                       size_t additionalSections, ...);
 
 #if defined(__cplusplus)
 }
