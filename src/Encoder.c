@@ -6,10 +6,11 @@
 #include "ndlcom/Encoder.h"
 
 /**
- * @brief Used to pack some payload into a distinct data-format, which may be sent over
- * your serial connection.
+ * @brief Used to pack some payload into a distinct data-format, which may be
+ * sent over your serial connection.
  *
- * Encoding scheme based on RFC1662, see https://tools.ietf.org/html/rfc1662.html
+ * Encoding scheme based on RFC1662, see
+ * https://tools.ietf.org/html/rfc1662.html
  *
  * FCS - frame check sequence (aka crc) is calculated over all bytes of the
  * packet, excluding the FCS itself and the start/stop flag. the FCS is done
@@ -18,11 +19,11 @@
 
 size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
                     const struct NDLComHeader *pHeader, const void *pData) {
-    const uint8_t* pRead;
-    const uint8_t* pHeaderEnd;
-    const uint8_t* pDataEnd;
-    const uint8_t* pCrcEnd;
-    uint8_t* pWritePos = (uint8_t*)pOutputBuffer;
+    const uint8_t *pRead;
+    const uint8_t *pHeaderEnd;
+    const uint8_t *pDataEnd;
+    const uint8_t *pCrcEnd;
+    uint8_t *pWritePos = (uint8_t *)pOutputBuffer;
     NDLComCrc crc = NDLCOM_CRC_INITIAL_VALUE;
 
     /**
@@ -42,23 +43,19 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
     *pWritePos++ = NDLCOM_START_STOP_FLAG;
 
     /* header */
-    pRead = (const uint8_t*)pHeader;
+    pRead = (const uint8_t *)pHeader;
     pHeaderEnd = pRead + sizeof(struct NDLComHeader);
-    while (pRead != pHeaderEnd)
-    {
+    while (pRead != pHeaderEnd) {
         const uint8_t d = *pRead;
 
         /* NOTE: calculating the checksum prior to escaping */
         crc = ndlcomDoCrc(crc, &d);
 
-        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
-        {
+        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG) {
             /* we need to send an escaped byte here: */
             *pWritePos++ = NDLCOM_ESC_CHAR;
             *pWritePos++ = 0x20 ^ d;
-        }
-        else
-        {
+        } else {
             *pWritePos++ = d;
         }
         ++pRead;
@@ -68,23 +65,19 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
      * maximum buffer-size before */
 
     /* data */
-    pRead = (const uint8_t*)pData;
+    pRead = (const uint8_t *)pData;
     pDataEnd = pRead + pHeader->mDataLen;
-    while (pRead != pDataEnd)
-    {
+    while (pRead != pDataEnd) {
         const uint8_t d = *pRead;
 
         /* NOTE: calculating the checksum prior to escaping */
         crc = ndlcomDoCrc(crc, &d);
 
-        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
-        {
+        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG) {
             /* we need to send an escaped data byte here: */
             *pWritePos++ = NDLCOM_ESC_CHAR;
             *pWritePos++ = 0x20 ^ d;
-        }
-        else
-        {
+        } else {
             *pWritePos++ = d;
         }
         ++pRead;
@@ -98,20 +91,16 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
     /*crc ^= 0xffff;*/
 
     /* checksum */
-    pRead = (const uint8_t*)&crc;
+    pRead = (const uint8_t *)&crc;
     pCrcEnd = pRead + sizeof(NDLComCrc);
-    while (pRead != pCrcEnd)
-    {
+    while (pRead != pCrcEnd) {
         const uint8_t d = *pRead;
 
-        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG)
-        {
+        if (d == NDLCOM_ESC_CHAR || d == NDLCOM_START_STOP_FLAG) {
             /* we need to send an escaped data byte here: */
             *pWritePos++ = NDLCOM_ESC_CHAR;
             *pWritePos++ = 0x20 ^ d;
-        }
-        else
-        {
+        } else {
             *pWritePos++ = d;
         }
         ++pRead;
@@ -120,6 +109,6 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
     /* flag at end of packet */
     *pWritePos++ = NDLCOM_START_STOP_FLAG;
 
-    return pWritePos - (uint8_t*)pOutputBuffer;
+    return pWritePos - (uint8_t *)pOutputBuffer;
 }
 
