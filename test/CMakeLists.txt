@@ -43,6 +43,10 @@ target_link_libraries(testEncoder ndlcom)
 add_executable(testDecoder testDecoder.cpp)
 target_link_libraries(testDecoder ndlcom)
 
+# one time test program. to be removed.
+add_executable(testEncoderVar testEncoderVar.c)
+target_link_libraries(testEncoderVar ndlcom)
+
 # simple c-program that does some common checks with the ndlcomDoCrc-function.
 # intended to show the weakness of the current 8bit-xor and for later use with
 # the crc16...
