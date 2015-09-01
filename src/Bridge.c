@@ -39,6 +39,13 @@ void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
      * position inside the network. this also gets rid of our new "own id",
      * which might be already there */
     ndlcomRoutingTableInit(&bridge->routingTable);
+
+    /**
+     * NOTE: putting our own "deviceId" into the routingtable. this is a hack, to be
+     * able to detect messages going "to us" and not process them in the
+     * outgoing side
+     */
+    ndlcomRoutingTableUpdate(&bridge->routingTable, ownSenderId, bridge);
 }
 
 /* after messages where received by a "struct ExternalInterface" or after they
@@ -71,15 +78,25 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         if (origin != externalInterface) {
             externalInterface->write(externalInterface->context, txBuffer, len);
         }
+    if (header->mReceiverId == bridge->headerConfig.mOwnSenderId)
+        return;
     }
+
+    /**
+     * do _not_ send messages directed explicitly at us to the outside. if we
+     * would try to, the routing table would say "unknown destination" and copy
+     * the message to all interfaces.
+     *
+     * this is a problem when we want to have _no_ explicit ownDeviceId!
+     */
+#if 0
+    if (header->mReceiverId == bridge->headerConfig.mOwnSenderId)
+        return;
+#endif
 
     /* asking the routing table where to forward to */
     destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
         &bridge->routingTable, header->mReceiverId);
-
-    /* this function does _not_ handle messages with our own Id as receiver */
-    if (header->mReceiverId == bridge->headerConfig.mOwnSenderId)
-        return;
 
     /* first case: we are asked to send to all known interfaces (except the
      * origin of this message) */
@@ -116,6 +133,10 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                       << (int)header->mDataLen
                       << " bytes back to its origin?\n";
              */
+            printf("bridge is skipping directed to the origin\n");
+        } else if(destination == (void*)bridge) {
+            /* would send to ourselfes... skip. or call internal handlers? */
+            printf("bridge is skipping directed to us\n");
         }
         /* think about this... routing table can still return "0" when asked
          * where to route packets for _us_ */
