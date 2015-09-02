@@ -237,9 +237,13 @@ void ndlcomBridgeProcessExternalInterface(
                  * non-debug-ports with the pointer to the ExternalInterface
                  * where the message came from.
                  *
+                 * never put our own deviceId into the RoutingTable... would
+                 * break how we detect messages intended for us.
+                 *
                  * updating the table before processing the message allows
                  * responding on the right interface. */
-                if (!(externalInterface->flags &
+                if ((bridge->headerConfig.mOwnSenderId != header->mSenderId) &&
+                    !(externalInterface->flags &
                       NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
                     ndlcomRoutingTableUpdate(&bridge->routingTable,
                                              header->mSenderId,
