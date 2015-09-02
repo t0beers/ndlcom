@@ -84,6 +84,7 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         }
         alreadyWritten += written;
     }
+    fflush(fd_write);
     /* printf("wrote %lu bytes\n", alreadyWritten); */
     return;
 }
