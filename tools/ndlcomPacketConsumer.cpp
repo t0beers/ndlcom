@@ -27,6 +27,7 @@
 #include <stdexcept>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #include "ndlcom/Types.h"
 #include "ndlcom/Parser.h"
@@ -188,6 +189,8 @@ int main(int argc, char *argv[]) {
     char buffer[1];
     size_t bytesProcessed = 0;
     size_t bytesRead = 0;
+    fd_set fds;
+    FD_ZERO(&fds);
     do {
         bytesProcessed = 0;
         bytesRead = readBytesBlocking(buffer, sizeof(buffer));
@@ -215,8 +218,9 @@ skipPrint:
 
         } while (bytesRead != bytesProcessed);
 
-        // TODO: implement select() to minimize polling
-        usleep(10000);
+        // use select to sleep intil new data is available on stdin
+        FD_SET(0, &fds);
+        select(1, &fds, NULL, NULL, NULL);
 
     } while (true);
 
