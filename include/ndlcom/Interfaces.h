@@ -14,6 +14,7 @@ extern "C" {
  * _every_ packet going through the bridge
  */
 #define NDLCOM_INTERNAL_HANDLER_FLAGS_ONLY_OWN_ID 0x01
+#define NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT 0x00
 
 /**
  * this flag will cause the added interface to be a "debug mirror". it's
@@ -22,6 +23,7 @@ extern "C" {
  * to the normal "routing".
  */
 #define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR 0x01
+#define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT 0x00
 
 /**
  * callback-function for handling internal packets. note that you have to
