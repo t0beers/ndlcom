@@ -207,6 +207,13 @@ void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
     ndlcomBridgeProcessDecodedMessage(bridge, &header, payload, &bridge);
 }
 
+void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
+                         const struct NDLComHeader *header, const void *payload,
+                         const size_t payloadSize){
+    /* ... */
+    ndlcomBridgeProcessDecodedMessage(bridge, header, payload, bridge);
+}
+
 /* reading and parsig bytes from an external interface */
 void ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge, struct NDLComExternalInterface *externalInterface) {
