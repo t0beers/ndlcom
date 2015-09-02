@@ -26,6 +26,8 @@ set(SOURCES_lib
     src/Parser.c
     src/Crc.c
     src/Routing.c
+    src/Interfaces.c
+    src/Bridge.c
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Parser.h
@@ -35,6 +37,9 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Types.h
     include/${PROJECT_NAME}/Crc.h
     include/${PROJECT_NAME}/Routing.h
+    include/${PROJECT_NAME}/Interfaces.h
+    include/${PROJECT_NAME}/Bridge.h
+    include/${PROJECT_NAME}/list.h
 )
 
 # define the lib
