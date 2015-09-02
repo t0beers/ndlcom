@@ -96,10 +96,9 @@ void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
  * @brief create a new package and send it away
  *
  * sending messages from the internal side to whomever they may concern.
- * automatically fill header.
+ * automatically creates and fills header.
  *
- * creates a new header and puts it with the still unencoded payload into the
- * ndlcomBridgeSendRaw() function
+ * NOTE: messages will be seen by all internal handlers.
  *
  * @param bridge
  * @param receiverId
@@ -112,7 +111,7 @@ void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
 /**
  * @brief put arbritrary messages to external interfaces
  *
- * NOTE: the messages written here will not be seen from any of the internal
+ * NOTE: the messages written here will NOT be seen from any of the internal
  * handlers. they go straight out to the external interfaces
  *
  * @param bridge
@@ -122,7 +121,7 @@ void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
  */
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
                          const struct NDLComHeader *header, const void *payload,
-                         const size_t size);
+                         const size_t payloadSize);
 
 /**
  * @brief churn the data from all interfaces...
