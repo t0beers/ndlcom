@@ -98,7 +98,7 @@ void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
  * sending messages from the internal side to whomever they may concern.
  * automatically creates and fills header.
  *
- * NOTE: messages will be seen by all internal handlers.
+ * NOTE: messages will be seen by all internal handlers. this behaviour can be changed, though.
  *
  * @param bridge
  * @param receiverId

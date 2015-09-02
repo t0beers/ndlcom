@@ -78,21 +78,7 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         if (origin != externalInterface) {
             externalInterface->write(externalInterface->context, txBuffer, len);
         }
-    if (header->mReceiverId == bridge->headerConfig.mOwnSenderId)
-        return;
     }
-
-    /**
-     * do _not_ send messages directed explicitly at us to the outside. if we
-     * would try to, the routing table would say "unknown destination" and copy
-     * the message to all interfaces.
-     *
-     * this is a problem when we want to have _no_ explicit ownDeviceId!
-     */
-#if 0
-    if (header->mReceiverId == bridge->headerConfig.mOwnSenderId)
-        return;
-#endif
 
     /* asking the routing table where to forward to */
     destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
@@ -114,7 +100,7 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         }
 
     }
-    /* second case: we know the specific interface where to send the message to */
+    /* second case: knowing specific interface where to send the message to */
     else {
         /* NOTE: when throwing random messages at one interface which is
          * connected to the bridge, this interface will slowly accumulate all
@@ -133,14 +119,13 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                       << (int)header->mDataLen
                       << " bytes back to its origin?\n";
              */
-            printf("bridge is skipping directed to the origin\n");
-        } else if(destination == (void*)bridge) {
-            /* would send to ourselfes... skip. or call internal handlers? */
-            printf("bridge is skipping directed to us\n");
-        }
-        /* think about this... routing table can still return "0" when asked
-         * where to route packets for _us_ */
-        else {
+        } else if (destination == (void *)bridge) {
+            /**
+             * do _not_ send messages destined for "us" to the outside. relies
+             * on having "our" deviceId inside the routing table
+             */
+        } else {
+            /* otherwise, finally write to the external interface */
             destination->write(destination->context, txBuffer, len);
         }
     }
@@ -157,6 +142,12 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
                                        const void *payload, void *origin) {
     const struct NDLComInternalHandler *internalHandler;
 
+    /* NOTE: to exclude _all_ internal handler from seeing messages from
+     * internal, check that the "origin" is not "bridge", as this is used in
+     * the "send" functions. */
+    //if (origin != bridge) {
+    //}
+
     /**
      * NOTE: this function here is called for messages from internal handlers.
      * so we have to prevent looping by checking their origin. we only give a
@@ -165,10 +156,9 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
 
     /* first call the InternalHandlers which handle _all_ messages. */
     list_for_each_entry(internalHandler, &bridge->internalHandlerList, list) {
-        /* check origin */
-        if (internalHandler != origin) {
-            internalHandler->handler(internalHandler->context, header, payload);
-        }
+        /* checking the "origin" for internal handlers does not make sense...
+         * internal interfaces will always see their own messages... */
+        internalHandler->handler(internalHandler->context, header, payload);
     }
 
     /* call the handlers which only want to see messages intended for "us" */
@@ -176,11 +166,10 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
         (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
         list_for_each_entry(internalHandler, &bridge->ownIdInternelHandlerList,
                             list) {
-            /* check origin */
-            if (internalHandler != origin) {
-                internalHandler->handler(internalHandler->context, header,
-                                         payload);
-            }
+            /* checking the "origin" for internal handlers does not make
+             * sense... internal interfaces will always see their own
+             * messages... */
+            internalHandler->handler(internalHandler->context, header, payload);
         }
     }
 
@@ -189,7 +178,7 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 }
 
-/* sending a payload to a receiver */
+/* sending a payload to a receiver. message will be handled by internal handlers */
 void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
                       const void *payload, const size_t payloadSize) {
     /* preparation of the header */
@@ -204,7 +193,7 @@ void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
      * unique (nonzero) pointer... little bit dangerous since it might be
      * casted to an "struct NDLComExternalInterface"...
      */
-    ndlcomBridgeProcessDecodedMessage(bridge, &header, payload, &bridge);
+    ndlcomBridgeProcessDecodedMessage(bridge, &header, payload, bridge);
 }
 
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
@@ -259,7 +248,7 @@ void ndlcomBridgeProcessExternalInterface(
 
                 /* try to forward the message. we are not sure if we can, yet. */
                 ndlcomBridgeProcessDecodedMessage(bridge, header, payload,
-                                                   externalInterface);
+                                                  externalInterface);
 
                 /* and clean up the parser of this interface, to be ready for
                  * the next packet. */
