@@ -60,11 +60,12 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
     if (!fd_read) {
         return 0;
     }
-    ssize_t bytesRead = ::fread(buf, sizeof(char), count, fd_read);
-    if (bytesRead < 0) {
-        if (errno == EAGAIN) {
-            // EOF: this means there is no data to read...
+    size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
+    if (bytesRead == 0) {
+        if (feof(fd_read)) {
             return 0;
+        } else {
+            throw std::runtime_error(strerror(ferror(fd_read)));
         }
     }
     return bytesRead;
@@ -76,11 +77,10 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         return;
     size_t alreadyWritten = 0;
     while (alreadyWritten < count) {
-        ssize_t written =
-            fwrite((const char *)buf + alreadyWritten, sizeof(char),
-                   count - alreadyWritten, fd_write);
-        if (written < 0) {
-            throw std::runtime_error(strerror(errno));
+        size_t written = fwrite((const char *)buf + alreadyWritten,
+                                sizeof(char), count - alreadyWritten, fd_write);
+        if (written == 0) {
+            throw std::runtime_error(strerror(ferror(fd_write)));
         }
         alreadyWritten += written;
     }
