@@ -4,9 +4,13 @@
 #include "ndlcom/Interfaces.h"
 #include "ndlcom/Bridge.h"
 
+#include <bitset>
+
 class NDLComBridgeInternalHandler {
   public:
-    NDLComBridgeInternalHandler(NDLComBridge &_bridge, uint8_t flags = 0);
+    NDLComBridgeInternalHandler(
+        NDLComBridge &_bridge,
+        uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
     virtual ~NDLComBridgeInternalHandler();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
@@ -37,7 +41,6 @@ class NDLComBridgePrintOwnId : public NDLComBridgeInternalHandler {
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-#include <bitset>
 class NDLComBridgePrintMissEvents : public NDLComBridgeInternalHandler {
   public:
     NDLComBridgePrintMissEvents(NDLComBridge &_bridge)

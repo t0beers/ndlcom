@@ -18,7 +18,9 @@
  */
 class NDLComBridgeExternalInterface {
   public:
-    NDLComBridgeExternalInterface(NDLComBridge &_bridge, uint8_t flags = 0);
+    NDLComBridgeExternalInterface(
+        NDLComBridge &_bridge,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     virtual ~NDLComBridgeExternalInterface();
 
     static void writeWrapper(void *context, const void *buf,
@@ -35,7 +37,8 @@ class NDLComBridgeExternalInterface {
 
 class NDLComBridgeStream : public NDLComBridgeExternalInterface {
   public:
-    NDLComBridgeStream(NDLComBridge &_bridge, uint8_t flags = 0);
+    NDLComBridgeStream(NDLComBridge &_bridge,
+                       uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgeStream();
 
   protected:
@@ -54,7 +57,8 @@ class NDLComBridgeStream : public NDLComBridgeExternalInterface {
 class NDLComBridgeSerial : public NDLComBridgeStream {
   public:
     NDLComBridgeSerial(NDLComBridge &_bridge, std::string device_name,
-                       speed_t baudrate, uint8_t flags = 0);
+                       speed_t baudrate,
+                       uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgeSerial();
 
   private:
@@ -94,7 +98,7 @@ class NDLComBridgeUdp : public NDLComBridgeExternalInterface {
   public:
     NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
                     unsigned int in_port, unsigned int out_port,
-                    uint8_t flags = 0);
+                    uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgeUdp();
 
     size_t readEscapedBytes(void *buf, size_t count);
@@ -116,8 +120,9 @@ class NDLComBridgeUdp : public NDLComBridgeExternalInterface {
  */
 class NDLComBridgeNamedPipe : public NDLComBridgeExternalInterface {
   public:
-    NDLComBridgeNamedPipe(NDLComBridge &_bridge, std::string pipename,
-                          uint8_t flags = 0);
+    NDLComBridgeNamedPipe(
+        NDLComBridge &_bridge, std::string pipename,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgeNamedPipe();
 
     size_t readEscapedBytes(void *buf, size_t count);
