@@ -45,22 +45,10 @@ struct NDLComBridge {
     /** the whole bridge has one global RoutingTable */
     struct NDLComRoutingTable routingTable;
     /**
-     * it also encodes correct packetCounters. this struct is also used to
-     * store the ownSenderId.
-     */
-    struct NDLComHeaderConfig headerConfig;
-
-    /**
      * these are called for _each_ single message after it was decoded, prior
      * to beeing forwarded.
      */
     struct list_head internalHandlerList;
-
-    /**
-     * only called if the receiver is _our_ node
-     */
-    struct list_head ownIdInternelHandlerList;
-
     /**
      * these are the interfaces which are used to receive and transmit bytes
      * from the real world
@@ -79,34 +67,7 @@ struct NDLComBridge {
  * @param bridge pointer to "struct NDLComBridge" which has to be initialized.
  * @param ownSenderId provide an "NDLComId" during initialization. can be changed later.
  */
-void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId);
-
-/**
- * @brief change the id of the given bridge used for new packages
- *
- * re-initializes the routing table as well.
- *
- * @param bridge
- * @param ownSenderId
- */
-void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
-                                const NDLComId ownSenderId);
-
-/**
- * @brief create a new package and send it away
- *
- * sending messages from the internal side to whomever they may concern.
- * automatically creates and fills header.
- *
- * NOTE: messages will be seen by all internal handlers. this behaviour can be changed, though.
- *
- * @param bridge
- * @param receiverId
- * @param payload
- * @param payloadSize
- */
-void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
-                      const void *payload, const size_t payloadSize);
+void ndlcomBridgeInit(struct NDLComBridge *bridge);
 
 /**
  * @brief put arbritrary messages to external interfaces

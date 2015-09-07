@@ -9,11 +9,8 @@ extern "C" {
 #endif
 
 /**
- * causes an "internal handler" to be only called when the receiverId is our
- * own Id or the broadcast id. by default, the internal handlers are called for
- * _every_ packet going through the bridge
+ * no flags in the moment
  */
-#define NDLCOM_INTERNAL_HANDLER_FLAGS_ONLY_OWN_ID 0x01
 #define NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT 0x00
 
 /**

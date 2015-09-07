@@ -14,38 +14,12 @@
 #define NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE NDLCOM_MAX_ENCODED_MESSAGE_SIZE
 #endif
 
-void ndlcomBridgeInit(struct NDLComBridge *bridge, const NDLComId ownSenderId) {
+void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
     /* initialize all the list we have */
     INIT_LIST_HEAD(&bridge->internalHandlerList);
     INIT_LIST_HEAD(&bridge->externalInterfaceList);
-    INIT_LIST_HEAD(&bridge->ownIdInternelHandlerList);
     INIT_LIST_HEAD(&bridge->debugMirrorInterfaceList);
-
-    /* calling this will also initialize the routing table */
-    ndlcomBridgeSetOwnSenderId(bridge, ownSenderId);
-}
-
-/* initializes internal structs with correct values. nearly resets the whole
- * state */
-void ndlcomBridgeSetOwnSenderId(struct NDLComBridge *bridge,
-                                const NDLComId ownSenderId) {
-
-    /* resets the packet-counters to use for each receiver, and is used to
-     * store our own deviceId at a convenient place */
-    ndlcomHeaderPrepareInit(&bridge->headerConfig, ownSenderId);
-
-    /* we have to (re-)initialize the routing table, as we probably changed our
-     * position inside the network. this also gets rid of our new "own id",
-     * which might be already there */
-    ndlcomRoutingTableInit(&bridge->routingTable);
-
-    /**
-     * NOTE: putting our own "deviceId" into the routingtable. this is a hack, to be
-     * able to detect messages going "to us" and not process them in the
-     * outgoing side
-     */
-    ndlcomRoutingTableUpdate(&bridge->routingTable, ownSenderId, bridge);
 }
 
 /* after messages where received by a "struct ExternalInterface" or after they
@@ -142,6 +116,10 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
                                        const void *payload, void *origin) {
     const struct NDLComInternalHandler *internalHandler;
 
+    /* first thing to do: forward/resend outgoing messages on the actual
+     * external interfaces */
+    ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
+
     /* NOTE: to exclude _all_ internal handler from seeing messages from
      * internal, check that the "origin" is not "bridge", as this is used in
      * the "send" functions. */
@@ -160,40 +138,6 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
          * internal interfaces will always see their own messages... */
         internalHandler->handler(internalHandler->context, header, payload);
     }
-
-    /* call the handlers which only want to see messages intended for "us" */
-    if ((header->mReceiverId == bridge->headerConfig.mOwnSenderId) ||
-        (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
-        list_for_each_entry(internalHandler, &bridge->ownIdInternelHandlerList,
-                            list) {
-            /* checking the "origin" for internal handlers does not make
-             * sense... internal interfaces will always see their own
-             * messages... */
-            internalHandler->handler(internalHandler->context, header, payload);
-        }
-    }
-
-    /* after feeding the decoded message through all handlers we finally give
-     * it to the actual external interfaces to be written out */
-    ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
-}
-
-/* sending a payload to a receiver. message will be handled by internal handlers */
-void ndlcomBridgeSend(struct NDLComBridge *bridge, const NDLComId receiverId,
-                      const void *payload, const size_t payloadSize) {
-    /* preparation of the header */
-    struct NDLComHeader header;
-    ndlcomHeaderPrepare(&bridge->headerConfig, &header, receiverId, payloadSize);
-    /**
-     * in the end, transmitting a message from internal is nothing but
-     * "forwarding" a message with the bridge as origin.
-     *
-     * NOTE: this "origin" does not have to be set to the "bridge" pointer...
-     * the forwarder will also look at the senderId. but therefore it needs a
-     * unique (nonzero) pointer... little bit dangerous since it might be
-     * casted to an "struct NDLComExternalInterface"...
-     */
-    ndlcomBridgeProcessDecodedMessage(bridge, &header, payload, bridge);
 }
 
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
@@ -233,13 +177,13 @@ void ndlcomBridgeProcessExternalInterface(
                  * non-debug-ports with the pointer to the ExternalInterface
                  * where the message came from.
                  *
-                 * never put our own deviceId into the RoutingTable... would
-                 * break how we detect messages intended for us.
+                 * TODO: take care that noone can override deviceIds which are
+                 * actually used by a node from "us".
                  *
                  * updating the table before processing the message allows
-                 * responding on the right interface. */
-                if ((bridge->headerConfig.mOwnSenderId != header->mSenderId) &&
-                    !(externalInterface->flags &
+                 * responding on the right interface.
+                 */
+                if (!(externalInterface->flags &
                       NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
                     ndlcomRoutingTableUpdate(&bridge->routingTable,
                                              header->mSenderId,
@@ -283,11 +227,7 @@ void ndlcomBridgeRegisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
 
-    if (internalHandler->flags & NDLCOM_INTERNAL_HANDLER_FLAGS_ONLY_OWN_ID) {
-        list_add(&internalHandler->list, &bridge->ownIdInternelHandlerList);
-    } else {
-        list_add(&internalHandler->list, &bridge->internalHandlerList);
-    }
+    list_add(&internalHandler->list, &bridge->internalHandlerList);
 }
 
 void ndlcomBridgeRegisterExternalInterface(

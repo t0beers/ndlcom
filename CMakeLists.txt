@@ -28,6 +28,7 @@ set(SOURCES_lib
     src/Routing.c
     src/Interfaces.c
     src/Bridge.c
+    src/Node.c
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Parser.h
@@ -39,6 +40,7 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Routing.h
     include/${PROJECT_NAME}/Interfaces.h
     include/${PROJECT_NAME}/Bridge.h
+    include/${PROJECT_NAME}/Node.h
     include/${PROJECT_NAME}/list.h
 )
 
