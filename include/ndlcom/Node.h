@@ -40,13 +40,19 @@ struct NDLComNode {
  */
 void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
                     const NDLComId ownSenderId);
-/** since we register at the "bridge", we have to deregister as well... at least in theory */
+
+/**
+ * @brief remove this strucs callback from the bridges list
+ *
+ * since we register at the "bridge", we have to deregister as well... at
+ * least in theory
+ */
 void ndlcomNodeDeinit(struct NDLComNode *node);
 
 /**
  * @brief change the id of the given node used for new packages
  *
- * re-initializes the routing table as well.
+ * re-initializes the routing table of the linked bridge as well.
  *
  * @param node
  * @param ownSenderId

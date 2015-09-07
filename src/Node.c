@@ -22,6 +22,8 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
 
     ndlcomInternalHandlerInit(&node->myIdHandler, ndlcomNodeMessageHandler,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, node);
+
+    ndlcomBridgeRegisterInternalHandler(bridge, &node->myIdHandler);
 }
 
 void ndlcomNodeDeinit(struct NDLComNode *node) {
@@ -47,24 +49,21 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
      * to be able to detect messages going "to us" and not process them in the
      * outgoing side
      *
-     * TODO: check that using "node" as the origin will work here...
+     * TODO: check that using "bridge" as the origin will work here...
      */
-    ndlcomRoutingTableUpdate(&node->bridge->routingTable, ownSenderId, node);
+    ndlcomRoutingTableUpdate(&node->bridge->routingTable, ownSenderId, node->bridge);
 }
 
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
                               const void *payload) {
     struct NDLComNode *node = (struct NDLComNode *)context;
-
     const struct NDLComInternalHandler *internalHandler;
 
-    /* call the handlers which only want to see messages intended for "us" */
+    /* call the handlers which will see messages intended for "us" */
     if ((header->mReceiverId == node->headerConfig.mOwnSenderId) ||
         (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
         list_for_each_entry(internalHandler, &node->internalHandlerList, list) {
-            /* checking the "origin" for internal handlers does not make
-             * sense... internal interfaces will always see their own
-             * messages... */
+            /* internal interfaces will always see their own messages... */
             internalHandler->handler(internalHandler->context, header, payload);
         }
     }
