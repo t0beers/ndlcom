@@ -95,6 +95,6 @@ void NDLComBridgePrintMissEvents::handle(const struct NDLComHeader *header,
 void NDLComNodePrintOwnId::handle(const struct NDLComHeader *header,
                                   const void *payload) {
     printf(
-        "receiver 0x%02x got message from 0x%02x with %3u bytes of payload\n",
-        header->mReceiverId, header->mSenderId, header->mDataLen);
+        "listener 0x%02x got message from 0x%02x with %3u bytes of payload\n",
+        node.headerConfig.mOwnSenderId, header->mSenderId, header->mDataLen);
 }

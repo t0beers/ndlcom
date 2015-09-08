@@ -31,15 +31,17 @@ double mainLoopFrequency_hz = 100.0;
 /* all external interfaces */
 std::vector<class NDLComBridgeExternalInterface *> allInterfaces;
 /* all internal "personalities", with optional printers attached */
-std::vector<std::pair<struct NDLComNode*, class NDLComNodePrintOwnId*> > allNodes;
+std::vector<std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> >
+    allNodes;
 
 void signal_handler(int signal) { stopMainLoop = true; }
 
 class NDLComBridgePrintAll *printAll = NULL;
 class NDLComBridgePrintMissEvents *printMiss = NULL;
 
-class NDLComBridgeExternalInterface *
-parseUriAndCreateInterface(std::string uri, uint8_t flags = 0) {
+class NDLComBridgeExternalInterface *parseUriAndCreateInterface(
+    std::string uri, uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+
     std::string serial = "serial://";
     std::string udp = "udp://";
     std::string pipe = "pipe://";
@@ -129,7 +131,9 @@ void help(const char *_name) {
            "options:\n"
            "--uri\t\t-u\tcreate interface. possible: 'fpga', 'serial', 'pipe' "
            "and 'udp'\n"
-           "--mirrorUri\t-m\tcreate mirror interface. possible: 'fpga', "
+           "--mirrorUri\t-m\tcreate mirror interface. all messages will be "
+           "sent here, and all messages delivered. but no update to routing "
+           "table is done. possible: 'fpga', "
            "'serial', 'pipe' and 'udp'\n"
            "--ownSenderId\t-i\tdeviceId used for the bridge itself\n"
            "--frequency\t-f\tpolling of the main-loop in Hz\n"
@@ -274,9 +278,9 @@ int main(int argc, char *argv[]) {
     }
 
     while (!stopMainLoop) {
-        //printf("new loop\n");
+        // printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
-        //ndlcomNodeSend(&node, 0x09, 0, 0);
+        // ndlcomNodeSend(allNodes.back().first, 0x09, 0, 0);
 
         usleep(usleep_us);
     }
@@ -289,12 +293,12 @@ int main(int argc, char *argv[]) {
     }
     allInterfaces.clear();
 
-    for (std::vector<std::pair<struct NDLComNode*, class NDLComNodePrintOwnId *> >::iterator it =
+    for (std::vector<std::pair<struct NDLComNode *,
+                               class NDLComNodePrintOwnId *> >::iterator it =
              allNodes.begin();
          it != allNodes.end(); ++it) {
-        ndlcomNodeDeinit((*it).first);
-        delete (*it).first;
         delete (*it).second;
+        delete (*it).first;
     }
     allNodes.clear();
 

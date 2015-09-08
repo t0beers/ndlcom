@@ -1,7 +1,6 @@
 #ifndef NDLCOMBRIDGEINTERNALHANDLER_H
 #define NDLCOMBRIDGEINTERNALHANDLER_H
 
-#include "ndlcom/Interfaces.h"
 #include "ndlcom/Bridge.h"
 
 #include <bitset>

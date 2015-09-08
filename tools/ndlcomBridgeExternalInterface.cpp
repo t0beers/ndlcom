@@ -68,6 +68,7 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
             throw std::runtime_error(strerror(ferror(fd_read)));
         }
     }
+    /* printf("stream read %lu bytes\n", bytesRead); */
     return bytesRead;
 }
 
@@ -85,7 +86,7 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         alreadyWritten += written;
     }
     fflush(fd_write);
-    /* printf("wrote %lu bytes\n", alreadyWritten); */
+    /* printf("stream wrote %lu bytes\n", written); */
     return;
 }
 
@@ -98,24 +99,46 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
     // exclusive access
-    ioctl(fd, TIOCEXCL);
+    int r;
+    r = ioctl(fd, TIOCEXCL);
+    if (r == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
     // save oldtio
-    tcgetattr(fd, &oldtio);
+    r = tcgetattr(fd, &oldtio);
+    if (r == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
     // prepare newtio
-    struct termios newtio;
+    struct termios newtio = {0};
     cfmakeraw(&newtio);
     // no waittimes
     newtio.c_cc[VMIN] = 0;
     newtio.c_cc[VTIME] = 0;
     // set speed
-    cfsetspeed(&newtio, baudrate);
+    r = cfsetspeed(&newtio, baudrate);
+    if (r == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
     // flush the port and set new settings
-    tcflush(fd, TCIFLUSH);
-    tcsetattr(fd, TCSANOW, &newtio);
+    r = tcflush(fd, TCIFLUSH);
+    if (r == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+    r = tcsetattr(fd, TCSANOW, &newtio);
+    if (r == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
 
     // fdopen
     fd_read = fdopen(fd, "r");
+    if (!fd_read) {
+        throw std::runtime_error(strerror(errno));
+    }
     fd_write = fdopen(fd, "r+");
+    if (!fd_write) {
+        throw std::runtime_error(strerror(errno));
+    }
 }
 
 NDLComBridgeSerial::~NDLComBridgeSerial() {
@@ -238,7 +261,7 @@ again:
         std::string address_to(inet_ntoa(addr_recv.sin_addr));
         printf("udp: switch outgoing connection from '%s:%d' to '%s:%d'\n",
                address_from.c_str(), ntohs(addr_out.sin_port),
-               address_to.c_str(), htons(addr_recv.sin_port));
+               address_to.c_str(), ntohs(addr_recv.sin_port));
         addr_out.sin_addr = addr_recv.sin_addr;
         /* this will tell the socket to use the port of the sender upon the
          * next reply... */
@@ -256,12 +279,12 @@ again:
             sendto(fd, (const char *)buf + alreadyWritten,
                    count - alreadyWritten, MSG_NOSIGNAL,
                    (struct sockaddr *)&addr_out, sizeof(struct sockaddr_in));
-        if (written < 0) {
+        if (written == -1) {
             if (errno == EINTR) {
                 // ignore signals
                 goto again;
             } else if (errno == EPIPE) {
-                // this means the connection is not setup correctly... assume
+                // this means the connection is not set up correctly... assume
                 // that we know what we do...
                 return;
             }
