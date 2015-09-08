@@ -265,7 +265,7 @@ again:
         addr_out.sin_addr = addr_recv.sin_addr;
         /* this will tell the socket to use the port of the sender upon the
          * next reply... */
-        addr_out.sin_port = addr_recv.sin_port;
+        /* addr_out.sin_port = addr_recv.sin_port; */
     }
     return bytesRead;
 }
