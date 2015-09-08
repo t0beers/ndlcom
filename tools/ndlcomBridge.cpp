@@ -1,8 +1,5 @@
 /**
  * TODO:
- * - add "debug mirror" class of ports. supposed so send out _all_ messages
- *   going through the bridge, and accept messages, using "internal" as
- *   "origin"
  * - what about security? ssh? accept all connection?
  *
  * <martin.zenzes@dfki.de> 2015
@@ -23,20 +20,22 @@
 #include "ndlcomBridgeInternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
+#include "ndlcom/Node.h"
 
-#define NDLCOM_BRIDGE_DEFAULT_SENDER_ID 0x02
 struct NDLComBridge bridge;
 
 bool stopMainLoop = false;
 
 double mainLoopFrequency_hz = 100.0;
 
+/* all external interfaces */
 std::vector<class NDLComBridgeExternalInterface *> allInterfaces;
+/* all internal "personalities", with optional printers attached */
+std::vector<std::pair<struct NDLComNode*, class NDLComNodePrintOwnId*> > allNodes;
 
 void signal_handler(int signal) { stopMainLoop = true; }
 
 class NDLComBridgePrintAll *printAll = NULL;
-class NDLComBridgePrintOwnId *printOwn = NULL;
 class NDLComBridgePrintMissEvents *printMiss = NULL;
 
 class NDLComBridgeExternalInterface *
@@ -122,7 +121,7 @@ void help(const char *_name) {
            "\n"
            "now use the following command to print the packages in realtime:\n"
            "\n"
-           "\ttail -f pipeB_out | %s/ndlcomPacketConsumer\n"
+           "\ttail -n +1 -f pipeB_out | %s/ndlcomPacketConsumer\n"
            "\n"
            "but be careful about buffering... does not work as smoothly as "
            "advertised.\n"
@@ -142,7 +141,7 @@ void help(const char *_name) {
 
 int main(int argc, char *argv[]) {
 
-    ndlcomBridgeInit(&bridge, NDLCOM_BRIDGE_DEFAULT_SENDER_ID);
+    ndlcomBridgeInit(&bridge);
 
     /* option handling is based on the manpage optarg(3). */
     int c;
@@ -191,7 +190,11 @@ int main(int argc, char *argv[]) {
             std::istringstream ss(optarg);
             int tempInt;
             ss >> tempInt;
-            ndlcomBridgeSetOwnSenderId(&bridge, tempInt);
+            std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> entry;
+            entry.first = new struct NDLComNode;
+            entry.second = NULL;
+            ndlcomNodeInit(entry.first, &bridge, tempInt);
+            allNodes.push_back(entry);
             break;
         }
         case 'f': {
@@ -210,12 +213,22 @@ int main(int argc, char *argv[]) {
             break;
         }
         case 'O': {
-            if (printOwn == NULL) {
-                printOwn = new NDLComBridgePrintOwnId(bridge);
-            } else {
+            /* check that we have "nodes" already, where we'll add the printer
+             * to the last one */
+            if (allNodes.empty()) {
                 help(argv[0]);
                 exit(EXIT_FAILURE);
             }
+            /* so get the last node added as a reference */
+            std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *>
+                &lastEntry = allNodes.back();
+            /* check that it does not have a "printOwnId" yet */
+            if (lastEntry.second != NULL) {
+                help(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+            /* and create the own-id printer */
+            lastEntry.second = new NDLComNodePrintOwnId(*lastEntry.first);
             break;
         }
         case 'M': {
@@ -246,12 +259,24 @@ int main(int argc, char *argv[]) {
     useconds_t usleep_us = round(1. / mainLoopFrequency_hz * 1000000);
     std::cout << "using update rate of " << mainLoopFrequency_hz
               << "Hz (update every " << usleep_us << "us)\n";
-    printf("using senderId 0x%02x\n", bridge.headerConfig.mOwnSenderId);
+
+    for (std::vector<std::pair<struct NDLComNode *,
+                               class NDLComNodePrintOwnId *> >::iterator it =
+             allNodes.begin();
+         it != allNodes.end(); ++it) {
+        if ((*it).second != NULL) {
+            printf("printing all messages for receiverId 0x%02x\n",
+                   (*it).first->headerConfig.mOwnSenderId);
+        } else {
+            printf("silently listening to receiverId 0x%02x\n",
+                   (*it).first->headerConfig.mOwnSenderId);
+        }
+    }
 
     while (!stopMainLoop) {
         //printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
-        ndlcomBridgeSend(&bridge, 0x09, 0, 0);
+        //ndlcomNodeSend(&node, 0x09, 0, 0);
 
         usleep(usleep_us);
     }
@@ -264,14 +289,19 @@ int main(int argc, char *argv[]) {
     }
     allInterfaces.clear();
 
+    for (std::vector<std::pair<struct NDLComNode*, class NDLComNodePrintOwnId *> >::iterator it =
+             allNodes.begin();
+         it != allNodes.end(); ++it) {
+        ndlcomNodeDeinit((*it).first);
+        delete (*it).first;
+        delete (*it).second;
+    }
+    allNodes.clear();
+
     /* more cleaning up */
     if (printAll) {
         delete printAll;
         printAll = NULL;
-    }
-    if (printOwn) {
-        delete printOwn;
-        printOwn = NULL;
     }
     if (printMiss) {
         delete printMiss;

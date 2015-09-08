@@ -6,12 +6,11 @@
 
 #include <bitset>
 
-class NDLComBridgeInternalHandler {
+class NDLComBridgeHandler {
   public:
-    NDLComBridgeInternalHandler(
-        NDLComBridge &_bridge,
-        uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
-    virtual ~NDLComBridgeInternalHandler();
+    NDLComBridgeHandler(struct NDLComBridge &_bridge,
+                        uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
+    virtual ~NDLComBridgeHandler();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
                               const void *payload);
@@ -20,31 +19,47 @@ class NDLComBridgeInternalHandler {
                         const void *payload) = 0;
 
   protected:
-    NDLComBridge &bridge;
+    struct NDLComBridge &bridge;
 
   private:
     struct NDLComInternalHandler internal;
 };
 
-class NDLComBridgePrintAll : public NDLComBridgeInternalHandler {
+class NDLComNodeHandler {
   public:
-    NDLComBridgePrintAll(NDLComBridge &_bridge)
-        : NDLComBridgeInternalHandler(_bridge){};
+    NDLComNodeHandler(struct NDLComNode &_node);
+    virtual ~NDLComNodeHandler();
+
+    static void handleWrapper(void *context, const struct NDLComHeader *header,
+                              const void *payload);
+
+    virtual void handle(const struct NDLComHeader *header,
+                        const void *payload) = 0;
+
+  protected:
+    struct NDLComNode &node;
+
+  private:
+    struct NDLComInternalHandler internal;
+};
+
+class NDLComBridgePrintAll : public NDLComBridgeHandler {
+  public:
+    NDLComBridgePrintAll(struct NDLComBridge &_bridge)
+        : NDLComBridgeHandler(_bridge){};
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-class NDLComBridgePrintOwnId : public NDLComBridgeInternalHandler {
+class NDLComNodePrintOwnId : public NDLComNodeHandler {
   public:
-    NDLComBridgePrintOwnId(NDLComBridge &_bridge)
-        : NDLComBridgeInternalHandler(
-              _bridge, NDLCOM_INTERNAL_HANDLER_FLAGS_ONLY_OWN_ID){};
+    NDLComNodePrintOwnId(struct NDLComNode &_node) : NDLComNodeHandler(_node){};
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-class NDLComBridgePrintMissEvents : public NDLComBridgeInternalHandler {
+class NDLComBridgePrintMissEvents : public NDLComBridgeHandler {
   public:
-    NDLComBridgePrintMissEvents(NDLComBridge &_bridge)
-        : NDLComBridgeInternalHandler(_bridge){};
+    NDLComBridgePrintMissEvents(struct NDLComBridge &_bridge)
+        : NDLComBridgeHandler(_bridge){};
     void handle(const struct NDLComHeader *header, const void *payload);
     void resetMissEvents();
 

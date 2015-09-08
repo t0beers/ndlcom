@@ -97,7 +97,6 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    fcntl(fd, F_SETFL, 0);
     // exclusive access
     ioctl(fd, TIOCEXCL);
     // save oldtio
@@ -105,9 +104,6 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     // prepare newtio
     struct termios newtio;
     cfmakeraw(&newtio);
-    newtio.c_cflag |= CLOCAL | CREAD;
-    // no parity
-    newtio.c_cflag &= ~(PARENB & PARODD);
     // no waittimes
     newtio.c_cc[VMIN] = 0;
     newtio.c_cc[VTIME] = 0;
@@ -237,6 +233,17 @@ again:
     }
     /* printf("read %lu bytes from '%s:%d'\n", bytesRead, */
     /*        inet_ntoa(addr_recv.sin_addr), ntohs(addr_recv.sin_port)); */
+    if (addr_out.sin_addr.s_addr != addr_recv.sin_addr.s_addr) {
+        std::string address_from(inet_ntoa(addr_out.sin_addr));
+        std::string address_to(inet_ntoa(addr_recv.sin_addr));
+        printf("udp: switch outgoing connection from '%s:%d' to '%s:%d'\n",
+               address_from.c_str(), ntohs(addr_out.sin_port),
+               address_to.c_str(), htons(addr_recv.sin_port));
+        addr_out.sin_addr = addr_recv.sin_addr;
+        /* this will tell the socket to use the port of the sender upon the
+         * next reply... */
+        addr_out.sin_port = addr_recv.sin_port;
+    }
     return bytesRead;
 }
 

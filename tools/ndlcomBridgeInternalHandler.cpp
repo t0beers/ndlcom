@@ -1,26 +1,45 @@
 #include "ndlcomBridgeInternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
+#include "ndlcom/Node.h"
 
 // printf
 #include <cstdio>
 
-NDLComBridgeInternalHandler::NDLComBridgeInternalHandler(NDLComBridge &_bridge,
-                                                         uint8_t flags)
+NDLComBridgeHandler::NDLComBridgeHandler(NDLComBridge &_bridge, uint8_t flags)
     : bridge(_bridge) {
-    ndlcomInternalHandlerInit(
-        &internal, NDLComBridgeInternalHandler::handleWrapper, flags, this);
+    ndlcomInternalHandlerInit(&internal, NDLComBridgeHandler::handleWrapper,
+                              flags, this);
     ndlcomBridgeRegisterInternalHandler(&bridge, &internal);
 }
 
-NDLComBridgeInternalHandler::~NDLComBridgeInternalHandler() {
+NDLComBridgeHandler::~NDLComBridgeHandler() {
     ndlcomBridgeDeregisterInternalHandler(&bridge, &internal);
 }
 
-void NDLComBridgeInternalHandler::handleWrapper(
-    void *context, const struct NDLComHeader *header, const void *payload) {
-    class NDLComBridgeInternalHandler *self =
-        static_cast<class NDLComBridgeInternalHandler *>(context);
+void NDLComBridgeHandler::handleWrapper(void *context,
+                                        const struct NDLComHeader *header,
+                                        const void *payload) {
+    class NDLComBridgeHandler *self =
+        static_cast<class NDLComBridgeHandler *>(context);
+    self->handle(header, payload);
+}
+
+NDLComNodeHandler::NDLComNodeHandler(NDLComNode &_node) : node(_node) {
+    ndlcomInternalHandlerInit(&internal, NDLComNodeHandler::handleWrapper,
+                              NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
+    ndlcomNodeRegisterInternalHandler(&node, &internal);
+}
+
+NDLComNodeHandler::~NDLComNodeHandler() {
+    ndlcomNodeDeregisterInternalHandler(&node, &internal);
+}
+
+void NDLComNodeHandler::handleWrapper(void *context,
+                                      const struct NDLComHeader *header,
+                                      const void *payload) {
+    class NDLComNodeHandler *self =
+        static_cast<class NDLComNodeHandler *>(context);
     self->handle(header, payload);
 }
 
@@ -28,12 +47,6 @@ void NDLComBridgePrintAll::handle(const struct NDLComHeader *header,
                                   const void *payload) {
     printf("saw message from 0x%02x to 0x%02x with %3u bytes of payload\n",
            header->mSenderId, header->mReceiverId, header->mDataLen);
-}
-
-void NDLComBridgePrintOwnId::handle(const struct NDLComHeader *header,
-                                    const void *payload) {
-    printf("got message from 0x%02x with %3u bytes of payload\n",
-           header->mSenderId, header->mDataLen);
 }
 
 void NDLComBridgePrintMissEvents::handle(const struct NDLComHeader *header,
@@ -77,4 +90,11 @@ void NDLComBridgePrintMissEvents::handle(const struct NDLComHeader *header,
     // connecetion
     expectedNextPacketCounter[header->mSenderId][header->mReceiverId] =
         header->mCounter + 1;
+}
+
+void NDLComNodePrintOwnId::handle(const struct NDLComHeader *header,
+                                  const void *payload) {
+    printf(
+        "receiver 0x%02x got message from 0x%02x with %3u bytes of payload\n",
+        header->mReceiverId, header->mSenderId, header->mDataLen);
 }
