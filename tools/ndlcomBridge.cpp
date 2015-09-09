@@ -105,43 +105,50 @@ void help(const char *_name) {
     std::string name(_name);
     size_t pos = name.find_last_of("/");
     std::string folder(name.substr(0, pos));
+    std::string actualName(name.substr(pos+1));
 
-    printf("connect various interfaces and route messages. for example:\n"
-           "\n"
-           "route messages from serial to udp on localhost, usable\n"
-           "by CommonGui but with different id:\n"
-           "\t%s --uri udp://localhost:34001:34000 --uri "
-           "serial:///dev/ttyUSB0:921600 --ownSenderId 9\n"
-           "route from one hex-encoded pipe to another:\n"
-           "\n"
-           "\t%s -u pipe://pipeA -u pipe://pipeB --print-all\n"
-           "\n"
-           "the following will create random packages:\n"
-           "\n"
-           "\twhile (true); do sleep 0.5 ; %s/ndlcomPacketProducer -H > "
-           "pipeA_in; done\n"
-           "\n"
-           "now use the following command to print the packages in realtime:\n"
-           "\n"
-           "\ttail -n +1 -f pipeB_out | %s/ndlcomPacketConsumer\n"
-           "\n"
-           "but be careful about buffering... does not work as smoothly as "
-           "advertised.\n"
-           "\n"
-           "options:\n"
-           "--uri\t\t-u\tcreate interface. possible: 'fpga', 'serial', 'pipe' "
-           "and 'udp'\n"
-           "--mirrorUri\t-m\tcreate mirror interface. all messages will be "
-           "sent here, and all messages delivered. but no update to routing "
-           "table is done. possible: 'fpga', "
-           "'serial', 'pipe' and 'udp'\n"
-           "--ownSenderId\t-i\tdeviceId used for the bridge itself\n"
-           "--frequency\t-f\tpolling of the main-loop in Hz\n"
-           "--print-all\t-A\tprint every packet\n"
-           "--print-own\t-O\tprint packet directed to our own device\n"
-           "--print-miss\t-A\tprint miss events in the packet stream\n",
-           name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
+    /* clang-format off */
+    printf(
+"%s\n"
+"\n"
+"Low-level tool to create multiple NDLCom-interfaces, connect them by routing messages as needed and listen to multiple nodeIds. Can print miss-events by observing the packet-counter of pasing messages\n"
+"\n"
+"Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and allows injecting arbritrary messages without updating the routing table\n"
+"\n"
+"options:\n"
+"--uri\t\t-u\tInterface to create. Possible: 'fpga', 'serial', 'pipe', 'udp'\n"
+"--mirrorUri\t-m\tMirror interface to create, otherwise the same as in '--uri'\n"
+"--ownDeviceId\t-i\tCreates and adds a node to the bridge listening to this deviceId\n"
+"--frequency\t-f\tPolling of the main-loop in Hz\n"
+"--print-all\t-A\tPrint every packet\n"
+"--print-own\t-O\tPrint packets directed at the last given 'ownDeviceId'\n"
+"--print-miss\t-A\tPrint miss events of packets passing thorugh the bridge\n"
+"\n"
+"examples:\n"
+"\n"
+"routing of messages from serial to udp on localhost, usable by CommonGui:\n"
+"\n"
+"\t%s --uri udp://localhost:34001:34000 --uri serial:///dev/ttyUSB0:921600\n"
+"\n"
+"route from one hex-encoded pipe to another:\n"
+"\n"
+"\t%s -u pipe://pipeA -u pipe://pipeB --print-all\n"
+"\n"
+"the following will create random packages:\n"
+"\n"
+"\twhile (true); do\n"
+"\t    sleep 0.5 ; %s/ndlcomPacketProducer -H > pipeA_in\n"
+"\tdone\n"
+"\n"
+"the following command will print the packages on the second pipe:\n"
+"\n"
+"\ttail -n +1 -f pipeB_out | %s/ndlcomPacketConsumer\n"
+"\n"
+"NOTE: Be careful about buffering... does not work as smoothly as advertised.\n",
+
+actualName.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
 }
+/* clang-format on */
 
 int main(int argc, char *argv[]) {
 
@@ -154,7 +161,7 @@ int main(int argc, char *argv[]) {
         static struct option long_options[] = {
             {"uri", required_argument, 0, 'u'},
             {"mirrorUri", required_argument, 0, 'm'},
-            {"ownSenderId", required_argument, 0, 'i'},
+            {"ownDeviceId", required_argument, 0, 'i'},
             {"frequency", required_argument, 0, 'f'},
             {"print-all", no_argument, 0, 'A'},
             {"print-own", no_argument, 0, 'O'},
