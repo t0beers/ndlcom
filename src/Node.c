@@ -96,5 +96,5 @@ void ndlcomNodeRegisterInternalHandler(
 void ndlcomNodeDeregisterInternalHandler(
     struct NDLComNode *node, struct NDLComInternalHandler *internalHandler) {
 
-    list_del(&internalHandler->list);
+    list_del_init(&internalHandler->list);
 }

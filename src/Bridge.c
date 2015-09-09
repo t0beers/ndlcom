@@ -297,12 +297,12 @@ void ndlcomBridgeDeregisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
 
-    list_del(&internalHandler->list);
+    list_del_init(&internalHandler->list);
 }
 
 void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
 
-    list_del(&externalInterface->list);
+    list_del_init(&externalInterface->list);
 }
