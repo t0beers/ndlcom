@@ -261,10 +261,14 @@ again:
         std::string address_to(inet_ntoa(addr_recv.sin_addr));
         printf("udp: switch outgoing connection from '%s:%d' to '%s:%d'\n",
                address_from.c_str(), ntohs(addr_out.sin_port),
-               address_to.c_str(), ntohs(addr_recv.sin_port));
+               address_to.c_str(), ntohs(addr_out.sin_port));
         addr_out.sin_addr = addr_recv.sin_addr;
-        /* this will tell the socket to use the port of the sender upon the
-         * next reply... */
+        /*
+         * this will tell the socket to use the port of the sender upon the
+         * next reply...
+         *
+         * NOTE: if you re-enable this line, adopt the printf above!
+         */
         /* addr_out.sin_port = addr_recv.sin_port; */
     }
     return bytesRead;
