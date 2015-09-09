@@ -304,7 +304,10 @@ int main(int argc, char *argv[]) {
                                class NDLComNodePrintOwnId *> >::iterator it =
              allNodes.begin();
          it != allNodes.end(); ++it) {
-        delete (*it).second;
+        ndlcomNodeDeinit((*it).first);
+        if ((*it).second) {
+            delete (*it).second;
+        }
         delete (*it).first;
     }
     allNodes.clear();
