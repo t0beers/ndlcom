@@ -199,12 +199,12 @@ int main(int argc, char *argv[]) {
         }
         case 'i': {
             std::istringstream ss(optarg);
-            int tempInt;
-            ss >> tempInt;
+            int tempId;
+            ss >> tempId;
             std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> entry;
             entry.first = new struct NDLComNode;
             entry.second = NULL;
-            ndlcomNodeInit(entry.first, &bridge, tempInt);
+            ndlcomNodeInit(entry.first, &bridge, tempId);
             allNodes.push_back(entry);
             break;
         }
