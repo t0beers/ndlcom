@@ -3,7 +3,8 @@
 
 #include "ndlcom/HeaderPrepare.h"
 #include "ndlcom/Routing.h"
-#include "ndlcom/Interfaces.h"
+#include "ndlcom/ExternalInterface.h"
+#include "ndlcom/InternalHandler.h"
 #include "ndlcom/list.h"
 
 #if defined(__cplusplus)

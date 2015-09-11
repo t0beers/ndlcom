@@ -104,16 +104,16 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
  * @param node
  * @param interface
  */
-void ndlcomNodeRegisterInternalHandler(struct NDLComNode *node,
-                                       struct NDLComInternalHandler *handler);
+void ndlcomNodeRegisterInternalHandler(
+    struct NDLComNode *node, struct NDLComInternalHandler *internalHandler);
 /**
  * @brief De-register internal handler
  *
  * @param node
  * @param interface
  */
-void ndlcomNodeDeregisterInternalHandler(struct NDLComNode *node,
-                                         struct NDLComInternalHandler *handler);
+void ndlcomNodeDeregisterInternalHandler(
+    struct NDLComNode *node, struct NDLComInternalHandler *internalHandler);
 
 #if defined(__cplusplus)
 }

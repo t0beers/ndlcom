@@ -2,7 +2,6 @@
 #include "ndlcom/Encoder.h"
 #include "ndlcom/HeaderPrepare.h"
 #include "ndlcom/Routing.h"
-#include "ndlcom/Interfaces.h"
 
 /* forward declaration */
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
