@@ -115,6 +115,27 @@ void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
 void ndlcomBridgeProcess(struct NDLComBridge *bridge);
 
 /**
+ * @brief tell the bridge about deviceIds used as internal
+ *
+ * messages to this deviceId are not longer consided as "unkown destinations"
+ * and not forwarded to external interfaces anymore
+ *
+ * @param bridge
+ * @param deviceId
+ */
+void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
+                                        const NDLComId deviceId);
+
+/**
+ * @brief clear a deviceId and make its destination "unknown" again
+ *
+ * @param bridge
+ * @param deviceId
+ */
+void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
+                                       const NDLComId deviceId);
+
+/**
  * @brief Register additional internal handlers
  *
  * @param bridge The bridge to use

@@ -29,6 +29,10 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
 void ndlcomNodeDeinit(struct NDLComNode *node) {
     /* we do not want to be called anymore in the future */
     ndlcomBridgeDeregisterInternalHandler(node->bridge, &node->myIdHandler);
+    /* additionally inform the bridge that our deviceId is no longer used
+     * internally */
+    ndlcomBridgeClearInternalDeviceId(node->bridge,
+                                      node->headerConfig.mOwnSenderId);
 }
 
 /*
@@ -50,14 +54,10 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
      */
     ndlcomRoutingTableInit(&node->bridge->routingTable);
     /*
-     * NOTE: putting our own "deviceId" into the routingtable. this is a hack,
-     * to be able to detect messages going "to us" and not process them in the
-     * outgoing side
-     *
-     * TODO: check that using "bridge" as the origin will work here...
+     * informing the bridge that our "deviceId" is now internally used. messages
+     * for this deviceId shall no longer be forwarded to the outside
      */
-    ndlcomRoutingTableUpdate(&node->bridge->routingTable, ownSenderId,
-                             node->bridge);
+    ndlcomBridgeMarkDeviceIdAsInternal(node->bridge, ownSenderId);
 }
 
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,

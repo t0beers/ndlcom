@@ -24,6 +24,14 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge) {
     ndlcomRoutingTableInit(&bridge->routingTable);
 }
 
+/* helper function. cements the hack of putting the bridge-pointer itself into
+ * the routing table */
+int senderIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
+                                const NDLComId deviceId) {
+    return (ndlcomRoutingGetDestination(&bridge->routingTable, deviceId) !=
+            bridge);
+}
+
 /*
  * After messages where received by an external interface or after they are
  * assembled externally and inserted using "ndlcomBridgeSendRaw()" they pass
@@ -251,6 +259,17 @@ void ndlcomBridgeProcess(struct NDLComBridge *bridge) {
                         list) {
         ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
     }
+}
+
+void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
+                                        const NDLComId deviceId) {
+    ndlcomRoutingTableUpdate(&bridge->routingTable, deviceId, bridge);
+}
+
+void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
+                                       const NDLComId deviceId) {
+    ndlcomRoutingTableUpdate(&bridge->routingTable, deviceId,
+                             NDLCOM_ROUTING_ALL_INTERFACES);
 }
 
 void ndlcomBridgeRegisterInternalHandler(
