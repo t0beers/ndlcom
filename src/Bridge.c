@@ -143,8 +143,7 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
 }
 
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
-                         const struct NDLComHeader *header, const void *payload,
-                         const size_t payloadSize) {
+                         const struct NDLComHeader *header, const void *payload) {
     /* ...by using the "bridge" itself as origin, we can later detect messages
      * which are not from one of the external interfaces.
      *

@@ -81,8 +81,7 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge);
  * @param payloadSize
  */
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
-                         const struct NDLComHeader *header, const void *payload,
-                         const size_t payloadSize);
+                         const struct NDLComHeader *header, const void *payload);
 
 /**
  * @brief churn the data from all interfaces...

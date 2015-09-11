@@ -81,7 +81,7 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
     /**
      * transmitting a message using the bridge
      */
-    ndlcomBridgeSendRaw(node->bridge, &header, payload, payloadSize);
+    ndlcomBridgeSendRaw(node->bridge, &header, payload);
 }
 
 void ndlcomNodeRegisterInternalHandler(
