@@ -130,7 +130,7 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
                                        const struct NDLComHeader *header,
                                        const void *payload, void *origin) {
     /* used as loop-variable for the lists */
-    const struct NDLComInternalHandler *internalHandler;
+    struct NDLComInternalHandler *internalHandler;
 
     /*
      * First thing to do: forward/transmit outgoing messages on the actual
