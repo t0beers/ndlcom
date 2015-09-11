@@ -19,7 +19,6 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge) {
     /* initialize all the list we have */
     INIT_LIST_HEAD(&bridge->internalHandlerList);
     INIT_LIST_HEAD(&bridge->externalInterfaceList);
-    INIT_LIST_HEAD(&bridge->debugMirrorInterfaceList);
 
     /* initialize the routing table */
     ndlcomRoutingTableInit(&bridge->routingTable);
@@ -49,11 +48,16 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
     size_t len = ndlcomEncode(txBuffer, sizeof(txBuffer), header, payload);
 
     /* these external interfaces want to get _all_ messages, no matter what */
-    list_for_each_entry(externalInterface, &bridge->debugMirrorInterfaceList,
+    list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                         list) {
         /* don't echo messages back to their origin */
         if (origin != externalInterface) {
-            externalInterface->write(externalInterface->context, txBuffer, len);
+            /* only debug-interfaces! */
+            if (externalInterface->flags &
+                NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR) {
+                externalInterface->write(externalInterface->context, txBuffer,
+                                         len);
+            }
         }
     }
 
@@ -72,8 +76,12 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                             list) {
             /* don't echo messages back to their origin */
             if (origin != externalInterface) {
-                externalInterface->write(externalInterface->context, txBuffer,
-                                         len);
+                /* no debug interfaces! */
+                if (!externalInterface->flags &
+                    NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR) {
+                    externalInterface->write(externalInterface->context,
+                                             txBuffer, len);
+                }
             }
         }
 
@@ -239,10 +247,6 @@ void ndlcomBridgeProcessExternalInterface(
 void ndlcomBridgeProcess(struct NDLComBridge *bridge) {
 
     struct NDLComExternalInterface *externalInterface;
-    list_for_each_entry(externalInterface, &bridge->debugMirrorInterfaceList,
-                        list) {
-        ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
-    }
     list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                         list) {
         ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
@@ -260,12 +264,7 @@ void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
 
-    if (externalInterface->flags &
-        NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR) {
-        list_add(&externalInterface->list, &bridge->debugMirrorInterfaceList);
-    } else {
-        list_add(&externalInterface->list, &bridge->externalInterfaceList);
-    }
+    list_add(&externalInterface->list, &bridge->externalInterfaceList);
 }
 
 void ndlcomBridgeDeregisterInternalHandler(

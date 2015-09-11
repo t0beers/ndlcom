@@ -70,16 +70,10 @@ struct NDLComBridge {
      * These are the actual interfaces which are used to receive and transmit
      * an escaped byte stream from the real world. The "senderId" of messages
      * received on one of these interfaces is used to update the routing table.
+     *
+     * Contains entries for debug-interfaces and normal interfaces.
      */
     struct list_head externalInterfaceList;
-    /**
-     * Write out passing messages from all interfaces. Messages passing here
-     * are never used to update the routing table.
-     *
-     * TODO: get rid of this additional list. just iterate the normal external
-     * interface list and check the "DEBUG MIRROR" while looping.
-     */
-    struct list_head debugMirrorInterfaceList;
 };
 
 /**
