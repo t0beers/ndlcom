@@ -24,3 +24,8 @@ void ndlcomExternalInterfaceInit(
 
     INIT_LIST_HEAD(&externalInterface->list);
 }
+
+uint32_t NDLComExternalInterfaceGetCrcFails(
+    const NDLComExternalInterface *externalInterface) {
+    return ndlcomParserGetNumberOfCRCFails(&externalInterface->parser);
+}

@@ -100,6 +100,9 @@ void ndlcomExternalInterfaceInit(
     NDLComWriteEscapedBytes write, NDLComReadEscapedBytes read,
     const uint8_t flags, void *context);
 
+uint32_t NDLComExternalInterfaceGetCrcFails(
+    const NDLComExternalInterface *externalInterface);
+
 #if defined(__cplusplus)
 }
 #endif
