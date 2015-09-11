@@ -217,15 +217,22 @@ void ndlcomBridgeProcessExternalInterface(
                  *
                  * Updating the table before processing the message allows
                  * readily responding on the right interface.
-                 * 
+                 *
                  * TODO: take care that no one can override "deviceIds" which
                  * are actually used by a node from "us".
                  */
                 if (!(externalInterface->flags &
                       NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
-                    ndlcomRoutingTableUpdate(&bridge->routingTable,
-                                             header->mSenderId,
-                                             externalInterface);
+                    /* additionally guard the deviceIds consided as "internal"
+                     * from accidental update from outside. this can only
+                     * happen if there is a rouge device claiming to be one of
+                     * our Nodes */
+                    if (senderIdIsNotInternallyUsed(bridge,
+                                                    header->mSenderId)) {
+                        ndlcomRoutingTableUpdate(&bridge->routingTable,
+                                                 header->mSenderId,
+                                                 externalInterface);
+                    }
                 }
                 /*
                  * Try to forward the message. We are not sure if we can, yet.
