@@ -222,10 +222,10 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     // hey...
     std::string address_in(inet_ntoa(addr_in.sin_addr));
     std::string address_out(inet_ntoa(addr_out.sin_addr));
-    printf(
-        "opened udp connection, reading from '%s:%d' and sending to '%s:%d'\n",
-        address_in.c_str(), ntohs(addr_in.sin_port), address_out.c_str(),
-        ntohs(addr_out.sin_port));
+    printf("NDLComBridgeUdp: opened udp connection, reading from '%s:%d' and "
+           "sending to '%s:%d'\n",
+           address_in.c_str(), ntohs(addr_in.sin_port), address_out.c_str(),
+           ntohs(addr_out.sin_port));
 
     // clean the shit up
     freeaddrinfo(result);
@@ -259,7 +259,8 @@ again:
     if (addr_out.sin_addr.s_addr != addr_recv.sin_addr.s_addr) {
         std::string address_from(inet_ntoa(addr_out.sin_addr));
         std::string address_to(inet_ntoa(addr_recv.sin_addr));
-        printf("udp: switch outgoing connection from '%s:%d' to '%s:%d'\n",
+        printf("NDLComBridgeUdp: switch outgoing connection from '%s:%d' to "
+               "'%s:%d'\n",
                address_from.c_str(), ntohs(addr_out.sin_port),
                address_to.c_str(), ntohs(addr_out.sin_port));
         addr_out.sin_addr = addr_recv.sin_addr;
