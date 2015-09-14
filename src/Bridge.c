@@ -26,7 +26,7 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
 /* helper function. cements the hack of putting the bridge-pointer itself into
  * the routing table */
-int senderIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
+int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
                                 const NDLComId deviceId) {
     return (ndlcomRoutingGetDestination(&bridge->routingTable, deviceId) !=
             bridge);
@@ -227,7 +227,7 @@ void ndlcomBridgeProcessExternalInterface(
                      * from accidental update from outside. this can only
                      * happen if there is a rouge device claiming to be one of
                      * our Nodes */
-                    if (senderIdIsNotInternallyUsed(bridge,
+                    if (deviceIdIsNotInternallyUsed(bridge,
                                                     header->mSenderId)) {
                         ndlcomRoutingTableUpdate(&bridge->routingTable,
                                                  header->mSenderId,
