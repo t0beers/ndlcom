@@ -85,8 +85,8 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
             /* don't echo messages back to their origin */
             if (origin != externalInterface) {
                 /* no debug interfaces! */
-                if (!externalInterface->flags &
-                    NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR) {
+                if (!(externalInterface->flags &
+                    NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
                     externalInterface->write(externalInterface->context,
                                              txBuffer, len);
                 }
