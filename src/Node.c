@@ -46,16 +46,11 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
      */
     ndlcomHeaderPrepareInit(&node->headerConfig, ownSenderId);
     /*
-     * we have to (re-)initialize the routing table, as we probably changed our
-     * position inside the network. this also gets rid of our new "own id",
-     * which might be already there
-     * 
-     * FIXME: This is wrong!
-     */
-    ndlcomRoutingTableInit(&node->bridge->routingTable);
-    /*
-     * informing the bridge that our "deviceId" is now internally used. messages
-     * for this deviceId shall no longer be forwarded to the outside
+     * NOTE: putting our own "deviceId" into the routingtable. this is a hack,
+     * to be able to detect messages going "to us" and not process them in the
+     * outgoing side
+     *
+     * TODO: check that using "bridge" as the origin will work here...
      */
     ndlcomBridgeMarkDeviceIdAsInternal(node->bridge, ownSenderId);
 }
