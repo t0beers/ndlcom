@@ -57,7 +57,7 @@ connect_pipes() {
 # the command we gonne use
 BRIDGE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomBridge"
 PRODUCE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketProducer"
-CONSUME_COMMAND="stdbuf -i0 ./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
+CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
 
 # very easy:
 #

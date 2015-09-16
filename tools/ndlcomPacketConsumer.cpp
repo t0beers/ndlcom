@@ -10,7 +10,6 @@
  *      $ ndlcomPacketProducer | ndlcomPacketConsumer
  *      [2015-08-26 17:41:39.180734630] [sender: 0x01 receiver: 0xff counter:   0 length:   0]
  *
- * TODO: implement signal handling for clean exiting when issuing ctrl-c...
  *
  * <martin.zenzes@dfki.de> 2015
  *
@@ -196,6 +195,11 @@ int main(int argc, char *argv[]) {
         help(argv[0]);
         exit(EXIT_FAILURE);
     }
+
+    // we need "unbuffered io" on stdin, so that we can read any byte
+    // available, as soon as it is there... perform this before any other
+    // action was done in this stream.
+    setvbuf(stdin, NULL, _IONBF, 0);
 
     struct NDLComParser parser;
     ndlcomParserCreate(&parser, sizeof(struct NDLComParser));
