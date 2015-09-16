@@ -305,20 +305,22 @@ again:
 NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)
-    : NDLComBridgeExternalInterface(_bridge, flags) {
+    : NDLComBridgeExternalInterface(_bridge, flags), unlinkRxPipeInDtor(false),
+      unlinkTxPipeInDtor(false), pipename_rx(pipename + "_rx"),
+      pipename_tx(pipename + "_tx") {
 
     struct stat status_in;
     struct stat status_out;
-    std::string pipename_in = std::string(pipename + "_in");
-    std::string pipename_out = std::string(pipename + "_out");
 
-    int fd_in = open(pipename_in.c_str(), O_RDWR | O_NDELAY);
+    int fd_in = open(pipename_rx.c_str(), O_RDWR | O_NDELAY);
     if (fd_in == -1) {
         // fifo might not be there yet, try again
-        if (mkfifo(pipename_in.c_str(), 0644) != 0) {
+        if (mkfifo(pipename_rx.c_str(), 0644) != 0) {
             throw std::runtime_error(strerror(errno));
         }
-        fd_in = open(pipename_in.c_str(), O_RDWR | O_NDELAY);
+        // remember to delete the pipe later
+        unlinkRxPipeInDtor = true;
+        fd_in = open(pipename_rx.c_str(), O_RDWR | O_NDELAY);
         if (fd_in == -1) {
             throw std::runtime_error(strerror(errno));
         }
@@ -327,14 +329,16 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
     if (!S_ISFIFO(status_in.st_mode))
-        throw std::runtime_error(pipename_in + " is not a fifo?");
+        throw std::runtime_error(pipename_rx + " is not a fifo?");
 
-    int fd_out = open(pipename_out.c_str(), O_RDWR | O_NDELAY);
+    int fd_out = open(pipename_tx.c_str(), O_RDWR | O_NDELAY);
     if (fd_out == -1) {
-        if (mkfifo(pipename_out.c_str(), 0644) != 0) {
+        if (mkfifo(pipename_tx.c_str(), 0644) != 0) {
             throw std::runtime_error(strerror(errno));
         }
-        fd_out = open(pipename_out.c_str(), O_RDWR | O_NDELAY);
+        // remember to delete the pipe later
+        unlinkTxPipeInDtor = true;
+        fd_out = open(pipename_tx.c_str(), O_RDWR | O_NDELAY);
         if (fd_out == -1) {
             throw std::runtime_error(strerror(errno));
         }
@@ -343,7 +347,7 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
     if (!S_ISFIFO(status_out.st_mode))
-        throw std::runtime_error(pipename_out + " is not a fifo?");
+        throw std::runtime_error(pipename_tx + " is not a fifo?");
 
     // convert the file-descriptors to streams
     str_in = fdopen(fd_in, "r");
@@ -354,7 +358,15 @@ NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
-    // we do _not_ delete the pipes on exit, even if we created them!
+    // we do only delete the pipes on exit if we created them!
+    if (unlinkRxPipeInDtor) {
+        //printf("unlinking pipe '%s'\n", pipename_rx.c_str());
+        unlink(pipename_rx.c_str());
+    }
+    if (unlinkTxPipeInDtor) {
+        //printf("unlinking pipe '%s'\n", pipename_tx.c_str());
+        unlink(pipename_tx.c_str());
+    }
 }
 
 size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {

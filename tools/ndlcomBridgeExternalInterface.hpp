@@ -131,6 +131,10 @@ class NDLComBridgeNamedPipe : public NDLComBridgeExternalInterface {
   private:
     FILE *str_in;
     FILE *str_out;
+    bool unlinkRxPipeInDtor;
+    bool unlinkTxPipeInDtor;
+    std::string pipename_rx;
+    std::string pipename_tx;
 };
 
 #endif /*NDLCOMBRIDGEEXTERNALINTERFACE_H*/
