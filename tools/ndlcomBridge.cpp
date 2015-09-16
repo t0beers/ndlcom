@@ -108,9 +108,8 @@ void help(const char *_name) {
     std::string actualName(name.substr(pos+1));
 
     /* clang-format off */
-    printf(
-"%s\n"
-"\n"
+    fprintf(stderr,
+"\n%s\n\n"
 "Low-level tool to create multiple NDLCom-interfaces, connect them by routing messages as needed and listen to multiple nodeIds. Can print miss-events by observing the packet-counter of pasing messages\n"
 "\n"
 "Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and allows injecting arbritrary messages without updating the routing table\n"
@@ -128,23 +127,23 @@ void help(const char *_name) {
 "\n"
 "routing of messages from serial to udp on localhost, usable by CommonGui:\n"
 "\n"
-"\t%s --uri udp://localhost:34001:34000 --uri serial:///dev/ttyUSB0:921600\n"
+"\t%s -u udp://localhost:34001:34000 -u serial:///dev/ttyUSB0:921600\n"
 "\n"
 "route from one hex-encoded pipe to another:\n"
 "\n"
-"\t%s -u pipe://pipeA -u pipe://pipeB --print-all\n"
+"\t%s -u pipe://pipeA -u pipe://pipeB -A\n"
 "\n"
-"the following will create random packages:\n"
+"then create random packages and write them into the first pipe:\n"
 "\n"
 "\twhile (true); do\n"
-"\t    sleep 0.5 ; %s/ndlcomPacketProducer -H > pipeA_in\n"
+"\t    sleep 0.5 ; %s/ndlcomPacketProducer -H > pipeA_rx\n"
 "\tdone\n"
 "\n"
-"the following command will print the packages on the second pipe:\n"
+"then read and print the packets from the second pipe:\n"
 "\n"
-"\ttail -n +1 -f pipeB_out | %s/ndlcomPacketConsumer\n"
+"\tstdbuf -i0 %s/ndlcomPacketConsumer < pipeB_tx\n"
 "\n"
-"NOTE: Be careful about buffering... does not work as smoothly as advertised.\n",
+"NOTE: Be careful about stdio-buffering...\n",
 
 actualName.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
 }
