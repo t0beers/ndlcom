@@ -42,7 +42,18 @@ size_t readBytesBlocking(void *buf, size_t count) {
         int scanRet = fscanf(stdin, " 0x%02x%n", &byte, &amount);
 
         if (scanRet == EOF) {
-            /* std::cerr << "EOF?\n"; */
+            if (ferror(stdin)) {
+                // this did not happened (yet), but the man page says in could.
+                // handle it, just to be sure
+                throw std::runtime_error(strerror(errno));
+            }
+            if (feof(stdin)) {
+                // this should never happen! we call "select()" at an earlier
+                // stage and so there should always be bytes waiting for us?
+                // this happens for example when we get SIGINT, so this is a
+                // mild error.  don't throw.
+                exit(EXIT_FAILURE);
+            }
             // no more data...?
             break;
         } else if (scanRet == 0) {
@@ -201,8 +212,9 @@ int main(int argc, char *argv[]) {
             bytesProcessed += ndlcomParserReceive(
                 &parser, buffer + bytesProcessed, bytesRead - bytesProcessed);
             if (ndlcomParserHasPacket(&parser)) {
-                const struct NDLComHeader* header = ndlcomParserGetHeader(&parser);
-                const void* payload = ndlcomParserGetPacket(&parser);
+                const struct NDLComHeader *header =
+                    ndlcomParserGetHeader(&parser);
+                const void *payload = ndlcomParserGetPacket(&parser);
 
                 if (!filterSenderId.empty() &&
                     std::find(filterSenderId.begin(), filterSenderId.end(),
@@ -215,7 +227,7 @@ int main(int argc, char *argv[]) {
                     goto skipPrint;
 
                 printPackage(header, payload);
-skipPrint:
+            skipPrint:
                 ndlcomParserDestroyPacket(&parser);
             }
 
@@ -223,7 +235,10 @@ skipPrint:
 
         // use select to sleep until new data is available on stdin
         FD_SET(0, &fds);
-        select(1, &fds, NULL, NULL, NULL);
+        int ret = select(1, &fds, NULL, NULL, NULL);
+        if (ret == -1) {
+            throw std::runtime_error(strerror(errno));
+        }
 
     } while (true);
 

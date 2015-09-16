@@ -92,7 +92,6 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                 }
             }
         }
-
     }
     /*
      * Second case: knowing the exact interface where to send the message to
