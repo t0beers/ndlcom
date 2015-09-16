@@ -66,7 +66,7 @@ CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
 #$BRIDGE_COMMAND -i 3 -A -O -u pipe://pipe3A -u pipe://pipe3B &
 ## wait some bit
 #sleep 0.1
-#stdbuf -i0 -o0 $CONSUME_COMMAND < pipe3A_tx &
+#$CONSUME_COMMAND < pipe3A_tx &
 #$PRODUCE_COMMAND -s 7 -r 255   > pipe3B_rx
 #sleep 1
 #exit
