@@ -287,7 +287,9 @@ int main(int argc, char *argv[]) {
     while (!stopMainLoop) {
         // printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
-        // ndlcomNodeSend(allNodes.back().first, 0x09, 0, 0);
+        /* when a Node is sending here, it will see its own message! */
+        //if (!allNodes.empty())
+        //    ndlcomNodeSend(allNodes.back().first, 0xff, 0, 0);
 
         usleep(usleep_us);
     }
