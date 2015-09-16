@@ -108,16 +108,19 @@ void printPackage(const struct NDLComHeader *header, const void *payload) {
 }
 
 void help(const char *name) {
-    printf("\n%s\n\n"
-           "print ndlcom-packages in a 'standardized' form to stdout\n"
-           "\n"
-           "options:\n"
-           "--noheader\t\t-H\tdon't print the header\n"
-           "--payload\t\t-P\tprint the payload\n"
-           "--notimestamp\t\t-S\tdon't print the timestamp\n"
-           "--filter-receiverId\t-r\tadd given Id to the filter list\n"
-           "--filter-senderId\t-r\tadd given Id to the filter list\n"
-           , name);
+    /* clang-format off */
+    fprintf(stderr,
+"\n%s\n\n"
+"print ndlcom-packages in a 'standardized' form to stdout\n"
+"\n"
+"options:\n"
+"--noheader\t\t-H\tdon't print the header\n"
+"--payload\t\t-P\tprint the payload\n"
+"--notimestamp\t\t-S\tdon't print the timestamp\n"
+"--filter-receiverId\t-r\tadd given Id to the filter list\n"
+"--filter-senderId\t-r\tadd given Id to the filter list\n",
+name);
+    /* clang-format on */
 }
 
 int main(int argc, char *argv[]) {
@@ -218,7 +221,7 @@ skipPrint:
 
         } while (bytesRead != bytesProcessed);
 
-        // use select to sleep intil new data is available on stdin
+        // use select to sleep until new data is available on stdin
         FD_SET(0, &fds);
         select(1, &fds, NULL, NULL, NULL);
 
