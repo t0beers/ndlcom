@@ -7,12 +7,33 @@
 #
 # is also a nice excercise on unix-tooling, signal, pipes and buffering...
 #
-# TODO: build arbritrarily complex networks... maybe by somehow generating a
-# random tree-layout?
-# TODO: create unit-tests based on this by somehow checking expectancies
-# against observed behaviour?
+# now even more advanced: define nodes with their pipes in associative array,
+# and the connections between nodes in an array. use magical bash functions to
+# resolve all this. NOTE: you can create circles (bad) and you can create two
+# unconnected trees (stupid).
 
 set -e
+set -u
+
+declare -A nodes
+# which deviceId has which pipe-interfaces
+nodes[1]="A B"
+nodes[2]="A B"
+nodes[3]="A B"
+nodes[4]="A B C D E"
+
+# which two deviceIds should be connected
+declare -a conns=("1 4" "1 2" "3 4")
+
+# which nodes have still open connections. at the beginning just a copy of the
+# "nodes" from before
+declare -n openConns=nodes
+
+# the command we gonne use
+BRIDGE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomBridge"
+PRODUCE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketProducer"
+CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
+
 
 # cleanup all background-child processes on script exit
 # see http://stackoverflow.com/a/22644006/4658481
@@ -54,72 +75,72 @@ connect_pipes() {
     # process-group. someone needs to tell them to exit upon script-exit.
 }
 
-# the command we gonne use
-BRIDGE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomBridge"
-PRODUCE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketProducer"
-CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
+# create commandline to start a bridge with the specified pipes
+launch_node() {
+    local deviceId="$1"
+    local interfaces="$2"
 
-# very easy:
-#
-# create one bridge and see if a message received on one port is echoed on the
-# other
-#$BRIDGE_COMMAND -i 3 -A -O -u pipe://pipe3A -u pipe://pipe3B &
-## wait some bit
-#sleep 0.1
-#$CONSUME_COMMAND < pipe3A_tx &
-#$PRODUCE_COMMAND -s 7 -r 255   > pipe3B_rx
-#sleep 1
-#exit
+    #echo "called with '$deviceId' and '$interfaces'"
 
-# slightly more complex:
-#
-# connect two bridges and see if they exchange messages
-#$BRIDGE_COMMAND -i 3 -A -O -u pipe://pipe3A -u pipe://pipe3B &
-#$BRIDGE_COMMAND -i 4 -A -O -u pipe://pipe4A -u pipe://pipe4B &
-## wait some bit
-#sleep 0.1
-#connect_pipes "pipe3A" "pipe4B"
-#$CONSUME_COMMAND < pipe4A_tx &
-#$PRODUCE_COMMAND -s 7 -r 3   > pipe3B_rx
-#sleep 1
-#exit
+    local uri=""
+    for inter in ${interfaces}; do uri="$uri -u pipe://pipe_${deviceId}_${inter}"; done
+    echo "would launch ndlcomBridge -i $deviceId $uri"
+    eval "$BRIDGE_COMMAND -i $deviceId $uri -O &"
+}
 
-# really complicated:
-#
-# create three bridges forming a "Y" with one bridge in the middle (and has
-# three interfaces) and two bridges both connected to the center (each with two
-# interfaces).
-#
-# see if the routing table gets updated after a broadcast message passes
-# through the bridge.
-$BRIDGE_COMMAND -i 3 -A -O -u pipe://pipe3A -u pipe://pipe3B &
-$BRIDGE_COMMAND -i 4 -A -O -u pipe://pipe4A -u pipe://pipe4B -u pipe://pipe4C &
-$BRIDGE_COMMAND -i 5 -A -O -u pipe://pipe5A -u pipe://pipe5B &
-# what for them to start and create their pipes
+# will delete the two corresponding entries from the "openConns" array when
+# connecting the pipes of two nodes
+connect_nodes() {
+    local firstDeviceId="$1"
+    local secondDeviceId="$2"
+
+    #echo "called with '$firstDeviceId' and '$secondDeviceId'"
+    # find two entries in openConns
+    #echo "have open ${openConns[$firstDeviceId]} and ${openConns[$secondDeviceId]}"
+
+    # first port
+    read -a ports <<< ${openConns[$firstDeviceId]}
+    local firstConn=${ports[0]}
+    openConns[$firstDeviceId]=""
+    for el in "${!ports[@]}"; do
+        if [ $el -gt 0 ]; then
+            #echo "adding ${ports[$el]} back"
+            openConns[$firstDeviceId]="${openConns[$firstDeviceId]} ${ports[$el]}"
+        fi
+    done
+
+    # second port
+    read -a ports <<< ${openConns[$secondDeviceId]}
+    local secondConn=${ports[0]}
+    openConns[$secondDeviceId]=""
+    for el in "${!ports[@]}"; do
+        if [ $el -gt 0 ]; then
+            #echo "adding ${ports[$el]} back"
+            openConns[$secondDeviceId]="${openConns[$secondDeviceId]} ${ports[$el]}"
+        fi
+    done
+
+    echo "connecting 'pipe_${firstDeviceId}_$firstConn' to 'pipe_${secondDeviceId}_$secondConn'"
+    connect_pipes pipe_${firstDeviceId}_$firstConn pipe_${secondDeviceId}_$secondConn
+}
+
+
+for id in "${!nodes[@]}"; do launch_node $id "${nodes[$id]}"; done
+
 sleep 0.1
 
-# connect two "outer" bridges to the center:
-# first pair:
-connect_pipes "pipe3A" "pipe4B"
-# second pair:
-connect_pipes "pipe5A" "pipe4C"
+for c in "${conns[@]}"; do connect_nodes $c; done
 
-# listen to messages coming from the second (unconnected) port of the last
-# (third) bridge
-$CONSUME_COMMAND < pipe5B_tx &
+sleep 0.1
 
-# insert some messages to check that the routing table works
-# first: test that if the receive is not known every interface receives the
-# message. send to "7" into "3B". the consumer on "5B" should see and print the
-# message.
-$PRODUCE_COMMAND -s 9 -r 7   > pipe3B_rx
-# next: make "7" known to everone as connected to "4B"
-$PRODUCE_COMMAND -s 7 -r 255 > pipe4B_rx
-# then: send to "7" again by using "3B", now there should be no more prints
-# from the "consumer" listening "5B". the message got only sent to "4B"
-$PRODUCE_COMMAND -s 9 -r 7   > pipe3B_rx
+$CONSUME_COMMAND < pipe_3_B_tx &
+
+# now we should see the four prints from the four listeners. note that we have
+# to know where to write to. also be cure that the port we use is not used
+# between the bridges themselfes.
+$PRODUCE_COMMAND -s 99 -r 255 > pipe_4_E_rx
 
 # wait some bit for all the buffers to empty
-sleep 1
+sleep 0.1
 
 exit
