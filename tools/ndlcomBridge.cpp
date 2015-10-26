@@ -53,8 +53,13 @@ class NDLComBridgeExternalInterface *parseUriAndCreateInterface(
         std::string device(
             uri.substr(begin_device, begin_baud - begin_device - 1));
         std::stringstream baudstring(uri.substr(begin_baud));
-        speed_t baudrate;
+        speed_t baudrate = 0;
         baudstring >> baudrate;
+        if (baudrate == 0) {
+            baudrate = 921600;
+            std::cout << "falling back to default baudrate of '" << baudrate
+                      << "'\n";
+        }
         std::cout << "opening serial '" << device << "' with " << baudrate
                   << "baud\n";
         return new NDLComBridgeSerial(bridge, device, baudrate, flags);
