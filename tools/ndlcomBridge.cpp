@@ -126,7 +126,7 @@ void help(const char *_name) {
 "--frequency\t-f\tPolling of the main-loop in Hz\n"
 "--print-all\t-A\tPrint every packet\n"
 "--print-own\t-O\tPrint packets directed at the last given 'ownDeviceId'\n"
-"--print-miss\t-A\tPrint miss events of packets passing thorugh the bridge\n"
+"--print-miss\t-M\tPrint miss events of packets passing thorugh the bridge\n"
 "\n"
 "examples:\n"
 "\n"
