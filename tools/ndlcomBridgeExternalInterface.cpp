@@ -21,7 +21,6 @@
 #include <sys/select.h>
 #include <linux/limits.h>
 
-
 NDLComBridgeExternalInterface::NDLComBridgeExternalInterface(
     NDLComBridge &_bridge, uint8_t flags)
     : bridge(_bridge) {
@@ -369,11 +368,11 @@ NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
     fclose(str_out);
     // we do only delete the pipes on exit if we created them!
     if (unlinkRxPipeInDtor) {
-        //printf("unlinking pipe '%s'\n", pipename_rx.c_str());
+        // printf("unlinking pipe '%s'\n", pipename_rx.c_str());
         unlink(pipename_rx.c_str());
     }
     if (unlinkTxPipeInDtor) {
-        //printf("unlinking pipe '%s'\n", pipename_tx.c_str());
+        // printf("unlinking pipe '%s'\n", pipename_tx.c_str());
         unlink(pipename_tx.c_str());
     }
 }
@@ -432,8 +431,7 @@ void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
 }
 
 NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
-                                             std::string _symlinkname,
-                                             uint8_t flags)
+                                 std::string _symlinkname, uint8_t flags)
     : NDLComBridgeStream(_bridge, flags), symlinkname(_symlinkname) {
 
     int rc;
@@ -478,8 +476,9 @@ NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
-    printf("NDLComBridgePty: the slave side is named '%s', the symlink is '%s'\n",
-           ptsname(pty_fd), symlinkname.c_str());
+    printf(
+        "NDLComBridgePty: the slave side is named '%s', the symlink is '%s'\n",
+        ptsname(pty_fd), symlinkname.c_str());
 }
 
 NDLComBridgePty::~NDLComBridgePty() {
@@ -593,8 +592,8 @@ void NDLComBridgePty::prepareSymlink() const {
                                      "' is still pointing to '" +
                                      std::string(symlinktargetname) + "'");
         } else {
-            printf("NDLComBridgePty: symlink '%s' was pointing to '%s' but is dead "
-                   "now, recreating\n",
+            printf("NDLComBridgePty: symlink '%s' was pointing to '%s' but is "
+                   "dead now, recreating\n",
                    symlinkname.c_str(), symlinktargetname);
         }
         // delete the old symlink:

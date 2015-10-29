@@ -46,7 +46,7 @@ class NDLComBridgeExternalInterface *parseUriAndCreateInterface(
     std::string udp = "udp://";
     std::string pipe = "pipe://";
     std::string fpga = "fpga://";
-    std::string pty= "pty://";
+    std::string pty = "pty://";
 
     if (uri.compare(0, serial.length(), serial) == 0) {
         size_t begin_device = uri.find(serial) + serial.size();
@@ -116,7 +116,7 @@ void help(const char *_name) {
     std::string name(_name);
     size_t pos = name.find_last_of("/");
     std::string folder(name.substr(0, pos));
-    std::string actualName(name.substr(pos+1));
+    std::string actualName(name.substr(pos + 1));
 
     /* clang-format off */
     fprintf(stderr,
@@ -245,8 +245,8 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
             /* so get the last node added as a reference */
-            std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *>
-                &lastEntry = allNodes.back();
+            std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> &
+                lastEntry = allNodes.back();
             /* check that it does not have a "printOwnId" yet */
             if (lastEntry.second != NULL) {
                 help(argv[0]);
@@ -302,7 +302,7 @@ int main(int argc, char *argv[]) {
         // printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
         /* when a Node is sending here, it will see its own message! */
-        //if (!allNodes.empty())
+        // if (!allNodes.empty())
         //    ndlcomNodeSend(allNodes.back().first, 0xff, 0, 0);
 
         usleep(usleep_us);
