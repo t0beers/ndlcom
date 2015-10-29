@@ -46,6 +46,7 @@ class NDLComBridgeExternalInterface *parseUriAndCreateInterface(
     std::string udp = "udp://";
     std::string pipe = "pipe://";
     std::string fpga = "fpga://";
+    std::string pty= "pty://";
 
     if (uri.compare(0, serial.length(), serial) == 0) {
         size_t begin_device = uri.find(serial) + serial.size();
@@ -101,6 +102,11 @@ class NDLComBridgeExternalInterface *parseUriAndCreateInterface(
             fpganame = "/dev/NDLCom";
         std::cout << "opening fpga '" << fpganame << "'\n";
         return new NDLComBridgeFpga(bridge, fpganame);
+    } else if (uri.compare(0, pty.length(), pty) == 0) {
+        size_t begin_ptyname = uri.find(pty) + pty.size();
+        std::string ptyname(uri.substr(begin_ptyname));
+        std::cout << "opening pty master '" << ptyname << "'\n";
+        return new NDLComBridgePty(bridge, ptyname);
     }
 
     return NULL;
@@ -120,7 +126,7 @@ void help(const char *_name) {
 "Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and allows injecting arbritrary messages without updating the routing table\n"
 "\n"
 "options:\n"
-"--uri\t\t-u\tInterface to create. Possible: 'fpga', 'serial', 'pipe', 'udp'\n"
+"--uri\t\t-u\tInterface to create. Possible: 'fpga', 'serial', 'pty', 'pipe', 'udp'\n"
 "--mirrorUri\t-m\tMirror interface to create, otherwise the same as in '--uri'\n"
 "--ownDeviceId\t-i\tCreates and adds a node to the bridge listening to this deviceId\n"
 "--frequency\t-f\tPolling of the main-loop in Hz\n"
@@ -133,6 +139,10 @@ void help(const char *_name) {
 "routing of messages from serial to udp on localhost, usable by CommonGui:\n"
 "\n"
 "\t%s -u udp://localhost:34001:34000 -u serial:///dev/ttyUSB0:921600\n"
+"\n"
+"create pseudoterminal and open this in CommonGui:\n"
+"\n"
+"\t%s -u pty:///tmp/symlink\n"
 "\n"
 "route from one hex-encoded pipe to another:\n"
 "\n"
@@ -150,7 +160,7 @@ void help(const char *_name) {
 "\n"
 "NOTE: Be careful about stdio-buffering...\n",
 
-actualName.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
+actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
 }
 /* clang-format on */
 
