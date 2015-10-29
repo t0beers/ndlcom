@@ -15,6 +15,13 @@
 // udp:
 #include <netdb.h>
 
+// pty
+#include <stdlib.h>
+#include <poll.h>
+#include <sys/select.h>
+#include <linux/limits.h>
+
+
 NDLComBridgeExternalInterface::NDLComBridgeExternalInterface(
     NDLComBridge &_bridge, uint8_t flags)
     : bridge(_bridge) {
@@ -142,6 +149,8 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
 }
 
 NDLComBridgeSerial::~NDLComBridgeSerial() {
+    // release exclusive access
+    ioctl(fd, TIOCNXCL);
     // restore old settings.
     tcsetattr(fd, TCSANOW, &oldtio);
     close(fd);
@@ -420,4 +429,183 @@ void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
     fflush(str_out);
 
     return;
+}
+
+NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
+                                             std::string _symlinkname,
+                                             uint8_t flags)
+    : NDLComBridgeStream(_bridge, flags), symlinkname(_symlinkname) {
+
+    int rc;
+    // request a new pseudoterminal
+    //
+    // NOTE: could use "openpty()" to wrap a number of the following
+    // systemcalls... but this needs us to link against "-lutil"...
+    pty_fd = posix_openpt(O_RDWR | O_NOCTTY);
+    if (pty_fd < 0) {
+        throw std::runtime_error(strerror(errno));
+    }
+    // grant slaves access
+    rc = grantpt(pty_fd);
+    if (rc != 0) {
+        throw std::runtime_error(strerror(errno));
+    }
+    // allow slave access
+    rc = unlockpt(pty_fd);
+    if (rc != 0) {
+        throw std::runtime_error(strerror(errno));
+    }
+
+    // FIXME: although this "O_NONBLOCK" is needed for the rest to work, the
+    // select()-hack below is needed as well... well, tell you: this is really
+    // complex shit, my friend...
+    fcntl(pty_fd, F_SETFL, O_NONBLOCK);
+
+    // this sets the HUP flag on the tty master, used to detect a reader
+    // present. see "readerPresent()" down below
+    close(open(ptsname(pty_fd), O_RDWR | O_NOCTTY));
+
+    // provide a nice symlink pointing to our "/dev/pts/\d\+"
+    prepareSymlink();
+
+    // fdopen for the base-class
+    fd_read = fdopen(pty_fd, "r");
+    if (!fd_read) {
+        throw std::runtime_error(strerror(errno));
+    }
+    fd_write = fdopen(pty_fd, "r+");
+    if (!fd_write) {
+        throw std::runtime_error(strerror(errno));
+    }
+
+    printf("NDLComBridgePty: the slave side is named '%s', the symlink is '%s'\n",
+           ptsname(pty_fd), symlinkname.c_str());
+}
+
+NDLComBridgePty::~NDLComBridgePty() {
+    // delete the previously created symlink
+    cleanSymlink();
+    // not sure...
+    close(pty_fd);
+}
+
+size_t NDLComBridgePty::readEscapedBytes(void *buf, size_t count) {
+    if (!readerPresent())
+        return 0;
+
+    // TODO: this select should not be needed...
+    struct timeval timeout = {0};
+    fd_set fd_in;
+    FD_ZERO(&fd_in);
+    FD_SET(pty_fd, &fd_in);
+    int rc = select(pty_fd + 1, &fd_in, NULL, NULL, &timeout);
+    if (rc == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+    if (FD_ISSET(pty_fd, &fd_in)) {
+        return NDLComBridgeStream::readEscapedBytes(buf, count);
+    } else {
+        return 0;
+    }
+}
+
+void NDLComBridgePty::writeEscapedBytes(const void *buf, size_t count) {
+    if (!readerPresent())
+        return;
+
+    NDLComBridgeStream::writeEscapedBytes(buf, count);
+}
+
+bool NDLComBridgePty::readerPresent() const {
+    // see http://stackoverflow.com/questions/3486491
+    struct pollfd pfd;
+    pfd.fd = pty_fd;
+    pfd.events = POLLHUP;
+    int rc = poll(&pfd, 1, 0);
+    if (rc == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+    if (pfd.revents & POLLHUP) {
+        // no reader present
+        return false;
+    } else {
+        return true;
+    }
+}
+
+/**
+ * this function is complete overkill ;-)
+ */
+void NDLComBridgePty::cleanSymlink() const {
+    int rc;
+    struct stat buf;
+    rc = lstat(symlinkname.c_str(), &buf);
+    if (rc != 0) {
+        throw std::runtime_error(strerror(errno));
+    }
+    // the "symlinkname" is a symlink...
+    char symlinktargetname[PATH_MAX + 1] = {0};
+    // checking where it points to:
+    rc = readlink(symlinkname.c_str(), symlinktargetname, buf.st_size + 1);
+    if (rc == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+    if (std::string(symlinktargetname) != std::string(ptsname(pty_fd))) {
+        throw std::runtime_error(
+            "unmatching symlink '" + symlinkname + "', pointing to '" +
+            std::string(symlinktargetname) + "' instead of '" +
+            std::string(ptsname(pty_fd)) + "'");
+    }
+    rc = unlink(symlinkname.c_str());
+    if (rc == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
+}
+
+/** symlink handling: we will delete an existing but dead symlink to recreate
+ * it, but we will bail out on anything else */
+void NDLComBridgePty::prepareSymlink() const {
+    int rc;
+    struct stat buf;
+    rc = lstat(symlinkname.c_str(), &buf);
+    if (rc != 0) {
+        if (errno != ENOENT) {
+            throw std::runtime_error("proposed symlinkname '" + symlinkname +
+                                     "' present but not a symlink");
+        }
+    } else {
+        // the "symlinkname" is a symlink...
+        char symlinktargetname[PATH_MAX + 1] = {0};
+        // checking where it points to:
+        rc = readlink(symlinkname.c_str(), symlinktargetname, buf.st_size + 1);
+        if (rc == -1) {
+            if (errno == EINVAL) {
+                throw std::runtime_error("proposed symlinkname '" +
+                                         symlinkname +
+                                         "' present but not a symlink");
+            }
+        }
+        // and obtain information about its target:
+        rc = stat(symlinktargetname, &buf);
+        // now: IFF the symlink is invlid we may delete it and continue...
+        if (rc != 0) {
+            throw std::runtime_error("given symlink '" + symlinkname +
+                                     "' is still pointing to '" +
+                                     std::string(symlinktargetname) + "'");
+        } else {
+            printf("NDLComBridgePty: symlink '%s' was pointing to '%s' but is dead "
+                   "now, recreating\n",
+                   symlinkname.c_str(), symlinktargetname);
+        }
+        // delete the old symlink:
+        rc = unlink(symlinkname.c_str());
+        if (rc == -1) {
+            throw std::runtime_error(strerror(errno));
+        }
+    }
+    // and finally: create a new symlink pointing to our pty:
+    rc = symlink(ptsname(pty_fd), symlinkname.c_str());
+    if (rc == -1) {
+        throw std::runtime_error(strerror(errno));
+    }
 }

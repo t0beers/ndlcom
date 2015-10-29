@@ -78,6 +78,7 @@ size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
         case mcWAIT_HEADER:
             *(parser->mpHeaderWritePos++) = c;
             parser->mDataCRC = ndlcomDoCrc(parser->mDataCRC, &c);
+            /* checks for the 4 bytes of the header to have been written */
             if (parser->mpHeaderWritePos - parser->mHeader.raw ==
                 sizeof(struct NDLComHeader)) {
                 /* check if there is actual data to come... */

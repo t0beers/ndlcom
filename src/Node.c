@@ -41,6 +41,11 @@ void ndlcomNodeDeinit(struct NDLComNode *node) {
 void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
                               const NDLComId ownSenderId) {
     /*
+     * disabling the old senderId, which is still stored in the headerConfig
+     */
+    ndlcomBridgeClearInternalDeviceId(node->bridge,
+                                      node->headerConfig.mOwnSenderId);
+    /*
      * resets the packet-counters to use for each receiver, and is used to
      * store our own deviceId at a convenient place
      */
