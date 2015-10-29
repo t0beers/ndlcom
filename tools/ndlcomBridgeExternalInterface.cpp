@@ -142,6 +142,8 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
 }
 
 NDLComBridgeSerial::~NDLComBridgeSerial() {
+    // release exclusive access
+    ioctl(fd, TIOCNXCL);
     // restore old settings.
     tcsetattr(fd, TCSANOW, &oldtio);
     close(fd);
