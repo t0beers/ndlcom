@@ -10,7 +10,6 @@
  *      $ ndlcomPacketProducer | ndlcomPacketConsumer
  *      [2015-08-26 17:41:39.180734630] [sender: 0x01 receiver: 0xff counter:   0 length:   0]
  *
- * TODO: implement signal handling for clean exiting when issuing ctrl-c...
  *
  * <martin.zenzes@dfki.de> 2015
  *
@@ -27,6 +26,7 @@
 #include <stdexcept>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #include "ndlcom/Types.h"
 #include "ndlcom/Parser.h"
@@ -41,7 +41,18 @@ size_t readBytesBlocking(void *buf, size_t count) {
         int scanRet = fscanf(stdin, " 0x%02x%n", &byte, &amount);
 
         if (scanRet == EOF) {
-            /* std::cerr << "EOF?\n"; */
+            if (ferror(stdin)) {
+                // this did not happened (yet), but the man page says in could.
+                // handle it, just to be sure
+                throw std::runtime_error(strerror(errno));
+            }
+            if (feof(stdin)) {
+                // this should never happen! we call "select()" at an earlier
+                // stage and so there should always be bytes waiting for us?
+                // this happens for example when we get SIGINT, so this is a
+                // mild error.  don't throw.
+                exit(EXIT_FAILURE);
+            }
             // no more data...?
             break;
         } else if (scanRet == 0) {
@@ -107,16 +118,19 @@ void printPackage(const struct NDLComHeader *header, const void *payload) {
 }
 
 void help(const char *name) {
-    printf("\n%s\n\n"
-           "print ndlcom-packages in a 'standardized' form to stdout\n"
-           "\n"
-           "options:\n"
-           "--noheader\t\t-H\tdon't print the header\n"
-           "--payload\t\t-P\tprint the payload\n"
-           "--notimestamp\t\t-S\tdon't print the timestamp\n"
-           "--filter-receiverId\t-r\tadd given Id to the filter list\n"
-           "--filter-senderId\t-r\tadd given Id to the filter list\n"
-           , name);
+    /* clang-format off */
+    fprintf(stderr,
+"\n%s\n\n"
+"print ndlcom-packages in a 'standardized' form to stdout\n"
+"\n"
+"options:\n"
+"--noheader\t\t-H\tdon't print the header\n"
+"--payload\t\t-P\tprint the payload\n"
+"--notimestamp\t\t-S\tdon't print the timestamp\n"
+"--filter-receiverId\t-r\tadd given Id to the filter list\n"
+"--filter-senderId\t-r\tadd given Id to the filter list\n",
+name);
+    /* clang-format on */
 }
 
 int main(int argc, char *argv[]) {
@@ -182,12 +196,19 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    // we need "unbuffered io" on stdin, so that we can read any byte
+    // available, as soon as it is there... perform this before any other
+    // action was done in this stream.
+    setvbuf(stdin, NULL, _IONBF, 0);
+
     struct NDLComParser parser;
     ndlcomParserCreate(&parser, sizeof(struct NDLComParser));
 
     char buffer[1];
     size_t bytesProcessed = 0;
     size_t bytesRead = 0;
+    fd_set fds;
+    FD_ZERO(&fds);
     do {
         bytesProcessed = 0;
         bytesRead = readBytesBlocking(buffer, sizeof(buffer));
@@ -195,8 +216,9 @@ int main(int argc, char *argv[]) {
             bytesProcessed += ndlcomParserReceive(
                 &parser, buffer + bytesProcessed, bytesRead - bytesProcessed);
             if (ndlcomParserHasPacket(&parser)) {
-                const struct NDLComHeader* header = ndlcomParserGetHeader(&parser);
-                const void* payload = ndlcomParserGetPacket(&parser);
+                const struct NDLComHeader *header =
+                    ndlcomParserGetHeader(&parser);
+                const void *payload = ndlcomParserGetPacket(&parser);
 
                 if (!filterSenderId.empty() &&
                     std::find(filterSenderId.begin(), filterSenderId.end(),
@@ -209,14 +231,18 @@ int main(int argc, char *argv[]) {
                     goto skipPrint;
 
                 printPackage(header, payload);
-skipPrint:
+            skipPrint:
                 ndlcomParserDestroyPacket(&parser);
             }
 
         } while (bytesRead != bytesProcessed);
 
-        // TODO: implement select() to minimize polling
-        usleep(10000);
+        // use select to sleep until new data is available on stdin
+        FD_SET(0, &fds);
+        int ret = select(1, &fds, NULL, NULL, NULL);
+        if (ret == -1) {
+            throw std::runtime_error(strerror(errno));
+        }
 
     } while (true);
 
