@@ -32,4 +32,8 @@ if(SEEMS_TO_BE_POSIX)
     # "ndlcomBridge", "ndlcomPacketProducer" and "ndlcomPacketConsumer"
     # together to tests some things
 
+    # also install the tools
+    install(TARGETS ndlcomBridge ndlcomPacketConsumer ndlcomPacketProducer
+        RUNTIME DESTINATION bin)
+
 endif(SEEMS_TO_BE_POSIX)
