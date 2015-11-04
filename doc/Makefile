@@ -1,6 +1,9 @@
-all: protocol.pdf ndlcom_logo.pdf
+all: protocol.pdf ndlcom_logo.pdf ndlcom_header.pdf
 
 ndlcom_logo.pdf: ndlcom_logo.tex
+	pdflatex -halt-on-error $<
+
+ndlcom_header.pdf: ndlcom_header.tex
 	pdflatex -halt-on-error $<
 
 inkscape_%.pdf inkscape_%.pdf_tex: %.svg
@@ -20,4 +23,4 @@ standalone_%.tex: %.svg standalone_inscape_export.tex
 	pdftoppm -png $< > $@
 
 clean:
-	rm -f inkscape_* protocol.pdf ndlcom_logo.pdf
+	rm -f inkscape_* protocol.pdf ndlcom_logo.pdf ndlcom_header.pdf

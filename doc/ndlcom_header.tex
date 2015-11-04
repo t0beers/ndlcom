@@ -1,0 +1,141 @@
+% standalone latex picture see http://tex.stackexchange.com/a/51761
+%
+% compile and view with:
+%
+%    pdflatex logo.tex && xdg-open logo.pdf
+%
+\documentclass[crop,tikz]{standalone}
+
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{quotes}
+\usetikzlibrary{positioning}
+
+% here, for the standalone: ubuntu standard font
+\usepackage[T1]{fontenc}
+\usepackage{dejavu}
+
+\begin{document}
+
+\newcommand{\blockWidth}{3cm}
+\newcommand{\blockHeight}{1.5cm}
+\newcommand{\blockScale}{0.875}
+\newcommand{\tickLength}{0.2cm}
+
+% decorate path with random oscillation in x-direction only
+%
+% see http://tex.stackexchange.com/a/28520
+\pgfdeclaredecoration{random xsteps}{start}
+{
+  \state{start}[width=+0pt,next state=step,
+     persistent precomputation=\pgfdecoratepathhascornerstrue]{}
+  \state{step}[auto end on length=1.5\pgfdecorationsegmentlength,
+           auto corner on length=1.5\pgfdecorationsegmentlength,
+           width=+\pgfdecorationsegmentlength]
+  {
+    \pgftransformresetnontranslations
+    \pgfpathlineto{
+      \pgfpoint{rand*\pgfdecorationsegmentamplitude}
+            {cos(\pgfdecoratedangle)*\pgfdecorationsegmentlength}
+    }
+  }
+  \state{final}
+  {}
+}
+
+\begin{tikzpicture}[
+    block/.style={
+            draw,rectangle,
+            minimum height=\blockHeight,minimum width=\blockWidth,text width=\blockWidth,
+            outer sep=0,align=left},
+    dashedBlock/.style={block,densely dashed},
+    byteNumber/.style={above=of #1,inner sep=0},
+    raggedLine/.style={
+            decorate,decoration={random xsteps,segment length=3pt,amplitude=5pt}},
+    raggedBoxLeft/.pic={
+        code={
+            \coordinate (-top-right) at (\blockWidth*\blockScale,0);
+            \coordinate (-top-left) at (0,0);
+        \draw (\blockWidth*\blockScale,0) -- (0,0) -- (0,-\blockHeight)
+                -- (\blockWidth*\blockScale,-\blockHeight);
+            \draw[raggedLine] (\blockWidth*\blockScale,0) -- (\blockWidth*\blockScale,-\blockHeight);
+            \node[block,draw=none,anchor=north west] {\tikzpictext};
+    }},
+    raggedBoxRight/.pic={
+        code={
+            \coordinate (-top-right) at (\blockWidth*\blockScale,0);
+            \coordinate (-top-left) at (0,0);
+            \draw (0,0) -- (\blockWidth*\blockScale,0) -- (\blockWidth*\blockScale,-\blockHeight) -- (0,-\blockHeight);
+            \draw[raggedLine] (0,0) -- (0,-\blockHeight);
+            \node[block,draw=none,anchor=north west] {\tikzpictext};
+    }}
+    ]
+
+    \node[block,anchor=north west] (startFlag) at (0,0) {Start Flag\\$\mathtt{0x7e}$};
+    \node[dashedBlock,anchor=west] (header) at (startFlag.east) {Header\\(4 bytes)};
+
+    \pic["Payload\\$\mathtt{data[0]}$"] (payloadLeft) at (header.north east) {raggedBoxLeft};
+    % FIXME: why the 3 here?
+    \pic["\phantom{Payload}\\$\mathtt{data[n-1]}$",anchor=north west] (payloadRight) at ([xshift=3*\blockWidth*(1-\blockScale)]payloadLeft-top-right) {raggedBoxRight};
+
+    \node[block,anchor=north west,minimum width=2*\blockWidth,text width=2*\blockWidth] (checksum) at (payloadRight-top-right) {Checksum\\$\mathtt{AUG-CCITT}$};
+    \node[block,draw=none,anchor=west] at (checksum.center) {\phantom{Checksum}\\$\mathtt{AUG-CCITT}$};
+    \draw[densely dashed] (checksum.north) -- (checksum.south);
+    \node[block,anchor=west] (endFlag) at (checksum.east) {End Flag\\$\mathtt{0x7e}$};
+
+    % extra header section:
+    \node[block,anchor=east,yshift=-3*\blockHeight] (receiverId) at (startFlag.east)
+        {ReceiverId\\$\mathtt{0x00}-\mathtt{0xff}$};
+    \node[block,anchor=west] (senderId) at (receiverId.east)
+        {SenderId\\$\mathtt{0x00}-\mathtt{0xff}$};
+    \node[block,anchor=west] (packetCtr) at (senderId.east)
+        {PacketCtr\\$0-255$};
+    \node[block,anchor=west] (dataLen) at (packetCtr.east)
+    {DataLen ($\mathtt{n}$)\\$0-255$};
+
+    % filled inlay connecting dash header to header deatil, in light gray
+        \filldraw [opacity=0.1] (header.south east) -- (header.south west) -- (receiverId.north west) -- (dataLen.north east) -- (header.south east);
+
+    % bitnumbers for upper part
+    \node[byteNumber={startFlag.north west}] {$0$};
+    \node[byteNumber={header.north west}] {$1$};
+    \node[byteNumber={payloadLeft-top-left}] {$5$};
+    \node[byteNumber={checksum.north west}] {$5+\mathtt{n}$};
+    \node[byteNumber={endFlag.north west}] {$7+\mathtt{n}$};
+    \node[byteNumber={endFlag.north east}] {$8+\mathtt{n}$};
+
+    % lower part
+    \node[byteNumber={receiverId.north west}] {$1$};
+    \node[byteNumber={senderId.north west}] {$2$};
+    \node[byteNumber={packetCtr.north west}] {$3$};
+    \node[byteNumber={dataLen.north west}] {$4$};
+    \node[byteNumber={dataLen.north east}] {$5$};
+
+    % upper and lower ticks
+    \foreach \x in {startFlag.north west,header.north west,payloadLeft-top-left,checksum.north west,checksum.north,endFlag.north west,endFlag.north east,receiverId.north west,senderId.north west,packetCtr.north west,dataLen.north west,dataLen.north east} {
+        \draw[line cap=rect] ($(\x)+(0,1.4cm)$) -- ++(90:\tickLength);
+    }
+
+    % finally draw the lines of the upper arrow:
+    %
+    % left part:
+    \draw ($(startFlag.north west) + (0,1.4cm)$) -- ($(header.north west) + (0,1.4cm)$);
+    \draw[densely dashed] ($(header.north west) + (0,1.4cm)$) -- ($(payloadLeft-top-left) + (0,1.4cm)$);
+    \draw[->] ($(payloadLeft-top-left) + (0,1.4cm)$) -- ++(0:0.4cm);
+    % right part:
+    \draw[densely dashed] ($(payloadRight-top-left) + (0,1.4cm)$) -- ++(0:-0.4cm);
+    \draw ($(payloadRight-top-left) + (0,1.4cm)$) -- ($(endFlag.north east)+(0,1.4cm)$);
+    \draw[->] ($(endFlag.north east) + (0,1.4cm)$) -- ++(0:0.4cm);
+    % second:
+    \draw[densely dashed] ($(receiverId.north west) + (0,1.4cm)$) -- ++(0:-0.4cm);
+    \draw ($(receiverId.north west) + (0,1.4cm)$) -- ($(dataLen.north east)+(0,1.4cm)$);
+    \draw[->] ($(dataLen.north east) + (0,1.4cm)$) -- ++(0:0.4cm);
+
+    \node[left=of startFlag.west] {field name};
+    \node[left=of receiverId.west] {field name};
+    \node[yshift=1.4cm,left=of startFlag.north west] {byte index};
+    \node[yshift=1.4cm,left=of receiverId.north west] {byte index};
+
+\end{tikzpicture}
+
+\end{document}
