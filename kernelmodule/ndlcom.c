@@ -211,7 +211,7 @@ irqreturn_t irq_handler(int irq, void * dev_id)
     // pointer to entry in linked-list of buffers
     struct recv_buf_t *act_recv_buf = recv_buf_head;
 
-    printk(KERN_INFO "irq_handler read: 0x%2x\n",data);
+    /* printk(KERN_INFO "irq_handler read: 0x%2x\n",data); */
 
     // save the incoming byte for all readers
     while (act_recv_buf != NULL) {
