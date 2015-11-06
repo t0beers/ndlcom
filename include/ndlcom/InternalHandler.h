@@ -52,6 +52,10 @@ void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internalHandler,
                                NDLComInternalHandlerFkt handler,
                                const uint8_t flags, void *context);
 
+void
+ndlcomInternalHandlerSetFlags(struct NDLComInternalHandler *internalHandler,
+                              const uint8_t flags);
+
 #if defined(__cplusplus)
 }
 #endif

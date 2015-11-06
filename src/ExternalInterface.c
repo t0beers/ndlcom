@@ -7,10 +7,10 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
                             const uint8_t flags, void *context) {
 
     externalInterface->context = context;
-    externalInterface->flags = flags;
     externalInterface->read = read;
     externalInterface->write = write;
 
+    ndlcomExternalInterfaceSetFlags(externalInterface, flags);
     ndlcomParserCreate(&externalInterface->parser, sizeof(struct NDLComParser));
 
     INIT_LIST_HEAD(&externalInterface->list);
@@ -19,4 +19,10 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
 uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface) {
     return ndlcomParserGetNumberOfCRCFails(&externalInterface->parser);
+}
+
+void ndlcomExternalInterfaceSetFlags(
+    struct NDLComExternalInterface *externalInterface,
+    const uint8_t flags) {
+    externalInterface->flags = flags;
 }

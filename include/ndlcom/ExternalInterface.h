@@ -63,6 +63,10 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
 uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface);
 
+void ndlcomExternalInterfaceSetFlags(
+    struct NDLComExternalInterface *externalInterface,
+    const uint8_t flags);
+
 #if defined(__cplusplus)
 }
 #endif
