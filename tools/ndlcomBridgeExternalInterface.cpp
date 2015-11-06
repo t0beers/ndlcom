@@ -474,9 +474,7 @@ NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
-    // FIXME: although this "O_NONBLOCK" is needed for the rest to work, the
-    // select()-hack below is needed as well... well, tell you: this is really
-    // complex shit, my friend...
+    // O_NONBLOCKing access as usual
     fcntl(pty_fd, F_SETFL, O_NONBLOCK);
 
     // this sets the HUP flag on the tty master, used to detect a reader
@@ -506,50 +504,6 @@ NDLComBridgePty::~NDLComBridgePty() {
     cleanSymlink();
     // not sure...
     close(pty_fd);
-}
-
-size_t NDLComBridgePty::readEscapedBytes(void *buf, size_t count) {
-    if (!readerPresent())
-        return 0;
-
-    // TODO: this select should not be needed...
-    struct timeval timeout = {0};
-    fd_set fd_in;
-    FD_ZERO(&fd_in);
-    FD_SET(pty_fd, &fd_in);
-    int rc = select(pty_fd + 1, &fd_in, NULL, NULL, &timeout);
-    if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
-    }
-    if (FD_ISSET(pty_fd, &fd_in)) {
-        return NDLComBridgeStream::readEscapedBytes(buf, count);
-    } else {
-        return 0;
-    }
-}
-
-void NDLComBridgePty::writeEscapedBytes(const void *buf, size_t count) {
-    if (!readerPresent())
-        return;
-
-    NDLComBridgeStream::writeEscapedBytes(buf, count);
-}
-
-bool NDLComBridgePty::readerPresent() const {
-    // see http://stackoverflow.com/questions/3486491
-    struct pollfd pfd;
-    pfd.fd = pty_fd;
-    pfd.events = POLLHUP;
-    int rc = poll(&pfd, 1, 0);
-    if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
-    }
-    if (pfd.revents & POLLHUP) {
-        // no reader present
-        return false;
-    } else {
-        return true;
-    }
 }
 
 /**

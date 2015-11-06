@@ -151,18 +151,10 @@ class NDLComBridgePty : public NDLComBridgeStream {
                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgePty();
 
-    size_t readEscapedBytes(void *buf, size_t count);
-    void writeEscapedBytes(const void *buf, size_t count);
-
   private:
     // the master-side of the pty
     int pty_fd;
     std::string symlinkname;
-
-    // check if someone is connected to the slave side of the pty. we are not
-    // writing without a reader present to prevent building up of an excessive
-    // buffer
-    bool readerPresent() const;
 
     // if the symlink given is exising but dead we will recreate it pointing to
     // the correct new location
