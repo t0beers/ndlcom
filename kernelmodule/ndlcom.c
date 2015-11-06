@@ -17,7 +17,8 @@
 #include <asm/uaccess.h>
 #include <asm/io.h>
 
-#include "../../ndlcom/ndlcom.sdk/fsbl_bsp/ps7_cortexa9_0/include/xparameters.h"
+// for Xilinx/Zynq specific defines
+#include "xparameters.h"
 
 #define DEBUG
 #ifdef DEBUG
@@ -29,7 +30,8 @@
 MODULE_AUTHOR("Tobix");
 MODULE_LICENSE("GPL");
 
-#define NDLC_IRQ 61 // TODO: use define from xparameters.h
+#define NDLCOM_BASEADDR XPAR_NDLCOM_0_BASEADDR
+#define NDLCOM_IRQ XPAR_FABRIC_NDLCOM_0_IRQ_INTR
 
 // address returned by ioremap()
 static void *fpga_mem_base = 0;
@@ -283,12 +285,12 @@ static int ndlcom_init(void)
     }
 
     // remap the cs address
-    fpga_mem_base = ioremap(XPAR_NDLCOM_0_S00_AXI_BASEADDR,128);
+    fpga_mem_base = ioremap(NDLCOM_BASEADDR,128);
     printk(KERN_INFO "ndlcom: fpga_mem_base: 0x%p\n",fpga_mem_base);
 
     // request irq
-    irq_set_irq_type(NDLC_IRQ, IRQ_TYPE_LEVEL_HIGH);
-    if ((ret = request_irq(NDLC_IRQ, irq_handler, 0, "ndlcom", 0))!=0) {
+    irq_set_irq_type(NDLCOM_IRQ, IRQ_TYPE_LEVEL_HIGH);
+    if ((ret = request_irq(NDLCOM_IRQ, irq_handler, 0, "ndlcom", 0))!=0) {
         printk(KERN_WARNING "ndlcom: request_irq failed %d)\n",ret);
 
         iounmap(fpga_mem_base);
@@ -300,7 +302,7 @@ static int ndlcom_init(void)
         return -ENODEV;
     }
 
-    printk(KERN_INFO "ndlcom: interrupt is %d\n",NDLC_IRQ);
+    printk(KERN_INFO "ndlcom: interrupt is %d\n",NDLCOM_IRQ);
 
     printk(KERN_INFO "ndlcom: init succeeded\n");
 
@@ -312,7 +314,7 @@ static void ndlcom_exit(void)
     printk(KERN_INFO "ndlcom: exit\n");
 
     // free irq
-    free_irq(NDLC_IRQ, 0);
+    free_irq(NDLCOM_IRQ, 0);
 
     // unmap memory region
     iounmap(fpga_mem_base);
