@@ -5,7 +5,7 @@ The old variant used a XOR-based checksum which was not good enough.
 
 ## crc16
 
-See [RFC-1662](https://tools.ietf.org/html/rfc1662), seems to be known as _CRC-CCITT 16bit_
+See [RFC-1662](https://tools.ietf.org/html/rfc1662), seems to be known as _CRC-CCITT 16bit_, actually have a look at ISO [13239:2002](http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf)
 
 Some other links:
 - [reveng](http://reveng.sourceforge.net) is very invaluable, see [reveng-1.1.4.tar.xz](http://downloads.sourceforge.net/project/reveng/1.1.4/reveng-1.1.4.tar.xz)
