@@ -68,10 +68,10 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
     }
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
     if (bytesRead == 0) {
-        if (feof(fd_read)) {
-            return 0;
-        } else {
+        if (ferror(fd_read)) {
             throw std::runtime_error(strerror(ferror(fd_read)));
+        } else {
+            return 0;
         }
     }
     /* printf("stream read %lu bytes\n", bytesRead); */
