@@ -105,14 +105,14 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
     // exclusive access
-    int r;
-    r = ioctl(fd, TIOCEXCL);
-    if (r == -1) {
+    int rc;
+    rc = ioctl(fd, TIOCEXCL);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
     // save oldtio
-    r = tcgetattr(fd, &oldtio);
-    if (r == -1) {
+    rc = tcgetattr(fd, &oldtio);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
     // prepare newtio
@@ -122,17 +122,17 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     newtio.c_cc[VMIN] = 0;
     newtio.c_cc[VTIME] = 0;
     // set speed
-    r = cfsetspeed(&newtio, baudrate);
-    if (r == -1) {
+    rc = cfsetspeed(&newtio, baudrate);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    // flush the port and set new settings
-    r = tcflush(fd, TCIFLUSH);
-    if (r == -1) {
+    // flush (ie: discard old) the port and set new settings
+    rc = tcflush(fd, TCIOFLUSH);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    r = tcsetattr(fd, TCSANOW, &newtio);
-    if (r == -1) {
+    rc = tcsetattr(fd, TCSANOW, &newtio);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
 
