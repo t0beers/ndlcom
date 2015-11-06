@@ -60,7 +60,7 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
                             NDLComExternalInterfaceReadEscapedBytes read,
                             const uint8_t flags, void *context);
 
-uint32_t NDLComExternalInterfaceGetCrcFails(
+uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface);
 
 #if defined(__cplusplus)

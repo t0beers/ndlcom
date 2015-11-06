@@ -16,7 +16,7 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
     INIT_LIST_HEAD(&externalInterface->list);
 }
 
-uint32_t NDLComExternalInterfaceGetCrcFails(
+uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface) {
     return ndlcomParserGetNumberOfCRCFails(&externalInterface->parser);
 }
