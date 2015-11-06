@@ -24,6 +24,13 @@ class NDLComBridgeHandler {
     struct NDLComInternalHandler internal;
 };
 
+class NDLComBridgePrintAll : public NDLComBridgeHandler {
+  public:
+    NDLComBridgePrintAll(struct NDLComBridge &_bridge)
+        : NDLComBridgeHandler(_bridge){};
+    void handle(const struct NDLComHeader *header, const void *payload);
+};
+
 class NDLComNodeHandler {
   public:
     NDLComNodeHandler(struct NDLComNode &_node);
@@ -40,13 +47,6 @@ class NDLComNodeHandler {
 
   private:
     struct NDLComInternalHandler internal;
-};
-
-class NDLComBridgePrintAll : public NDLComBridgeHandler {
-  public:
-    NDLComBridgePrintAll(struct NDLComBridge &_bridge)
-        : NDLComBridgeHandler(_bridge){};
-    void handle(const struct NDLComHeader *header, const void *payload);
 };
 
 class NDLComNodePrintOwnId : public NDLComNodeHandler {
