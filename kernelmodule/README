@@ -1,0 +1,11 @@
+NDLCom FPGA-Kernelmodule
+------------------------
+
+This module was written for the FPGA-NDLCom Interface on the ZynqBrain.
+
+To compile define your paths to the linux-kernel and the Xilinx-xparameters
+directories on the command line or directly in the Makefile.
+
+e.g.:
+    make KERNELDIR=~/ZynqBrain/linux-kernel \
+         XPARAMETERDIR=~/ZynqBrain/ZynqBrain/ZynqBrain.sdk/fsbl_bsp/ps7_cortexa9_0/include
