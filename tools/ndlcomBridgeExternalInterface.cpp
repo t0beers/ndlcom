@@ -136,7 +136,6 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
-    // fdopen
     fd_read = fdopen(fd, "r");
     if (!fd_read) {
         throw std::runtime_error(strerror(errno));
@@ -164,7 +163,13 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
     fd_read = fdopen(fd, "r");
+    if (!fd_read) {
+        throw std::runtime_error(strerror(errno));
+    }
     fd_write = fdopen(fd, "r+");
+    if (!fd_write) {
+        throw std::runtime_error(strerror(errno));
+    }
 }
 
 NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
@@ -359,7 +364,13 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
 
     // convert the file-descriptors to streams
     str_in = fdopen(fd_in, "r");
+    if (!str_in) {
+        throw std::runtime_error(strerror(errno));
+    }
     str_out = fdopen(fd_out, "r+");
+    if (!str_out) {
+        throw std::runtime_error(strerror(errno));
+    }
 }
 
 NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
