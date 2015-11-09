@@ -159,7 +159,7 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
                                    std::string device_name)
     : NDLComBridgeStream(_bridge) {
     // does non-blocking read work?
-    fd = open("/dev/NDLCom", O_RDWR | O_NDELAY);
+    fd = open(device_name.c_str(), O_RDWR | O_NDELAY);
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
     }
