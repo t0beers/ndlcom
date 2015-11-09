@@ -174,6 +174,15 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
 
 NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
 
+size_t NDLComBridgeFpga::readEscapedBytes(void *buf, size_t count) {
+    if (!fd_read) {
+        return 0;
+    }
+    size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
+    /* printf("stream read %lu bytes\n", bytesRead); */
+    return bytesRead;
+}
+
 NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
                                  unsigned int in_port, unsigned int out_port,
                                  uint8_t flags)
