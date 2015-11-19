@@ -92,7 +92,8 @@ struct NDLComHeader {
  * @brief worst-case size of rx-buffer
  *
  * an decoded message can contain upto 255byte, a header and the crc. no bytes
- * are escaped and there are no start/stop flags
+ * are escaped and there are no start/stop flags. this results in 261bytes by
+ * default.
  */
 #define NDLCOM_MAX_DECODED_MESSAGE_SIZE                                        \
     (sizeof(struct NDLComHeader) + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
@@ -110,7 +111,8 @@ struct NDLComHeader {
  *
  * in an encoded message, the worst case would be to escape _each_ single byte
  * of an decoded message, plus the initial start-flag and the optional stop
- * flag. The CRC is included in the decoded message, and can be escaped as well
+ * flag. The CRC is included in the decoded message, and can be escaped as
+ * well. this is 524 by default
  */
 #define NDLCOM_MAX_ENCODED_MESSAGE_SIZE                                        \
     (2 + 2 * NDLCOM_MAX_DECODED_MESSAGE_SIZE)
