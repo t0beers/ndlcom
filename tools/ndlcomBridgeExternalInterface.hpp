@@ -83,8 +83,6 @@ class NDLComBridgeFpga : public NDLComBridgeStream {
                      std::string device_name = "/dev/NDLCom");
     ~NDLComBridgeFpga();
 
-    size_t readEscapedBytes(void *buf, size_t count);
-
   private:
     int fd;
 };
