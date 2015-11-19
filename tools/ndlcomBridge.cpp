@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
     std::signal(SIGINT, signal_handler);
 
     useconds_t usleep_us = round(1. / mainLoopFrequency_hz * 1000000);
-    std::cout << "using update rate of " << mainLoopFrequency_hz
+    std::cerr << "using update rate of " << mainLoopFrequency_hz
               << "Hz (update every " << usleep_us << "us)\n";
 
     for (std::vector<std::pair<struct NDLComNode *,
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]) {
         printMiss = NULL;
     }
 
-    std::cout << "quitting\n";
+    std::cerr << "quitting\n";
 
     exit(EXIT_SUCCESS);
 }

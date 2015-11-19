@@ -62,9 +62,9 @@ size_t readBytesBlocking(void *buf, size_t count) {
             // should not return EOF, "fscanf()" should have handled this
             /* std::cerr << "throw away?\n"; */
             fgets(t, 2, stdin);
-            /* std::cout << "found nothing, destroyed: " << t << "\n"; */
+            /* std::cerr << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
-            /* std::cout << "did read: 0x" << std::hex << byte << std::dec */
+            /* std::cerr << "did read: 0x" << std::hex << byte << std::dec */
             /*           << " from " << amount << "bytes\n"; */
             ((uint8_t *)buf)[readSoFar++] = (uint8_t)byte;
         } else {

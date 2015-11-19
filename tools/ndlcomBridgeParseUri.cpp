@@ -22,10 +22,10 @@ parseUriAndCreateInterface(struct NDLComBridge &bridge, std::string uri,
         baudstring >> baudrate;
         if (baudrate == 0) {
             baudrate = 921600;
-            std::cout << "falling back to default baudrate of '" << baudrate
+            std::cerr << "falling back to default baudrate of '" << baudrate
                       << "'\n";
         }
-        std::cout << "opening serial '" << device << "' with " << baudrate
+        std::cerr << "opening serial '" << device << "' with " << baudrate
                   << "baud\n";
         return new NDLComBridgeSerial(bridge, device, baudrate, flags);
     } else if (uri.compare(0, udp.length(), udp) == 0) {
@@ -43,33 +43,33 @@ parseUriAndCreateInterface(struct NDLComBridge &bridge, std::string uri,
         outportstring >> outport;
         if (inport == 0) {
             inport = 34000;
-            std::cout << "falling back to default inport of '" << inport
+            std::cerr << "falling back to default inport of '" << inport
                       << "'\n";
         }
         if (outport == 0) {
             outport = 34001;
-            std::cout << "falling back to default outport of '" << outport
+            std::cerr << "falling back to default outport of '" << outport
                       << "'\n";
         }
-        std::cout << "opening udp '" << hostname << "' with inport " << inport
+        std::cerr << "opening udp '" << hostname << "' with inport " << inport
                   << " and outport " << outport << "\n";
         return new NDLComBridgeUdp(bridge, hostname, inport, outport, flags);
     } else if (uri.compare(0, pipe.length(), pipe) == 0) {
         size_t begin_pipename = uri.find(pipe) + pipe.size();
         std::string pipename(uri.substr(begin_pipename));
-        std::cout << "opening pipe '" << pipename << "'\n";
+        std::cerr << "opening pipe '" << pipename << "'\n";
         return new NDLComBridgeNamedPipe(bridge, pipename, flags);
     } else if (uri.compare(0, fpga.length(), fpga) == 0) {
         size_t begin_fpganame = uri.find(fpga) + fpga.size();
         std::string fpganame(uri.substr(begin_fpganame));
         if (fpganame.empty())
             fpganame = "/dev/NDLCom";
-        std::cout << "opening fpga '" << fpganame << "'\n";
+        std::cerr << "opening fpga '" << fpganame << "'\n";
         return new NDLComBridgeFpga(bridge, fpganame);
     } else if (uri.compare(0, pty.length(), pty) == 0) {
         size_t begin_ptyname = uri.find(pty) + pty.size();
         std::string ptyname(uri.substr(begin_ptyname));
-        std::cout << "opening pty master '" << ptyname << "'\n";
+        std::cerr << "opening pty master '" << ptyname << "'\n";
         return new NDLComBridgePty(bridge, ptyname);
     }
 

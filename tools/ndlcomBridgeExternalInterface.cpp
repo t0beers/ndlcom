@@ -411,9 +411,9 @@ size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
             char t[2];
             // should not return EOF, "fscanf()" should have handled this
             fgets(t, 2, str_in);
-            /* std::cout << "found nothing, destroyed: " << t << "\n"; */
+            /* std::cerr << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
-            /* std::cout << "jo, did read: 0x" << std::hex << byte << std::dec
+            /* std::cerr << "jo, did read: 0x" << std::hex << byte << std::dec
              */
             /*           << " from " << amount << "bytes\n"; */
             ((uint8_t *)buf)[readSoFar++] = (uint8_t)byte;
@@ -422,7 +422,7 @@ size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
         }
     }
 
-    /* std::cout << "all in all, got " << readSoFar << "bytes\n"; */
+    /* std::cerr << "all in all, got " << readSoFar << "bytes\n"; */
 
     return readSoFar;
 }
