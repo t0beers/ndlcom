@@ -43,6 +43,11 @@ void NDLComNodeHandler::handleWrapper(void *context,
     self->handle(header, payload);
 }
 
+void NDLComNodeHandler::send(const NDLComId destination, const void *payload,
+                             const size_t length) {
+    ndlcomNodeSend(&node, destination, payload, length);
+}
+
 void NDLComBridgePrintAll::handle(const struct NDLComHeader *header,
                                   const void *payload) {
     printf("bridge saw message from 0x%02x to 0x%02x with %3u bytes of payload\n",

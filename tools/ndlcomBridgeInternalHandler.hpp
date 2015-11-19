@@ -42,6 +42,9 @@ class NDLComNodeHandler {
     virtual void handle(const struct NDLComHeader *header,
                         const void *payload) = 0;
 
+    void send(const NDLComId destination, const void *payload,
+              const size_t length);
+
   protected:
     struct NDLComNode &node;
 
