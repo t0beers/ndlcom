@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <termios.h>
 #include <unistd.h>
 
 // udp:
@@ -104,14 +103,13 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    // exclusive access
-    int rc;
-    rc = ioctl(fd, TIOCEXCL);
+    // save oldtio
+    int rc = tcgetattr(fd, &oldtio);
     if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    // save oldtio
-    rc = tcgetattr(fd, &oldtio);
+    // exclusive access
+    rc = ioctl(fd, TIOCEXCL);
     if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
