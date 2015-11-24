@@ -116,7 +116,7 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
     // prepare newtio
-    struct termios newtio = {0};
+    struct termios newtio = oldtio;
     cfmakeraw(&newtio);
     // no waittimes
     newtio.c_cc[VMIN] = 0;
