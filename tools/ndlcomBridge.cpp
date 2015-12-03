@@ -226,6 +226,12 @@ int main(int argc, char *argv[]) {
                    (*it).first->headerConfig.mOwnSenderId);
         }
     }
+    if (printAll) {
+        printf("printing all messages passing through the bridge\n");
+    }
+    if (printMiss) {
+        printf("printing miss-events for passing message streams\n");
+    }
 
     while (!stopMainLoop) {
         // printf("new loop\n");
