@@ -2,3 +2,11 @@ build/
 *.sw?
 .gdb_history
 compile_commands.json
+Module.symvers
+modules.order
+*.ko
+*.mod.c
+*.mod.o
+*.o
+.tmp_versions/
+*.cmd
