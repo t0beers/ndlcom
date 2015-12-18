@@ -32,13 +32,13 @@ double mainLoopFrequency_hz = 100.0;
 /* all external interfaces */
 std::vector<class ndlcom::ExternalInterfaceBase *> allInterfaces;
 /* all internal "personalities", with optional printers attached */
-std::vector<std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> >
+std::vector<std::pair<struct NDLComNode *, class ndlcom::NodePrintOwnId *> >
     allNodes;
 
 void signal_handler(int signal) { stopMainLoop = true; }
 
-class NDLComBridgePrintAll *printAll = NULL;
-class NDLComBridgePrintMissEvents *printMiss = NULL;
+class ndlcom::BridgePrintAll *printAll = NULL;
+class ndlcom::BridgePrintMissEvents *printMiss = NULL;
 
 void help(const char *_name) {
     std::string name(_name);
@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
             std::istringstream ss(optarg);
             int tempId;
             ss >> tempId;
-            std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> entry;
+            std::pair<struct NDLComNode *, class ndlcom::NodePrintOwnId *> entry;
             entry.first = new struct NDLComNode;
             entry.second = NULL;
             ndlcomNodeInit(entry.first, &bridge, tempId);
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
         // these will be deleted implicitly on programm exit
         case 'A': {
             if (printAll == NULL) {
-                printAll = new NDLComBridgePrintAll(bridge);
+                printAll = new ndlcom::BridgePrintAll(bridge);
             } else {
                 help(argv[0]);
                 exit(EXIT_FAILURE);
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
             /* so get the last node added as a reference */
-            std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> &
+            std::pair<struct NDLComNode *, class ndlcom::NodePrintOwnId *> &
                 lastEntry = allNodes.back();
             /* check that it does not have a "printOwnId" yet */
             if (lastEntry.second != NULL) {
@@ -182,12 +182,12 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
             /* and create the own-id printer */
-            lastEntry.second = new NDLComNodePrintOwnId(*lastEntry.first);
+            lastEntry.second = new ndlcom::NodePrintOwnId(*lastEntry.first);
             break;
         }
         case 'M': {
             if (printMiss == NULL) {
-                printMiss = new NDLComBridgePrintMissEvents(bridge);
+                printMiss = new ndlcom::BridgePrintMissEvents(bridge);
             } else {
                 help(argv[0]);
                 exit(EXIT_FAILURE);
@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
               << "Hz (update every " << usleep_us << "us)\n";
 
     for (std::vector<std::pair<struct NDLComNode *,
-                               class NDLComNodePrintOwnId *> >::iterator it =
+                               class ndlcom::NodePrintOwnId *> >::iterator it =
              allNodes.begin();
          it != allNodes.end(); ++it) {
         if ((*it).second != NULL) {
@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
     allInterfaces.clear();
 
     for (std::vector<std::pair<struct NDLComNode *,
-                               class NDLComNodePrintOwnId *> >::iterator it =
+                               class ndlcom::NodePrintOwnId *> >::iterator it =
              allNodes.begin();
          it != allNodes.end(); ++it) {
         ndlcomNodeDeinit((*it).first);
