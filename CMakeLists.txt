@@ -27,6 +27,7 @@ set(SOURCES_lib
     src/Crc.c
     src/Routing.c
     src/ExternalInterface.c
+    src/ExternalInterfaceBase.cpp
     src/InternalHandler.c
     src/InternalHandler.cpp
     src/Bridge.c
