@@ -49,7 +49,7 @@ size_t NDLComBridgeExternalInterface::readWrapper(void *context, void *buf,
 }
 
 NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &_bridge, uint8_t flags)
-    : NDLComBridgeExternalInterface(_bridge, flags), fd_read(NULL),
+    : ndlcom::ExternalInterfaceBase(_bridge, flags), fd_read(NULL),
       fd_write(NULL) {}
 
 NDLComBridgeStream::~NDLComBridgeStream() {
@@ -175,7 +175,7 @@ NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
 NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
                                  unsigned int in_port, unsigned int out_port,
                                  uint8_t flags)
-    : NDLComBridgeExternalInterface(_bridge, flags),
+    : ndlcom::ExternalInterfaceBase(_bridge, flags),
       len(sizeof(struct sockaddr_in)) {
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
@@ -316,7 +316,7 @@ again:
 NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)
-    : NDLComBridgeExternalInterface(_bridge, flags), unlinkRxPipeInDtor(false),
+    : ndlcom::ExternalInterfaceBase(_bridge, flags), unlinkRxPipeInDtor(false),
       unlinkTxPipeInDtor(false), pipename_rx(pipename + "_rx"),
       pipename_tx(pipename + "_tx") {
 

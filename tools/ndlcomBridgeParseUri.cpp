@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-class NDLComBridgeExternalInterface *
+class ndlcom::ExternalInterfaceBase *
 parseUriAndCreateInterface(struct NDLComBridge &bridge, std::string uri,
                            uint8_t flags) {
 

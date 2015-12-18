@@ -11,17 +11,19 @@
 // for "struct sockaddr_in" and "socklen_t"
 #include <arpa/inet.h>
 
+namespace ndlcom {
+
 /**
  * virtual base-class to wrap "struct NDLComExternalInterface" into a cpp-class
  *
  * stores private reference of the NDLComBridge this interface is connected to.
  */
-class NDLComBridgeExternalInterface {
+class ExternalInterfaceBase {
   public:
-    NDLComBridgeExternalInterface(
+    ExternalInterfaceBase(
         NDLComBridge &_bridge,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    virtual ~NDLComBridgeExternalInterface();
+    virtual ~ExternalInterfaceBase();
 
     static void writeWrapper(void *context, const void *buf,
                              const size_t count);
@@ -34,5 +36,6 @@ class NDLComBridgeExternalInterface {
     NDLComBridge &bridge;
     struct NDLComExternalInterface external;
 };
+}
 
 #endif /*EXTERNALINTERFACEBASE_H*/

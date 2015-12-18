@@ -12,7 +12,7 @@
 // for "struct sockaddr_in" and "socklen_t"
 #include <arpa/inet.h>
 
-class NDLComBridgeStream : public NDLComBridgeExternalInterface {
+class NDLComBridgeStream : public ndlcom::ExternalInterfaceBase {
   public:
     NDLComBridgeStream(NDLComBridge &_bridge,
                        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
@@ -71,7 +71,7 @@ class NDLComBridgeFpga : public NDLComBridgeStream {
  *
  * has distinct send- and receive-ports to allows usage on localhost.
  */
-class NDLComBridgeUdp : public NDLComBridgeExternalInterface {
+class NDLComBridgeUdp : public ndlcom::ExternalInterfaceBase {
   public:
     NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
                     unsigned int in_port, unsigned int out_port,
@@ -95,7 +95,7 @@ class NDLComBridgeUdp : public NDLComBridgeExternalInterface {
  * outputs data on a unix "named pipe" in hex-encoded form ("0x04" and so on)
  * input is also possible.
  */
-class NDLComBridgeNamedPipe : public NDLComBridgeExternalInterface {
+class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
   public:
     NDLComBridgeNamedPipe(
         NDLComBridge &_bridge, std::string pipename,

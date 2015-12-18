@@ -30,7 +30,7 @@ bool stopMainLoop = false;
 double mainLoopFrequency_hz = 100.0;
 
 /* all external interfaces */
-std::vector<class NDLComBridgeExternalInterface *> allInterfaces;
+std::vector<class ndlcom::ExternalInterfaceBase *> allInterfaces;
 /* all internal "personalities", with optional printers attached */
 std::vector<std::pair<struct NDLComNode *, class NDLComNodePrintOwnId *> >
     allNodes;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
         }
         switch (c) {
         case 'u': {
-            class NDLComBridgeExternalInterface *ret =
+            class ndlcom::ExternalInterfaceBase *ret =
                 parseUriAndCreateInterface(bridge, optarg);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
             break;
         }
         case 'm': {
-            class NDLComBridgeExternalInterface *ret =
+            class ndlcom::ExternalInterfaceBase *ret =
                 parseUriAndCreateInterface(
                     bridge, optarg,
                     NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clean up our memory
-    for (std::vector<class NDLComBridgeExternalInterface *>::iterator it =
+    for (std::vector<class ndlcom::ExternalInterfaceBase *>::iterator it =
              allInterfaces.begin();
          it != allInterfaces.end(); ++it) {
         delete *it;

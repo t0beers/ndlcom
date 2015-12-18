@@ -3,7 +3,7 @@
 
 #include "ndlcomBridgeExternalInterface.hpp"
 
-class NDLComBridgeExternalInterface *parseUriAndCreateInterface(
+class ndlcom::ExternalInterfaceBase *parseUriAndCreateInterface(
     struct NDLComBridge &bridge, std::string uri,
     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 

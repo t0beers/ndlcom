@@ -5,30 +5,32 @@
 #include <errno.h>
 #include <cstdio>
 
-NDLComBridgeExternalInterface::NDLComBridgeExternalInterface(
+using namespace ndlcom;
+
+ExternalInterfaceBase::ExternalInterfaceBase(
     NDLComBridge &_bridge, uint8_t flags)
     : bridge(_bridge) {
     ndlcomExternalInterfaceInit(
-        &external, NDLComBridgeExternalInterface::writeWrapper,
-        NDLComBridgeExternalInterface::readWrapper, flags, this);
+        &external, ExternalInterfaceBase::writeWrapper,
+        ExternalInterfaceBase::readWrapper, flags, this);
 
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
-NDLComBridgeExternalInterface::~NDLComBridgeExternalInterface() {
+ExternalInterfaceBase::~ExternalInterfaceBase() {
     ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
 }
 
-void NDLComBridgeExternalInterface::writeWrapper(void *context, const void *buf,
+void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
                                                  const size_t count) {
-    class NDLComBridgeExternalInterface *self =
-        static_cast<class NDLComBridgeExternalInterface *>(context);
+    class ExternalInterfaceBase *self =
+        static_cast<class ExternalInterfaceBase *>(context);
     self->writeEscapedBytes(buf, count);
 }
 
-size_t NDLComBridgeExternalInterface::readWrapper(void *context, void *buf,
+size_t ExternalInterfaceBase::readWrapper(void *context, void *buf,
                                                   const size_t count) {
-    class NDLComBridgeExternalInterface *self =
-        static_cast<class NDLComBridgeExternalInterface *>(context);
+    class ExternalInterfaceBase *self =
+        static_cast<class ExternalInterfaceBase *>(context);
     return self->readEscapedBytes(buf, count);
 }
