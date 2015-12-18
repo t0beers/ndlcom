@@ -1,5 +1,5 @@
-#ifndef NDLCOMBRIDGEINTERNALHANDLER_H
-#define NDLCOMBRIDGEINTERNALHANDLER_H
+#ifndef INTERNALHANDLER_HPP
+#define INTERNALHANDLER_HPP
 
 #include "ndlcom/Bridge.h"
 
@@ -79,4 +79,4 @@ class NDLComBridgePrintMissEvents : public NDLComBridgeHandler {
     std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES << 8> alreadySeen;
 };
 
-#endif /*NDLCOMBRIDGEINTERNALHANDLER_H*/
+#endif /*INTERNALHANDLER_HPP*/

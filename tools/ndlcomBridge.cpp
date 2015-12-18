@@ -18,7 +18,7 @@
 
 #include "ndlcomBridgeParseUri.hpp"
 #include "ndlcomBridgeExternalInterface.hpp"
-#include "ndlcomBridgeInternalHandler.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
