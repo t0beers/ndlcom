@@ -1,4 +1,4 @@
-#include "ndlcomBridgeInternalHandler.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
@@ -41,6 +41,11 @@ void NDLComNodeHandler::handleWrapper(void *context,
     class NDLComNodeHandler *self =
         static_cast<class NDLComNodeHandler *>(context);
     self->handle(header, payload);
+}
+
+void NDLComNodeHandler::send(const NDLComId destination, const void *payload,
+                             const size_t length) {
+    ndlcomNodeSend(&node, destination, payload, length);
 }
 
 void NDLComBridgePrintAll::handle(const struct NDLComHeader *header,

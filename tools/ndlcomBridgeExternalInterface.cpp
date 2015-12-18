@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <termios.h>
 #include <unistd.h>
 
 // udp:
@@ -68,10 +67,10 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
     }
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
     if (bytesRead == 0) {
-        if (feof(fd_read)) {
-            return 0;
-        } else {
+        if (ferror(fd_read)) {
             throw std::runtime_error(strerror(ferror(fd_read)));
+        } else {
+            return 0;
         }
     }
     /* printf("stream read %lu bytes\n", bytesRead); */
@@ -92,7 +91,7 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         alreadyWritten += written;
     }
     fflush(fd_write);
-    /* printf("stream wrote %lu bytes\n", written); */
+    /* printf("stream wrote %lu bytes\n", count); */
     return;
 }
 
@@ -104,15 +103,14 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    // exclusive access
-    int r;
-    r = ioctl(fd, TIOCEXCL);
-    if (r == -1) {
+    // save oldtio
+    int rc = tcgetattr(fd, &oldtio);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    // save oldtio
-    r = tcgetattr(fd, &oldtio);
-    if (r == -1) {
+    // exclusive access
+    rc = ioctl(fd, TIOCEXCL);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
     // prepare newtio
@@ -122,17 +120,17 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     newtio.c_cc[VMIN] = 0;
     newtio.c_cc[VTIME] = 0;
     // set speed
-    r = cfsetspeed(&newtio, baudrate);
-    if (r == -1) {
+    rc = cfsetspeed(&newtio, baudrate);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    // flush the port and set new settings
-    r = tcflush(fd, TCIFLUSH);
-    if (r == -1) {
+    // flush (ie: discard old) the port and set new settings
+    rc = tcflush(fd, TCIOFLUSH);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
-    r = tcsetattr(fd, TCSANOW, &newtio);
-    if (r == -1) {
+    rc = tcsetattr(fd, TCSANOW, &newtio);
+    if (rc == -1) {
         throw std::runtime_error(strerror(errno));
     }
 
@@ -173,15 +171,6 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
 }
 
 NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
-
-size_t NDLComBridgeFpga::readEscapedBytes(void *buf, size_t count) {
-    if (!fd_read) {
-        return 0;
-    }
-    size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
-    /* printf("stream read %lu bytes\n", bytesRead); */
-    return bytesRead;
-}
 
 NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
                                  unsigned int in_port, unsigned int out_port,
@@ -420,9 +409,9 @@ size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
             char t[2];
             // should not return EOF, "fscanf()" should have handled this
             fgets(t, 2, str_in);
-            /* std::cout << "found nothing, destroyed: " << t << "\n"; */
+            /* std::cerr << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
-            /* std::cout << "jo, did read: 0x" << std::hex << byte << std::dec
+            /* std::cerr << "jo, did read: 0x" << std::hex << byte << std::dec
              */
             /*           << " from " << amount << "bytes\n"; */
             ((uint8_t *)buf)[readSoFar++] = (uint8_t)byte;
@@ -431,7 +420,7 @@ size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
         }
     }
 
-    /* std::cout << "all in all, got " << readSoFar << "bytes\n"; */
+    /* std::cerr << "all in all, got " << readSoFar << "bytes\n"; */
 
     return readSoFar;
 }
@@ -474,9 +463,7 @@ NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
-    // FIXME: although this "O_NONBLOCK" is needed for the rest to work, the
-    // select()-hack below is needed as well... well, tell you: this is really
-    // complex shit, my friend...
+    // O_NONBLOCKing access as usual
     fcntl(pty_fd, F_SETFL, O_NONBLOCK);
 
     // this sets the HUP flag on the tty master, used to detect a reader
@@ -506,50 +493,6 @@ NDLComBridgePty::~NDLComBridgePty() {
     cleanSymlink();
     // not sure...
     close(pty_fd);
-}
-
-size_t NDLComBridgePty::readEscapedBytes(void *buf, size_t count) {
-    if (!readerPresent())
-        return 0;
-
-    // TODO: this select should not be needed...
-    struct timeval timeout = {0};
-    fd_set fd_in;
-    FD_ZERO(&fd_in);
-    FD_SET(pty_fd, &fd_in);
-    int rc = select(pty_fd + 1, &fd_in, NULL, NULL, &timeout);
-    if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
-    }
-    if (FD_ISSET(pty_fd, &fd_in)) {
-        return NDLComBridgeStream::readEscapedBytes(buf, count);
-    } else {
-        return 0;
-    }
-}
-
-void NDLComBridgePty::writeEscapedBytes(const void *buf, size_t count) {
-    if (!readerPresent())
-        return;
-
-    NDLComBridgeStream::writeEscapedBytes(buf, count);
-}
-
-bool NDLComBridgePty::readerPresent() const {
-    // see http://stackoverflow.com/questions/3486491
-    struct pollfd pfd;
-    pfd.fd = pty_fd;
-    pfd.events = POLLHUP;
-    int rc = poll(&pfd, 1, 0);
-    if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
-    }
-    if (pfd.revents & POLLHUP) {
-        // no reader present
-        return false;
-    } else {
-        return true;
-    }
 }
 
 /**

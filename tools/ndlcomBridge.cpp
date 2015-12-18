@@ -18,7 +18,7 @@
 
 #include "ndlcomBridgeParseUri.hpp"
 #include "ndlcomBridgeExternalInterface.hpp"
-#include "ndlcomBridgeInternalHandler.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
     std::signal(SIGINT, signal_handler);
 
     useconds_t usleep_us = round(1. / mainLoopFrequency_hz * 1000000);
-    std::cout << "using update rate of " << mainLoopFrequency_hz
+    std::cerr << "using update rate of " << mainLoopFrequency_hz
               << "Hz (update every " << usleep_us << "us)\n";
 
     for (std::vector<std::pair<struct NDLComNode *,
@@ -225,6 +225,12 @@ int main(int argc, char *argv[]) {
             printf("silently listening to receiverId 0x%02x\n",
                    (*it).first->headerConfig.mOwnSenderId);
         }
+    }
+    if (printAll) {
+        printf("printing all messages passing through the bridge\n");
+    }
+    if (printMiss) {
+        printf("printing miss-events for passing message streams\n");
     }
 
     while (!stopMainLoop) {
@@ -267,7 +273,7 @@ int main(int argc, char *argv[]) {
         printMiss = NULL;
     }
 
-    std::cout << "quitting\n";
+    std::cerr << "quitting\n";
 
     exit(EXIT_SUCCESS);
 }

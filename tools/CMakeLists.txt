@@ -21,7 +21,6 @@ if(SEEMS_TO_BE_POSIX)
         ndlcomBridge.cpp
         ndlcomBridgeParseUri.cpp
         ndlcomBridgeExternalInterface.cpp
-        ndlcomBridgeInternalHandler.cpp
         )
     target_link_libraries(ndlcomBridge
         ndlcom
