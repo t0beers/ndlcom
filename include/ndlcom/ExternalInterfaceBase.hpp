@@ -3,14 +3,6 @@
 
 #include "ndlcom/Bridge.h"
 
-#include <string>
-
-// for "speed_t"
-#include <termios.h>
-#include <iostream>
-// for "struct sockaddr_in" and "socklen_t"
-#include <arpa/inet.h>
-
 namespace ndlcom {
 
 /**
