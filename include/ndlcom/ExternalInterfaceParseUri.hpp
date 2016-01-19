@@ -31,8 +31,10 @@
  *         in case parsing was successfull
  *
  */
-class ndlcom::ExternalInterfaceBase *parseUriAndCreateInterface(
+namespace ndlcom {
+class ndlcom::ExternalInterfaceBase *ParseUriAndCreateExternalInterface(
     std::ostream &out, struct NDLComBridge &bridge, std::string uri,
     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+}
 
 #endif /*NDLCOMBRIDGEPARSEURI_H*/
