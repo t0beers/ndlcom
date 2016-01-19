@@ -1,16 +1,21 @@
 #include "ndlcomBridgeParseUri.hpp"
 
-#include <sstream>
+
+#include "ndlcomBridgeExternalInterface.hpp"
+
+const std::string serial = "serial://";
+const std::string udp = "udp://";
+const std::string pipe = "pipe://";
+const std::string fpga = "fpga://";
+const std::string pty = "pty://";
+
+#define DEFAULT_SERIAL_BAUDRATE 921600
+#define DEFAULT_UDP_SRCPORT 34000
+#define DEFAULT_UDP_DSTPORT 34001
 
 class ndlcom::ExternalInterfaceBase *
-parseUriAndCreateInterface(struct NDLComBridge &bridge, std::string uri,
-                           uint8_t flags) {
-
-    std::string serial = "serial://";
-    std::string udp = "udp://";
-    std::string pipe = "pipe://";
-    std::string fpga = "fpga://";
-    std::string pty = "pty://";
+parseUriAndCreateInterface(std::ostream &out, struct NDLComBridge &bridge,
+                           std::string uri, uint8_t flags) {
 
     if (uri.compare(0, serial.length(), serial) == 0) {
         size_t begin_device = uri.find(serial) + serial.size();
@@ -21,13 +26,13 @@ parseUriAndCreateInterface(struct NDLComBridge &bridge, std::string uri,
         speed_t baudrate = 0;
         baudstring >> baudrate;
         if (baudrate == 0) {
-            baudrate = 921600;
-            std::cerr << "falling back to default baudrate of '" << baudrate
-                      << "'\n";
+            baudrate = DEFAULT_SERIAL_BAUDRATE;
+            out << "falling back to default baudrate of '" << baudrate << "'\n";
         }
-        std::cerr << "opening serial '" << device << "' with " << baudrate
-                  << "baud\n";
+        out << "opening serial '" << device << "' with " << baudrate
+            << "baud\n";
         return new NDLComBridgeSerial(bridge, device, baudrate, flags);
+
     } else if (uri.compare(0, udp.length(), udp) == 0) {
         size_t begin_hostname = uri.find(udp) + udp.size();
         size_t begin_inport = uri.find(":", begin_hostname) + 1;
@@ -42,36 +47,38 @@ parseUriAndCreateInterface(struct NDLComBridge &bridge, std::string uri,
         inportstring >> inport;
         outportstring >> outport;
         if (inport == 0) {
-            inport = 34000;
-            std::cerr << "falling back to default inport of '" << inport
-                      << "'\n";
+            inport = DEFAULT_UDP_SRCPORT;
+            out << "falling back to default inport of '" << inport << "'\n";
         }
         if (outport == 0) {
-            outport = 34001;
-            std::cerr << "falling back to default outport of '" << outport
-                      << "'\n";
+            outport = DEFAULT_UDP_DSTPORT;
+            out << "falling back to default outport of '" << outport << "'\n";
         }
-        std::cerr << "opening udp '" << hostname << "' with inport " << inport
-                  << " and outport " << outport << "\n";
+        out << "opening udp '" << hostname << "' with inport " << inport
+            << " and outport " << outport << "\n";
         return new NDLComBridgeUdp(bridge, hostname, inport, outport, flags);
+
     } else if (uri.compare(0, pipe.length(), pipe) == 0) {
         size_t begin_pipename = uri.find(pipe) + pipe.size();
         std::string pipename(uri.substr(begin_pipename));
-        std::cerr << "opening pipe '" << pipename << "'\n";
+        out << "opening pipe '" << pipename << "'\n";
         return new NDLComBridgeNamedPipe(bridge, pipename, flags);
+
     } else if (uri.compare(0, fpga.length(), fpga) == 0) {
         size_t begin_fpganame = uri.find(fpga) + fpga.size();
         std::string fpganame(uri.substr(begin_fpganame));
         if (fpganame.empty())
             fpganame = "/dev/NDLCom";
-        std::cerr << "opening fpga '" << fpganame << "'\n";
+        out << "opening fpga '" << fpganame << "'\n";
         return new NDLComBridgeFpga(bridge, fpganame);
+
     } else if (uri.compare(0, pty.length(), pty) == 0) {
         size_t begin_ptyname = uri.find(pty) + pty.size();
         std::string ptyname(uri.substr(begin_ptyname));
-        std::cerr << "opening pty master '" << ptyname << "'\n";
+        out << "opening pty master '" << ptyname << "'\n";
         return new NDLComBridgePty(bridge, ptyname);
     }
 
+    // when reaching here, nothing was created
     return NULL;
 }

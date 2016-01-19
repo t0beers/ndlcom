@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
         switch (c) {
         case 'u': {
             class ndlcom::ExternalInterfaceBase *ret =
-                parseUriAndCreateInterface(bridge, optarg);
+                parseUriAndCreateInterface(std::cerr, bridge, optarg);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
         case 'm': {
             class ndlcom::ExternalInterfaceBase *ret =
                 parseUriAndCreateInterface(
-                    bridge, optarg,
+                    std::cerr, bridge, optarg,
                     NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
