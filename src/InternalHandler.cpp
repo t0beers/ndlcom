@@ -8,25 +8,6 @@
 
 using namespace ndlcom;
 
-ndlcom::BridgeHandler::BridgeHandler(NDLComBridge &_bridge, uint8_t flags)
-    : bridge(_bridge) {
-    ndlcomInternalHandlerInit(&internal, BridgeHandler::handleWrapper,
-                              flags, this);
-    ndlcomBridgeRegisterInternalHandler(&bridge, &internal);
-}
-
-BridgeHandler::~BridgeHandler() {
-    ndlcomBridgeDeregisterInternalHandler(&bridge, &internal);
-}
-
-void BridgeHandler::handleWrapper(void *context,
-                                        const struct NDLComHeader *header,
-                                        const void *payload) {
-    class BridgeHandler *self =
-        static_cast<class BridgeHandler *>(context);
-    self->handle(header, payload);
-}
-
 NodeHandler::NodeHandler(NDLComNode &_node) : node(_node) {
     ndlcomInternalHandlerInit(&internal, NodeHandler::handleWrapper,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
