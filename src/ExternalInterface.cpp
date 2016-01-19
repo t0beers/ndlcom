@@ -63,6 +63,12 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         alreadyWritten += written;
     }
     fflush(fd_write);
+    /* check for errors after writing. because in the pty-case, fwrite() will happily
+     * write into a not-anymore existing symlink, reporting as if nothing
+     * happend and all is shiny... */
+    if (std::ferror(fd_write)) {
+        throw std::runtime_error(strerror(ferror(fd_write)));
+    }
     /* printf("stream wrote %lu bytes\n", count); */
     return;
 }
