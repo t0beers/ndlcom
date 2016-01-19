@@ -9,11 +9,17 @@
 
 namespace ndlcom {
 
+/**
+ * @brief uses callback to print out information header of EVERY observed packet
+ *
+ */
 class BridgePrintAll : public BridgeHandler {
   public:
-    BridgePrintAll(struct NDLComBridge &_bridge)
-        : BridgeHandler(_bridge){};
+    BridgePrintAll(struct NDLComBridge &_bridge, std::ostream &_out);
     void handle(const struct NDLComHeader *header, const void *payload);
+
+  private:
+    std::ostream &out;
 };
 
 class NodeHandler {
@@ -39,18 +45,21 @@ class NodeHandler {
 
 class NodePrintOwnId : public NodeHandler {
   public:
-    NodePrintOwnId(struct NDLComNode &_node) : NodeHandler(_node){};
+    NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out);
     void handle(const struct NDLComHeader *header, const void *payload);
+
+  private:
+    std::ostream &out;
 };
 
 class BridgePrintMissEvents : public BridgeHandler {
   public:
-    BridgePrintMissEvents(struct NDLComBridge &_bridge)
-        : BridgeHandler(_bridge){};
+    BridgePrintMissEvents(struct NDLComBridge &_bridge, std::ostream &_out);
     void handle(const struct NDLComHeader *header, const void *payload);
     void resetMissEvents();
 
   private:
+    std::ostream &out;
     /* keep this matrix for miss-events between all possible combinations of
      * known deviceIds */
     unsigned int numberOfPacketMissEvents[NDLCOM_MAX_NUMBER_OF_DEVICES]
@@ -63,7 +72,6 @@ class BridgePrintMissEvents : public BridgeHandler {
      * have to remeber if we saw it before. */
     std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES << 8> alreadySeen;
 };
-
 }
 
 #endif /*INTERNALHANDLER_HPP*/

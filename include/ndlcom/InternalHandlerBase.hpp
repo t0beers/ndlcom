@@ -9,7 +9,7 @@ namespace ndlcom {
 class BridgeHandler {
   public:
     BridgeHandler(struct NDLComBridge &_bridge,
-                        uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
+                  uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
     virtual ~BridgeHandler();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
@@ -24,7 +24,6 @@ class BridgeHandler {
   private:
     struct NDLComInternalHandler internal;
 };
-
 }
 
 #endif /*INTERNALHANDLERBASE_H*/

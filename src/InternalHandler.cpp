@@ -3,8 +3,9 @@
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
 
-// printf
-#include <cstdio>
+// input/output
+#include <iostream>
+#include <iomanip>
 
 using namespace ndlcom;
 
@@ -19,26 +20,42 @@ NodeHandler::~NodeHandler() {
 }
 
 void NodeHandler::handleWrapper(void *context,
-                                      const struct NDLComHeader *header,
-                                      const void *payload) {
-    class NodeHandler *self =
-        static_cast<class NodeHandler *>(context);
+                                const struct NDLComHeader *header,
+                                const void *payload) {
+    class NodeHandler *self = static_cast<class NodeHandler *>(context);
     self->handle(header, payload);
 }
 
 void NodeHandler::send(const NDLComId destination, const void *payload,
-                             const size_t length) {
+                       const size_t length) {
     ndlcomNodeSend(&node, destination, payload, length);
 }
 
+BridgePrintAll::BridgePrintAll(struct NDLComBridge &_bridge, std::ostream &_out)
+    : BridgeHandler(_bridge), out(_out) {}
+
 void BridgePrintAll::handle(const struct NDLComHeader *header,
-                                  const void *payload) {
-    printf("bridge saw message from 0x%02x to 0x%02x with %3u bytes of payload\n",
-           header->mSenderId, header->mReceiverId, header->mDataLen);
+                            const void *payload) {
+    out << std::string("bridge saw message from ");
+    out << std::showbase << std::hex;
+    out << std::setfill('0') << std::setw(4) << std::internal
+        << (int)header->mSenderId;
+    out << std::string(" to ");
+    out << std::setfill('0') << std::setw(4) << std::internal
+        << (int)header->mReceiverId;
+    out << std::string(" with ");
+    out << std::noshowbase << std::dec;
+    out << std::setw(3) << std::setfill(' ') << std::right
+        << (int)header->mDataLen;
+    out << std::string(" bytes of payload\n");
 }
 
+BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &_bridge,
+                                             std::ostream &_out)
+    : BridgeHandler(_bridge), out(_out) {}
+
 void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
-                                         const void *payload) {
+                                   const void *payload) {
     // broadcast receiver dont make sense... skip 'em
     if (header->mSenderId == NDLCOM_ADDR_BROADCAST) {
         return;
@@ -63,14 +80,23 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
         // packet-counter matches our expectation.
         if (expectedNextPacketCounter[header->mSenderId][header->mReceiverId] !=
             header->mCounter) {
+            // calculate how many where lost (supposedly)
+            const int diff =
+                header->mCounter -
+                expectedNextPacketCounter[header->mSenderId][header
+                                                                 ->mReceiverId];
             // output the "event"
-            printf("miss event in message from 0x%02x to 0x%02x -- diff: %i\n",
-                   header->mSenderId, header->mReceiverId,
-                   header->mCounter -
-                       expectedNextPacketCounter[header->mSenderId]
-                                                [header->mReceiverId]);
-            // count the number of events as well
-            numberOfPacketMissEvents[header->mSenderId][header->mReceiverId]++;
+            out << std::string("miss event in message from 0x");
+            out << std::showbase << std::hex;
+            out << std::setfill('0') << std::setw(4) << std::internal
+                << (int)header->mSenderId;
+            out << std::string(" to ");
+            out << std::setfill('0') << std::setw(4) << std::internal
+                << (int)header->mReceiverId;
+            out << std::string(" -- diff: ");
+            out << std::noshowbase << std::dec;
+            out << std::setw(3) << std::setfill(' ') << std::right << diff
+                << "\n";
         }
     }
 
@@ -80,9 +106,21 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
         header->mCounter + 1;
 }
 
+NodePrintOwnId::NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out)
+    : NodeHandler(_node), out(_out) {}
+
 void NodePrintOwnId::handle(const struct NDLComHeader *header,
-                                  const void *payload) {
-    printf(
-        "listener 0x%02x got message from 0x%02x with %3u bytes of payload\n",
-        node.headerConfig.mOwnSenderId, header->mSenderId, header->mDataLen);
+                            const void *payload) {
+    out << std::string("listener ");
+    out << std::showbase << std::hex;
+    out << std::setfill('0') << std::setw(4) << std::internal
+        << (int)node.headerConfig.mOwnSenderId;
+    out << std::string(" got message from ");
+    out << std::setfill('0') << std::setw(4) << std::internal
+        << (int)header->mSenderId;
+    out << std::string(" with ");
+    out << std::noshowbase << std::dec;
+    out << std::setw(3) << std::setfill(' ') << std::right
+        << (int)header->mDataLen;
+    out << std::string(" bytes of payload\n");
 }

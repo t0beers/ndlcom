@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
         // these will be deleted implicitly on programm exit
         case 'A': {
             if (printAll == NULL) {
-                printAll = new ndlcom::BridgePrintAll(bridge);
+                printAll = new ndlcom::BridgePrintAll(bridge, std::cerr);
             } else {
                 help(argv[0]);
                 exit(EXIT_FAILURE);
@@ -183,12 +183,12 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
             /* and create the own-id printer */
-            lastEntry.second = new ndlcom::NodePrintOwnId(*lastEntry.first);
+            lastEntry.second = new ndlcom::NodePrintOwnId(*lastEntry.first, std::cerr);
             break;
         }
         case 'M': {
             if (printMiss == NULL) {
-                printMiss = new ndlcom::BridgePrintMissEvents(bridge);
+                printMiss = new ndlcom::BridgePrintMissEvents(bridge, std::cerr);
             } else {
                 help(argv[0]);
                 exit(EXIT_FAILURE);
