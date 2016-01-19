@@ -453,9 +453,13 @@ NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
     // O_NONBLOCKing access as usual
     fcntl(pty_fd, F_SETFL, O_NONBLOCK);
 
-    // this sets the HUP flag on the tty master, used to detect a reader
-    // present. see "readerPresent()" down below
-    close(open(ptsname(pty_fd), O_RDWR | O_NOCTTY));
+    /**
+     * there is the trick of using SIGHUP and "poll()" to detect a read
+     * present... but this results in racy code, as the slave could still
+     * disconnected after checking but before writing.
+     *
+     * see http://stackoverflow.com/a/3490197/4658481
+     */
 
     // provide a nice symlink pointing to our "/dev/pts/\d\+"
     prepareSymlink();
