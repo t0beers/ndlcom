@@ -6,14 +6,15 @@
 namespace ndlcom {
 
 /**
- * virtual base-class to wrap "struct NDLComExternalInterface" into a cpp-class
+ * virtual base-class to wrap "struct NDLComExternalInterface" into a cpp-class.
  *
- * stores private reference of the NDLComBridge this interface is connected to.
+ * stores private reference of the "struct NDLComBridge" where this interface
+ * is connected to.
  */
 class ExternalInterfaceBase {
   public:
     ExternalInterfaceBase(
-        NDLComBridge &_bridge,
+        struct NDLComBridge &_bridge,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     virtual ~ExternalInterfaceBase();
 
@@ -25,7 +26,7 @@ class ExternalInterfaceBase {
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
   private:
-    NDLComBridge &bridge;
+    struct NDLComBridge &bridge;
     struct NDLComExternalInterface external;
 };
 }

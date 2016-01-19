@@ -8,7 +8,7 @@
 using namespace ndlcom;
 
 ExternalInterfaceBase::ExternalInterfaceBase(
-    NDLComBridge &_bridge, uint8_t flags)
+    struct NDLComBridge &_bridge, uint8_t flags)
     : bridge(_bridge) {
     ndlcomExternalInterfaceInit(
         &external, ExternalInterfaceBase::writeWrapper,
