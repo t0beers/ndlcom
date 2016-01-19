@@ -40,7 +40,8 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
     if (bytesRead == 0) {
         if (ferror(fd_read)) {
-            throw std::runtime_error(strerror(ferror(fd_read)));
+            throw std::runtime_error("error during fread(): " +
+                                     std::string(strerror(errno)));
         } else {
             return 0;
         }
@@ -58,7 +59,8 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         size_t written = fwrite((const char *)buf + alreadyWritten,
                                 sizeof(char), count - alreadyWritten, fd_write);
         if (written == 0) {
-            throw std::runtime_error(strerror(ferror(fd_write)));
+            throw std::runtime_error("no bytes written by fwrite(): " +
+                                     std::string(strerror(errno)));
         }
         alreadyWritten += written;
     }
@@ -67,7 +69,8 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
      * write into a not-anymore existing symlink, reporting as if nothing
      * happend and all is shiny... */
     if (std::ferror(fd_write)) {
-        throw std::runtime_error(strerror(ferror(fd_write)));
+        throw std::runtime_error("error after fwrite(): " +
+                                 std::string(strerror(errno)));
     }
     /* printf("stream wrote %lu bytes\n", count); */
     return;
