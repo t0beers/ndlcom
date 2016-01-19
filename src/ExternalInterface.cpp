@@ -125,8 +125,12 @@ NDLComBridgeSerial::~NDLComBridgeSerial() {
 }
 
 NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
-                                   std::string device_name)
+                                   std::string device_name, uint8_t flags)
     : NDLComBridgeStream(_bridge) {
+    if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+        throw std::runtime_error(
+            "fpga module does only support default flags?");
+    }
     // does non-blocking read work?
     fd = open(device_name.c_str(), O_RDWR | O_NDELAY);
     if (fd == -1) {

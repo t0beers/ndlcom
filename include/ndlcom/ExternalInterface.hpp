@@ -53,16 +53,12 @@ class NDLComBridgeSerial : public NDLComBridgeStream {
  *
  * this is basically a device where encoded messages can be read and written
  * to.
- *
- * NOTE: this still needs to be tested on real hardware. but should work, it's
- * a straight-forward interface.
- *
- * note that we do not allow any flags here...
  */
 class NDLComBridgeFpga : public NDLComBridgeStream {
   public:
     NDLComBridgeFpga(NDLComBridge &_bridge,
-                     std::string device_name = "/dev/NDLCom");
+                     std::string device_name = "/dev/NDLCom",
+                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgeFpga();
 
   private:
