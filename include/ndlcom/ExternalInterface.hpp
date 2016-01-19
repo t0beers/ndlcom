@@ -5,13 +5,18 @@
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
 #include <string>
-
-// for "speed_t"
+// for "speed_t":
 #include <termios.h>
-#include <iostream>
-// for "struct sockaddr_in" and "socklen_t"
+// for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
 
+/**
+ * @brief base-class to handle interfaces which use "FILE" internally
+ *
+ * this class just implements to read/write functions around the calls to
+ * "fread()" and "fwrite()", as this is always (tm) the same. adds
+ * error-checking and looping-until-all-bytes-are-written.
+ */
 class NDLComBridgeStream : public ndlcom::ExternalInterfaceBase {
   public:
     NDLComBridgeStream(NDLComBridge &_bridge,
@@ -92,8 +97,15 @@ class NDLComBridgeUdp : public ndlcom::ExternalInterfaceBase {
 };
 
 /**
- * outputs data on a unix "named pipe" in hex-encoded form ("0x04" and so on)
- * input is also possible.
+ * @brief transport data through "named pipe" in hex-encoded strings
+ *
+ * for example "0x04 0x5e 0x00 0xfd"
+ *
+ * by default this creates two pipes with the given
+ * "pipename" as base and "_rx"/"_tx" appended. if no full path is given
+ * (starting with "/") the two pipes will be created in the local folder.
+ *
+ * will also remove the created pipes _iff_ they where not present before!
  */
 class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
   public:

@@ -1,6 +1,5 @@
 #include "ndlcom/ExternalInterfaceParseUri.hpp"
 
-
 #include "ndlcom/ExternalInterface.hpp"
 
 const std::string serial = "serial://";
@@ -8,6 +7,12 @@ const std::string udp = "udp://";
 const std::string pipe = "pipe://";
 const std::string fpga = "fpga://";
 const std::string pty = "pty://";
+
+/**
+ * TODO:
+ * - datastructure with functions to be called for specific match-strings.
+ *   allows to be extendeble by defining additional functions...
+ */
 
 #define DEFAULT_SERIAL_BAUDRATE 921600
 #define DEFAULT_UDP_SRCPORT 34000

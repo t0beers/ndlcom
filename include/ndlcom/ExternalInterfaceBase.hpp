@@ -8,6 +8,10 @@ namespace ndlcom {
 /**
  * virtual base-class to wrap "struct NDLComExternalInterface" into a cpp-class.
  *
+ * use this base class to implement tight and lean wrappers which are able to
+ * be used with the rest of the code. although i doubt that this will will be
+ * done ever, even once. but alas, this is how we write code -- reusable.
+ *
  * stores private reference of the "struct NDLComBridge" where this interface
  * is connected to.
  */

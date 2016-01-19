@@ -295,6 +295,8 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
     struct stat status_in;
     struct stat status_out;
 
+    // now follows a more complicated block, determining if the intended pipes
+    // are already present. if so, we do not need to create nor delete them.
     int fd_in = open(pipename_rx.c_str(), O_RDWR | O_NDELAY);
     if (fd_in == -1) {
         // fifo might not be there yet, try again
@@ -496,8 +498,10 @@ void NDLComBridgePty::cleanSymlink() const {
     }
 }
 
-/** symlink handling: we will delete an existing but dead symlink to recreate
- * it, but we will bail out on anything else */
+/**
+ * symlink handling: we will delete an existing but dead symlink to recreate
+ * it, but we will bail out on anything else
+ */
 void NDLComBridgePty::prepareSymlink() const {
     int rc;
     struct stat buf;
