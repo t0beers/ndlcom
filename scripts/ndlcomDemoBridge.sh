@@ -11,6 +11,9 @@
 # and the connections between nodes in an array. use magical bash functions to
 # resolve all this. NOTE: you can create circles (bad) and you can create two
 # unconnected trees (stupid).
+#
+# NOTE:
+# - see the "socat" tool, which does a lot of what we need
 
 set -e
 set -u

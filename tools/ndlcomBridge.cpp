@@ -16,8 +16,8 @@
 #include <vector>
 #include <cmath>
 
-#include "ndlcomBridgeParseUri.hpp"
-#include "ndlcomBridgeExternalInterface.hpp"
+#include "ndlcom/ExternalInterfaceParseUri.hpp"
+#include "ndlcom/ExternalInterface.hpp"
 #include "ndlcom/InternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
@@ -118,7 +118,8 @@ int main(int argc, char *argv[]) {
         switch (c) {
         case 'u': {
             class ndlcom::ExternalInterfaceBase *ret =
-                parseUriAndCreateInterface(bridge, optarg);
+                ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge,
+                                                           optarg);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
@@ -129,8 +130,8 @@ int main(int argc, char *argv[]) {
         }
         case 'm': {
             class ndlcom::ExternalInterfaceBase *ret =
-                parseUriAndCreateInterface(
-                    bridge, optarg,
+                ndlcom::ParseUriAndCreateExternalInterface(
+                    std::cerr, bridge, optarg,
                     NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
@@ -159,7 +160,7 @@ int main(int argc, char *argv[]) {
         // these will be deleted implicitly on programm exit
         case 'A': {
             if (printAll == NULL) {
-                printAll = new ndlcom::BridgePrintAll(bridge);
+                printAll = new ndlcom::BridgePrintAll(bridge, std::cerr);
             } else {
                 help(argv[0]);
                 exit(EXIT_FAILURE);
@@ -182,12 +183,12 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
             /* and create the own-id printer */
-            lastEntry.second = new ndlcom::NodePrintOwnId(*lastEntry.first);
+            lastEntry.second = new ndlcom::NodePrintOwnId(*lastEntry.first, std::cerr);
             break;
         }
         case 'M': {
             if (printMiss == NULL) {
-                printMiss = new ndlcom::BridgePrintMissEvents(bridge);
+                printMiss = new ndlcom::BridgePrintMissEvents(bridge, std::cerr);
             } else {
                 help(argv[0]);
                 exit(EXIT_FAILURE);

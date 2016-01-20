@@ -5,18 +5,26 @@
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
 #include <string>
-
-// for "speed_t"
+// for "speed_t":
 #include <termios.h>
-#include <iostream>
-// for "struct sockaddr_in" and "socklen_t"
+// for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
 
-class NDLComBridgeStream : public ndlcom::ExternalInterfaceBase {
+namespace ndlcom {
+
+/**
+ * @brief base-class to handle interfaces which use "FILE" internally
+ *
+ * this class just implements to read/write functions around the calls to
+ * "fread()" and "fwrite()", as this is always (tm) the same. adds
+ * error-checking and looping-until-all-bytes-are-written.
+ */
+class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
   public:
-    NDLComBridgeStream(NDLComBridge &_bridge,
-                       uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeStream();
+    ExternalInterfaceStream(
+        NDLComBridge &_bridge,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceStream();
 
   protected:
     FILE *fd_read;
@@ -31,12 +39,12 @@ class NDLComBridgeStream : public ndlcom::ExternalInterfaceBase {
  *
  * straightforward.
  */
-class NDLComBridgeSerial : public NDLComBridgeStream {
+class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
-    NDLComBridgeSerial(NDLComBridge &_bridge, std::string device_name,
-                       speed_t baudrate,
-                       uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeSerial();
+    ExternalInterfaceSerial(
+        NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceSerial();
 
   private:
     struct termios oldtio;
@@ -48,17 +56,13 @@ class NDLComBridgeSerial : public NDLComBridgeStream {
  *
  * this is basically a device where encoded messages can be read and written
  * to.
- *
- * NOTE: this still needs to be tested on real hardware. but should work, it's
- * a straight-forward interface.
- *
- * note that we do not allow any flags here...
  */
-class NDLComBridgeFpga : public NDLComBridgeStream {
+class ExternalInterfaceFpga : public ExternalInterfaceStream {
   public:
-    NDLComBridgeFpga(NDLComBridge &_bridge,
-                     std::string device_name = "/dev/NDLCom");
-    ~NDLComBridgeFpga();
+    ExternalInterfaceFpga(
+        NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceFpga();
 
   private:
     int fd;
@@ -71,12 +75,13 @@ class NDLComBridgeFpga : public NDLComBridgeStream {
  *
  * has distinct send- and receive-ports to allows usage on localhost.
  */
-class NDLComBridgeUdp : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
   public:
-    NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
-                    unsigned int in_port, unsigned int out_port,
-                    uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeUdp();
+    ExternalInterfaceUdp(
+        NDLComBridge &_bridge, std::string hostname, unsigned int in_port,
+        unsigned int out_port,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceUdp();
 
     size_t readEscapedBytes(void *buf, size_t count);
     void writeEscapedBytes(const void *buf, size_t count);
@@ -92,15 +97,22 @@ class NDLComBridgeUdp : public ndlcom::ExternalInterfaceBase {
 };
 
 /**
- * outputs data on a unix "named pipe" in hex-encoded form ("0x04" and so on)
- * input is also possible.
+ * @brief transport data through "named pipe" in hex-encoded strings
+ *
+ * for example "0x04 0x5e 0x00 0xfd"
+ *
+ * by default this creates two pipes with the given
+ * "pipename" as base and "_rx"/"_tx" appended. if no full path is given
+ * (starting with "/") the two pipes will be created in the local folder.
+ *
+ * will also remove the created pipes _iff_ they where not present before!
  */
-class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
   public:
-    NDLComBridgeNamedPipe(
+    ExternalInterfacePipe(
         NDLComBridge &_bridge, std::string pipename,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeNamedPipe();
+    ~ExternalInterfacePipe();
 
     size_t readEscapedBytes(void *buf, size_t count);
     void writeEscapedBytes(const void *buf, size_t count);
@@ -120,11 +132,15 @@ class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
  *
  * tries to create a named symlink in tmp pointing to the actual device node
  */
-class NDLComBridgePty : public NDLComBridgeStream {
+class ExternalInterfacePty : public ExternalInterfaceStream {
   public:
-    NDLComBridgePty(NDLComBridge &_bridge, std::string _symlinkname,
-                    uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgePty();
+    ExternalInterfacePty(
+        NDLComBridge &_bridge, std::string _symlinkname,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfacePty();
+
+    size_t readEscapedBytes(void *buf, size_t count);
+    // we can reuse the write function of the base-class
 
   private:
     // the master-side of the pty
@@ -137,5 +153,6 @@ class NDLComBridgePty : public NDLComBridgeStream {
     // try to delete the symlink we created before
     void cleanSymlink() const;
 };
+}
 
 #endif /*NDLCOMBRIDGEEXTERNALINTERFACE_H*/

@@ -4,6 +4,10 @@
 #include "ndlcom/Parser.h"
 #include "ndlcom/list.h"
 
+/**
+ * NOTE: this header describes the C-interface of the "ExternalInterface"
+ */
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -18,22 +22,29 @@ extern "C" {
 #define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT 0x00
 
 /**
- * callback function "write" of escaped data. note that this function will be
- * in the critical path of the "ndlcomBridgeProcess()" function. is should
- * complete fast and never block.
+ * Callback function to "write" escaped data from the bridge to somewhere.
+ *
+ * Note that this function will be in the critical path of the
+ * "ndlcomBridgeProcess()" function. It should complete fast and is never
+ * allowed to block!
  */
 typedef void (*NDLComExternalInterfaceWriteEscapedBytes)(void *context,
                                                          const void *buf,
                                                          const size_t count);
 /**
- * callback function "read" of escaped data. note that this function will be
- * in the critical path of the "ndlcomBridgeProcess()" function. is should
- * complete fast and never block.
+ * Callback function to "read" escaped data from somewhere into the bridge.
+ *
+ * Note that this function will be in the critical path of the
+ * "ndlcomBridgeProcess()" function. It should complete fast and is never
+ * allowed to block!
  */
 typedef size_t (*NDLComExternalInterfaceReadEscapedBytes)(void *context,
                                                           void *buf,
                                                           const size_t count);
 
+/**
+ * struct to describe an external interface
+ */
 struct NDLComExternalInterface {
     /* the context will be provided in the read/write functions */
     void *context;
@@ -48,11 +59,13 @@ struct NDLComExternalInterface {
 };
 
 /**
- * @brief
- * @param external
- * @param write
- * @param read
- * @param context
+ * @brief initialization of "struct NDLComExternalInterface" and filling in default
+ *
+ * @param externalInterface pointer to the struct to initialize
+ * @param write function pointer to the write function
+ * @param read function pointer to the write function
+ * @param context additional pointer to store "private" information for context
+ *        during calling the callback
  */
 void
 ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
@@ -60,9 +73,19 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
                             NDLComExternalInterfaceReadEscapedBytes read,
                             const uint8_t flags, void *context);
 
+/**
+ * obtain nice information from an interface. not sure if this function is
+ * overwrapping the actual structs, as it just accesses information in the
+ * "struct NDLComParser, part of the struct given.
+ */
 uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface);
 
+/**
+ * influence flags defined for the interface at runtime.
+ *
+ * changing the flags during runtime _should_ be possible.
+ */
 void ndlcomExternalInterfaceSetFlags(
     struct NDLComExternalInterface *externalInterface,
     const uint8_t flags);

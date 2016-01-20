@@ -3,17 +3,26 @@
 
 #include "ndlcom/Bridge.h"
 
+#include <iostream>
+
 namespace ndlcom {
 
 /**
- * virtual base-class to wrap "struct NDLComExternalInterface" into a cpp-class
+ * @brief virtual class to wrap "struct NDLComExternalInterface" into cpp-object
  *
- * stores private reference of the NDLComBridge this interface is connected to.
+ * use this base class to implement tight and lean wrappers which are able to
+ * be used with the rest of the code. although i doubt that this will will be
+ * done ever, even once. but alas, this is how we write code -- reusable.
+ *
+ * stores private reference of the "struct NDLComBridge" where this interface
+ * is connected to.
+ *
+ * has protected reference to the preferred output stream.
  */
 class ExternalInterfaceBase {
   public:
     ExternalInterfaceBase(
-        NDLComBridge &_bridge,
+        struct NDLComBridge &_bridge, std::ostream &out = std::cerr,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     virtual ~ExternalInterfaceBase();
 
@@ -25,8 +34,11 @@ class ExternalInterfaceBase {
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
   private:
-    NDLComBridge &bridge;
+    struct NDLComBridge &bridge;
     struct NDLComExternalInterface external;
+
+  protected:
+    std::ostream &out;
 };
 }
 

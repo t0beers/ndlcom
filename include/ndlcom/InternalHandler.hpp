@@ -3,68 +3,33 @@
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
+#include "ndlcom/InternalHandlerBase.hpp"
 
 #include <bitset>
 
 namespace ndlcom {
 
-class BridgeHandler {
+/**
+ * @brief uses callback to print out information header of EVERY observed packet
+ *
+ */
+class BridgePrintAll : public BridgeHandlerBase {
   public:
-    BridgeHandler(struct NDLComBridge &_bridge,
-                        uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
-    virtual ~BridgeHandler();
-
-    static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload);
-
-    virtual void handle(const struct NDLComHeader *header,
-                        const void *payload) = 0;
-
-  protected:
-    struct NDLComBridge &bridge;
-
-  private:
-    struct NDLComInternalHandler internal;
-};
-
-class BridgePrintAll : public BridgeHandler {
-  public:
-    BridgePrintAll(struct NDLComBridge &_bridge)
-        : BridgeHandler(_bridge){};
+    BridgePrintAll(struct NDLComBridge &_bridge,
+                   std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-class NodeHandler {
+class NodePrintOwnId : public NodeHandlerBase {
   public:
-    NodeHandler(struct NDLComNode &_node);
-    virtual ~NodeHandler();
-
-    static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload);
-
-    virtual void handle(const struct NDLComHeader *header,
-                        const void *payload) = 0;
-
-    void send(const NDLComId destination, const void *payload,
-              const size_t length);
-
-  protected:
-    struct NDLComNode &node;
-
-  private:
-    struct NDLComInternalHandler internal;
-};
-
-class NodePrintOwnId : public NodeHandler {
-  public:
-    NodePrintOwnId(struct NDLComNode &_node) : NodeHandler(_node){};
+    NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-class BridgePrintMissEvents : public BridgeHandler {
+class BridgePrintMissEvents : public BridgeHandlerBase {
   public:
-    BridgePrintMissEvents(struct NDLComBridge &_bridge)
-        : BridgeHandler(_bridge){};
+    BridgePrintMissEvents(struct NDLComBridge &_bridge,
+                          std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
     void resetMissEvents();
 
@@ -81,7 +46,6 @@ class BridgePrintMissEvents : public BridgeHandler {
      * have to remeber if we saw it before. */
     std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES << 8> alreadySeen;
 };
-
 }
 
 #endif /*INTERNALHANDLER_HPP*/

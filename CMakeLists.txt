@@ -30,6 +30,7 @@ set(SOURCES_lib
     src/ExternalInterfaceBase.cpp
     src/InternalHandler.c
     src/InternalHandler.cpp
+    src/InternalHandlerBase.cpp
     src/Bridge.c
     src/Node.c
 )
@@ -44,11 +45,27 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/ExternalInterface.h
     include/${PROJECT_NAME}/InternalHandler.h
     include/${PROJECT_NAME}/InternalHandler.hpp
+    include/${PROJECT_NAME}/InternalHandlerBase.hpp
     include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
     include/${PROJECT_NAME}/Bridge.h
     include/${PROJECT_NAME}/Node.h
     include/${PROJECT_NAME}/list.h
 )
+
+include(CheckFunctionExists)
+check_function_exists(usleep SEEMS_TO_BE_POSIX)
+if(SEEMS_TO_BE_POSIX)
+
+# test
+list(APPEND SOURCES_lib
+    src/ExternalInterface.cpp
+    src/ExternalInterfaceParseUri.cpp
+    )
+list(APPEND HEADERS_lib
+    include/${PROJECT_NAME}/ExternalInterface.hpp
+    include/${PROJECT_NAME}/ExternalInterfaceParseUri.hpp
+    )
+endif(SEEMS_TO_BE_POSIX)
 
 # define the lib
 add_library(${PROJECT_NAME}
