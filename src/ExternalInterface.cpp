@@ -438,8 +438,9 @@ void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
     return;
 }
 
-NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
-                                 std::string _symlinkname, uint8_t flags)
+ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
+                                           std::string _symlinkname,
+                                           uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {
 
     int rc;
@@ -486,11 +487,11 @@ NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
-    out << "NDLComBridgePty: the slave side is named '" << ptsname(pty_fd)
+    out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
         << "', the symlink is '" << symlinkname << "'\n";
 }
 
-NDLComBridgePty::~NDLComBridgePty() {
+ExternalInterfacePty::~ExternalInterfacePty() {
     // delete the previously created symlink
     cleanSymlink();
     // not sure...
@@ -500,7 +501,7 @@ NDLComBridgePty::~NDLComBridgePty() {
 /**
  * this function is complete overkill ;-)
  */
-void NDLComBridgePty::cleanSymlink() const {
+void ExternalInterfacePty::cleanSymlink() const {
     int rc;
     struct stat buf;
     rc = lstat(symlinkname.c_str(), &buf);
@@ -530,7 +531,7 @@ void NDLComBridgePty::cleanSymlink() const {
  * symlink handling: we will delete an existing but dead symlink to recreate
  * it, but we will bail out on anything else
  */
-void NDLComBridgePty::prepareSymlink() const {
+void ExternalInterfacePty::prepareSymlink() const {
     int rc;
     struct stat buf;
     rc = lstat(symlinkname.c_str(), &buf);
@@ -559,7 +560,7 @@ void NDLComBridgePty::prepareSymlink() const {
                                      "' is still pointing to '" +
                                      std::string(symlinktargetname) + "'");
         } else {
-            out << "NDLComBridgePty: symlink '" << symlinkname
+            out << "ExternalInterfacePty: symlink '" << symlinkname
                 << "' was pointing to '" << symlinktargetname
                 << "' but is dead now, recreating\n";
         }
@@ -576,7 +577,7 @@ void NDLComBridgePty::prepareSymlink() const {
     }
 }
 
-size_t NDLComBridgePty::readEscapedBytes(void *buf, size_t count) {
+size_t ExternalInterfacePty::readEscapedBytes(void *buf, size_t count) {
     if (!fd_read) {
         return 0;
     }

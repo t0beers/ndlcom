@@ -131,11 +131,12 @@ class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
  *
  * tries to create a named symlink in tmp pointing to the actual device node
  */
-class NDLComBridgePty : public ExternalInterfaceStream {
+class ExternalInterfacePty : public ExternalInterfaceStream {
   public:
-    NDLComBridgePty(NDLComBridge &_bridge, std::string _symlinkname,
-                    uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgePty();
+    ExternalInterfacePty(
+        NDLComBridge &_bridge, std::string _symlinkname,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfacePty();
 
     size_t readEscapedBytes(void *buf, size_t count);
     // we can reuse the write function of the base-class

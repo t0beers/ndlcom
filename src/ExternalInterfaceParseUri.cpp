@@ -82,7 +82,7 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         size_t begin_ptyname = uri.find(pty) + pty.size();
         std::string ptyname(uri.substr(begin_ptyname));
         out << "opening pty master '" << ptyname << "'\n";
-        return new NDLComBridgePty(bridge, ptyname);
+        return new ExternalInterfacePty(bridge, ptyname);
     }
 
     // when reaching here, nothing was created
