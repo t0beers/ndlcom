@@ -10,6 +10,8 @@
 // for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
 
+namespace ndlcom {
+
 /**
  * @brief base-class to handle interfaces which use "FILE" internally
  *
@@ -17,11 +19,12 @@
  * "fread()" and "fwrite()", as this is always (tm) the same. adds
  * error-checking and looping-until-all-bytes-are-written.
  */
-class NDLComBridgeStream : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
   public:
-    NDLComBridgeStream(NDLComBridge &_bridge,
-                       uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeStream();
+    ExternalInterfaceStream(
+        NDLComBridge &_bridge,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceStream();
 
   protected:
     FILE *fd_read;
@@ -36,7 +39,7 @@ class NDLComBridgeStream : public ndlcom::ExternalInterfaceBase {
  *
  * straightforward.
  */
-class NDLComBridgeSerial : public NDLComBridgeStream {
+class NDLComBridgeSerial : public ExternalInterfaceStream {
   public:
     NDLComBridgeSerial(NDLComBridge &_bridge, std::string device_name,
                        speed_t baudrate,
@@ -54,7 +57,7 @@ class NDLComBridgeSerial : public NDLComBridgeStream {
  * this is basically a device where encoded messages can be read and written
  * to.
  */
-class NDLComBridgeFpga : public NDLComBridgeStream {
+class NDLComBridgeFpga : public ExternalInterfaceStream {
   public:
     NDLComBridgeFpga(NDLComBridge &_bridge,
                      std::string device_name = "/dev/NDLCom",
@@ -128,7 +131,7 @@ class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
  *
  * tries to create a named symlink in tmp pointing to the actual device node
  */
-class NDLComBridgePty : public NDLComBridgeStream {
+class NDLComBridgePty : public ExternalInterfaceStream {
   public:
     NDLComBridgePty(NDLComBridge &_bridge, std::string _symlinkname,
                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
@@ -148,5 +151,6 @@ class NDLComBridgePty : public NDLComBridgeStream {
     // try to delete the symlink we created before
     void cleanSymlink() const;
 };
+}
 
 #endif /*NDLCOMBRIDGEEXTERNALINTERFACE_H*/

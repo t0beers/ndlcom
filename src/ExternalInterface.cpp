@@ -25,11 +25,14 @@
 #include <sys/select.h>
 #include <linux/limits.h>
 
-NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &_bridge, uint8_t flags)
+using namespace ndlcom;
+
+ExternalInterfaceStream::ExternalInterfaceStream(NDLComBridge &_bridge,
+                                                 uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags), fd_read(NULL),
       fd_write(NULL) {}
 
-NDLComBridgeStream::~NDLComBridgeStream() {
+ExternalInterfaceStream::~ExternalInterfaceStream() {
     if (fd_write) {
         fclose(fd_write);
     }
@@ -38,7 +41,7 @@ NDLComBridgeStream::~NDLComBridgeStream() {
     }
 }
 
-size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
+size_t ExternalInterfaceStream::readEscapedBytes(void *buf, size_t count) {
     if (!fd_read) {
         return 0;
     }
@@ -55,7 +58,7 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
     return bytesRead;
 }
 
-void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
+void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     /* out << "trying to write " << count << "\n"; */
     if (!fd_write)
         return;
@@ -84,7 +87,7 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
 NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
                                        std::string device_name,
                                        speed_t baudrate, uint8_t flags)
-    : NDLComBridgeStream(_bridge, flags) {
+    : ExternalInterfaceStream(_bridge, flags) {
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
         throw std::runtime_error(strerror(errno));
@@ -140,7 +143,7 @@ NDLComBridgeSerial::~NDLComBridgeSerial() {
 
 NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
                                    std::string device_name, uint8_t flags)
-    : NDLComBridgeStream(_bridge) {
+    : ExternalInterfaceStream(_bridge) {
     if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
         throw std::runtime_error(
             "fpga module does only support default flags?");
@@ -220,8 +223,8 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     }
 
     // "inet_ntoa()" does have an internal char-array, we cannot call it twice
-    // during assembling the output string. whould be better to use "inet_ntop()", but
-    // hey...
+    // during assembling the output string. whould be better to use
+    // "inet_ntop()", but hey...
     std::string address_in(inet_ntoa(addr_in.sin_addr));
     std::string address_out(inet_ntoa(addr_out.sin_addr));
     /* out << "NDLComBridgeUdp: opened udp connection, reading from '" */
@@ -437,7 +440,7 @@ void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
 
 NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
                                  std::string _symlinkname, uint8_t flags)
-    : NDLComBridgeStream(_bridge, flags), symlinkname(_symlinkname) {
+    : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {
 
     int rc;
     // request a new pseudoterminal
