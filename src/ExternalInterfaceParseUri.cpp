@@ -68,7 +68,7 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         size_t begin_pipename = uri.find(pipe) + pipe.size();
         std::string pipename(uri.substr(begin_pipename));
         out << "opening pipe '" << pipename << "'\n";
-        return new NDLComBridgeNamedPipe(bridge, pipename, flags);
+        return new ExternalInterfacePipe(bridge, pipename, flags);
 
     } else if (uri.compare(0, fpga.length(), fpga) == 0) {
         size_t begin_fpganame = uri.find(fpga) + fpga.size();

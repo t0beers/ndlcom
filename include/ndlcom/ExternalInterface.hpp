@@ -106,12 +106,12 @@ class NDLComBridgeUdp : public ndlcom::ExternalInterfaceBase {
  *
  * will also remove the created pipes _iff_ they where not present before!
  */
-class NDLComBridgeNamedPipe : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
   public:
-    NDLComBridgeNamedPipe(
+    ExternalInterfacePipe(
         NDLComBridge &_bridge, std::string pipename,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeNamedPipe();
+    ~ExternalInterfacePipe();
 
     size_t readEscapedBytes(void *buf, size_t count);
     void writeEscapedBytes(const void *buf, size_t count);

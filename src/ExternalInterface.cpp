@@ -309,7 +309,7 @@ again:
     return;
 }
 
-NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
+ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
@@ -369,7 +369,7 @@ NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
     }
 }
 
-NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
+ExternalInterfacePipe::~ExternalInterfacePipe() {
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
@@ -384,7 +384,7 @@ NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
     }
 }
 
-size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
+size_t ExternalInterfacePipe::readEscapedBytes(void *buf, size_t count) {
     // wanna accept strings like "0xff 0x88..." and convert them to raw bytes
     // into the provided char-array, which is returned to the caller for
     // parsing. non-blocking!
@@ -423,7 +423,7 @@ size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
     return readSoFar;
 }
 
-void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
+void ExternalInterfacePipe::writeEscapedBytes(const void *buf, size_t count) {
     // simple
     for (size_t i = 0; i < count; ++i) {
         // printing hex-encoded packets into the pipe we opened before
