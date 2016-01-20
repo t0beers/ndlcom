@@ -8,8 +8,8 @@
 using namespace ndlcom;
 
 ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &_bridge,
-                                             uint8_t flags)
-    : bridge(_bridge) {
+                                             std::ostream &_out, uint8_t flags)
+    : bridge(_bridge), out(_out) {
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
@@ -21,6 +21,7 @@ ExternalInterfaceBase::~ExternalInterfaceBase() {
     ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
 }
 
+// static wrapper function for the C-callback
 void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
                                          const size_t count) {
     class ExternalInterfaceBase *self =
@@ -28,6 +29,7 @@ void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
     self->writeEscapedBytes(buf, count);
 }
 
+// static wrapper function for the C-callback
 size_t ExternalInterfaceBase::readWrapper(void *context, void *buf,
                                           const size_t count) {
     class ExternalInterfaceBase *self =

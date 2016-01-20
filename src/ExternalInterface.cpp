@@ -26,7 +26,7 @@
 #include <linux/limits.h>
 
 NDLComBridgeStream::NDLComBridgeStream(NDLComBridge &_bridge, uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, flags), fd_read(NULL),
+    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags), fd_read(NULL),
       fd_write(NULL) {}
 
 NDLComBridgeStream::~NDLComBridgeStream() {
@@ -51,12 +51,12 @@ size_t NDLComBridgeStream::readEscapedBytes(void *buf, size_t count) {
             return 0;
         }
     }
-    /* printf("stream read %lu bytes\n", bytesRead); */
+    /* out << "stream read " << bytesRead << " bytes\n"; */
     return bytesRead;
 }
 
 void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
-    /* printf("trying to write %lu bytes\n", count); */
+    /* out << "trying to write " << count << "\n"; */
     if (!fd_write)
         return;
     size_t alreadyWritten = 0;
@@ -70,14 +70,14 @@ void NDLComBridgeStream::writeEscapedBytes(const void *buf, size_t count) {
         alreadyWritten += written;
     }
     fflush(fd_write);
-    /* check for errors after writing. because in the pty-case, fwrite() will happily
-     * write into a not-anymore existing symlink, reporting as if nothing
-     * happend and all is shiny... */
+    // check for errors after writing. because in the pty-case, fwrite() will
+    // happily write into a not-anymore existing symlink, reporting as if
+    // nothing happend and all is shiny...
     if (std::ferror(fd_write)) {
         throw std::runtime_error("error after fwrite(): " +
                                  std::string(strerror(errno)));
     }
-    /* printf("stream wrote %lu bytes\n", count); */
+    /* out << "stream wrote " << (int)count << " bytes\n"; */
     return;
 }
 
@@ -165,7 +165,7 @@ NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
 NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
                                  unsigned int in_port, unsigned int out_port,
                                  uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, flags),
+    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
@@ -193,9 +193,10 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     // FIXME: if multiple results are provided: how to choose?
     /* int ctr = 0; */
     /* for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next) { */
-    /*     printf("hostname %i: '%s' resolved to '%s'\n", ctr++,
-     * hostname.c_str(), */
-    /*            inet_ntoa(((struct sockaddr_in *)rp->ai_addr)->sin_addr)); */
+    /*     out << "hostname " << ctr++ << ": '" << hostname.c_str() */
+    /*         << "' resolved to '" */
+    /*         << inet_ntoa(((struct sockaddr_in *)rp->ai_addr)->sin_addr) */
+    /*         << "'\n"; */
     /* } */
 
     // copy the resulting address to "addr_in" variable
@@ -219,14 +220,14 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     }
 
     // "inet_ntoa()" does have an internal char-array, we cannot call it twice
-    // in the printf-invocation. whould be better to use "inet_ntop()", but
+    // during assembling the output string. whould be better to use "inet_ntop()", but
     // hey...
     std::string address_in(inet_ntoa(addr_in.sin_addr));
     std::string address_out(inet_ntoa(addr_out.sin_addr));
-    printf("NDLComBridgeUdp: opened udp connection, reading from '%s:%d' and "
-           "sending to '%s:%d'\n",
-           address_in.c_str(), ntohs(addr_in.sin_port), address_out.c_str(),
-           ntohs(addr_out.sin_port));
+    /* out << "NDLComBridgeUdp: opened udp connection, reading from '" */
+    /*     << address_in.c_str() << ":" << ntohs(addr_in.sin_port) */
+    /*     << "' and sending to '" << address_out.c_str() << ":" */
+    /*     << ntohs(addr_out.sin_port) << "'\n"; */
 
     // clean the shit up
     freeaddrinfo(result);
@@ -235,7 +236,7 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
 NDLComBridgeUdp::~NDLComBridgeUdp() { close(fd); }
 
 size_t NDLComBridgeUdp::readEscapedBytes(void *buf, size_t count) {
-    /* printf("trying to read\n"); */
+    /* out << "trying to read " << count << " bytes\n"; */
     struct sockaddr_in addr_recv;
 again:
     ssize_t bytesRead =
@@ -255,21 +256,22 @@ again:
         // TODO: is this correct?
         throw std::runtime_error(strerror(errno));
     }
-    /* printf("read %lu bytes from '%s:%d'\n", bytesRead, */
-    /*        inet_ntoa(addr_recv.sin_addr), ntohs(addr_recv.sin_port)); */
+    /* out << "read " << bytesRead << " bytes from '" */
+    /*     << inet_ntoa(addr_recv.sin_addr) << ":" << ntohs(addr_recv.sin_port) */
+    /*     << "'\n"; */
     if (addr_out.sin_addr.s_addr != addr_recv.sin_addr.s_addr) {
         std::string address_from(inet_ntoa(addr_out.sin_addr));
         std::string address_to(inet_ntoa(addr_recv.sin_addr));
-        printf("NDLComBridgeUdp: switch outgoing connection from '%s:%d' to "
-               "'%s:%d'\n",
-               address_from.c_str(), ntohs(addr_out.sin_port),
-               address_to.c_str(), ntohs(addr_out.sin_port));
+        out << "NDLComBridgeUdp: switch outgoing connection from '"
+            << address_from.c_str() << ":" << ntohs(addr_out.sin_port)
+            << "' to '" << address_to.c_str() << ":" << ntohs(addr_out.sin_port)
+            << "'\n";
         addr_out.sin_addr = addr_recv.sin_addr;
         /*
          * this will tell the socket to use the port of the sender upon the
          * next reply...
          *
-         * NOTE: if you re-enable this line, adopt the printf above!
+         * NOTE: if you re-enable this line, adopt the output above!
          */
         /* addr_out.sin_port = addr_recv.sin_port; */
     }
@@ -277,7 +279,7 @@ again:
 }
 
 void NDLComBridgeUdp::writeEscapedBytes(const void *buf, size_t count) {
-    /* printf("trying to write %lu bytes\n", count); */
+    /* out << "trying to write " << count << " bytes\n"; */
     size_t alreadyWritten = 0;
 again:
     while (alreadyWritten < count) {
@@ -296,8 +298,9 @@ again:
             }
             throw std::runtime_error(strerror(errno));
         }
-        /* printf("wrote %lu bytes to '%s:%d'\n", written, */
-        /*        inet_ntoa(addr_out.sin_addr), ntohs(addr_out.sin_port)); */
+        /* out << "wrote " << written << " bytes to '" */
+        /*     << inet_ntoa(addr_out.sin_addr) << ":" << ntohs(addr_out.sin_port) */
+        /*     << "'\n"; */
         alreadyWritten += written;
     }
     return;
@@ -306,9 +309,9 @@ again:
 NDLComBridgeNamedPipe::NDLComBridgeNamedPipe(NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, flags), unlinkRxPipeInDtor(false),
-      unlinkTxPipeInDtor(false), pipename_rx(pipename + "_rx"),
-      pipename_tx(pipename + "_tx") {
+    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
+      unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
+      pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
 
     struct stat status_in;
     struct stat status_out;
@@ -369,11 +372,11 @@ NDLComBridgeNamedPipe::~NDLComBridgeNamedPipe() {
     fclose(str_out);
     // we do only delete the pipes on exit if we created them!
     if (unlinkRxPipeInDtor) {
-        // printf("unlinking pipe '%s'\n", pipename_rx.c_str());
+        /* out << "unlinking pipe '" << pipename_rx << "'\n"; */
         unlink(pipename_rx.c_str());
     }
     if (unlinkTxPipeInDtor) {
-        // printf("unlinking pipe '%s'\n", pipename_tx.c_str());
+        /* out << "unlinking pipe '" << pipename_tx << "'\n"; */
         unlink(pipename_tx.c_str());
     }
 }
@@ -420,6 +423,7 @@ size_t NDLComBridgeNamedPipe::readEscapedBytes(void *buf, size_t count) {
 void NDLComBridgeNamedPipe::writeEscapedBytes(const void *buf, size_t count) {
     // simple
     for (size_t i = 0; i < count; ++i) {
+        // printing hex-encoded packets into the pipe we opened before
         fprintf(str_out, "0x%02x ", (int)((uint8_t *)buf)[i]);
     }
 
@@ -479,9 +483,8 @@ NDLComBridgePty::NDLComBridgePty(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
-    printf(
-        "NDLComBridgePty: the slave side is named '%s', the symlink is '%s'\n",
-        ptsname(pty_fd), symlinkname.c_str());
+    out << "NDLComBridgePty: the slave side is named '" << ptsname(pty_fd)
+        << "', the symlink is '" << symlinkname << "'\n";
 }
 
 NDLComBridgePty::~NDLComBridgePty() {
@@ -553,9 +556,9 @@ void NDLComBridgePty::prepareSymlink() const {
                                      "' is still pointing to '" +
                                      std::string(symlinktargetname) + "'");
         } else {
-            printf("NDLComBridgePty: symlink '%s' was pointing to '%s' but is "
-                   "dead now, recreating\n",
-                   symlinkname.c_str(), symlinktargetname);
+            out << "NDLComBridgePty: symlink '" << symlinkname
+                << "' was pointing to '" << symlinktargetname
+                << "' but is dead now, recreating\n";
         }
         // delete the old symlink:
         rc = unlink(symlinkname.c_str());
