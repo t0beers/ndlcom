@@ -1,4 +1,4 @@
-#include "ndlcomBridgeParseUri.hpp"
+#include "ndlcom/ExternalInterfaceParseUri.hpp"
 
 
 #include "ndlcom/ExternalInterface.hpp"

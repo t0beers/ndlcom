@@ -18,7 +18,6 @@ if(SEEMS_TO_BE_POSIX)
 
     add_executable(ndlcomBridge
         ndlcomBridge.cpp
-        ndlcomBridgeParseUri.cpp
         )
     target_link_libraries(ndlcomBridge
         ndlcom

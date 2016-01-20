@@ -16,7 +16,7 @@
 #include <vector>
 #include <cmath>
 
-#include "ndlcomBridgeParseUri.hpp"
+#include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
 #include "ndlcom/InternalHandler.hpp"
 

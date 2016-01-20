@@ -57,9 +57,11 @@ if(SEEMS_TO_BE_POSIX)
 # test
 list(APPEND SOURCES_lib
     src/ExternalInterface.cpp
+    src/ExternalInterfaceParseUri.cpp
     )
 list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/ExternalInterface.hpp
+    include/${PROJECT_NAME}/ExternalInterfaceParseUri.hpp
     )
 endif(SEEMS_TO_BE_POSIX)
 
