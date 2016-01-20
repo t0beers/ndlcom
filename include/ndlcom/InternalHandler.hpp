@@ -15,51 +15,25 @@ namespace ndlcom {
  */
 class BridgePrintAll : public BridgeHandler {
   public:
-    BridgePrintAll(struct NDLComBridge &_bridge, std::ostream &_out);
+    BridgePrintAll(struct NDLComBridge &_bridge,
+                   std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
-
-  private:
-    std::ostream &out;
-};
-
-class NodeHandler {
-  public:
-    NodeHandler(struct NDLComNode &_node);
-    virtual ~NodeHandler();
-
-    static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload);
-
-    virtual void handle(const struct NDLComHeader *header,
-                        const void *payload) = 0;
-
-    void send(const NDLComId destination, const void *payload,
-              const size_t length);
-
-  protected:
-    struct NDLComNode &node;
-
-  private:
-    struct NDLComInternalHandler internal;
 };
 
 class NodePrintOwnId : public NodeHandler {
   public:
-    NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out);
+    NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
-
-  private:
-    std::ostream &out;
 };
 
 class BridgePrintMissEvents : public BridgeHandler {
   public:
-    BridgePrintMissEvents(struct NDLComBridge &_bridge, std::ostream &_out);
+    BridgePrintMissEvents(struct NDLComBridge &_bridge,
+                          std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
     void resetMissEvents();
 
   private:
-    std::ostream &out;
     /* keep this matrix for miss-events between all possible combinations of
      * known deviceIds */
     unsigned int numberOfPacketMissEvents[NDLCOM_MAX_NUMBER_OF_DEVICES]

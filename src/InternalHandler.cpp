@@ -9,30 +9,8 @@
 
 using namespace ndlcom;
 
-NodeHandler::NodeHandler(NDLComNode &_node) : node(_node) {
-    ndlcomInternalHandlerInit(&internal, NodeHandler::handleWrapper,
-                              NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
-    ndlcomNodeRegisterInternalHandler(&node, &internal);
-}
-
-NodeHandler::~NodeHandler() {
-    ndlcomNodeDeregisterInternalHandler(&node, &internal);
-}
-
-void NodeHandler::handleWrapper(void *context,
-                                const struct NDLComHeader *header,
-                                const void *payload) {
-    class NodeHandler *self = static_cast<class NodeHandler *>(context);
-    self->handle(header, payload);
-}
-
-void NodeHandler::send(const NDLComId destination, const void *payload,
-                       const size_t length) {
-    ndlcomNodeSend(&node, destination, payload, length);
-}
-
 BridgePrintAll::BridgePrintAll(struct NDLComBridge &_bridge, std::ostream &_out)
-    : BridgeHandler(_bridge), out(_out) {}
+    : BridgeHandler(_bridge, _out) {}
 
 void BridgePrintAll::handle(const struct NDLComHeader *header,
                             const void *payload) {
@@ -52,7 +30,7 @@ void BridgePrintAll::handle(const struct NDLComHeader *header,
 
 BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &_bridge,
                                              std::ostream &_out)
-    : BridgeHandler(_bridge), out(_out) {}
+    : BridgeHandler(_bridge, _out) {}
 
 void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
                                    const void *payload) {
@@ -107,7 +85,7 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
 }
 
 NodePrintOwnId::NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out)
-    : NodeHandler(_node), out(_out) {}
+    : NodeHandler(_node, _out) {}
 
 void NodePrintOwnId::handle(const struct NDLComHeader *header,
                             const void *payload) {

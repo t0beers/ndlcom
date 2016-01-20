@@ -4,12 +4,21 @@
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
 
+#include <iostream>
+
 namespace ndlcom {
 
+/**
+ * @brief virtual base class to wrap "struct NDLComInternalHandler" into object
+ *
+ * the "handle()" function of this object will be called for every messages
+ * passing through the bridge.
+ *
+ * comes with a protected "out" stream, intended for outputs.
+ */
 class BridgeHandler {
   public:
-    BridgeHandler(struct NDLComBridge &_bridge,
-                  uint8_t flags = NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT);
+    BridgeHandler(struct NDLComBridge &_bridge, std::ostream &out = std::cerr);
     virtual ~BridgeHandler();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
@@ -20,6 +29,37 @@ class BridgeHandler {
 
   protected:
     struct NDLComBridge &bridge;
+    std::ostream &out;
+
+  private:
+    struct NDLComInternalHandler internal;
+};
+
+/**
+ * @brief virtual base class to wrap "struct NDLComNode" into cpp object
+ *
+ * the "handle()" function of this object will be called for every messages
+ * directed as this node's id and broadcast messages.
+ *
+ * comes with a protected "out" stream, intended for outputs.
+ */
+class NodeHandler {
+  public:
+    NodeHandler(struct NDLComNode &_node, std::ostream &out = std::cerr);
+    virtual ~NodeHandler();
+
+    static void handleWrapper(void *context, const struct NDLComHeader *header,
+                              const void *payload);
+
+    virtual void handle(const struct NDLComHeader *header,
+                        const void *payload) = 0;
+
+    void send(const NDLComId destination, const void *payload,
+              const size_t length);
+
+  protected:
+    struct NDLComNode &node;
+    std::ostream &out;
 
   private:
     struct NDLComInternalHandler internal;
