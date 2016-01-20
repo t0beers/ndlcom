@@ -134,6 +134,9 @@ class NDLComBridgePty : public NDLComBridgeStream {
                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~NDLComBridgePty();
 
+    size_t readEscapedBytes(void *buf, size_t count);
+    // we can reuse the write function of the base-class
+
   private:
     // the master-side of the pty
     int pty_fd;

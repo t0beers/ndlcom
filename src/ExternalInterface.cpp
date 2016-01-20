@@ -564,3 +564,28 @@ void NDLComBridgePty::prepareSymlink() const {
         throw std::runtime_error(strerror(errno));
     }
 }
+
+size_t NDLComBridgePty::readEscapedBytes(void *buf, size_t count) {
+    if (!fd_read) {
+        return 0;
+    }
+    size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
+    if (bytesRead == 0) {
+        if (ferror(fd_read)) {
+            if (errno == EAGAIN || errno == EIO) {
+                // in case of a pty, slaves connecting and disconnecting are
+                // seen as "errors", but we need to ignore some of them
+                //
+                // using the POLLHUP trick is not safe, as there is still a
+                // race condition...
+                return 0;
+            } else {
+                throw std::runtime_error("error during fread(): " +
+                                         std::string(strerror(errno)));
+            }
+        } else {
+            return 0;
+        }
+    }
+    return bytesRead;
+}
