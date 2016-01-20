@@ -1,4 +1,4 @@
-#include "ndlcomBridgeExternalInterface.hpp"
+#include "ndlcom/ExternalInterface.hpp"
 
 #include <stdexcept>
 #include <cstring>

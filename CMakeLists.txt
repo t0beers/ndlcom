@@ -50,6 +50,19 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/list.h
 )
 
+include(CheckFunctionExists)
+check_function_exists(usleep SEEMS_TO_BE_POSIX)
+if(SEEMS_TO_BE_POSIX)
+
+# test
+list(APPEND SOURCES_lib
+    src/ExternalInterface.cpp
+    )
+list(APPEND HEADERS_lib
+    include/${PROJECT_NAME}/ExternalInterface.hpp
+    )
+endif(SEEMS_TO_BE_POSIX)
+
 # define the lib
 add_library(${PROJECT_NAME}
     ${SOURCES_lib}

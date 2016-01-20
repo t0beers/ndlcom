@@ -17,7 +17,7 @@
 #include <cmath>
 
 #include "ndlcomBridgeParseUri.hpp"
-#include "ndlcomBridgeExternalInterface.hpp"
+#include "ndlcom/ExternalInterface.hpp"
 #include "ndlcom/InternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"

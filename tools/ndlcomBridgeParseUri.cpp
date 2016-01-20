@@ -1,7 +1,7 @@
 #include "ndlcomBridgeParseUri.hpp"
 
 
-#include "ndlcomBridgeExternalInterface.hpp"
+#include "ndlcom/ExternalInterface.hpp"
 
 const std::string serial = "serial://";
 const std::string udp = "udp://";
