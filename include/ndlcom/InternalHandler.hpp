@@ -13,20 +13,20 @@ namespace ndlcom {
  * @brief uses callback to print out information header of EVERY observed packet
  *
  */
-class BridgePrintAll : public BridgeHandler {
+class BridgePrintAll : public BridgeHandlerBase {
   public:
     BridgePrintAll(struct NDLComBridge &_bridge,
                    std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-class NodePrintOwnId : public NodeHandler {
+class NodePrintOwnId : public NodeHandlerBase {
   public:
     NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
-class BridgePrintMissEvents : public BridgeHandler {
+class BridgePrintMissEvents : public BridgeHandlerBase {
   public:
     BridgePrintMissEvents(struct NDLComBridge &_bridge,
                           std::ostream &_out = std::cerr);

@@ -1,43 +1,45 @@
 #include "ndlcom/InternalHandlerBase.hpp"
 
-ndlcom::BridgeHandler::BridgeHandler(NDLComBridge &_bridge, std::ostream &_out)
+using namespace ndlcom;
+
+BridgeHandlerBase::BridgeHandlerBase(NDLComBridge &_bridge, std::ostream &_out)
     : bridge(_bridge), out(_out) {
-    ndlcomInternalHandlerInit(&internal, BridgeHandler::handleWrapper,
+    ndlcomInternalHandlerInit(&internal, BridgeHandlerBase::handleWrapper,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
     ndlcomBridgeRegisterInternalHandler(&bridge, &internal);
 }
 
-ndlcom::BridgeHandler::~BridgeHandler() {
+BridgeHandlerBase::~BridgeHandlerBase() {
     ndlcomBridgeDeregisterInternalHandler(&bridge, &internal);
 }
 
-void ndlcom::BridgeHandler::handleWrapper(void *context,
+void BridgeHandlerBase::handleWrapper(void *context,
                                           const struct NDLComHeader *header,
                                           const void *payload) {
-    class BridgeHandler *self = static_cast<class BridgeHandler *>(context);
+    class BridgeHandlerBase *self = static_cast<class BridgeHandlerBase *>(context);
     self->handle(header, payload);
 }
 
-ndlcom::NodeHandler::NodeHandler(NDLComNode &_node, std::ostream &_out)
+NodeHandlerBase::NodeHandlerBase(NDLComNode &_node, std::ostream &_out)
     : node(_node), out(_out) {
-    ndlcomInternalHandlerInit(&internal, NodeHandler::handleWrapper,
+    ndlcomInternalHandlerInit(&internal, NodeHandlerBase::handleWrapper,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
     ndlcomNodeRegisterInternalHandler(&node, &internal);
 }
 
-ndlcom::NodeHandler::~NodeHandler() {
+NodeHandlerBase::~NodeHandlerBase() {
     ndlcomNodeDeregisterInternalHandler(&node, &internal);
 }
 
 // static wrapper function for the C-callback
-void ndlcom::NodeHandler::handleWrapper(void *context,
+void NodeHandlerBase::handleWrapper(void *context,
                                 const struct NDLComHeader *header,
                                 const void *payload) {
-    class NodeHandler *self = static_cast<class NodeHandler *>(context);
+    class NodeHandlerBase *self = static_cast<class NodeHandlerBase *>(context);
     self->handle(header, payload);
 }
 
-void ndlcom::NodeHandler::send(const NDLComId destination, const void *payload,
+void NodeHandlerBase::send(const NDLComId destination, const void *payload,
                        const size_t length) {
     ndlcomNodeSend(&node, destination, payload, length);
 }

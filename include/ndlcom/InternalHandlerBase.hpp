@@ -16,10 +16,11 @@ namespace ndlcom {
  *
  * comes with a protected "out" stream, intended for outputs.
  */
-class BridgeHandler {
+class BridgeHandlerBase {
   public:
-    BridgeHandler(struct NDLComBridge &_bridge, std::ostream &out = std::cerr);
-    virtual ~BridgeHandler();
+    BridgeHandlerBase(struct NDLComBridge &_bridge,
+                      std::ostream &out = std::cerr);
+    virtual ~BridgeHandlerBase();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
                               const void *payload);
@@ -43,10 +44,10 @@ class BridgeHandler {
  *
  * comes with a protected "out" stream, intended for outputs.
  */
-class NodeHandler {
+class NodeHandlerBase {
   public:
-    NodeHandler(struct NDLComNode &_node, std::ostream &out = std::cerr);
-    virtual ~NodeHandler();
+    NodeHandlerBase(struct NDLComNode &_node, std::ostream &out = std::cerr);
+    virtual ~NodeHandlerBase();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
                               const void *payload);
