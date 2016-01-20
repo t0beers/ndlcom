@@ -110,9 +110,27 @@ void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
 /**
  * @brief Process and handle all data which can be read on each interface
  *
+ * keeps processing as long as data can be read from any interface. when this
+ * function returns, the incoming queues of every interface is empty
+ *
  * @param bridge Object to process
+ * @return the sum of all bytes which where processed. when return from this
+ *         function, no bytes are waiting to be processed.
  */
-void ndlcomBridgeProcess(struct NDLComBridge *bridge);
+size_t ndlcomBridgeProcess(struct NDLComBridge *bridge);
+
+/**
+ * @brief Process each interface of the bridge once
+ *
+ * calls "read()" for every interface and processes eventually resulting
+ * packets. when this function returns, there might still be data available.
+ *
+ * @param bridge Object to process
+ * @return the sum of all bytes which where processed by the bridge. call this
+ *         function again if this is greater than zero, as this means there
+ *         might still be bytes waiting.
+ */
+size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge);
 
 /**
  * @brief tell the bridge about deviceIds used as internal

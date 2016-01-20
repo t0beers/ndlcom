@@ -24,7 +24,7 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge) {
     ndlcomRoutingTableInit(&bridge->routingTable);
 }
 
-/* helper function. cements the hack of putting the bridge-pointer itself into
+/* Helper function. Cements the hack of putting the bridge-pointer itself into
  * the routing table */
 int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
                                 const NDLComId deviceId) {
@@ -181,90 +181,103 @@ void ndlcomBridgeSendRaw(struct NDLComBridge *bridge, const struct NDLComHeader
 }
 
 /* reading and parsing bytes from one external interface */
-void ndlcomBridgeProcessExternalInterface(
+size_t ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
 
     /* some variables we'll need later */
     uint8_t rawReadBuffer[NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE];
     size_t bytesRead;
-    size_t bytesProcessed;
+    size_t bytesProcessed = 0;
     const struct NDLComHeader *header;
     const void *payload;
 
+    bytesRead = externalInterface->read(externalInterface->context,
+                                        rawReadBuffer, sizeof(rawReadBuffer));
+
     do {
-        bytesProcessed = 0;
-        bytesRead = externalInterface->read(
-            externalInterface->context, rawReadBuffer, sizeof(rawReadBuffer));
+        bytesProcessed += ndlcomParserReceive(&externalInterface->parser,
+                                              rawReadBuffer + bytesProcessed,
+                                              bytesRead - bytesProcessed);
 
-        do {
-            bytesProcessed += ndlcomParserReceive(
-                &externalInterface->parser, rawReadBuffer + bytesProcessed,
-                bytesRead - bytesProcessed);
+        if (ndlcomParserHasPacket(&externalInterface->parser)) {
 
-            if (ndlcomParserHasPacket(&externalInterface->parser)) {
+            header = ndlcomParserGetHeader(&externalInterface->parser);
+            payload = ndlcomParserGetPacket(&externalInterface->parser);
 
-                header = ndlcomParserGetHeader(&externalInterface->parser);
-                payload = ndlcomParserGetPacket(&externalInterface->parser);
-
-                /*
-                 * Got a packet!
-                 *
-                 * Only update the routing table when processing
-                 * non-debug-ports with the pointer to the external interface
-                 * where the message came from.
-                 *
-                 * Updating the table before processing the message allows
-                 * readily responding on the right interface.
-                 *
-                 * TODO: take care that no one can override "deviceIds" which
-                 * are actually used by a node from "us".
-                 */
-                if (!(externalInterface->flags &
-                      NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
-                    /* additionally guard the deviceIds consided as "internal"
-                     * from accidental update from outside. this can only
-                     * happen if there is a rouge device claiming to be one of
-                     * our Nodes */
-                    if (deviceIdIsNotInternallyUsed(bridge,
-                                                    header->mSenderId)) {
-                        ndlcomRoutingTableUpdate(&bridge->routingTable,
-                                                 header->mSenderId,
-                                                 externalInterface);
-                    }
+            /*
+             * Got a packet!
+             *
+             * Only update the routing table when processing
+             * non-debug-ports with the pointer to the external interface
+             * where the message came from.
+             *
+             * Updating the table before processing the message allows
+             * readily responding on the right interface.
+             *
+             * TODO: take care that no one can override "deviceIds" which
+             * are actually used by a node from "us".
+             */
+            if (!(externalInterface->flags &
+                  NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
+                /* additionally guard the deviceIds consided as "internal"
+                 * from accidental update from outside. this can only
+                 * happen if there is a rouge device claiming to be one of
+                 * our Nodes */
+                if (deviceIdIsNotInternallyUsed(bridge, header->mSenderId)) {
+                    ndlcomRoutingTableUpdate(&bridge->routingTable,
+                                             header->mSenderId,
+                                             externalInterface);
                 }
-                /*
-                 * Try to forward the message. We are not sure if we can, yet.
-                 */
-                ndlcomBridgeProcessDecodedMessage(bridge, header, payload,
-                                                  externalInterface);
-                /*
-                 * Clean up the parser of this interface, to be ready for the
-                 * next packet.
-                 */
-                ndlcomParserDestroyPacket(&externalInterface->parser);
             }
+            /*
+             * Try to forward the message. We are not sure if we can, yet.
+             */
+            ndlcomBridgeProcessDecodedMessage(bridge, header, payload,
+                                              externalInterface);
+            /*
+             * Clean up the parser of this interface, to be ready for the
+             * next packet.
+             */
+            ndlcomParserDestroyPacket(&externalInterface->parser);
+        }
 
-        } while (bytesRead != bytesProcessed);
-    } while (bytesRead > 0);
+    } while (bytesRead != bytesProcessed);
+    return bytesRead;
 }
 
 /*
- * The "main" processing function: Going sequentially through all known
- * interfaces and trying to read bytes for processing. Handle all detected
- * messages.
+ * The "main" processing function: trigger processing all interfaces as long as
+ * data is available. Handle all detected messages.
  *
  * There are two kind of interfaces:
  * - the ordinary ones susceptible to routing and everything
  * - the "debug mirrors", which get _all_ messages
  */
-void ndlcomBridgeProcess(struct NDLComBridge *bridge) {
+size_t ndlcomBridgeProcess(struct NDLComBridge *bridge) {
+    size_t bytesReadOverall = 0;
+    size_t bytesRead;
+    do {
+        bytesRead = ndlcomBridgeProcessFair(bridge);
+        bytesReadOverall += bytesRead;
+    } while (bytesRead > 0);
+    return bytesReadOverall;
+}
 
+/* 
+ * query all interfaces for data available and process these chunks. return
+ * afterwards.
+ */
+size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge) {
+
+    size_t bytesReadOverall = 0;
     struct NDLComExternalInterface *externalInterface;
     list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                         list) {
-        ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
+        bytesReadOverall +=
+            ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
     }
+    return bytesReadOverall;
 }
 
 void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
