@@ -258,7 +258,7 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge) {
     size_t bytesReadOverall = 0;
     size_t bytesRead;
     do {
-        bytesRead = ndlcomBridgeProcessFair(bridge);
+        bytesRead = ndlcomBridgeProcessOnce(bridge);
         bytesReadOverall += bytesRead;
     } while (bytesRead > 0);
     return bytesReadOverall;
