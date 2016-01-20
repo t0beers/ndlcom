@@ -14,6 +14,8 @@
 #include <linux/proc_fs.h>
 #include <linux/device.h>
 
+// TODO: use "linux/list.h" and "linux/circ_buf.h"
+
 #include <asm/uaccess.h>
 #include <asm/io.h>
 
@@ -63,8 +65,6 @@ static struct file* exclusive_writer = NULL;
 
 ssize_t ndlcom_read(struct file *fp, char __user *buf, size_t buf_size, loff_t *f_pos)
 {
-    // TODO: implement O_NDELAY, use "fp->f_flags"
-
     struct recv_buf_t *recv_buf = fp->private_data;
 
     // when we are asked to do "non-blocking read" return EAGAIN if there is no data
@@ -113,9 +113,6 @@ ssize_t ndlcom_write(struct file *fp, const char __user *buf, size_t count, loff
 
 int ndlcom_open(struct inode *inode, struct file *fp)
 {
-    // TODO: prevent writing from multiple interleaving writers -- only allow
-    // one open with "WRITE" permission!
-
     struct recv_buf_t *act_recv_buf = recv_buf_head;
     struct recv_buf_t *new_recv_buf;
 
