@@ -37,7 +37,7 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         }
         out << "opening serial '" << device << "' with " << baudrate
             << "baud\n";
-        return new NDLComBridgeSerial(bridge, device, baudrate, flags);
+        return new ExternalInterfaceSerial(bridge, device, baudrate, flags);
 
     } else if (uri.compare(0, udp.length(), udp) == 0) {
         size_t begin_hostname = uri.find(udp) + udp.size();
@@ -77,7 +77,7 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         if (fpganame.empty())
             fpganame = "/dev/NDLCom";
         out << "opening fpga '" << fpganame << "'\n";
-        return new NDLComBridgeFpga(bridge, fpganame);
+        return new ExternalInterfaceFpga(bridge, fpganame);
 
     } else if (uri.compare(0, pty.length(), pty) == 0) {
         size_t begin_ptyname = uri.find(pty) + pty.size();

@@ -39,12 +39,12 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
  *
  * straightforward.
  */
-class NDLComBridgeSerial : public ExternalInterfaceStream {
+class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
-    NDLComBridgeSerial(NDLComBridge &_bridge, std::string device_name,
-                       speed_t baudrate,
-                       uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeSerial();
+    ExternalInterfaceSerial(
+        NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceSerial();
 
   private:
     struct termios oldtio;
@@ -57,12 +57,12 @@ class NDLComBridgeSerial : public ExternalInterfaceStream {
  * this is basically a device where encoded messages can be read and written
  * to.
  */
-class NDLComBridgeFpga : public ExternalInterfaceStream {
+class ExternalInterfaceFpga : public ExternalInterfaceStream {
   public:
-    NDLComBridgeFpga(NDLComBridge &_bridge,
-                     std::string device_name = "/dev/NDLCom",
-                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeFpga();
+    ExternalInterfaceFpga(
+        NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceFpga();
 
   private:
     int fd;

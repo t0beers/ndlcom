@@ -84,9 +84,10 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     return;
 }
 
-NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
-                                       std::string device_name,
-                                       speed_t baudrate, uint8_t flags)
+ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
+                                                 std::string device_name,
+                                                 speed_t baudrate,
+                                                 uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags) {
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
@@ -133,7 +134,7 @@ NDLComBridgeSerial::NDLComBridgeSerial(NDLComBridge &_bridge,
     }
 }
 
-NDLComBridgeSerial::~NDLComBridgeSerial() {
+ExternalInterfaceSerial::~ExternalInterfaceSerial() {
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
@@ -141,8 +142,8 @@ NDLComBridgeSerial::~NDLComBridgeSerial() {
     close(fd);
 }
 
-NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
-                                   std::string device_name, uint8_t flags)
+ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
+                                        std::string device_name, uint8_t flags)
     : ExternalInterfaceStream(_bridge) {
     if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
         throw std::runtime_error(
@@ -163,7 +164,7 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
     }
 }
 
-NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
+ExternalInterfaceFpga::~ExternalInterfaceFpga() { close(fd); }
 
 ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
                                            std::string hostname,
