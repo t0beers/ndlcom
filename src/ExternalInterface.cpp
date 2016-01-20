@@ -165,9 +165,10 @@ NDLComBridgeFpga::NDLComBridgeFpga(NDLComBridge &_bridge,
 
 NDLComBridgeFpga::~NDLComBridgeFpga() { close(fd); }
 
-NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
-                                 unsigned int in_port, unsigned int out_port,
-                                 uint8_t flags)
+ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
+                                           std::string hostname,
+                                           unsigned int in_port,
+                                           unsigned int out_port, uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
     // "AF_INET" for ipv4-only
@@ -227,7 +228,7 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     // "inet_ntop()", but hey...
     std::string address_in(inet_ntoa(addr_in.sin_addr));
     std::string address_out(inet_ntoa(addr_out.sin_addr));
-    /* out << "NDLComBridgeUdp: opened udp connection, reading from '" */
+    /* out << "ExternalInterfaceUdp: opened udp connection, reading from '" */
     /*     << address_in.c_str() << ":" << ntohs(addr_in.sin_port) */
     /*     << "' and sending to '" << address_out.c_str() << ":" */
     /*     << ntohs(addr_out.sin_port) << "'\n"; */
@@ -236,9 +237,9 @@ NDLComBridgeUdp::NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
     freeaddrinfo(result);
 }
 
-NDLComBridgeUdp::~NDLComBridgeUdp() { close(fd); }
+ExternalInterfaceUdp::~ExternalInterfaceUdp() { close(fd); }
 
-size_t NDLComBridgeUdp::readEscapedBytes(void *buf, size_t count) {
+size_t ExternalInterfaceUdp::readEscapedBytes(void *buf, size_t count) {
     /* out << "trying to read " << count << " bytes\n"; */
     struct sockaddr_in addr_recv;
 again:
@@ -260,12 +261,13 @@ again:
         throw std::runtime_error(strerror(errno));
     }
     /* out << "read " << bytesRead << " bytes from '" */
-    /*     << inet_ntoa(addr_recv.sin_addr) << ":" << ntohs(addr_recv.sin_port) */
+    /*     << inet_ntoa(addr_recv.sin_addr) << ":" << ntohs(addr_recv.sin_port)
+     */
     /*     << "'\n"; */
     if (addr_out.sin_addr.s_addr != addr_recv.sin_addr.s_addr) {
         std::string address_from(inet_ntoa(addr_out.sin_addr));
         std::string address_to(inet_ntoa(addr_recv.sin_addr));
-        out << "NDLComBridgeUdp: switch outgoing connection from '"
+        out << "ExternalInterfaceUdp: switch outgoing connection from '"
             << address_from.c_str() << ":" << ntohs(addr_out.sin_port)
             << "' to '" << address_to.c_str() << ":" << ntohs(addr_out.sin_port)
             << "'\n";
@@ -281,7 +283,7 @@ again:
     return bytesRead;
 }
 
-void NDLComBridgeUdp::writeEscapedBytes(const void *buf, size_t count) {
+void ExternalInterfaceUdp::writeEscapedBytes(const void *buf, size_t count) {
     /* out << "trying to write " << count << " bytes\n"; */
     size_t alreadyWritten = 0;
 again:
@@ -302,7 +304,8 @@ again:
             throw std::runtime_error(strerror(errno));
         }
         /* out << "wrote " << written << " bytes to '" */
-        /*     << inet_ntoa(addr_out.sin_addr) << ":" << ntohs(addr_out.sin_port) */
+        /*     << inet_ntoa(addr_out.sin_addr) << ":" <<
+         * ntohs(addr_out.sin_port) */
         /*     << "'\n"; */
         alreadyWritten += written;
     }

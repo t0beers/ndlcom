@@ -75,12 +75,13 @@ class NDLComBridgeFpga : public ExternalInterfaceStream {
  *
  * has distinct send- and receive-ports to allows usage on localhost.
  */
-class NDLComBridgeUdp : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
   public:
-    NDLComBridgeUdp(NDLComBridge &_bridge, std::string hostname,
-                    unsigned int in_port, unsigned int out_port,
-                    uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~NDLComBridgeUdp();
+    ExternalInterfaceUdp(
+        NDLComBridge &_bridge, std::string hostname, unsigned int in_port,
+        unsigned int out_port,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceUdp();
 
     size_t readEscapedBytes(void *buf, size_t count);
     void writeEscapedBytes(const void *buf, size_t count);

@@ -62,7 +62,8 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         }
         out << "opening udp '" << hostname << "' with inport " << inport
             << " and outport " << outport << "\n";
-        return new NDLComBridgeUdp(bridge, hostname, inport, outport, flags);
+        return new ExternalInterfaceUdp(bridge, hostname, inport, outport,
+                                        flags);
 
     } else if (uri.compare(0, pipe.length(), pipe) == 0) {
         size_t begin_pipename = uri.find(pipe) + pipe.size();
