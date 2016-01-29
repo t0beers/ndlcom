@@ -93,8 +93,7 @@ void printPackage(const struct NDLComHeader *header, const void *payload) {
         time_t time = mTimespec.tv_sec;
         ts = *localtime(&time);
         size_t pos = strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &ts);
-        pos += snprintf(buffer + pos, sizeof(buffer) - pos, ".%09lu",
-                        mTimespec.tv_nsec);
+        snprintf(buffer + pos, sizeof(buffer) - pos, ".%09lu", mTimespec.tv_nsec);
         // and finally print it
         printf("[%s] ", buffer);
     }
