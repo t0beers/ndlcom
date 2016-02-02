@@ -128,7 +128,8 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
  * Called for messages which:
  * - where successfully received from an external interface, after the update
  *   to the routing table
- * - after a new message is summoned in "ndlcomBridgeSendRaw()"
+ * - after a new message is summoned in "ndlcomBridgeSendRaw()", from the
+ *   internal side directed at the world
  *
  * NOTE: "origin" can be either be a pointer to one of the external interfaces
  * or the "bridge" pointer itself, if it comes from internal.
@@ -145,23 +146,18 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
      */
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
-    /*
-     * NOTE: to exclude _all_ internal handler from seeing messages from
-     * internal, check that the "origin" is not "bridge", as this is used in
-     * the "send" functions.
-     */
-    // if (origin == bridge) {
-    // return;
-    //}
-
-    /* call the internal handlers which handle _all_ messages. */
+    /* call the internal handlers to handle the message */
     list_for_each_entry(internalHandler, &bridge->internalHandlerList, list) {
         /*
-         * checking the "origin" for internal handlers does not make sense...
-         * internal handler will always see their own messages, if they are the
-         * ones who did create the message in the first place...
+         * internal handler can opt-out from seeing messages sent by other
+         * callers on the internal side. in this case (flag is set), we compare
+         * the "origin" to be the "bridge" pointer itself.
          */
-        internalHandler->handler(internalHandler->context, header, payload);
+        if (!(internalHandler->flags &
+              NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
+            (origin != bridge)) {
+            internalHandler->handler(internalHandler->context, header, payload);
+        }
     }
 }
 

@@ -13,6 +13,12 @@ extern "C" {
  * no flags in the moment
  */
 #define NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT 0x00
+/**
+ * if this flag is used, the internal handler will not see messages sent from
+ * the internal side of the bridge, eg which were created by calling
+ * "ndlcomBridgeSendRaw()" or "ndlcomNodeSend()".
+ */
+#define NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL 0x01
 
 /**
  * callback-function for handling internal packets. note that you have to
