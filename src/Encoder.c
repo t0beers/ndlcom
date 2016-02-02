@@ -123,6 +123,7 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
 /* internal tooling function to start a new to-be-encoded message */
 size_t ndlcomEncodeInit(void *outputBuffer, const size_t outputBufferSize,
                         NDLComCrc *crc) {
+    uint8_t *pWritePos = (uint8_t *)outputBuffer;
     /* initialize the crc */
     *crc = NDLCOM_CRC_INITIAL_VALUE;
 
@@ -132,7 +133,6 @@ size_t ndlcomEncodeInit(void *outputBuffer, const size_t outputBufferSize,
     }
 
     /* write start flag */
-    uint8_t *pWritePos = (uint8_t *)outputBuffer;
     *pWritePos = NDLCOM_START_STOP_FLAG;
 
     return 1;
@@ -187,6 +187,7 @@ size_t ndlcomEncodeAppendPayload(void *outputBuffer,
 
 /* internal tooling function to finish-up a nearly-encoded message */
 size_t ndlcomEncodeFinalize(void *outputBuffer, const size_t outputBufferSize) {
+    uint8_t *pWritePos = (uint8_t *)outputBuffer;
 
     /** check that nobody is trying to fool us with a very small buffer */
     if (outputBufferSize < 1) {
@@ -195,7 +196,6 @@ size_t ndlcomEncodeFinalize(void *outputBuffer, const size_t outputBufferSize) {
 
     /* flag at end of packet. this is not strictly needed, but makes some things
      * easier */
-    uint8_t *pWritePos = (uint8_t *)outputBuffer;
     *pWritePos = NDLCOM_START_STOP_FLAG;
 
     return 1;
@@ -215,6 +215,7 @@ size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
                        size_t additionalSections, ...) {
     NDLComCrc crc;
     size_t wrote = 0;
+    size_t i, overallPayloadLen = 0;
 
     /* prepare the packet */
     wrote += ndlcomEncodeInit((uint8_t *)outputBuffer + wrote,
@@ -228,7 +229,6 @@ size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
     /* since we have the variable-argument feature we do not know the length of
      * the sections combined. for later testing for consistency with the number
      * given in the header */
-    size_t i, overallPayloadLen = 0;
     /* var-var... C at its best... */
     va_list ap;
     va_start(ap, additionalSections);
