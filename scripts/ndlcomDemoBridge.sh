@@ -7,52 +7,81 @@
 #
 # is also a nice excercise on unix-tooling, signal, pipes and buffering...
 #
-# now even more advanced: define nodes with their pipes in associative array,
-# and the connections between nodes in an array. use magical bash functions to
-# resolve all this. NOTE: you can create circles (bad) and you can create two
-# unconnected trees (stupid).
+# now even more advanced: define nodes with their ports in an associative
+# bash-array, and the connections between nodes in an bash array. use magical
+# bash trickery to resolve all this.
 #
-# NOTE:
-# - see the "socat" tool, which does a lot of what we need
+# NOTE: it is possible to create circles (bad) and also to  create two
+# completely unconnected trees (stupid).
+#
+# TODO: how to code the expected outcome? script the test?
+# - create hex-string encoded files, containing packets, piping them into the
+#   ports and piping all unconnected ports into files. then compare them...?
+# - having more intelligent nodes, which can send and receive pings...?
+# - maybe go full-scale: add all tooling functions in "library script", code
+#   the tests in a yaml-file, render tests with template-engine...?
 
 set -e
 set -u
 
+# this is an bash array
 declare -A nodes
-# which deviceId has which pipe-interfaces
-nodes[1]="A B"
+# which deviceId has which pipe-interfaces, named by strings separated by
+# spaces
+nodes[1]="A B C"
 nodes[2]="A B"
 nodes[3]="A B"
-nodes[4]="A B C D E"
+nodes[4]="A B C"
+nodes[5]="A B"
+nodes[6]="A B C"
+nodes[7]="A B"
+nodes[8]="A B C"
+nodes[9]="A"
+nodes[10]="A B"
 
-# which two deviceIds should be connected
-declare -a conns=("1 4" "1 2" "3 4")
+# which two deviceIds should be connected. the scripting later will sort out
+# which interfaces to use for each connection and bail out if something does
+# not work as specified here.
+declare -a conns=("1 2" "2 3" "3 4" "4 5" "5 6" "4 7" "7 8" "8 9" "8 10")
 
-# which nodes have still open connections. at the beginning just a copy of the
-# "nodes" from before
+# an array holding all nodes which have still open connections to choose from
+# while setting up the network. at the beginning just a copy of the "nodes"
+# array created before.
 declare -n openConns=nodes
 
-# the command we gonne use
+# the commands we gonna use
+#
+# TODO: make this file cmake-processed and put the actual binary directory in
 BRIDGE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomBridge"
 PRODUCE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketProducer"
 CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
 
 
-# cleanup all background-child processes on script exit
+# a trap to cleanup all background-child processes on script exit
+#
 # see http://stackoverflow.com/a/22644006/4658481
 trap "exit" INT TERM
-# send 'ctrl-c' to every process in our process group
+# send SIGINT (ctrl-c) to every process in our process group on exit
 trap "kill -SIGINT 0" EXIT
 
+GRAPHVIZ_FILE=tree.dot
+graphviz_cluster_counter=0
+
+cat << EOF > "$GRAPHVIZ_FILE"
+digraph {
+EOF
+
 # tooling function to launch two "tail" processes which shuffle bytes between
-# the rx and tx sides of the two given pipes.
+# the rx and tx sides of the two given named pipes.
 #
-# also do proper argument validation
+# also does some argument validation
 #
 # we ignore "stderr" of "tail" because the bridges might unlink the pipe during
 # shutdown of this script, before the tails exit. this would generate an
 # annoying but meaningless error-message.
-connect_pipes() {
+#
+# NOTE: see the "socat" tool, which does a lot of what we need here
+connect_two_named_pipes() {
     if [ $# -ne 2 ]; then
         echo "argcount is not 2, but $#"
         exit
@@ -75,29 +104,65 @@ connect_pipes() {
     stdbuf -o0 tail -q -n +1 -f "${onePipe}_tx" > "${twoPipe}_rx" 2>/dev/null &
     stdbuf -o0 tail -q -n +1 -f "${twoPipe}_tx" > "${onePipe}_rx" 2>/dev/null &
     # note that the "tails" are in the background and still part of this
-    # process-group. someone needs to tell them to exit upon script-exit.
+    # process-group. someone needs to tell them to close upon script-exit.
+    # using "stdbuf" to prevent stale bytes in some of the kernel-level buffers
+    # from not beeing processed
+
+    # additionally, append this information to the graphviz file
+cat << EOF >> "$GRAPHVIZ_FILE"
+    "${onePipe}_tx" -> "${twoPipe}_rx";
+    "${twoPipe}_tx" -> "${onePipe}_rx";
+EOF
 }
 
-# create commandline to start a bridge with the specified pipes
-launch_node() {
+# launch ndlcomBridge in the background with given deviceId and
+# interface-names. the correct commandline to crate the given named pipes is
+# crafted and given to the bridge.
+launch_bridge() {
     local deviceId="$1"
     local interfaces="$2"
 
     #echo "called with '$deviceId' and '$interfaces'"
 
     local uri=""
-    for inter in ${interfaces}; do uri="$uri -u pipe://pipe_${deviceId}_${inter}"; done
-    echo "would launch ndlcomBridge -i $deviceId $uri"
+    for inter in ${interfaces};
+        do uri="$uri -u pipe://pipe_${deviceId}_${inter}"
+    done
+    echo "launching ndlcomBridge -i $deviceId $uri"
+    # given "-O" to print all messages directed at this bridge
     eval "$BRIDGE_COMMAND -i $deviceId $uri -O &"
+    
+    # additionally, append this information to the graphviz file
+cat << EOF >> "$GRAPHVIZ_FILE"
+    subgraph cluster_${graphviz_cluster_counter} {
+        label="ndlcomBridge\nID: $deviceId";
+EOF
+    graphviz_cluster_counter=$((graphviz_cluster_counter+1))
+    for inter in ${interfaces}; do
+cat << EOF >> "$GRAPHVIZ_FILE"
+        subgraph cluster_${graphviz_cluster_counter} {
+        label="pipe_${deviceId}_${inter}"
+            style=filled;color=lightgrey;
+            "pipe_${deviceId}_${inter}_rx" [label="rx"];
+            "pipe_${deviceId}_${inter}_tx" [label="tx"];
+        }
+EOF
+    graphviz_cluster_counter=$((graphviz_cluster_counter+1))
+    done
+cat << EOF >> "$GRAPHVIZ_FILE"
+    }
+EOF
 }
 
+# this function is the real bash-magic...
+#
 # will delete the two corresponding entries from the "openConns" array when
-# connecting the pipes of two nodes
-connect_nodes() {
+# connecting the pipes of two already existing bridges by looking them up via
+# their deviceId.
+connected_bridges() {
     local firstDeviceId="$1"
     local secondDeviceId="$2"
 
-    #echo "called with '$firstDeviceId' and '$secondDeviceId'"
     # find two entries in openConns
     #echo "have open ${openConns[$firstDeviceId]} and ${openConns[$secondDeviceId]}"
 
@@ -124,26 +189,45 @@ connect_nodes() {
     done
 
     echo "connecting 'pipe_${firstDeviceId}_$firstConn' to 'pipe_${secondDeviceId}_$secondConn'"
-    connect_pipes pipe_${firstDeviceId}_$firstConn pipe_${secondDeviceId}_$secondConn
+    connect_two_named_pipes pipe_${firstDeviceId}_$firstConn pipe_${secondDeviceId}_$secondConn
 }
 
 
-for id in "${!nodes[@]}"; do launch_node $id "${nodes[$id]}"; done
+for id in "${!nodes[@]}"; do launch_bridge $id "${nodes[$id]}"; done
 
 sleep 0.1
 
-for c in "${conns[@]}"; do connect_nodes $c; done
+for c in "${conns[@]}"; do connected_bridges $c; done
 
 sleep 0.1
 
-$CONSUME_COMMAND < pipe_3_B_tx &
+# correct printing of messages
+$CONSUME_COMMAND < pipe_6_C_tx &
+$CONSUME_COMMAND < pipe_1_C_tx &
+$CONSUME_COMMAND < pipe_10_B_tx &
 
-# now we should see the four prints from the four listeners. note that we have
-# to know where to write to. also be cure that the port we use is not used
-# between the bridges themselfes.
-$PRODUCE_COMMAND -s 99 -r 255 > pipe_4_E_rx
+# now we should see the four prints from the four bridges.
+#
+# NOTE: we have to know where to write to
+#
+# by having one consumer on "1_C" and one on "10_B", both sould receive the
+# broadcast. the third consumer is on "6_C" itself, so it should stay silent.
+$PRODUCE_COMMAND -s 99 -r 255 > pipe_6_C_rx
+
+sleep 0.1
+
+# after sending a message with senderId 99 on "6_C", filling the routing
+# tables, this consumer (and only this one) should receive messages to 99
+$PRODUCE_COMMAND -s 190 -r 99 > pipe_1_C_rx
 
 # wait some bit for all the buffers to empty
 sleep 0.1
+
+# end finish the graphviz picture
+cat << EOF >> "$GRAPHVIZ_FILE"
+}
+EOF
+
+dot < "$GRAPHVIZ_FILE" -Tpng > $(basename "$GRAPHVIZ_FILE" .dot).png
 
 exit
