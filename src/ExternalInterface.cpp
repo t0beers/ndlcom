@@ -2,6 +2,7 @@
  * TODO:
  *
  * - SA_RESTART http://www.gnu.org/software/libc/manual/html_node/Flags-for-Sigaction.html
+ * - add message queue https://www.cs.cf.ac.uk/Dave/C/node25.html
  */
 #include "ndlcom/ExternalInterface.hpp"
 
