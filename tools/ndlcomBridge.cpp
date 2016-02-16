@@ -68,11 +68,15 @@ void help(const char *_name) {
 "\n"
 "\t%s -u udp://localhost:34001:34000 -u serial:///dev/ttyUSB0:921600\n"
 "\n"
+"route between kernel-module with udp-connection, print missing packages:\n"
+"\n"
+"\t%s -u fpga:///dev/NDLCom -u udp://localhost:34001:34000 -M\n"
+"\n"
 "create pseudoterminal and open this in CommonGui:\n"
 "\n"
 "\t%s -u pty:///tmp/symlink\n"
 "\n"
-"route from one hex-encoded pipe to another:\n"
+"route from one hex-encoded pipe to another, print all passing packages:\n"
 "\n"
 "\t%s -u pipe://pipeA -u pipe://pipeB -A\n"
 "\n"
@@ -88,7 +92,7 @@ void help(const char *_name) {
 "\n"
 "NOTE: Be careful about stdio-buffering...\n",
 
-actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
+actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
 }
 /* clang-format on */
 
