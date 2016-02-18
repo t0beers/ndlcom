@@ -49,8 +49,12 @@ size_t ExternalInterfaceStream::readEscapedBytes(void *buf, size_t count) {
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
     if (bytesRead == 0) {
         if (ferror(fd_read)) {
-            throw std::runtime_error("error during fread(): " +
-                                     std::string(strerror(errno)));
+            if (errno == EAGAIN) {
+                return 0;
+            } else {
+                throw std::runtime_error("error during fread(): " +
+                                         std::string(strerror(errno)));
+            }
         } else {
             return 0;
         }
