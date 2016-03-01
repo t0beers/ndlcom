@@ -1,12 +1,12 @@
-see ![protocol](protocol.png)
+![ndlcom_header](ndlcom_header.png)
 
 # Start Flag
 
-`0x7e`
+The special byte `0x7e` denotes the beginning of a packet.
 
 # Header
 
-The simple header comes with four bytes:
+The simple header consists of four bytes:
 
 - `receiverId`. Note that a receiver of `0xff` is used for Broadcast messages
 - `senderId`. To be filled with the Id of the sender

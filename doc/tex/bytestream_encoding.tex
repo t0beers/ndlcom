@@ -1,0 +1,69 @@
+\documentclass[crop,tikz]{standalone}
+\usetikzlibrary{fit}
+\usetikzlibrary{patterns}
+\tikzset{remember picture, overlay}
+\begin{document}
+
+\tikzstyle{lower} = [
+    shift={(-0.2em,-0.5ex)}
+]
+\tikzstyle{upper} = [
+    shift={(0.2em,2ex)}
+]
+\tikzstyle{mySuperRectStyle} = [
+    rectangle,
+    draw,
+    rounded corners=1mm,opacity=0.35
+]
+\tikzstyle{myStartStop} = [
+    mySuperRectStyle,
+    blue,
+    pattern=north east lines, pattern color=blue
+]
+
+\tikzstyle{myEscapeByte} = [
+    mySuperRectStyle,
+    red,
+    pattern=north west lines, pattern color=red
+]
+\tikzstyle{myArrow} = [
+    ->,red,thick,out=-90,in=90,opacity=0.5
+]
+
+\newcommand{\EscapeByteExample}[1]{%
+    \protect\tikz[baseline=-0.7ex]\protect\node[myEscapeByte] {\texttt{}#1};%
+}
+\newcommand{\FrameByteExample}[1]{%
+    \protect\tikz[baseline=-0.7ex]\protect\node[myStartStop] {\texttt{}#1};%
+}
+\newcommand*{\myCmd}[2]{%
+    \tikz\coordinate[lower](#1_low);%
+    \tikz\node[inner sep=0,outer sep=2.5](#1){#2};%
+    \tikz\coordinate[upper](#1_up);%
+}
+% draw boxes afterwards
+\begin{tikzpicture}
+    \node{
+\begin{minipage}{\columnwidth}
+    \textbf{Unencoded data:}
+
+    \smallbreak
+    \texttt{0xa0 0x13 \myCmd{firstUnescaped}{0x7e} 0x3f \myCmd{secondUnescaped}{0x7d}}
+
+    \bigbreak
+    \textbf{Encoded data:}
+
+    \smallbreak
+    \texttt{\myCmd{firstFlag}{0x7e} 0xa0 0x13 \myCmd{firstEscaped}{0x7d 0x5e} 0x3f \myCmd{secondEscaped}{0x7d 0x5d} \myCmd{secondFlag}{0x7e}}
+\end{minipage}};
+    \path[myArrow] (firstUnescaped) edge (firstEscaped);
+    \path[myArrow] (secondUnescaped) edge  (secondEscaped);
+    \draw[myStartStop] (firstFlag_low) rectangle (firstFlag_up);
+    \draw[myStartStop] (secondFlag_low) rectangle (secondFlag_up);
+    \draw[myEscapeByte] (firstEscaped_low) rectangle (firstEscaped_up);
+    \draw[myEscapeByte] (firstUnescaped_low) rectangle (firstUnescaped_up);
+    \draw[myEscapeByte] (secondEscaped_low) rectangle (secondEscaped_up);
+    \draw[myEscapeByte] (secondUnescaped_low) rectangle (secondUnescaped_up);
+\end{tikzpicture}
+
+\end{document}

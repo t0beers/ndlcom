@@ -1,0 +1,68 @@
+\documentclass[crop,tikz]{standalone}
+\usetikzlibrary{fit}
+\usetikzlibrary{fadings}
+
+\begin{document}
+\newcounter{LayerCounter}
+\setcounter{LayerCounter}{1}
+
+\xdefinecolor{myC1}{HTML}{e9988a}
+\xdefinecolor{myC2}{HTML}{e9c189}
+\xdefinecolor{myC3}{HTML}{eddc9c}
+\xdefinecolor{myC4}{HTML}{e7ed9c}
+
+\begin{tikzpicture}[remember picture,
+        % color and identifier
+        myBox/.style={
+            fill=#1,
+            draw,fill opacity=0.6,text opacity=1,outer sep=0,minimum height=4.6em,
+        },
+        layerBox/.style={
+            myBox=#1, text width=6em
+        },
+        catBox/.style={
+            myBox=#1, text width=6em
+        },
+        descBox/.style={
+            myBox=#1, text width=20em
+        },
+        exxBox/.style={
+            myBox=#1, text width=8em
+        },
+        pics/OSIlayer/.style args={#1;#2;#3;#4;#5}{
+            code = {
+                \node[layerBox=#1] (#2_layer) {\textbf{\theLayerCounter{}.}~#2};
+                \node[catBox=#1,anchor=west] (#2_category) at (#2_layer.east) {#3};
+                \node[descBox=#1,anchor=west] (#2_description) at (#2_category.east) {#4};
+                \node[exxBox=#1,anchor=west] (#2_example) at (#2_description.east) {#5};
+                \coordinate (#2) at (#2_layer.north west);
+                \stepcounter{LayerCounter}
+            }
+        },
+        pics/OSIlayerHeader/.style={
+            code = {
+                \node[layerBox=black!10,minimum height=3em] (Header_layer) {\textbf{Layer}};
+                \node[catBox=black!10,anchor=west,minimum height=3em] (Header_category) at (Header_layer.east) {\textbf{Data Unit}};
+                \node[descBox=black!10,anchor=west,minimum height=3em] (Header_description) at (Header_category.east) {\textbf{Function}};
+                \node[exxBox=black!10,anchor=west,minimum height=3em] (Header_example) at (Header_description.east) {\textbf{Examples}};
+            }
+        },
+        OsiBox/.style={%
+            rectangle,rounded corners=1mm,minimum height=1.4em,
+            draw,fill=yellow, text opacity=1,fill opacity=0.6%
+        }%
+    ]
+
+    % the actual OSI layers:
+    \draw                    pic                {OSIlayer={myC1;Physical;Bit;Transmission and reception of raw bit stream over physical medium;DSL, USB}};
+    \draw[anchor=south west] pic at (Physical)  {OSIlayer={myC2;Data Link;Frame;Reliable transmission of data frames between two nodes connected by physical layer;PPP, IEEE 802.2, L2TP}};
+    \draw[anchor=south west] pic at (Data Link) {OSIlayer={myC3;Network;Packet, \\Datagram;Structuring and managing multi node network, including addressing and routing;AppleTalk, IPv4, IPv6}};
+    \draw[anchor=south west] pic at (Network)   {OSIlayer={myC4;Transport;Segments;Transmission of data segments between points on a network, including segmentation and acknowledgement;TCP, UDP}};
+    \draw[anchor=south west] pic at (Transport) {OSIlayerHeader};
+
+    % and now do the overloay the "NDLCom" and "HDLC"
+    \node[OsiBox,anchor=south east,outer sep=2pt] at (Data Link_example.south east) {\textbf{HDLC}};%
+    \node[OsiBox,anchor=south east,outer sep=2pt] at (Network_example.south east) {\textbf{NDLCom}};%
+
+\end{tikzpicture}
+\end{document}
