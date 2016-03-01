@@ -1,9 +1,9 @@
 # Checksum
 
 Various notes used during development of the new crc16 functionality.
-The old variant used a XOR-based checksum which was not good enough.
+The old variant used a XOR-based checksum which was not good enough. It can still be enabled at compile time by removing the C-language define `NDLCOM_CRC16` in [Types.h](https://git.hb.dfki.de/istruct/lib_ndlcom/blob/master/include/ndlcom/Crc.h#L14).
 
-## crc16
+## CRC16
 
 See [RFC-1662](https://tools.ietf.org/html/rfc1662), seems to be known as _CRC-CCITT 16bit_, actually have a look at ISO [13239:2002](http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf)
 
@@ -14,12 +14,12 @@ Some other links:
 - another [javascript](http://depa.usst.edu.cn/chenjq/www2/software/crc/CRC_Javascript/CRC16calculation0b.htm) version
 - some stronger [wording](http://srecord.sourceforge.net/crc16-ccitt.html) for the use of `CRC-16/AUG-CCITT`
 
-# human-language algorithm description
+# Human-language algorithm description
 
 Mainly used for the C-Implementation.
 Implicitly shared by the VHDL-Implementation.
 
-## encoding
+## Encoding
 
 What to do to calculate a crc while sending a packet:
 
@@ -30,9 +30,9 @@ What to do to calculate a crc while sending a packet:
 - No final xor of the crc-value
 - The crc-value itself is escaped if needed and then appended after the last escaped payload-byte, before the packet-end-flag
 
-## decoding
+## Decoding
 
-Verifying a crc upon receiving a packet:
+Verifying the crc upon receiving a packet:
 
 - New crc is again initialized with `0xffff`
 - After de-escaping the received bytes, header+payload is stuffed into crc-function

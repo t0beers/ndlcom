@@ -10,11 +10,11 @@ The protocol provides a communication infrastructure simiar to the OSI-Layer 3, 
 
 ![osi_model](doc/osi_model.png)
 
-HDLC segments a continuous bytestream into individual messages by replacing every `0x7e` and `0x7d` with special escape-sequences (red) and sorounding each message with the previously replaced `0x7e` (blue), thereby marking the boundaries in a unique way. Of course, the decoder has to undo this. See [here](doc/NDLCom_long_en.md) for more details:
+HDLC segments a continuous bytestream into individual messages by replacing every `0x7e` and `0x7d` with special escape-sequences (red) and sorounding each message with the previously replaced `0x7e` (blue), thereby marking the boundaries in a unique way. Of course, the decoder has to undo this.
 
 ![bytestream_encoding](doc/bytestream_encoding.png)
 
-The header of each packet consists of 4 byte: One byte for sender and receiver respectively allow for up to 254 different addresses plus the additional "broadcast" address. The third byte is a packet-counter to enable detection of lost packages. The payload with a maximum capacity of 255 bytes is following the specification of the packet length. At the end, each packet is guarded by a 16Bit [AUG-CCITT](crc.md) checksum to detect transmission errors:
+The header of each packet consists of 4 byte: One byte for sender and receiver respectively allow for up to 254 different addresses plus the additional "broadcast" address. The third byte is a packet-counter to enable detection of lost packages. The payload with a maximum capacity of 255 bytes is following the specification of the packet length. At the end, each packet is guarded by a 16Bit [AUG-CCITT](doc/crc.md) checksum to detect transmission errors:
 
 ![ndlcom_header](doc/ndlcom_header.png)
 
