@@ -78,7 +78,7 @@
     ]
 
     % upper row of "byte blocks"
-    \node[block,anchor=north west] (startFlag) at (0,0) {Packet Flag\\$\mathtt{0x7e}$};
+    \node[block,anchor=north west,opacity=0.6] (startFlag) at (0,0) {Packet Flag\\$\mathtt{0x7e}$};
     \node[dashedBlock,anchor=west] (header) at (startFlag.east) {Header\\(4 bytes)};
 
     \pic["Payload\\$\mathtt{data[0]}$"] (payloadLeft) at (header.north east) {raggedBoxLeft};
