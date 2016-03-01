@@ -11,16 +11,21 @@
 \usetikzlibrary{quotes}
 \usetikzlibrary{positioning}
 
-% here, for the standalone: ubuntu standard font
-\usepackage[T1]{fontenc}
-\usepackage{dejavu}
-
 \begin{document}
-
-\newcommand{\blockWidth}{3cm}
-\newcommand{\blockHeight}{1.5cm}
+% width of the two rows of "byte"
+\newcommand{\blockWidth}{2.82cm}
+% height of the two rows of "byte"
+\newcommand{\blockHeight}{1.1cm}
+% how much the two "payload" bytes are shortened
 \newcommand{\blockScale}{0.875}
+% tick height on the "byte index" arrow
 \newcommand{\tickLength}{0.2cm}
+% distance between "byte blocks" and "byte index"
+\newcommand{\byteIndexSpacing}{1.0cm}
+% distance between the two byte rows
+\newcommand{\byteBlockRowDistance}{3*\blockHeight}
+% how much the arrow of the byte-index extend past their actual thing
+\newcommand{\extraByteIndexArrowExtension}{0.6cm}
 
 % decorate path with random oscillation in x-direction only
 %
@@ -30,7 +35,7 @@
   \state{start}[width=+0pt,next state=step,
      persistent precomputation=\pgfdecoratepathhascornerstrue]{}
   \state{step}[auto end on length=1.5\pgfdecorationsegmentlength,
-           auto corner on length=1.5\pgfdecorationsegmentlength,
+           auto corner on length=1.5\pgfdecorationsegmentlength,               
            width=+\pgfdecorationsegmentlength]
   {
     \pgftransformresetnontranslations
@@ -49,9 +54,10 @@
             minimum height=\blockHeight,minimum width=\blockWidth,text width=\blockWidth,
             outer sep=0,align=left},
     dashedBlock/.style={block,densely dashed},
-    byteNumber/.style={above=of #1,inner sep=0},
+    byteNumber/.style={above=of #1,inner sep=0,outer sep=\byteIndexSpacing-1.4cm},
     raggedLine/.style={
             decorate,decoration={random xsteps,segment length=3pt,amplitude=5pt}},
+    % two styles, used for the two "payload" bytes
     raggedBoxLeft/.pic={
         code={
             \coordinate (-top-right) at (\blockWidth*\blockScale,0);
@@ -71,7 +77,8 @@
     }}
     ]
 
-    \node[block,anchor=north west] (startFlag) at (0,0) {Start Flag\\$\mathtt{0x7e}$};
+    % upper row of "byte blocks"
+    \node[block,anchor=north west] (startFlag) at (0,0) {Packet Flag\\$\mathtt{0x7e}$};
     \node[dashedBlock,anchor=west] (header) at (startFlag.east) {Header\\(4 bytes)};
 
     \pic["Payload\\$\mathtt{data[0]}$"] (payloadLeft) at (header.north east) {raggedBoxLeft};
@@ -81,17 +88,17 @@
     \node[block,anchor=north west,minimum width=2*\blockWidth,text width=2*\blockWidth] (checksum) at (payloadRight-top-right) {Checksum\\$\mathtt{AUG-CCITT}$};
     \node[block,draw=none,anchor=west] at (checksum.center) {\phantom{Checksum}\\$\mathtt{AUG-CCITT}$};
     \draw[densely dashed] (checksum.north) -- (checksum.south);
-    \node[block,anchor=west] (endFlag) at (checksum.east) {End Flag\\$\mathtt{0x7e}$};
+    \node[block,anchor=west,opacity=0.6] (endFlag) at (checksum.east) {Packet Flag\\$\mathtt{0x7e}$};
 
     % extra header section:
-    \node[block,anchor=east,yshift=-3*\blockHeight] (receiverId) at (startFlag.east)
-        {ReceiverId\\$\mathtt{0x00}-\mathtt{0xff}$};
+    \node[block,anchor=east,yshift=-\byteBlockRowDistance] (receiverId) at (startFlag.east)
+        {Receiver Id\\$\mathtt{0x00}-\mathtt{0xff}$};
     \node[block,anchor=west] (senderId) at (receiverId.east)
-        {SenderId\\$\mathtt{0x00}-\mathtt{0xff}$};
+        {Sender Id\\$\mathtt{0x00}-\mathtt{0xff}$};
     \node[block,anchor=west] (packetCtr) at (senderId.east)
-        {PacketCtr\\$0-255$};
+        {Packet Counter\\$0-255$};
     \node[block,anchor=west] (dataLen) at (packetCtr.east)
-    {DataLen ($\mathtt{n}$)\\$0-255$};
+    {Payload Length $\mathtt{n}$\\$0-255$};
 
     % filled inlay connecting dash header to header deatil, in light gray
         \filldraw [opacity=0.1] (header.south east) -- (header.south west) -- (receiverId.north west) -- (dataLen.north east) -- (header.south east);
@@ -113,28 +120,28 @@
 
     % upper and lower ticks
     \foreach \x in {startFlag.north west,header.north west,payloadLeft-top-left,checksum.north west,checksum.north,endFlag.north west,endFlag.north east,receiverId.north west,senderId.north west,packetCtr.north west,dataLen.north west,dataLen.north east} {
-        \draw[line cap=rect] ($(\x)+(0,1.4cm)$) -- ++(90:\tickLength);
+        \draw[line cap=rect] ($(\x)+(0,\byteIndexSpacing)$) -- ++(90:\tickLength);
     }
 
     % finally draw the lines of the upper arrow:
     %
     % left part:
-    \draw ($(startFlag.north west) + (0,1.4cm)$) -- ($(header.north west) + (0,1.4cm)$);
-    \draw[densely dashed] ($(header.north west) + (0,1.4cm)$) -- ($(payloadLeft-top-left) + (0,1.4cm)$);
-    \draw[->] ($(payloadLeft-top-left) + (0,1.4cm)$) -- ++(0:0.4cm);
+    \draw ($(startFlag.north west) + (0,\byteIndexSpacing)$) -- ($(header.north west) + (0,\byteIndexSpacing)$);
+    \draw[densely dashed] ($(header.north west) + (0,\byteIndexSpacing)$) -- ($(payloadLeft-top-left) + (0,\byteIndexSpacing)$);
+    \draw[->] ($(payloadLeft-top-left) + (0,\byteIndexSpacing)$) -- ++(0:\extraByteIndexArrowExtension);
     % right part:
-    \draw[densely dashed] ($(payloadRight-top-left) + (0,1.4cm)$) -- ++(0:-0.4cm);
-    \draw ($(payloadRight-top-left) + (0,1.4cm)$) -- ($(endFlag.north east)+(0,1.4cm)$);
-    \draw[->] ($(endFlag.north east) + (0,1.4cm)$) -- ++(0:0.4cm);
+    \draw[densely dashed] ($(payloadRight-top-left) + (0,\byteIndexSpacing)$) -- ++(0:-\extraByteIndexArrowExtension);
+    \draw ($(payloadRight-top-left) + (0,\byteIndexSpacing)$) -- ($(endFlag.north east)+(0,\byteIndexSpacing)$);
+    \draw[->] ($(endFlag.north east) + (0,\byteIndexSpacing)$) -- ++(0:\extraByteIndexArrowExtension);
     % second:
-    \draw[densely dashed] ($(receiverId.north west) + (0,1.4cm)$) -- ++(0:-0.4cm);
-    \draw ($(receiverId.north west) + (0,1.4cm)$) -- ($(dataLen.north east)+(0,1.4cm)$);
-    \draw[->] ($(dataLen.north east) + (0,1.4cm)$) -- ++(0:0.4cm);
+    \draw[densely dashed] ($(receiverId.north west) + (0,\byteIndexSpacing)$) -- ++(0:-\extraByteIndexArrowExtension);
+    \draw ($(receiverId.north west) + (0,\byteIndexSpacing)$) -- ($(dataLen.north east)+(0,\byteIndexSpacing)$);
+    \draw[->] ($(dataLen.north east) + (0,\byteIndexSpacing)$) -- ++(0:\extraByteIndexArrowExtension);
 
     \node[left=of startFlag.west] {field name};
     \node[left=of receiverId.west] {field name};
-    \node[yshift=1.4cm,left=of startFlag.north west] {byte index};
-    \node[yshift=1.4cm,left=of receiverId.north west] {byte index};
+    \node[yshift=\byteIndexSpacing,left=of startFlag.north west] {byte index};
+    \node[yshift=\byteIndexSpacing,left=of receiverId.north west] {byte index};
 
 \end{tikzpicture}
 
