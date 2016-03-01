@@ -54,11 +54,11 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         unsigned int outport;
         inportstring >> inport;
         outportstring >> outport;
-        if (inport == 0) {
+        if ((inportstring.str().length() == 0) || (inport == 0)) {
             inport = DEFAULT_UDP_SRCPORT;
             out << "falling back to default inport of '" << inport << "'\n";
         }
-        if (outport == 0) {
+        if ((outportstring.str().length() == 0) || (outport == 0)) {
             outport = DEFAULT_UDP_DSTPORT;
             out << "falling back to default outport of '" << outport << "'\n";
         }
