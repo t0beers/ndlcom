@@ -1,6 +1,6 @@
 O = build
 
-all: ../ndlcom_logo.png ../ndlcom_header.png
+all: ../ndlcom_logo.png ../ndlcom_header.png ../osi_model.png
 
 $(O):
 	mkdir -p $@
