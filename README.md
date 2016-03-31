@@ -37,6 +37,7 @@ Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Mak
 
 The "new" ndlcomBridge approach is used in the following C-based projects:
 
+- Have a look into the [minimalExample](tools/minimalExample.cpp) of this repository
 - [bgGraph templates](https://git.hb.dfki.de/esa_npi_2015/toolchain/blob/7c92f2ef/templates/bg_graph_toplvl_template.c#L60)
 - PSoC based [microDMSBoard](https://git.hb.dfki.de/team2/microDMSBoard/blob/61ec03ac/common_src/comm.cpp#L94)
 - [mdaq2](https://git.hb.dfki.de/istruct/stm32_mdaq2) via [lib_stm32common](https://git.hb.dfki.de/istruct/lib_stm32common/blob/a7d97f7f/src/usart.cpp#L72)
