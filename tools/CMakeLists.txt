@@ -25,6 +25,13 @@ if(SEEMS_TO_BE_POSIX)
         rt
         )
 
+    add_executable(minimalExample
+        minimalExample.cpp
+        )
+    target_link_libraries(minimalExample
+        ndlcom
+        )
+
     # TODO: write and add a shellbased-test-script which couples multiple
     # "ndlcomBridge", "ndlcomPacketProducer" and "ndlcomPacketConsumer"
     # together to tests some things
