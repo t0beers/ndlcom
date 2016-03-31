@@ -146,6 +146,7 @@ size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
             return 0;
             break;
         case mcERROR:
+        case mcNUMBER_OF_STATES:
             ndlcomParserDestroyPacket(parser);
             break;
             /* TODO */

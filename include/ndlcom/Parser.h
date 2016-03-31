@@ -69,6 +69,21 @@ extern "C" {
 #endif
 
 /**
+ * @brief enum to store the current state the parser is in
+ *
+ * can be used by ndlcomParserGetState to translate the state into a string
+ */
+enum NDLComParserState {
+    mcERROR = 0,
+    mcWAIT_HEADER,
+    mcWAIT_DATA,
+    mcWAIT_FIRST_CRC_BYTE,
+    mcWAIT_SECOND_CRC_BYTE,
+    mcCOMPLETE,
+    mcNUMBER_OF_STATES
+};
+
+/**
  * @brief State for ndlcomParser functions.
  *
  * Since a packet may be distributed over many sequential calls of
@@ -92,14 +107,7 @@ struct NDLComParser {
     /** Current write position of next data byte while receiving user data. */
     uint8_t * mpDataWritePos;
     /** different states the parser may have. */
-    enum ParserState {
-        mcERROR = 0,
-        mcWAIT_HEADER,
-        mcWAIT_DATA,
-        mcWAIT_FIRST_CRC_BYTE,
-        mcWAIT_SECOND_CRC_BYTE,
-        mcCOMPLETE
-    } mState;
+    enum NDLComParserState mState;
     /** how often a bad crc was received */
     uint32_t mNumberOfCRCFails;
 };
