@@ -50,14 +50,20 @@ struct NDLComInternalHandler {
 
 /**
  * @brief
- * @param internal
+ * @param internalHandler
  * @param handler
+ * @param flags
  * @param context
  */
 void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internalHandler,
                                NDLComInternalHandlerFkt handler,
                                const uint8_t flags, void *context);
 
+/**
+ * @brief
+ * @param internalHandler
+ * @param flags
+ */
 void
 ndlcomInternalHandlerSetFlags(struct NDLComInternalHandler *internalHandler,
                               const uint8_t flags);

@@ -20,30 +20,49 @@ class BridgePrintAll : public BridgeHandlerBase {
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
+/**
+ * @brief prints information about messages received by the node
+ *
+ * just a simple outputting class to print a line containing information of the
+ * header for every message observed.
+ */
 class NodePrintOwnId : public NodeHandlerBase {
   public:
     NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
 };
 
+/**
+ * @brief printing information about missed packages
+ *
+ * this class hooks looks at every received pacakge and checks the packet
+ * counter for a miss-event; prints a message but never sends messages itself.
+ */
 class BridgePrintMissEvents : public BridgeHandlerBase {
   public:
     BridgePrintMissEvents(struct NDLComBridge &_bridge,
                           std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload);
+    /** clears every internal datastructure */
     void resetMissEvents();
 
   private:
-    /* keep this matrix for miss-events between all possible combinations of
-     * known deviceIds */
+    /**
+     * keep this matrix for miss-events between all possible combinations of
+     * known deviceIds
+     */
     unsigned int numberOfPacketMissEvents[NDLCOM_MAX_NUMBER_OF_DEVICES]
                                          [NDLCOM_MAX_NUMBER_OF_DEVICES];
-    /* remember the expected PacketCounter for each deviceId, based on the
-     * last-seen counter incremented by 1 */
+    /**
+     * remembers the expected PacketCounter for each deviceId, based on the
+     * last-seen counter incremented by 1.
+     */
     NDLComCounter expectedNextPacketCounter[NDLCOM_MAX_NUMBER_OF_DEVICES]
                                            [NDLCOM_MAX_NUMBER_OF_DEVICES];
-    /* for the size of the bitset: for each combination of sender+receive we
-     * have to remeber if we saw it before. */
+    /**
+     * On the calculation of the size of the bitset: for each combination of
+     * sender+receive we have to remember if we saw it before.
+     */
     std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES << 8> alreadySeen;
 };
 }

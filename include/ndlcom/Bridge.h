@@ -95,7 +95,6 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge);
  * @param bridge The object to use
  * @param header The message header, completely prepared
  * @param payload The memory containing actual payload
- * @param payloadSize Should be the same value as the "dataLen" in the header
  */
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
                          const struct NDLComHeader *header,

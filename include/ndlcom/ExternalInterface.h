@@ -64,6 +64,7 @@ struct NDLComExternalInterface {
  * @param externalInterface pointer to the struct to initialize
  * @param write function pointer to the write function
  * @param read function pointer to the write function
+ * @param flags flags to be used during initialization
  * @param context additional pointer to store "private" information for context
  *        during calling the callback
  */

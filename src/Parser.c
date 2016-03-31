@@ -1,15 +1,17 @@
 /**
  * @file src/Parser.c
+ *
+ * Used to extract protocol-packets out of a continuously flowing raw
+ * data-stream, which may have been received by your serial connection
+ *
  * @date 2011
  */
 #include "ndlcom/Parser.h"
 #include "ndlcom/Crc.h"
 
 /**
- * @brief Used to extract protocol-packets out of a continuously flowing raw
- * data-stream, which may have been received by your serial connection
+ * @brief mapping from "enum NDLComParserState" into human readable strings
  */
-
 const char *ndlcomParserStateName[] = {"ERROR",
                                        "WAIT_HEADER",
                                        "WAIT_DATA",

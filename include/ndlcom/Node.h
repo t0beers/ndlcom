@@ -102,7 +102,7 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
  * Will be called for every messages directed at this Node
  *
  * @param node
- * @param interface
+ * @param internalHandler
  */
 void ndlcomNodeRegisterInternalHandler(
     struct NDLComNode *node, struct NDLComInternalHandler *internalHandler);
@@ -110,7 +110,7 @@ void ndlcomNodeRegisterInternalHandler(
  * @brief De-register internal handler
  *
  * @param node
- * @param interface
+ * @param internalHandler
  */
 void ndlcomNodeDeregisterInternalHandler(
     struct NDLComNode *node, struct NDLComInternalHandler *internalHandler);

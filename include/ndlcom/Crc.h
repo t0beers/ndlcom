@@ -46,10 +46,10 @@ typedef uint16_t NDLComCrc;
  * @brief and doing the CRC, as 16bit FCS
  *
  * @param currentCrc starting value of the FCS. Allows incremental calls
- * @param d pointer to the data-byte to be processed
+ * @param c pointer to the data-byte to be processed
  * @return the new CRC for the given values
  */
-NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *d);
+NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c);
 
 #endif
 

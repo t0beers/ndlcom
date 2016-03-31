@@ -46,6 +46,7 @@ void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable);
  * this functions handles broadcast (and unknown) packages automagically
  * by return the special value NDLCOM_ROUTING_ALL_INTERFACES in this case
  *
+ * @param routingTable the routing table to process
  * @param receiverId the destination of the packet
  * @return identifier of the interface to use. NULL for "any interface"
  */
@@ -55,6 +56,7 @@ void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
 /**
  * @brief Updates the routing table entries
  *
+ * @param routingTable the table to work on
  * @param senderId the id of the sender of an incoming packet
  * @param pInterface the id of the interface on which the packet was received
  * @return none
