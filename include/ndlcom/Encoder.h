@@ -64,7 +64,12 @@ size_t ndlcomEncode(void *outputBuffer, const size_t outputBufferSize,
  * types or the number thereof, the stack will probably be broken.
  * also see http://stackoverflow.com/a/3105382/4658481
  *
+ * @param outputBuffer Data will be written into this buffer.
+ * @param outputBufferSize Size of the buffer.
+ * @param header Pointer to a PacketHeader struct.
  * @param additionalSections number of following "void*"/"size_t" pairs
+ *
+ * @return Number of bytes used in the output buffer. 0 on too-small-buffer.
  */
 size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
                        const struct NDLComHeader *header,

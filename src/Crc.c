@@ -6,9 +6,7 @@
 #include "ndlcom/Crc.h"
 
 #ifndef NDLCOM_CRC16
-/**
- * the "old" 8bit XOR
- */
+/* the "old" 8bit XOR */
 inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
 {
     return currentCrc ^ *c;
