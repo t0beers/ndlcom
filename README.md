@@ -29,7 +29,6 @@ Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Mak
 - `src` Contains all source files of the C-language
 - `test` some crude limited programs used for testing and benchmarking, called using `make test`
 - `include/ndlcom` Contains all C-headers used
-- `kernelmodule` Contains code for an interface to pass messages into an FPGA based Zynq-coprocessor
 - `doc` some documentation, which `doc/tex` containing the tikz-sources for the graphics
 - `tools` contains useful ready-made tools, where they are used in `scripts`
 - `build/...` The target directory used during the build process, temporary content
@@ -42,6 +41,8 @@ The "new" ndlcomBridge approach is used in the following C-based projects:
 - PSoC based [microDMSBoard](https://git.hb.dfki.de/team2/microDMSBoard/blob/61ec03ac/common_src/comm.cpp#L94)
 - [mdaq2](https://git.hb.dfki.de/istruct/stm32_mdaq2) via [lib_stm32common](https://git.hb.dfki.de/istruct/lib_stm32common/blob/a7d97f7f/src/usart.cpp#L72)
 - DFKI Microcontrollerboards using [chibiOS](https://git.hb.dfki.de/team2/chibios_support/blob/2dca977c/comm.cpp#L160)
+- [Treadmill](https://git.hb.dfki.de/hhanff/Treadmill)
+- for the *ZynqBrain* board there exists a [kernel-module](https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom) to map between data processed from the VHDL module into readable byte-streams on an user-space interface like `/dev/NDLCom`
 
 [1]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver/transmitter
 [2]: http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf

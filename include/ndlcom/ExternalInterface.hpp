@@ -52,10 +52,12 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
 };
 
 /**
- * use NDLCom-fpga-kernel module, usable on ZynqBrain for example.
+ * use NDLCom-fpga-kernel module, usable on ZynqBrain for example
  *
  * this is basically a device where encoded messages can be read and written
  * to.
+ *
+ * @see https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom
  */
 class ExternalInterfaceFpga : public ExternalInterfaceStream {
   public:
