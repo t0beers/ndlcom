@@ -90,6 +90,7 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         return new ExternalInterfacePty(bridge, ptyname);
     }
 
+    out << "could not create any interface from string '" << uri << "'\n";
     // when reaching here, nothing was created
     return NULL;
 }
