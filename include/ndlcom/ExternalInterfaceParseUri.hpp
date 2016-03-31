@@ -33,7 +33,7 @@
  */
 namespace ndlcom {
 class ndlcom::ExternalInterfaceBase *ParseUriAndCreateExternalInterface(
-    std::ostream &out, struct NDLComBridge &bridge, std::string uri,
+    std::ostream &out, struct NDLComBridge &bridge, const std::string &uri,
     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 }
 

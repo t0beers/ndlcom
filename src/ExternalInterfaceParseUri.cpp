@@ -18,10 +18,9 @@ const std::string uri_prefix_pty = "pty://";
 #define DEFAULT_UDP_SRCPORT 34000
 #define DEFAULT_UDP_DSTPORT 34001
 
-class ndlcom::ExternalInterfaceBase *
-ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
-                                           struct NDLComBridge &bridge,
-                                           std::string uri, uint8_t flags) {
+class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
+    std::ostream &out, struct NDLComBridge &bridge, const std::string &uri,
+    uint8_t flags) {
 
     if (uri.compare(0, uri_prefix_serial.length(), uri_prefix_serial) == 0) {
         size_t begin_device =
