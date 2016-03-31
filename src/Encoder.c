@@ -216,6 +216,7 @@ size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
     NDLComCrc crc;
     size_t wrote = 0;
     size_t i, overallPayloadLen = 0;
+    va_list ap;
 
     /* prepare the packet */
     wrote += ndlcomEncodeInit((uint8_t *)outputBuffer + wrote,
@@ -230,7 +231,6 @@ size_t ndlcomEncodeVar(void *outputBuffer, const size_t outputBufferSize,
      * the sections combined. for later testing for consistency with the number
      * given in the header */
     /* var-var... C at its best... */
-    va_list ap;
     va_start(ap, additionalSections);
     for (i = 0; i < additionalSections; i++) {
         /* each "section" is a pair of "const void*" and "const size_t" */
