@@ -181,7 +181,10 @@ void ndlcomParserDestroyPacket(struct NDLComParser *parser) {
     parser->mLastWasESC = 0;
 }
 
-const char* ndlcomParserGetState(const struct NDLComParser *parser) {
+const char *ndlcomParserGetState(const struct NDLComParser *parser) {
+    if (parser->mState > mcNUMBER_OF_STATES || parser->mState < 0) {
+        return NULL;
+    }
     return ndlcomParserStateName[parser->mState];
 }
 
