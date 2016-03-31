@@ -52,12 +52,6 @@ extern "C" {
  *
  * This code is written with the embedded/bare-metal case in mind: There is no
  * dynamic memory involved, no C++ in the core and no multi threading.
- *
- * TODO:
- * - Really nice would be a C++-class for doing the packet-statistics of the
- *   CommStat2 widget. Thinking about an ncurses interface for the
- *   ndlcomBridge...
- *
  */
 struct NDLComBridge {
     /** The whole bridge has one global RoutingTable */
