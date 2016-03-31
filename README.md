@@ -20,7 +20,7 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ## History
 
-Developed at DFKI in the iStruct and SeeGrip projects, beginning in 2010. To obtain something more profound (presentations, papers) see the [documents](https://git.hb.dfki.de/istruct/documents/blob/master/README.md) repository.
+Developed at DFKI in the iStruct and SeeGrip projects, beginning in 2010. To obtain something more profound like presentations and papers see the [documents](https://git.hb.dfki.de/istruct/documents/blob/master) repository.
 
 ## Structure
 

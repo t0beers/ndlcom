@@ -94,6 +94,13 @@ if(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
     add_subdirectory(test)
 endif(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 
+# doxygen:
+configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+add_custom_target(doc doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+# and install doxygen stuff as well
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
+    DESTINATION share/doc/${PROJECT_NAME})
+
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in
     ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)

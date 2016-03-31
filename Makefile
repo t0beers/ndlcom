@@ -57,6 +57,9 @@ link_dependency_graph: build
 compile: build
 	${MAKE} -j$(JOBS) -C $(BUILDDIR)
 
+doc: build
+	${MAKE} -j$(JOBS) -C $(BUILDDIR) doc
+
 test: build
 	sh -c "cd $(BUILDDIR); cmake $(SRCDIR) $(CMAKE_FLAGS) $(CMAKE_DEBUG_FLAGS)"
 	${MAKE} -j$(JOBS) -C $(BUILDDIR) all test
