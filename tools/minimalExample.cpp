@@ -62,7 +62,7 @@ void sendMessage(struct NDLComNode *node) {
 
     /* This will be our toy-message: Just a bunch of zeros. */
     char array[15];
-    memset(array, sizeof(array), 0);
+    memset(array, 0, sizeof(array));
     /* And send it away. */
     ndlcomNodeSend(node, destinationDeviceId, &array, sizeof(array));
 }
