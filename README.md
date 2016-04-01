@@ -24,14 +24,27 @@ Developed at DFKI in the iStruct and SeeGrip projects, beginning in 2010. To obt
 
 ## Structure
 
-Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Makefile acting as a cmake-wrapper, just call `make` and it will probably do the right thing.
+Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Makefile acting as a cmake-wrapper, just call `make` and it will probably do the right thing. To generate doxygen-documentation call `make doc`, to install all files into the default-directory `~/DFKI.install` do `make install`.
 
-- `src` Contains all source files of the C-language
+- `src` Contains all source files of the library
 - `test` some crude limited programs used for testing and benchmarking, called using `make test`
-- `include/ndlcom` Contains all C-headers used
+- `include/ndlcom` Contains all headers used in the library.
 - `doc` some documentation, which `doc/tex` containing the tikz-sources for the graphics
-- `tools` contains useful ready-made tools, where they are used in `scripts`
-- `build/...` The target directory used during the build process, temporary content
+- `tools` contains useful ready-made tools, some are used in the folder `scripts`
+- `build/...` The default target directory used during the build process, temporary content
+
+## Usage
+
+There are two ways to use this project, both based on pkg-config:
+
+1. Compile and install here at first, using the provided wrapper makefile. Then
+   use pkg-config inside your other project to obtain the neccessary flags
+   needed to use the files from the install-tree.
+2. Use the cmake-directive `add_subdirectory` pointing to this CMakeLists in
+   your main-cmake project. Then set the environment variable `PKG_CONFIG_PATH`
+   to point to the build-directory and use pkg-config to obtain the flags to use
+   the files from the build-tree. This relies on the *uninstalled* variant of
+   pkg-config files.
 
 ## users
 
