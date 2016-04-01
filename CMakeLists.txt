@@ -96,9 +96,12 @@ endif(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 # doxygen:
 configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 add_custom_target(doc doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-# and install doxygen stuff as well
+# and install doxygen stuff as well.
+# NOTE: cannot install documentation without calling "doc" before. looks like
+# this bug: https://cmake.org/Bug/view.php?id=8438
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
-    DESTINATION share/doc/${PROJECT_NAME})
+    DESTINATION share/doc/${PROJECT_NAME}
+    OPTIONAL)
 
 # pkg-config, to be installed:
 configure_file(${PROJECT_NAME}.pc.in
