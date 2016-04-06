@@ -97,6 +97,10 @@ endif(NOT CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 add_custom_target(${PROJECT_NAME}-doc doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile && echo
     "-- ${PROJECT_NAME}: Documentation generated in ${CMAKE_CURRENT_BINARY_DIR}/html/index.html")
+if(NOT TARGET doc)
+    add_custom_target(doc)
+endif(NOT TARGET doc)
+add_dependencies(doc ${PROJECT_NAME}-doc)
 # and install doxygen stuff as well.
 # NOTE: cannot install documentation without calling "doc" before. looks like
 # this bug: https://cmake.org/Bug/view.php?id=8438
