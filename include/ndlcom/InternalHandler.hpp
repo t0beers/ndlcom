@@ -17,7 +17,8 @@ class BridgePrintAll : public BridgeHandlerBase {
   public:
     BridgePrintAll(struct NDLComBridge &_bridge,
                    std::ostream &_out = std::cerr);
-    void handle(const struct NDLComHeader *header, const void *payload);
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const void *origin);
 };
 
 /**
@@ -29,7 +30,8 @@ class BridgePrintAll : public BridgeHandlerBase {
 class NodePrintOwnId : public NodeHandlerBase {
   public:
     NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
-    void handle(const struct NDLComHeader *header, const void *payload);
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const void *origin);
 };
 
 /**
@@ -42,7 +44,8 @@ class BridgePrintMissEvents : public BridgeHandlerBase {
   public:
     BridgePrintMissEvents(struct NDLComBridge &_bridge,
                           std::ostream &_out = std::cerr);
-    void handle(const struct NDLComHeader *header, const void *payload);
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const void *origin);
     /** clears every internal datastructure */
     void resetMissEvents();
 

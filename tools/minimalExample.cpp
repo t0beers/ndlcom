@@ -53,7 +53,8 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
 
     /* This function will be called when the NDLComNode received a message
      * directed at its own deviceId. */
-    void handle(const struct NDLComHeader *header, const void *payload) {
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const void *origin) {
         /* Casting of the payload-pointer for easier access. */
         const char *r = (const char *)payload;
         /* For this specific example: Check the first byte of the for a certain
@@ -62,9 +63,9 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
             return;
         }
         /* Just print for now. But you can do anything. Really. */
-        printf("got a message from sender 0x%02x with %i bytes, where the "
-               "first byte is %i",
-               header->mSenderId, (int)header->mDataLen,
+        printf("got a message from sender 0x%02x with %i bytes via interface "
+               "0x%p, where the first byte is %i",
+               header->mSenderId, (int)header->mDataLen, origin,
                (int)firstByteToListen);
         /* NOTE: The "payload" pointer points to a data-array with the size
          * given in header->mDataLen. */

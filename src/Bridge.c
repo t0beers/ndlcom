@@ -156,7 +156,8 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
         if (!(internalHandler->flags &
               NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
             (origin != bridge)) {
-            internalHandler->handler(internalHandler->context, header, payload);
+            internalHandler->handler(internalHandler->context, header, payload,
+                                     origin);
         }
     }
 }
