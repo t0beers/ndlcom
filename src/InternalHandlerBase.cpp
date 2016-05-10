@@ -39,7 +39,7 @@ void NodeHandlerBase::handleWrapper(void *context,
     self->handle(header, payload);
 }
 
-void NodeHandlerBase::send(const NDLComId destination, const void *payload,
+void NodeHandlerBase::send(const NDLComId receiverId, const void *payload,
                        const size_t length) {
-    ndlcomNodeSend(&node, destination, payload, length);
+    ndlcomNodeSend(&node, receiverId, payload, length);
 }

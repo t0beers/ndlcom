@@ -19,6 +19,7 @@ extern "C" {
  * to the normal "routing".
  */
 #define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR 0x01
+/** the default value for new interfaces: do nothing special */
 #define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT 0x00
 
 /**
@@ -43,18 +44,28 @@ typedef size_t (*NDLComExternalInterfaceReadEscapedBytes)(void *context,
                                                           const size_t count);
 
 /**
- * struct to describe an external interface
+ * struct to describe an ExternalInterface
+ *
+ * Keeps function pointers to the read and write callbacks and stores an
+ * additional "context", which can be used to store a pointer to another
+ * datastructure -- a wrapping cpp class for example.
+ *
+ * A "flags"-field is present to enable special behaviour. And the finally the
+ * mandatory NDLComParser itself, which is needed to detect packets in the
+ * incoming data-stream.
  */
 struct NDLComExternalInterface {
-    /* the context will be provided in the read/write functions */
+    /** the context will be provided in the read/write functions */
     void *context;
     /** influences the behaviour of the external interface */
     uint8_t flags;
-    /* every interface needs its parser */
+    /** every interface needs its parser */
     struct NDLComParser parser;
+    /** callback to read data from the interface */
     NDLComExternalInterfaceReadEscapedBytes read;
+    /** callback to write data into the interface */
     NDLComExternalInterfaceWriteEscapedBytes write;
-    /** stored  inside a doubly linked list as part of a "NDLComBridge" */
+    /** this struct is stored in a linked list as part "NDLComBridge" */
     struct list_head list;
 };
 

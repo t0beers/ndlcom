@@ -47,6 +47,10 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
     ~ExternalInterfaceSerial();
 
   private:
+    /**
+     * this class tries to be a good citizen: it restores the terminal setting
+     * which where there before it changed them
+     */
     struct termios oldtio;
     int fd;
 };
@@ -108,6 +112,10 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
  * (starting with "/") the two pipes will be created in the local folder.
  *
  * will also remove the created pipes _iff_ they where not present before!
+ *
+ * FIXME: it is easly possible to create to ExternalInterfacePipe with the same
+ * symlink-name. this stems from the fact that existing pipes are reused... is
+ * that this a good idea?
  */
 class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
   public:
