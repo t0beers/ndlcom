@@ -370,6 +370,98 @@ again:
     return;
 }
 
+ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(NDLComBridge &_bridge,
+                                                       std::string hostname,
+                                                       unsigned int port,
+                                                       uint8_t flags)
+    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags) {
+    {
+        std::stringstream ss;
+        ss << "tcpclient://" << hostname << ":" << port;
+        label = ss.str();
+    }
+
+    struct addrinfo hints = {0};
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    if ((fd = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol)) < 0) {
+        reportRuntimeError("failed to create socket: " +
+                               std::string(strerror(errno)),
+                           __FILE__, __LINE__);
+    }
+
+    struct addrinfo *result;
+    // try to resolve the hostname-string
+    if (int retval =
+            getaddrinfo(hostname.c_str(), NULL, &hints, &result) != 0) {
+        reportRuntimeError(gai_strerror(retval), __FILE__, __LINE__);
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    memcpy(&addr, (struct sockaddr_in *)result->ai_addr,
+           sizeof(struct sockaddr_in));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    /* establish connection */
+    if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        reportRuntimeError("failed to connect: " + std::string(strerror(errno)),
+                           __FILE__, __LINE__);
+    }
+    // only after calling "connect()" we switch to nonblocking mode. would have
+    // to wait anyways... this blocks the gui during "connect()", but...
+    fcntl(fd, F_SETFL, O_NONBLOCK);
+
+    freeaddrinfo(result);
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
+}
+
+ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    close(fd);
+}
+
+size_t ExternalInterfaceTcpClient::readEscapedBytes(void *buf, size_t count) {
+again:
+    ssize_t bytesRead = recv(fd, buf, count, 0);
+    if (bytesRead < 0) {
+        if (errno == EINTR) {
+            // ignore signals
+            goto again;
+        } else if (errno == EAGAIN) {
+            // nothing to read, just return
+            return 0;
+        }
+        // TODO: is this correct?
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    return bytesRead;
+}
+
+void ExternalInterfaceTcpClient::writeEscapedBytes(const void *buf,
+                                                   size_t count) {
+    size_t alreadyWritten = 0;
+again:
+    while (alreadyWritten < count) {
+        ssize_t written = send(fd, (const char *)buf + alreadyWritten,
+                               count - alreadyWritten, MSG_NOSIGNAL);
+        if (written == -1) {
+            if (errno == EINTR) {
+                // ignore signals
+                goto again;
+            }
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        }
+        alreadyWritten += written;
+    }
+    return;
+
+}
+
 ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)

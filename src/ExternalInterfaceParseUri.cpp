@@ -7,6 +7,7 @@ const std::string uri_prefix_udp = "udp://";
 const std::string uri_prefix_pipe = "pipe://";
 const std::string uri_prefix_fpga = "fpga://";
 const std::string uri_prefix_pty = "pty://";
+const std::string uri_prefix_tcpclient= "tcpclient://";
 
 /**
  * TODO:
@@ -17,6 +18,7 @@ const std::string uri_prefix_pty = "pty://";
 #define DEFAULT_SERIAL_BAUDRATE 921600
 #define DEFAULT_UDP_SRCPORT 34000
 #define DEFAULT_UDP_DSTPORT 34001
+#define DEFAULT_TCP_PORT 2000
 
 class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
     std::ostream &out, struct NDLComBridge &bridge, const std::string &uri,
@@ -88,6 +90,22 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         std::string ptyname(uri.substr(begin_ptyname));
         out << "opening pty master '" << ptyname << "'\n";
         return new ExternalInterfacePty(bridge, ptyname);
+    } else if (uri.compare(0, uri_prefix_tcpclient.length(),
+                           uri_prefix_tcpclient) == 0) {
+        size_t begin_hostname =
+            uri.find(uri_prefix_tcpclient) + uri_prefix_tcpclient.size();
+        size_t begin_port = uri.find(":", begin_hostname) + 1;
+        std::string hostname(
+            uri.substr(begin_hostname, begin_port - begin_hostname - 1));
+        std::stringstream portstring(uri.substr(begin_port));
+        unsigned int port;
+        portstring >> port;
+        if ((portstring.str().length() == 0) || (port == 0)) {
+            port = DEFAULT_TCP_PORT;
+            out << "falling back to default port of '" << port << "'\n";
+        }
+        out << "opening tcpclient '" << hostname << "'\n";
+        return new ExternalInterfaceTcpClient(bridge, hostname, port);
     }
 
     out << "could not create any interface from string '" << uri << "'\n";
