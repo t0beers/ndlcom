@@ -230,10 +230,15 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     // calls from "inet_ntoa()" to "inet_ntop()"
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
 
     // create the socket (which is a file descriptor):
-    fd = socket(hints.ai_family, SOCK_NONBLOCK | hints.ai_socktype, 0);
+    fd = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
     if (fd == -1) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    // non-blocking access
+    if (fcntl(fd, F_SETFL, O_NONBLOCK)) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
