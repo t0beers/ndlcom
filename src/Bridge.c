@@ -314,3 +314,29 @@ void ndlcomBridgeDeregisterExternalInterface(
 
     list_del_init(&externalInterface->list);
 }
+
+uint8_t ndlcomBridgeCheckExternalInterface(
+    struct NDLComBridge *bridge,
+    struct NDLComExternalInterface *externalInterface) {
+    // iterate all interfaces, check if the one in the argument is present
+    struct NDLComExternalInterface *it;
+    list_for_each_entry(it, &bridge->externalInterfaceList, list) {
+        if (it == externalInterface) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+uint8_t ndlcomBridgeCheckInternalHandler(
+    struct NDLComBridge *bridge,
+    struct NDLComInternalHandler *internalHandler) {
+    // iterate all handlers, check if the one in the argument is present
+    struct NDLComInternalHandler *it;
+    list_for_each_entry(it, &bridge->internalHandlerList, list) {
+        if (it == internalHandler) {
+            return 1;
+        }
+    }
+    return 0;
+}

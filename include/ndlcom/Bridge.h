@@ -184,6 +184,28 @@ void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface);
 
+/**
+ * @brief check if a handler is part of a bridge
+ *
+ * @param bridge The bridge to use
+ * @param internalHandler The handler to check
+ * @return true if handler is already registered
+ */
+uint8_t
+ndlcomBridgeCheckInternalHandler(struct NDLComBridge *bridge,
+                                 struct NDLComInternalHandler *internalHandler);
+
+/**
+ * @brief check if a interface is part of a bridge
+ *
+ * @param bridge The bridge to use
+ * @param externalInterface The interface to check
+ * @return true if interface is already registered
+ */
+uint8_t ndlcomBridgeCheckExternalInterface(
+    struct NDLComBridge *bridge,
+    struct NDLComExternalInterface *externalInterface);
+
 #if defined(__cplusplus)
 }
 #endif
