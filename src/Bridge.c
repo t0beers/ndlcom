@@ -290,27 +290,69 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
 void ndlcomBridgeRegisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-
+    // check that the given handler is not yet part of the bridge
+    if (ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
+        return;
+    }
+    // and now we can add it
     list_add(&internalHandler->list, &bridge->internalHandlerList);
 }
 
 void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-
+    // check that the given handler is not yet part of the bridge
+    if (ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
+        return;
+    }
+    // and now we can add it
     list_add(&externalInterface->list, &bridge->externalInterfaceList);
 }
 
 void ndlcomBridgeDeregisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-
+    // check that the given handler is really part of the bridge
+    if (!ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
+        return;
+    }
+    // and now we can delete it
     list_del_init(&internalHandler->list);
 }
 
 void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-
+    // check that the given interface is really part of the bridge
+    if (!ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
+        return;
+    }
+    // and now we can delete it
     list_del_init(&externalInterface->list);
+}
+
+uint8_t ndlcomBridgeCheckExternalInterface(
+    struct NDLComBridge *bridge,
+    struct NDLComExternalInterface *externalInterface) {
+    // iterate all interfaces, check if the one in the argument is present
+    struct NDLComExternalInterface *it;
+    list_for_each_entry(it, &bridge->externalInterfaceList, list) {
+        if (it == externalInterface) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+uint8_t ndlcomBridgeCheckInternalHandler(
+    struct NDLComBridge *bridge,
+    struct NDLComInternalHandler *internalHandler) {
+    // iterate all handlers, check if the one in the argument is present
+    struct NDLComInternalHandler *it;
+    list_for_each_entry(it, &bridge->internalHandlerList, list) {
+        if (it == internalHandler) {
+            return 1;
+        }
+    }
+    return 0;
 }

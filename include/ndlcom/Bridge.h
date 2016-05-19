@@ -149,6 +149,8 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
 /**
  * @brief Register additional internal handlers
  *
+ * does nothing if the interface is already part of the bridge
+ *
  * @param bridge The bridge to use
  * @param internalHandler The handler to register
  */
@@ -158,6 +160,8 @@ void ndlcomBridgeRegisterInternalHandler(
 /**
  * @brief Register additional external interfaces
  *
+ * does nothing if the interface is already part of the bridge
+ *
  * @param bridge The bridge to use
  * @param externalInterface The interface to register
  */
@@ -165,10 +169,48 @@ void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface);
 
+/**
+ * @brief Remove existing InternalHandler
+ *
+ * does nothing if the handler is not part of the bridge
+ *
+ * @param bridge The bridge to use
+ * @param internalHandler The handler to deregister
+ */
 void ndlcomBridgeDeregisterInternalHandler(
     struct NDLComBridge *bridge, struct NDLComInternalHandler *internalHandler);
 
+/**
+ * @brief Remove existing ExternalInterface
+ *
+ * does nothing if the interface is not part of the bridge
+ *
+ * @param bridge The bridge to use
+ * @param externalInterface The interface to deregister
+ */
 void ndlcomBridgeDeregisterExternalInterface(
+    struct NDLComBridge *bridge,
+    struct NDLComExternalInterface *externalInterface);
+
+/**
+ * @brief check if a handler is part of a bridge
+ *
+ * @param bridge The bridge to use
+ * @param internalHandler The handler to check
+ * @return true if handler is already registered
+ */
+uint8_t
+ndlcomBridgeCheckInternalHandler(struct NDLComBridge *bridge,
+                                 struct NDLComInternalHandler *internalHandler);
+
+/**
+ * @brief check if a interface is part of a bridge
+ *
+ * @param bridge The bridge to use
+ * @param externalInterface The interface to check
+ * @return true if interface is already registered
+ */
+uint8_t ndlcomBridgeCheckExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface);
 
