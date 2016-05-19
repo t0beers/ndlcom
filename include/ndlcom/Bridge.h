@@ -165,9 +165,21 @@ void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface);
 
+/**
+ * @brief Remove existing InternalHandler
+ *
+ * @param bridge The bridge to use
+ * @param internalHandler The handler to deregister
+ */
 void ndlcomBridgeDeregisterInternalHandler(
     struct NDLComBridge *bridge, struct NDLComInternalHandler *internalHandler);
 
+/**
+ * @brief Remove existing ExternalInterface
+ *
+ * @param bridge The bridge to use
+ * @param externalInterface The interface to deregister
+ */
 void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface);
