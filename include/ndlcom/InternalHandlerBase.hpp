@@ -23,10 +23,10 @@ class BridgeHandlerBase {
     virtual ~BridgeHandlerBase();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload);
+                              const void *payload, const void *origin);
 
-    virtual void handle(const struct NDLComHeader *header,
-                        const void *payload) = 0;
+    virtual void handle(const struct NDLComHeader *header, const void *payload,
+                        const void *origin) = 0;
 
   protected:
     struct NDLComBridge &bridge;
@@ -50,10 +50,10 @@ class NodeHandlerBase {
     virtual ~NodeHandlerBase();
 
     static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload);
+                              const void *payload, const void *origin);
 
-    virtual void handle(const struct NDLComHeader *header,
-                        const void *payload) = 0;
+    virtual void handle(const struct NDLComHeader *header, const void *payload,
+                        const void *origin) = 0;
 
     void send(const NDLComId destination, const void *payload,
               const size_t length);

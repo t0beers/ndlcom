@@ -5,7 +5,7 @@
 
 /* forward declaration */
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
-                              const void *payload);
+                              const void *payload, const void *origin);
 
 void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
                     const NDLComId ownSenderId) {
@@ -61,7 +61,7 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
 }
 
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
-                              const void *payload) {
+                              const void *payload, const void *origin) {
     struct NDLComNode *node = (struct NDLComNode *)context;
     const struct NDLComInternalHandler *internalHandler;
     /*
@@ -69,9 +69,14 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
      */
     if ((header->mReceiverId == node->headerConfig.mOwnSenderId) ||
         (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
-        list_for_each_entry(internalHandler, &node->internalHandlerList, list) {
-            /* internal interfaces will see their own broadcast messages... */
-            internalHandler->handler(internalHandler->context, header, payload);
+        list_for_each_entry(internalHandler, &node->internalHandlerList, list)
+        {
+            /* InternalHandler will see their own broadcast messages if this is
+             * not disabled by a special config-flag...  Messages from the
+             * internal side can be detected by checking "origin" to be _not_
+             * zero */
+            internalHandler->handler(internalHandler->context, header, payload,
+                                     origin);
         }
     }
 }

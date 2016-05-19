@@ -26,7 +26,8 @@ extern "C" {
  */
 typedef void (*NDLComInternalHandlerFkt)(void *context,
                                          const struct NDLComHeader *header,
-                                         const void *payload);
+                                         const void *payload,
+                                         const void *origin);
 
 struct NDLComInternalHandler {
     /**

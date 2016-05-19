@@ -13,7 +13,7 @@ BridgePrintAll::BridgePrintAll(struct NDLComBridge &_bridge, std::ostream &_out)
     : BridgeHandlerBase(_bridge, _out) {}
 
 void BridgePrintAll::handle(const struct NDLComHeader *header,
-                            const void *payload) {
+                            const void *payload, const void *origin) {
     out << std::string("bridge saw message from ");
     out << std::showbase << std::hex;
     out << std::setfill('0') << std::setw(4) << std::internal
@@ -33,7 +33,7 @@ BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &_bridge,
     : BridgeHandlerBase(_bridge, _out) {}
 
 void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
-                                   const void *payload) {
+                                   const void *payload, const void *origin) {
     // broadcast receiver dont make sense... skip 'em
     if (header->mSenderId == NDLCOM_ADDR_BROADCAST) {
         return;
@@ -88,7 +88,7 @@ NodePrintOwnId::NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out)
     : NodeHandlerBase(_node, _out) {}
 
 void NodePrintOwnId::handle(const struct NDLComHeader *header,
-                            const void *payload) {
+                            const void *payload, const void *origin) {
     out << std::string("listener ");
     out << std::showbase << std::hex;
     out << std::setfill('0') << std::setw(4) << std::internal

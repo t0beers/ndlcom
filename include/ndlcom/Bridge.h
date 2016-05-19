@@ -126,13 +126,14 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge);
 size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge);
 
 /**
- * @brief tell the bridge about deviceIds used as internal
+ * @brief tell the bridge about deviceIds used by an InternalHandler
  *
  * messages to this deviceId are not longer consided as "unkown destinations"
- * and not forwarded to external interfaces anymore
+ * and not forwarded to external interfaces anymore. they are supposed to not
+ * be transmitted to the outside.
  *
- * @param bridge
- * @param deviceId
+ * @param bridge the bridge to mark on
+ * @param deviceId the deviceId which belongs to an InternalHandler
  */
 void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
                                         const NDLComId deviceId);
@@ -140,8 +141,10 @@ void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
 /**
  * @brief clear a deviceId and make its destination "unknown" again
  *
- * @param bridge
- * @param deviceId
+ * this deviceId shall no longer be handled by an InternalHandler.
+ *
+ * @param bridge the bridge to mark on
+ * @param deviceId the previously "internally" used deviceId
  */
 void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
                                        const NDLComId deviceId);

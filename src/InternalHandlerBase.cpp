@@ -14,10 +14,11 @@ BridgeHandlerBase::~BridgeHandlerBase() {
 }
 
 void BridgeHandlerBase::handleWrapper(void *context,
-                                          const struct NDLComHeader *header,
-                                          const void *payload) {
-    class BridgeHandlerBase *self = static_cast<class BridgeHandlerBase *>(context);
-    self->handle(header, payload);
+                                      const struct NDLComHeader *header,
+                                      const void *payload, const void *origin) {
+    class BridgeHandlerBase *self =
+        static_cast<class BridgeHandlerBase *>(context);
+    self->handle(header, payload, origin);
 }
 
 NodeHandlerBase::NodeHandlerBase(NDLComNode &_node, std::ostream &_out)
@@ -33,13 +34,13 @@ NodeHandlerBase::~NodeHandlerBase() {
 
 // static wrapper function for the C-callback
 void NodeHandlerBase::handleWrapper(void *context,
-                                const struct NDLComHeader *header,
-                                const void *payload) {
+                                    const struct NDLComHeader *header,
+                                    const void *payload, const void *origin) {
     class NodeHandlerBase *self = static_cast<class NodeHandlerBase *>(context);
-    self->handle(header, payload);
+    self->handle(header, payload, origin);
 }
 
-void NodeHandlerBase::send(const NDLComId destination, const void *payload,
-                       const size_t length) {
-    ndlcomNodeSend(&node, destination, payload, length);
+void NodeHandlerBase::send(const NDLComId receiverId, const void *payload,
+                           const size_t length) {
+    ndlcomNodeSend(&node, receiverId, payload, length);
 }

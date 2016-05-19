@@ -14,6 +14,8 @@ void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
     /* handle broadcastId special */
     if (receiverId == NDLCOM_ADDR_BROADCAST)
         return NDLCOM_ROUTING_ALL_INTERFACES;
+    /* note that no special range-checks are needed, as the index "receiverId"
+     * cannot get bigger or smaller than the array itself */
     return routingTable->table[receiverId];
 }
 

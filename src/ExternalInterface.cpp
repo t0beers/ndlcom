@@ -43,6 +43,7 @@ ExternalInterfaceStream::~ExternalInterfaceStream() {
 }
 
 size_t ExternalInterfaceStream::readEscapedBytes(void *buf, size_t count) {
+    // this should never happen...
     if (!fd_read) {
         return 0;
     }
@@ -129,6 +130,8 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
         throw std::runtime_error(strerror(errno));
     }
 
+    // finally use the obtained filedescriptior to fill the FILE things used by
+    // the baseclass.
     fd_read = fdopen(fd, "r");
     if (!fd_read) {
         throw std::runtime_error(strerror(errno));
@@ -182,8 +185,6 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     // conversion to ipv6 needs more than changing this... also convert all
     // calls from "inet_ntoa()" to "inet_ntop()"
     hints.ai_family = AF_INET;
-    // TODO: looks like setting this to "SOCK_STREAM" is all needed to enable
-    // tcp
     hints.ai_socktype = SOCK_DGRAM;
 
     // create the socket (which is a file descriptor):
