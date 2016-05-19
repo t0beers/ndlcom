@@ -290,28 +290,44 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
 void ndlcomBridgeRegisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-
+    // check that the given handler is not yet part of the bridge
+    if (ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
+        return;
+    }
+    // and now we can add it
     list_add(&internalHandler->list, &bridge->internalHandlerList);
 }
 
 void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-
+    // check that the given handler is not yet part of the bridge
+    if (ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
+        return;
+    }
+    // and now we can add it
     list_add(&externalInterface->list, &bridge->externalInterfaceList);
 }
 
 void ndlcomBridgeDeregisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-
+    // check that the given handler is really part of the bridge
+    if (!ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
+        return;
+    }
+    // and now we can delete it
     list_del_init(&internalHandler->list);
 }
 
 void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-
+    // check that the given interface is really part of the bridge
+    if (!ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
+        return;
+    }
+    // and now we can delete it
     list_del_init(&externalInterface->list);
 }
 

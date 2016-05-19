@@ -149,6 +149,8 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
 /**
  * @brief Register additional internal handlers
  *
+ * does nothing if the interface is already part of the bridge
+ *
  * @param bridge The bridge to use
  * @param internalHandler The handler to register
  */
@@ -157,6 +159,8 @@ void ndlcomBridgeRegisterInternalHandler(
 
 /**
  * @brief Register additional external interfaces
+ *
+ * does nothing if the interface is already part of the bridge
  *
  * @param bridge The bridge to use
  * @param externalInterface The interface to register
@@ -168,6 +172,8 @@ void ndlcomBridgeRegisterExternalInterface(
 /**
  * @brief Remove existing InternalHandler
  *
+ * does nothing if the handler is not part of the bridge
+ *
  * @param bridge The bridge to use
  * @param internalHandler The handler to deregister
  */
@@ -176,6 +182,8 @@ void ndlcomBridgeDeregisterInternalHandler(
 
 /**
  * @brief Remove existing ExternalInterface
+ *
+ * does nothing if the interface is not part of the bridge
  *
  * @param bridge The bridge to use
  * @param externalInterface The interface to deregister
