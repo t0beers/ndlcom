@@ -328,8 +328,12 @@ void ndlcomBridgeDeregisterExternalInterface(
     if (!ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
         return;
     }
+    // at first remove the known destination from the routing table
+    ndlcomRoutingTableInvalidateInterface(&bridge->routingTable,
+                                            externalInterface);
     // and now we can delete it
     list_del_init(&externalInterface->list);
+
 }
 
 uint8_t ndlcomBridgeCheckExternalInterface(
