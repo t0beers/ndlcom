@@ -138,7 +138,7 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
                                        const struct NDLComHeader *header,
                                        const void *payload, void *origin) {
     /* used as loop-variable for the lists */
-    struct NDLComInternalHandler *internalHandler;
+    struct NDLComInternalHandler *internalHandler, *temp;
 
     /*
      * First thing to do: forward/transmit outgoing messages on the actual
@@ -147,7 +147,8 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
     /* call the internal handlers to handle the message */
-    list_for_each_entry(internalHandler, &bridge->internalHandlerList, list) {
+    list_for_each_entry_safe(internalHandler, temp,
+                             &bridge->internalHandlerList, list) {
         /*
          * internal handler can opt-out from seeing messages sent by other
          * callers on the internal side. in this case (flag is set), we compare
@@ -268,9 +269,9 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge) {
 size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge) {
 
     size_t bytesReadOverall = 0;
-    struct NDLComExternalInterface *externalInterface;
-    list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
-                        list) {
+    struct NDLComExternalInterface *externalInterface, *temp;
+    list_for_each_entry_safe(externalInterface, temp,
+                             &bridge->externalInterfaceList, list) {
         bytesReadOverall +=
             ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
     }
