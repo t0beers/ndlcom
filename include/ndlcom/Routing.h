@@ -59,7 +59,6 @@ void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
  * @param routingTable the table to work on
  * @param senderId the id of the sender of an incoming packet
  * @param pInterface the id of the interface on which the packet was received
- * @return none
  */
 void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
                               const NDLComId senderId, void *pInterface);
