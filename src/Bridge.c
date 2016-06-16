@@ -261,10 +261,24 @@ size_t ndlcomBridgeProcessExternalInterface(
              * next packet.
              */
             ndlcomParserDestroyPacket(&externalInterface->parser);
+
+            /**
+             * Problem: If some InternalHandler deregistered this
+             * ExternalInterface, we should not proceed parsing any residual
+             * bytes, mayhem would ensue.
+             *
+             * So we need to double-check if this interface is still connected
+             * to the "externalInterface" list. It is not connected if the
+             * ExternalInterface itself forms an empty list, as list_del_init()
+             * is called below.
+             */
+            if (list_empty(&externalInterface->list)) {
+                break;
+            }
         }
 
     } while (bytesRead != bytesProcessed);
-    return bytesRead;
+    return bytesProcessed;
 }
 
 /*
