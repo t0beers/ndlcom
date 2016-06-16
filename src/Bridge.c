@@ -14,6 +14,27 @@
 #define NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE NDLCOM_MAX_ENCODED_MESSAGE_SIZE
 #endif
 
+/**
+ * this helper macro is kinda hacky, written to solve a problem at hand without
+ * really understanding the implications... well, it is how it is...
+ *
+ * problem was that an internal handler (like a "register value write post
+ * callback") could decide to remove an existing interface. which is bad, it
+ * can cause endless loops if the wrong one is removed because it is no longer
+ * connected to the rest of the list, but just an "empty linked list", "next"
+ * and "prev" pointing to itself.
+ *
+ * ua, i hope this trickery just works...
+ */
+#define CHECK_LIST_IN_LOOP(first, second, listname)                            \
+    if (list_empty(&first->listname)) {                                        \
+        first = second;                                                        \
+        continue;                                                              \
+    } else if (list_empty(&second->listname)) {                                \
+        second = first;                                                        \
+        continue;                                                              \
+    }
+
 void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
     /* initialize all the list we have */
@@ -138,7 +159,7 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
                                        const struct NDLComHeader *header,
                                        const void *payload, void *origin) {
     /* used as loop-variable for the lists */
-    struct NDLComInternalHandler *internalHandler;
+    struct NDLComInternalHandler *internalHandler, *temp;
 
     /*
      * First thing to do: forward/transmit outgoing messages on the actual
@@ -147,7 +168,8 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
     /* call the internal handlers to handle the message */
-    list_for_each_entry(internalHandler, &bridge->internalHandlerList, list) {
+    list_for_each_entry_safe(internalHandler, temp,
+                             &bridge->internalHandlerList, list) {
         /*
          * internal handler can opt-out from seeing messages sent by other
          * callers on the internal side. in this case (flag is set), we compare
@@ -158,6 +180,8 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
             (origin != bridge)) {
             internalHandler->handler(internalHandler->context, header, payload,
                                      origin);
+            // guard against removal of handlers by other handlers...
+            CHECK_LIST_IN_LOOP(internalHandler, temp, list);
         }
     }
 }
@@ -237,10 +261,24 @@ size_t ndlcomBridgeProcessExternalInterface(
              * next packet.
              */
             ndlcomParserDestroyPacket(&externalInterface->parser);
+
+            /**
+             * Problem: If some InternalHandler deregistered this
+             * ExternalInterface, we should not proceed parsing any residual
+             * bytes, mayhem would ensue.
+             *
+             * So we need to double-check if this interface is still connected
+             * to the "externalInterface" list. It is not connected if the
+             * ExternalInterface itself forms an empty list, as list_del_init()
+             * is called below.
+             */
+            if (list_empty(&externalInterface->list)) {
+                break;
+            }
         }
 
     } while (bytesRead != bytesProcessed);
-    return bytesRead;
+    return bytesProcessed;
 }
 
 /*
@@ -268,11 +306,13 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge) {
 size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge) {
 
     size_t bytesReadOverall = 0;
-    struct NDLComExternalInterface *externalInterface;
-    list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
-                        list) {
+    struct NDLComExternalInterface *externalInterface, *temp;
+    list_for_each_entry_safe(externalInterface, temp,
+                             &bridge->externalInterfaceList, list) {
         bytesReadOverall +=
             ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
+        // guard against removal of handlers by other handlers...
+        CHECK_LIST_IN_LOOP(externalInterface, temp, list);
     }
     return bytesReadOverall;
 }
@@ -328,8 +368,12 @@ void ndlcomBridgeDeregisterExternalInterface(
     if (!ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
         return;
     }
+    // at first remove the known destination from the routing table
+    ndlcomRoutingTableInvalidateInterface(&bridge->routingTable,
+                                            externalInterface);
     // and now we can delete it
     list_del_init(&externalInterface->list);
+
 }
 
 uint8_t ndlcomBridgeCheckExternalInterface(

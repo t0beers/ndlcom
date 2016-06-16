@@ -59,10 +59,24 @@ void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
  * @param routingTable the table to work on
  * @param senderId the id of the sender of an incoming packet
  * @param pInterface the id of the interface on which the packet was received
- * @return none
  */
 void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
                               const NDLComId senderId, void *pInterface);
+
+/**
+ * @brief removing interfaces from the routing table
+ *
+ * after phyiscally disconnecting an existing interface, the routing table may
+ * still contain an entry for the previously existing interface. this should be
+ * circumvented by this function. it clears all entries containing the given
+ * pInterface from the given routingTable, sets them to "unknown" again.
+ *
+ * @param routingTable the table to work on
+ * @param pInterface the entry which will be overwritten with NDLCOM_ROUTING_ALL_INTERFACES
+ */
+void
+ndlcomRoutingTableInvalidateInterface(struct NDLComRoutingTable *routingTable,
+                                      void *pInterface);
 
 #if defined(__cplusplus)
 }

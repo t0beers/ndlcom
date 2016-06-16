@@ -31,3 +31,17 @@ void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
         return;
     routingTable->table[senderId] = pInterface;
 }
+
+void
+ndlcomRoutingTableInvalidateInterface(struct NDLComRoutingTable *routingTable,
+                                        void *pInterface){
+
+    int i;
+    /* someone wants the given interface to vanish from the current routing
+     * table... easy enough, lets go: */
+    for (i = 0; i < NDLCOM_MAX_NUMBER_OF_DEVICES; ++i) {
+        if (routingTable->table[i] == pInterface) {
+            routingTable->table[i] = NDLCOM_ROUTING_ALL_INTERFACES;
+        }
+    }
+}
