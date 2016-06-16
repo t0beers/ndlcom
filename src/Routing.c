@@ -1,20 +1,24 @@
+/**
+ * @file src/Routing.c
+ */
 #include "ndlcom/Routing.h"
 
 void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable) {
-
+    int i;
     /* before we know anything about the world we have to default to "all
      * interfaces" for all deviceIds */
-    int i;
-    for (i = 0; i < NDLCOM_MAX_NUMBER_OF_DEVICES; ++i)
+    for (i = 0; i < NDLCOM_MAX_NUMBER_OF_DEVICES; ++i) {
         routingTable->table[i] = NDLCOM_ROUTING_ALL_INTERFACES;
+    }
 }
 
 void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
                                   const NDLComId receiverId) {
     /* handle broadcastId special */
-    if (receiverId == NDLCOM_ADDR_BROADCAST)
+    if (receiverId == NDLCOM_ADDR_BROADCAST) {
         return NDLCOM_ROUTING_ALL_INTERFACES;
-    /* note that no special range-checks are needed, as the index "receiverId"
+    }
+    /* Note: No special range-checks are needed, as the index "receiverId"
      * cannot get bigger or smaller than the array itself */
     return routingTable->table[receiverId];
 }
@@ -27,15 +31,15 @@ void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
      * someone queries the table for the NDLCOM_ADDR_BROADCAST.
      *
      * could add a check to not use our own senderId accidentally... */
-    if (senderId == NDLCOM_ADDR_BROADCAST)
+    if (senderId == NDLCOM_ADDR_BROADCAST) {
         return;
+    }
     routingTable->table[senderId] = pInterface;
 }
 
 void
 ndlcomRoutingTableInvalidateInterface(struct NDLComRoutingTable *routingTable,
-                                        void *pInterface){
-
+                                      void *pInterface) {
     int i;
     /* someone wants the given interface to vanish from the current routing
      * table... easy enough, lets go: */
