@@ -14,6 +14,27 @@
 #define NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE NDLCOM_MAX_ENCODED_MESSAGE_SIZE
 #endif
 
+/**
+ * this helper macro is kinda hacky, written to solve a problem at hand without
+ * really understanding the implications... well, it is how it is...
+ *
+ * problem was that an internal handler (like a "register value write post
+ * callback") could decide to remove an existing interface. which is bad, it
+ * can cause endless loops if the wrong one is removed because it is no longer
+ * connected to the rest of the list, but just an "empty linked list", "next"
+ * and "prev" pointing to itself.
+ *
+ * ua, i hope this trickery just works...
+ */
+#define CHECK_LIST_IN_LOOP(first, second, listname)                            \
+    if (list_empty(&first->listname)) {                                        \
+        first = second;                                                        \
+        continue;                                                              \
+    } else if (list_empty(&second->listname)) {                                \
+        second = first;                                                        \
+        continue;                                                              \
+    }
+
 void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
     /* initialize all the list we have */
@@ -159,6 +180,8 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
             (origin != bridge)) {
             internalHandler->handler(internalHandler->context, header, payload,
                                      origin);
+            // guard against removal of handlers by other handlers...
+            CHECK_LIST_IN_LOOP(internalHandler, temp, list);
         }
     }
 }
@@ -274,6 +297,8 @@ size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge) {
                              &bridge->externalInterfaceList, list) {
         bytesReadOverall +=
             ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
+        // guard against removal of handlers by other handlers...
+        CHECK_LIST_IN_LOOP(externalInterface, temp, list);
     }
     return bytesReadOverall;
 }
