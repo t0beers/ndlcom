@@ -1,8 +1,6 @@
 /**
  * @file include/ndlcom/HeaderPrepare.h
- * @date 2011
  */
-
 #ifndef NDLCOM_HEADER_PREPARE_H
 #define NDLCOM_HEADER_PREPARE_H
 
@@ -13,16 +11,15 @@ extern "C" {
 #endif
 
 /**
- * @brief The NDLCom-protocol defines the packet-counter variable.
+ * @brief Every NDLCom packet carries a packet counter
  *
- * it has to be incremented for each packet transmitted to a received node -
- * regardless of the payload used in the packet. Therefore, a
- * table is used to fill the correct packet counter. It is essentially
- * an array with one entry for each node, storing the last used packet counter.
+ * It has to be incremented for each packet transmitted to a specific
+ * receiverId -- regardless of the payload used in the packet. Therefore, a
+ * table is used to fill the last used packet counter for every receiver.
  *
- * Keeps track of used counters and has the default sender id which should be
- * used in packet headers.  Do not access the members directly, use the
- * function below to do so.
+ * It keeps track of used counters and also stored the default ownSenderIid
+ * which should be used in packet headers. Do not modify the members directly,
+ * use the functions below to do so.
  */
 struct NDLComHeaderConfig {
     /** a table with the current counter for each target-device */
@@ -32,36 +29,33 @@ struct NDLComHeaderConfig {
 };
 
 /**
- * @brief Set default sender id.
+ * @brief Set ownSenderId and initialize the packet counters
  *
- * NOTE: when changing the senderId (personality), the routing table should
- * also be cleared (and it is in this function).
+ * NOTE: When changing the senderId (personality), the routing table has to be
+ * cleared as well. This is _not_ done in this function!
  *
- * @param config pointer to the struct to initialize
- * @param senderId the new id to store in the static NDLComHeaderConfig
+ * @param config Pointer to the struct to initialize
+ * @param ownSenderId The new deviceId to store
  */
 void ndlcomHeaderPrepareInit(struct NDLComHeaderConfig *config,
-                             const NDLComId senderId);
+                             const NDLComId ownSenderId);
 
 /**
  * @brief Set all fields of the header.
+ *
  * Since this function increments the packet counter in the header,
  * you should actually send the packet to the receiver.
- * @param pHeader This data structure will be modified
- * @param receiverId Receiver Id.
- * @param dataLength Length of data packet (often the size of a c-struct).
- * @param pConfig Pointer to a structure holding the sender id and
+ *
+ * @param config Pointer to a structure holding the sender id and
  *                keeping track of packet counters.
+ * @param header This data structure will be modified
+ * @param receiverId Intended receiverId.
+ * @param dataLength Length of the payload to be sent
  */
-static inline void ndlcomHeaderPrepare(struct NDLComHeaderConfig *pConfig,
-                                       struct NDLComHeader *pHeader,
-                                       const NDLComId receiverId,
-                                       const NDLComDataLen dataLength) {
-    pHeader->mReceiverId = receiverId;
-    pHeader->mSenderId = pConfig->mOwnSenderId;
-    pHeader->mCounter = pConfig->mCounterForReceiver[receiverId]++;
-    pHeader->mDataLen = dataLength;
-}
+void ndlcomHeaderPrepare(struct NDLComHeaderConfig *config,
+                         struct NDLComHeader *header,
+                         const NDLComId receiverId,
+                         const NDLComDataLen dataLength);
 
 #if defined(__cplusplus)
 }
