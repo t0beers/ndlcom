@@ -82,7 +82,7 @@ void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
  */
 void
 ndlcomRoutingTableInvalidateInterface(struct NDLComRoutingTable *routingTable,
-                                      void *pInterface);
+                                      const void *pInterface);
 
 #if defined(__cplusplus)
 }

@@ -39,7 +39,7 @@ void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
 
 void
 ndlcomRoutingTableInvalidateInterface(struct NDLComRoutingTable *routingTable,
-                                      void *pInterface) {
+                                      const void *pInterface) {
     int i;
     /* someone wants the given interface to vanish from the current routing
      * table... easy enough, lets go: */
