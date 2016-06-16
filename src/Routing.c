@@ -14,11 +14,11 @@ void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable) {
 
 void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
                                   const NDLComId receiverId) {
-    /* handle broadcastId special */
-    if (receiverId == NDLCOM_ADDR_BROADCAST) {
-        return NDLCOM_ROUTING_ALL_INTERFACES;
-    }
-    /* Note: No special range-checks are needed, as the index "receiverId"
+    /* The broadcast address is not handled in any special way, we rely
+     * on the initial value of NDLCOM_ROUTING_ALL_INTERFACES still present in
+     * this location.
+     *
+     * No special range-checks are needed, as the index "receiverId"
      * cannot get bigger or smaller than the array itself */
     return routingTable->table[receiverId];
 }
