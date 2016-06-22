@@ -39,6 +39,20 @@ class ExternalInterfaceBase {
 
   protected:
     std::ostream &out;
+
+    /**
+     * a common error-reporting function, which shall be used to report
+     * non-recoverable errors. the default implementation will "throw" a
+     * properly formatted string.
+     *
+     * @param error Description of the error which occured
+     * @param file the filename, preferably from the __FILE__ macro
+     * @param line the linenumber, preferably from the __LINE__ macro
+     *
+     * shall not return?
+     */
+    virtual void reportRuntimeError(const std::string &error, const std::string &file,
+                                    const int &line) const;
 };
 }
 

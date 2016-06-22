@@ -4,6 +4,7 @@
 #include <cstring>
 #include <errno.h>
 #include <cstdio>
+#include <sstream>
 
 using namespace ndlcom;
 
@@ -35,4 +36,12 @@ size_t ExternalInterfaceBase::readWrapper(void *context, void *buf,
     class ExternalInterfaceBase *self =
         static_cast<class ExternalInterfaceBase *>(context);
     return self->readEscapedBytes(buf, count);
+}
+
+void ExternalInterfaceBase::reportRuntimeError(const std::string &error,
+                                               const std::string &file,
+                                               const int &line) const {
+    std::stringstream ss;
+    ss << file << ":" << line << " -- " << error;
+    throw std::runtime_error(ss.str());
 }

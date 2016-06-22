@@ -6,7 +6,6 @@
  */
 #include "ndlcom/ExternalInterface.hpp"
 
-#include <stdexcept>
 #include <cstring>
 #include <errno.h>
 #include <cstdio>
@@ -53,8 +52,9 @@ size_t ExternalInterfaceStream::readEscapedBytes(void *buf, size_t count) {
             if (errno == EAGAIN) {
                 return 0;
             } else {
-                throw std::runtime_error("error during fread(): " +
-                                         std::string(strerror(errno)));
+                reportRuntimeError("error during fread(): " +
+                                       std::string(strerror(errno)),
+                                   __FILE__, __LINE__);
             }
         } else {
             return 0;
@@ -73,8 +73,9 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
         size_t written = fwrite((const char *)buf + alreadyWritten,
                                 sizeof(char), count - alreadyWritten, fd_write);
         if (written == 0) {
-            throw std::runtime_error("no bytes written by fwrite(): " +
-                                     std::string(strerror(errno)));
+            reportRuntimeError("no bytes written by fwrite(): " +
+                                   std::string(strerror(errno)),
+                               __FILE__, __LINE__);
         }
         alreadyWritten += written;
     }
@@ -83,8 +84,9 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     // happily write into a not-anymore existing symlink, reporting as if
     // nothing happend and all is shiny...
     if (std::ferror(fd_write)) {
-        throw std::runtime_error("error after fwrite(): " +
-                                 std::string(strerror(errno)));
+        reportRuntimeError("error after fwrite(): " +
+                               std::string(strerror(errno)),
+                           __FILE__, __LINE__);
     }
     /* out << "stream wrote " << (int)count << " bytes\n"; */
     return;
@@ -97,17 +99,17 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
     : ExternalInterfaceStream(_bridge, flags) {
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // save oldtio
     int rc = tcgetattr(fd, &oldtio);
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // exclusive access
     rc = ioctl(fd, TIOCEXCL);
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // prepare newtio
     struct termios newtio = oldtio;
@@ -118,27 +120,27 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
     // set speed
     rc = cfsetspeed(&newtio, baudrate);
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // flush (ie: discard old) the port and set new settings
     rc = tcflush(fd, TCIOFLUSH);
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     rc = tcsetattr(fd, TCSANOW, &newtio);
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
     // finally use the obtained filedescriptior to fill the FILE things used by
     // the baseclass.
     fd_read = fdopen(fd, "r");
     if (!fd_read) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     fd_write = fdopen(fd, "r+");
     if (!fd_write) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
 
@@ -154,21 +156,21 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
                                         std::string device_name, uint8_t flags)
     : ExternalInterfaceStream(_bridge) {
     if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
-        throw std::runtime_error(
-            "fpga module does only support default flags?");
+        reportRuntimeError("fpga module does only support default flags?",
+                           __FILE__, __LINE__);
     }
     // does non-blocking read work?
     fd = open(device_name.c_str(), O_RDWR | O_NDELAY);
     if (fd == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     fd_read = fdopen(fd, "r");
     if (!fd_read) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     fd_write = fdopen(fd, "r+");
     if (!fd_write) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
 
@@ -190,7 +192,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     // create the socket (which is a file descriptor):
     fd = socket(hints.ai_family, SOCK_NONBLOCK | hints.ai_socktype, 0);
     if (fd == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
     // NOTE: the structure returned into this pointer needs to be freed later!
@@ -198,7 +200,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     // try to resolve the hostname-string
     if (int retval =
             getaddrinfo(hostname.c_str(), NULL, &hints, &result) != 0) {
-        throw std::runtime_error(gai_strerror(retval));
+        reportRuntimeError(gai_strerror(retval), __FILE__, __LINE__);
     }
 
     // FIXME: if multiple results are provided: how to choose?
@@ -227,7 +229,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     // will receive from this address -- UDP, form any IP and the given port
     if (bind(fd, (struct sockaddr *)&addr_in, sizeof(struct sockaddr_in)) ==
         -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
     // "inet_ntoa()" does have an internal char-array, we cannot call it twice
@@ -265,7 +267,7 @@ again:
             return 0;
         }
         // TODO: is this correct?
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     /* out << "read " << bytesRead << " bytes from '" */
     /*     << inet_ntoa(addr_recv.sin_addr) << ":" << ntohs(addr_recv.sin_port)
@@ -308,7 +310,7 @@ again:
                 // that we know what we do...
                 return;
             }
-            throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
         /* out << "wrote " << written << " bytes to '" */
         /*     << inet_ntoa(addr_out.sin_addr) << ":" <<
@@ -335,47 +337,49 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
     if (fd_in == -1) {
         // fifo might not be there yet, try again
         if (mkfifo(pipename_rx.c_str(), 0644) != 0) {
-            throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
         // remember to delete the pipe later
         unlinkRxPipeInDtor = true;
         fd_in = open(pipename_rx.c_str(), O_RDWR | O_NDELAY);
         if (fd_in == -1) {
-            throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
     }
     if (fstat(fd_in, &status_in) == -1) {
-        throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-    if (!S_ISFIFO(status_in.st_mode))
-        throw std::runtime_error(pipename_rx + " is not a fifo?");
+    if (!S_ISFIFO(status_in.st_mode)) {
+        reportRuntimeError(pipename_rx + " is not a fifo?", __FILE__, __LINE__);
+    }
 
     int fd_out = open(pipename_tx.c_str(), O_RDWR | O_NDELAY);
     if (fd_out == -1) {
         if (mkfifo(pipename_tx.c_str(), 0644) != 0) {
-            throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
         // remember to delete the pipe later
         unlinkTxPipeInDtor = true;
         fd_out = open(pipename_tx.c_str(), O_RDWR | O_NDELAY);
         if (fd_out == -1) {
-            throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
     }
     if (fstat(fd_out, &status_out) == -1) {
-        throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-    if (!S_ISFIFO(status_out.st_mode))
-        throw std::runtime_error(pipename_tx + " is not a fifo?");
+    if (!S_ISFIFO(status_out.st_mode)) {
+        reportRuntimeError(pipename_tx + " is not a fifo?", __FILE__, __LINE__);
+    }
 
     // convert the file-descriptors to streams
     str_in = fdopen(fd_in, "r");
     if (!str_in) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     str_out = fdopen(fd_out, "r+");
     if (!str_out) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
 
@@ -424,7 +428,7 @@ size_t ExternalInterfacePipe::readEscapedBytes(void *buf, size_t count) {
             /*           << " from " << amount << "bytes\n"; */
             ((uint8_t *)buf)[readSoFar++] = (uint8_t)byte;
         } else {
-            throw std::runtime_error("huh? I'm lost");
+            reportRuntimeError("huh? I'm lost", __FILE__, __LINE__);
         }
     }
 
@@ -460,17 +464,17 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
     // systemcalls... but this needs us to link against "-lutil"...
     pty_fd = posix_openpt(O_RDWR | O_NOCTTY);
     if (pty_fd < 0) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // grant slaves access
     rc = grantpt(pty_fd);
     if (rc != 0) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // allow slave access
     rc = unlockpt(pty_fd);
     if (rc != 0) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
     // O_NONBLOCKing access as usual
@@ -490,11 +494,11 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
     // fdopen for the base-class
     fd_read = fdopen(pty_fd, "r");
     if (!fd_read) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     fd_write = fdopen(pty_fd, "r+");
     if (!fd_write) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
     out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
@@ -516,24 +520,25 @@ void ExternalInterfacePty::cleanSymlink() const {
     struct stat buf;
     rc = lstat(symlinkname.c_str(), &buf);
     if (rc != 0) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // the "symlinkname" is a symlink...
     char symlinktargetname[PATH_MAX + 1] = {0};
     // checking where it points to:
     rc = readlink(symlinkname.c_str(), symlinktargetname, buf.st_size + 1);
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     if (std::string(symlinktargetname) != std::string(ptsname(pty_fd))) {
-        throw std::runtime_error(
+        reportRuntimeError(
             "unmatching symlink '" + symlinkname + "', pointing to '" +
-            std::string(symlinktargetname) + "' instead of '" +
-            std::string(ptsname(pty_fd)) + "'");
+                std::string(symlinktargetname) + "' instead of '" +
+                std::string(ptsname(pty_fd)) + "'",
+            __FILE__, __LINE__);
     }
     rc = unlink(symlinkname.c_str());
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
 
@@ -547,8 +552,9 @@ void ExternalInterfacePty::prepareSymlink() const {
     rc = lstat(symlinkname.c_str(), &buf);
     if (rc != 0) {
         if (errno != ENOENT) {
-            throw std::runtime_error("proposed symlinkname '" + symlinkname +
-                                     "' present but not a symlink");
+            reportRuntimeError("proposed symlinkname '" + symlinkname +
+                                   "' present but not a symlink",
+                               __FILE__, __LINE__);
         }
     } else {
         // the "symlinkname" is a symlink...
@@ -557,18 +563,19 @@ void ExternalInterfacePty::prepareSymlink() const {
         rc = readlink(symlinkname.c_str(), symlinktargetname, buf.st_size + 1);
         if (rc == -1) {
             if (errno == EINVAL) {
-                throw std::runtime_error("proposed symlinkname '" +
-                                         symlinkname +
-                                         "' present but not a symlink");
+                reportRuntimeError("proposed symlinkname '" + symlinkname +
+                                       "' present but not a symlink",
+                                   __FILE__, __LINE__);
             }
         }
         // and obtain information about its target:
         rc = stat(symlinktargetname, &buf);
         // now: IFF the symlink is invlid we may delete it and continue...
         if (rc != 0) {
-            throw std::runtime_error("given symlink '" + symlinkname +
-                                     "' is still pointing to '" +
-                                     std::string(symlinktargetname) + "'");
+            reportRuntimeError("given symlink '" + symlinkname +
+                                   "' is still pointing to '" +
+                                   std::string(symlinktargetname) + "'",
+                               __FILE__, __LINE__);
         } else {
             out << "ExternalInterfacePty: symlink '" << symlinkname
                 << "' was pointing to '" << symlinktargetname
@@ -577,13 +584,13 @@ void ExternalInterfacePty::prepareSymlink() const {
         // delete the old symlink:
         rc = unlink(symlinkname.c_str());
         if (rc == -1) {
-            throw std::runtime_error(strerror(errno));
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
     }
     // and finally: create a new symlink pointing to our pty:
     rc = symlink(ptsname(pty_fd), symlinkname.c_str());
     if (rc == -1) {
-        throw std::runtime_error(strerror(errno));
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
 
@@ -602,8 +609,9 @@ size_t ExternalInterfacePty::readEscapedBytes(void *buf, size_t count) {
                 // race condition...
                 return 0;
             } else {
-                throw std::runtime_error("error during fread(): " +
-                                         std::string(strerror(errno)));
+                reportRuntimeError("error during fread(): " +
+                                       std::string(strerror(errno)),
+                                   __FILE__, __LINE__);
             }
         } else {
             return 0;
