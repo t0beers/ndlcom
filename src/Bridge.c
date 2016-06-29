@@ -122,6 +122,11 @@ static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
              * The respective entries cannot be updated as long as all the
              * other interfaces do not receive random messages. Spoils random
              * testing a bit.
+             *
+             * This also happens when a device changes its location in the
+             * network updating the routing table after receiving this message
+             * in the first place and reaching here during handling. So
+             * virtually never...
              */
         } else if (destination == (void *)bridge) {
             /**
