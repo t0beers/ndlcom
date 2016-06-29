@@ -92,8 +92,7 @@ static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
      * First case: Broadcast or unknown destination. We are asked to send to
      * all known interfaces excluding the originating interface of the message.
      */
-    if ((header->mReceiverId == NDLCOM_ADDR_BROADCAST) ||
-        (destination == NDLCOM_ROUTING_ALL_INTERFACES)) {
+    if (destination == NDLCOM_ROUTING_ALL_INTERFACES) {
         /* loop through all interfaces */
         list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                             list) {
