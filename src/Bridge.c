@@ -34,16 +34,6 @@
         continue;                                                              \
     }
 
-void ndlcomBridgeInit(struct NDLComBridge *bridge) {
-
-    /* Initialize all the lists we have */
-    INIT_LIST_HEAD(&bridge->internalHandlerList);
-    INIT_LIST_HEAD(&bridge->externalInterfaceList);
-
-    /* And initialize the RoutingTable */
-    ndlcomRoutingTableInit(&bridge->routingTable);
-}
-
 /* Helper function. Cements the hack of putting the bridge-pointer itself into
  * the routing table */
 int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
@@ -193,21 +183,6 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     }
 }
 
-/* inserting new messages into the bridge */
-void ndlcomBridgeSendRaw(struct NDLComBridge *bridge, const struct NDLComHeader
-        *header, const void *payload) {
-    /*
-     * Inserting new messages into the bridge. By using the "bridge" itself as
-     * origin, we can later detect messages which are not coming from one of
-     * the external interfaces.
-     *
-     * NOTE: We could also call "ndlcomBridgeProcessOutgoingMessage()" instead.
-     * This would prevent internal interfaces from being able to see messages
-     * originating from inside...
-     */
-    ndlcomBridgeProcessDecodedMessage(bridge, header, payload, bridge);
-}
-
 /* reading and parsing bytes from one external interface */
 size_t ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge,
@@ -287,6 +262,32 @@ size_t ndlcomBridgeProcessExternalInterface(
 
     } while (bytesRead != bytesProcessed);
     return bytesProcessed;
+}
+
+void ndlcomBridgeInit(struct NDLComBridge *bridge) {
+
+    /* Initialize all the lists we have */
+    INIT_LIST_HEAD(&bridge->internalHandlerList);
+    INIT_LIST_HEAD(&bridge->externalInterfaceList);
+
+    /* And initialize the RoutingTable */
+    ndlcomRoutingTableInit(&bridge->routingTable);
+}
+
+/* inserting new messages into the bridge */
+void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
+                         const struct NDLComHeader *header,
+                         const void *payload) {
+    /*
+     * Inserting new messages into the bridge. By using the "bridge" itself as
+     * origin, we can later detect messages which are not coming from one of
+     * the external interfaces.
+     *
+     * NOTE: We could also call "ndlcomBridgeProcessOutgoingMessage()" instead.
+     * This would prevent internal interfaces from being able to see messages
+     * originating from inside...
+     */
+    ndlcomBridgeProcessDecodedMessage(bridge, header, payload, bridge);
 }
 
 /*
