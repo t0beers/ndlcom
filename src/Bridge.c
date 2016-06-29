@@ -36,8 +36,8 @@
 
 /* Helper function. Cements the hack of putting the bridge-pointer itself into
  * the routing table */
-int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
-                                const NDLComId deviceId) {
+static inline int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
+                                              const NDLComId deviceId) {
     return (ndlcomRoutingGetDestination(&bridge->routingTable, deviceId) !=
             bridge);
 }
@@ -47,7 +47,7 @@ int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
  * assembled externally and inserted using "ndlcomBridgeSendRaw()" they pass
  * through this function.
  */
-void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
+static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                                         const struct NDLComHeader *header,
                                         const void *payload, void *origin) {
     /* used as loop-variable for the lists */
@@ -152,9 +152,10 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
  * NOTE: "origin" can be either be a pointer to one of the external interfaces
  * or the "bridge" pointer itself, if it comes from internal.
  */
-void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
-                                       const struct NDLComHeader *header,
-                                       const void *payload, void *origin) {
+static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
+                                              const struct NDLComHeader *header,
+                                              const void *payload,
+                                              void *origin) {
     /* used as loop-variable for the lists */
     struct NDLComInternalHandler *internalHandler, *temp;
 
@@ -184,7 +185,7 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
 }
 
 /* reading and parsing bytes from one external interface */
-size_t ndlcomBridgeProcessExternalInterface(
+static size_t ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
 
