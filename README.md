@@ -20,18 +20,26 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ## History
 
-Developed at DFKI in the iStruct and SeeGrip projects, beginning in 2010. To obtain something more profound like presentations and papers see the [documents](https://git.hb.dfki.de/istruct/documents/blob/master) repository.
+Developed at DFKI in the iStruct and SeeGrip projects, beginning in 2010. To
+obtain something more profound like presentations and papers see the
+[documents](https://git.hb.dfki.de/istruct/documents/blob/master) repository.
+
+The C "core" code is written with the embedded/bare-metal case in mind: There is
+no dynamic memory involved, no C++, no locking and no multi threading. C++ code
+is provided for POSIX systems to create actually usefull software.
 
 ## Structure
 
 Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Makefile acting as a cmake-wrapper, just call `make` and it will probably do the right thing. To generate doxygen-documentation call `make doc`, to install all files into the default-directory `~/DFKI.install` do `make install`.
 
 - `src` Contains all source files of the library
-- `test` some crude limited programs used for testing and benchmarking, called using `make test`
-- `include/ndlcom` Contains all headers used in the library.
-- `doc` some documentation, which `doc/tex` containing the tikz-sources for the graphics
-- `tools` contains useful ready-made tools, some are used in the folder `scripts`
+- `test` Limited programs used for testing and benchmarking, called using `make test`
+- `include/ndlcom` Contains all external headers used in the library.
+- `doc` Some documentation, with `doc/tex` containing the tikz-sources for graphics
+- `scripts` Some tooling and testing scripts which fit nowhere else
+- `tools` Contains useful ready-made tools for actual usage, some are used in the folder `scripts`
 - `build/...` The default target directory used during the build process, temporary content
+- `DFKI.install` The default installation directory, set by the provided wrapper [Makefile](Makefile)
 
 ## Usage
 

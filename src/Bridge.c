@@ -8,23 +8,22 @@
  * "read()" of the external interfaces during parsing. The size of one encoded
  * message seems like a good guess...
  *
- * NOTE: Can be influenced at compile-time to safe some space on the stack.
+ * NOTE: Could be influenced at compile-time to safe some space on the stack.
  */
 #ifndef NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE
 #define NDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE NDLCOM_MAX_ENCODED_MESSAGE_SIZE
 #endif
 
 /**
- * this helper macro is kinda hacky, written to solve a problem at hand without
- * really understanding the implications... well, it is how it is...
+ * @brief Helper macro written to solve a problem at hand...
  *
- * problem was that an internal handler (like a "register value write post
- * callback") could decide to remove an existing interface. which is bad, it
- * can cause endless loops if the wrong one is removed because it is no longer
- * connected to the rest of the list, but just an "empty linked list", "next"
- * and "prev" pointing to itself.
+ * Problem is that an InternalHandler (like a "post register value write
+ * callback") could decide to remove an existing ExternalInterface from the
+ * bridge. Which is bad, it can cause endless loops if the wrong one is removed
+ * because it is no longer connected to the rest of the list, but just an
+ * "empty linked list" on its own, "next" and "prev" pointing to itself.
  *
- * ua, i hope this trickery just works...
+ * Ua, I hope this trickery just works...
  */
 #define CHECK_LIST_IN_LOOP(first, second, listname)                            \
     if (list_empty(&first->listname)) {                                        \
@@ -35,20 +34,10 @@
         continue;                                                              \
     }
 
-void ndlcomBridgeInit(struct NDLComBridge *bridge) {
-
-    /* initialize all the list we have */
-    INIT_LIST_HEAD(&bridge->internalHandlerList);
-    INIT_LIST_HEAD(&bridge->externalInterfaceList);
-
-    /* initialize the routing table */
-    ndlcomRoutingTableInit(&bridge->routingTable);
-}
-
 /* Helper function. Cements the hack of putting the bridge-pointer itself into
  * the routing table */
-int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
-                                const NDLComId deviceId) {
+static inline int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
+                                              const NDLComId deviceId) {
     return (ndlcomRoutingGetDestination(&bridge->routingTable, deviceId) !=
             bridge);
 }
@@ -58,7 +47,7 @@ int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
  * assembled externally and inserted using "ndlcomBridgeSendRaw()" they pass
  * through this function.
  */
-void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
+static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                                         const struct NDLComHeader *header,
                                         const void *payload, void *origin) {
     /* used as loop-variable for the lists */
@@ -66,17 +55,22 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
     /* return-value for the routing table */
     struct NDLComExternalInterface *destination;
 
-    /*
+    /**
      * At first the message needs to be encoded. We do not know yet if we have
-     * to encode it at all: receiving from only one outgoing interface for
-     * example. This is inefficient...
+     * to encode it at all: Receiving a message from the only ExternalInterface
+     * for example where the received message would never have to be
+     * re-encoded, as it can only be handled internally. This is inefficient
+     * but makes the code easier to reason...
      *
      * NOTE: Variable length array, so this will eventually safe some stack?
      */
     uint8_t txBuffer[NDLCOM_MAX_ENCODED_MESSAGE_SIZE_FOR_PACKET(header)];
     size_t len = ndlcomEncode(txBuffer, sizeof(txBuffer), header, payload);
 
-    /* these external interfaces want to get _all_ messages, no matter what */
+    /**
+     * Some ExternalInterface are "mirrors", they want to get _all_ messages,
+     * no matter what.
+     */
     list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                         list) {
         /* don't echo messages back to their origin */
@@ -90,22 +84,21 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         }
     }
 
-    /* asking the routing table where to forward to */
+    /** Asking the routing table where to forward to */
     destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
         &bridge->routingTable, header->mReceiverId);
 
-    /*
+    /**
      * First case: Broadcast or unknown destination. We are asked to send to
-     * all known interfaces (except the origin of this message)
+     * all known interfaces excluding the originating interface of the message.
      */
-    if ((header->mReceiverId == NDLCOM_ADDR_BROADCAST) ||
-        (destination == NDLCOM_ROUTING_ALL_INTERFACES)) {
+    if (destination == NDLCOM_ROUTING_ALL_INTERFACES) {
         /* loop through all interfaces */
         list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                             list) {
-            /* don't echo messages back to their origin */
+            /* don't echo messages back to their originating interface. */
             if (origin != externalInterface) {
-                /* no debug interfaces! */
+                /* No debug interfaces, they already got the message! */
                 if (!(externalInterface->flags &
                     NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
                     externalInterface->write(externalInterface->context,
@@ -114,31 +107,34 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
             }
         }
     }
-    /*
-     * Second case: knowing the exact interface where to send the message to
+    /**
+     * Second case: Knowing the exact interface where to send the message to.
      */
     else {
         if (destination == origin) {
             /**
              * When throwing random messages at one interface which is
-             * connected to the bridge, this interface will slowly accumulate
-             * all "deviceIds", as messages from all senders seem to originate
-             * from this interface. So after some time, it is responsible for
-             * all "receiverIds".
+             * connected to the bridge, the routing table will slowly
+             * accumulate this interface for every deviceId, as messages from
+             * all senders seem to originate from this interface. So after some
+             * time, it is responsible for every deviceId.
              *
-             * The respective entry cannot be updated as long as all the other
-             * interfaces do not receive random messages.
+             * The respective entries cannot be updated as long as all the
+             * other interfaces do not receive random messages. Spoils random
+             * testing a bit.
              */
         } else if (destination == (void *)bridge) {
             /**
-             * Do _not_ try to "write" a messages destined for us at the
+             * Do _not_ try to "write" a message destined for us at the
              * "destination" pointer. Works by having our "deviceId" inside the
              * routing table. The message was hopefully handled at some earlier
              * stage.
+             *
+             * This specific if-branch indicates a problem somewhere else.
              */
         } else {
             /**
-             * Otherwise, finally write to the external interface!
+             * Finally write the ExternalInterface using its function pointer.
              */
             destination->write(destination->context, txBuffer, len);
         }
@@ -155,9 +151,10 @@ void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
  * NOTE: "origin" can be either be a pointer to one of the external interfaces
  * or the "bridge" pointer itself, if it comes from internal.
  */
-void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
-                                       const struct NDLComHeader *header,
-                                       const void *payload, void *origin) {
+static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
+                                              const struct NDLComHeader *header,
+                                              const void *payload,
+                                              void *origin) {
     /* used as loop-variable for the lists */
     struct NDLComInternalHandler *internalHandler, *temp;
 
@@ -180,29 +177,14 @@ void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
             (origin != bridge)) {
             internalHandler->handler(internalHandler->context, header, payload,
                                      origin);
-            // guard against removal of handlers by other handlers...
+            /* guard against removal of handlers by other handlers... */
             CHECK_LIST_IN_LOOP(internalHandler, temp, list);
         }
     }
 }
 
-/* inserting new messages into the bridge */
-void ndlcomBridgeSendRaw(struct NDLComBridge *bridge, const struct NDLComHeader
-        *header, const void *payload) {
-    /*
-     * Inserting new messages into the bridge. By using the "bridge" itself as
-     * origin, we can later detect messages which are not coming from one of
-     * the external interfaces.
-     *
-     * NOTE: We could also call "ndlcomBridgeProcessOutgoingMessage()" instead.
-     * This would prevent internal interfaces from being able to see messages
-     * originating from inside...
-     */
-    ndlcomBridgeProcessDecodedMessage(bridge, header, payload, bridge);
-}
-
 /* reading and parsing bytes from one external interface */
-size_t ndlcomBridgeProcessExternalInterface(
+static size_t ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
 
@@ -265,10 +247,11 @@ size_t ndlcomBridgeProcessExternalInterface(
             /**
              * Problem: If some InternalHandler deregistered this
              * ExternalInterface, we should not proceed parsing any residual
-             * bytes, mayhem would ensue.
+             * bytes, mayhem would ensue: The interface-pointer will be
+             * reinserted into the routing table!
              *
              * So we need to double-check if this interface is still connected
-             * to the "externalInterface" list. It is not connected if the
+             * to the ExternalInterface list. It is not connected if the
              * ExternalInterface itself forms an empty list, as list_del_init()
              * is called below.
              */
@@ -279,6 +262,32 @@ size_t ndlcomBridgeProcessExternalInterface(
 
     } while (bytesRead != bytesProcessed);
     return bytesProcessed;
+}
+
+void ndlcomBridgeInit(struct NDLComBridge *bridge) {
+
+    /* Initialize all the lists we have */
+    INIT_LIST_HEAD(&bridge->internalHandlerList);
+    INIT_LIST_HEAD(&bridge->externalInterfaceList);
+
+    /* And initialize the RoutingTable */
+    ndlcomRoutingTableInit(&bridge->routingTable);
+}
+
+/* inserting new messages into the bridge */
+void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
+                         const struct NDLComHeader *header,
+                         const void *payload) {
+    /*
+     * Inserting new messages into the bridge. By using the "bridge" itself as
+     * origin, we can later detect messages which are not coming from one of
+     * the external interfaces.
+     *
+     * NOTE: We could also call "ndlcomBridgeProcessOutgoingMessage()" instead.
+     * This would prevent internal interfaces from being able to see messages
+     * originating from inside...
+     */
+    ndlcomBridgeProcessDecodedMessage(bridge, header, payload, bridge);
 }
 
 /*
@@ -311,7 +320,7 @@ size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge) {
                              &bridge->externalInterfaceList, list) {
         bytesReadOverall +=
             ndlcomBridgeProcessExternalInterface(bridge, externalInterface);
-        // guard against removal of handlers by other handlers...
+        /* guard against removal of handlers by other handlers... */
         CHECK_LIST_IN_LOOP(externalInterface, temp, list);
     }
     return bytesReadOverall;
@@ -331,47 +340,47 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
 void ndlcomBridgeRegisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-    // check that the given handler is not yet part of the bridge
+    /* check that the given handler is not yet part of the bridge */
     if (ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
         return;
     }
-    // and now we can add it
+    /* and now we can add it */
     list_add(&internalHandler->list, &bridge->internalHandlerList);
 }
 
 void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-    // check that the given handler is not yet part of the bridge
+    /* check that the given handler is not yet part of the bridge */
     if (ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
         return;
     }
-    // and now we can add it
+    /* and now we can add it */
     list_add(&externalInterface->list, &bridge->externalInterfaceList);
 }
 
 void ndlcomBridgeDeregisterInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-    // check that the given handler is really part of the bridge
+    /* check that the given handler is really part of the bridge */
     if (!ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
         return;
     }
-    // and now we can delete it
+    /* and now we can delete it */
     list_del_init(&internalHandler->list);
 }
 
 void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-    // check that the given interface is really part of the bridge
+    /* check that the given interface is really part of the bridge */
     if (!ndlcomBridgeCheckExternalInterface(bridge, externalInterface)) {
         return;
     }
-    // at first remove the known destination from the routing table
+    /* at first remove the known destination from the routing table */
     ndlcomRoutingTableInvalidateInterface(&bridge->routingTable,
                                             externalInterface);
-    // and now we can delete it
+    /* and now we can delete it */
     list_del_init(&externalInterface->list);
 
 }
@@ -379,7 +388,7 @@ void ndlcomBridgeDeregisterExternalInterface(
 uint8_t ndlcomBridgeCheckExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
-    // iterate all interfaces, check if the one in the argument is present
+    /* iterate all interfaces, check if the one in the argument is present */
     struct NDLComExternalInterface *it;
     list_for_each_entry(it, &bridge->externalInterfaceList, list) {
         if (it == externalInterface) {
@@ -392,7 +401,7 @@ uint8_t ndlcomBridgeCheckExternalInterface(
 uint8_t ndlcomBridgeCheckInternalHandler(
     struct NDLComBridge *bridge,
     struct NDLComInternalHandler *internalHandler) {
-    // iterate all handlers, check if the one in the argument is present
+    /* iterate all handlers, check if the one in the argument is present */
     struct NDLComInternalHandler *it;
     list_for_each_entry(it, &bridge->internalHandlerList, list) {
         if (it == internalHandler) {
