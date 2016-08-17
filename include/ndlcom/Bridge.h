@@ -12,6 +12,11 @@ extern "C" {
 #endif
 
 /**
+ * A flag which specifies whether forwarding is enabled or not
+ */
+#define NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED 0x01
+
+/**
  * @brief Encapsulate sending, receiving and routing of NDLCom messages
  *
  * A NDLComBridge has one RoutingTable and a number of ExternalInterfaces as
@@ -69,16 +74,31 @@ struct NDLComBridge {
      * Contains entries for debug-interfaces and normal interfaces.
      */
     struct list_head externalInterfaceList;
+    /**
+     * Current set of flags which are handled by the bridge functions/processes
+     */
+    uint8_t flags;
 };
 
 /**
  * @brief Initializes the bridge data structure
  *
  * Clears out the linked-lists and initializes the RoutingTable.
+ * NOTE: Per default, forwarding is enabled
  *
  * @param bridge Pointer to the bridge which shall be initialized.
  */
 void ndlcomBridgeInit(struct NDLComBridge *bridge);
+
+/**
+ * @brief Sets the flags of the bridge
+ *
+ * Currently, the only flag is the flag to enable/disable forwarding
+ *
+ * @param bridge The bridge to use
+ * @param flags The flags to be set
+ */
+void ndlcomBridgeSetFlags(struct NDLComBridge *bridge, const uint8_t flags);
 
 /**
  * @brief Encode and transmit messages to the outside

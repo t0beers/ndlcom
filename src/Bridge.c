@@ -166,8 +166,10 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     /*
      * First thing to do: forward/transmit outgoing messages on the actual
      * external interfaces. For example: send a broadcast on every interface.
+     * MS: Forward messages only if forwarding has been enabled
      */
-    ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
+    if (bridge->flags & NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED)
+        ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
     /* call the internal handlers to handle the message */
     list_for_each_entry_safe(internalHandler, temp,
@@ -277,6 +279,14 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
     /* And initialize the RoutingTable */
     ndlcomRoutingTableInit(&bridge->routingTable);
+
+    /* Per default, enable forwarding */
+    bridge->flags = NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED;
+}
+
+void ndlcomBridgeSetFlags(struct NDLComBridge *bridge, const uint8_t flags)
+{
+    bridge->flags = flags;
 }
 
 /* inserting new messages into the bridge */
