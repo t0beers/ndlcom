@@ -55,6 +55,9 @@ static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
     /* return-value for the routing table */
     struct NDLComExternalInterface *destination;
 
+    /** Asking the routing table where to forward to */
+    destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
+        &bridge->routingTable, header->mReceiverId);
     /**
      * At first the message needs to be encoded. We do not know yet if we have
      * to encode it at all: Receiving a message from the only ExternalInterface
@@ -84,9 +87,18 @@ static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         }
     }
 
-    /** Asking the routing table where to forward to */
-    destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
-        &bridge->routingTable, header->mReceiverId);
+    /**
+     * MS: Suppress further handling iff
+     * the origin is not the bridge itself,
+     * the destination is not the bridge itself, and
+     * forwarding has been disabled
+     */
+    if (
+            (!(bridge->flags & NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED))
+            && (origin != (void *)bridge)
+            && (destination != (void *)bridge)
+       )
+        return;
 
     /**
      * First case: Broadcast or unknown destination. We are asked to send to
@@ -166,10 +178,8 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     /*
      * First thing to do: forward/transmit outgoing messages on the actual
      * external interfaces. For example: send a broadcast on every interface.
-     * MS: Forward messages only if forwarding has been enabled
      */
-    if (bridge->flags & NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED)
-        ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
+    ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
     /* call the internal handlers to handle the message */
     list_for_each_entry_safe(internalHandler, temp,
