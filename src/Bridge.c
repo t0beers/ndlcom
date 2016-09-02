@@ -55,6 +55,9 @@ static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
     /* return-value for the routing table */
     struct NDLComExternalInterface *destination;
 
+    /** Asking the routing table where to forward to */
+    destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
+        &bridge->routingTable, header->mReceiverId);
     /**
      * At first the message needs to be encoded. We do not know yet if we have
      * to encode it at all: Receiving a message from the only ExternalInterface
@@ -84,9 +87,18 @@ static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         }
     }
 
-    /** Asking the routing table where to forward to */
-    destination = (struct NDLComExternalInterface *)ndlcomRoutingGetDestination(
-        &bridge->routingTable, header->mReceiverId);
+    /**
+     * MS: Suppress further handling iff
+     * the origin is not the bridge itself,
+     * the destination is not the bridge itself, and
+     * forwarding has been disabled
+     */
+    if (
+            (!(bridge->flags & NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED))
+            && (origin != (void *)bridge)
+            && (destination != (void *)bridge)
+       )
+        return;
 
     /**
      * First case: Broadcast or unknown destination. We are asked to send to
@@ -277,6 +289,14 @@ void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
     /* And initialize the RoutingTable */
     ndlcomRoutingTableInit(&bridge->routingTable);
+
+    /* Per default, enable forwarding */
+    bridge->flags = NDLCOM_BRIDGE_FLAGS_FORWARDING_ENABLED;
+}
+
+void ndlcomBridgeSetFlags(struct NDLComBridge *bridge, const uint8_t flags)
+{
+    bridge->flags = flags;
 }
 
 /* inserting new messages into the bridge */
