@@ -145,9 +145,14 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceSerial::~ExternalInterfaceSerial() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
@@ -175,9 +180,16 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
-ExternalInterfaceFpga::~ExternalInterfaceFpga() { close(fd); }
+ExternalInterfaceFpga::~ExternalInterfaceFpga() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    close(fd);
+}
 
 ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
                                            std::string hostname,
@@ -247,9 +259,16 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
 
     // clean the shit up
     freeaddrinfo(result);
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
-ExternalInterfaceUdp::~ExternalInterfaceUdp() { close(fd); }
+ExternalInterfaceUdp::~ExternalInterfaceUdp() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    close(fd);
+}
 
 size_t ExternalInterfaceUdp::readEscapedBytes(void *buf, size_t count) {
     /* out << "trying to read " << count << " bytes\n"; */
@@ -384,9 +403,14 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
     if (!str_out) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePipe::~ExternalInterfacePipe() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
@@ -506,9 +530,14 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
 
     out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
         << "', the symlink is '" << symlinkname << "'\n";
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePty::~ExternalInterfacePty() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
     // delete the previously created symlink
     cleanSymlink();
     // not sure...

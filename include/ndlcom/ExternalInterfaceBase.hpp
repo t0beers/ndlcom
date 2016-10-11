@@ -24,7 +24,7 @@ class ExternalInterfaceBase {
     ExternalInterfaceBase(
         struct NDLComBridge &_bridge, std::ostream &out = std::cerr,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    virtual ~ExternalInterfaceBase();
+    virtual ~ExternalInterfaceBase(){}
 
     static void writeWrapper(void *context, const void *buf,
                              const size_t count);
@@ -33,11 +33,10 @@ class ExternalInterfaceBase {
     virtual void writeEscapedBytes(const void *buf, size_t count) = 0;
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
-  private:
+  protected:
     struct NDLComBridge &bridge;
     struct NDLComExternalInterface external;
 
-  protected:
     std::ostream &out;
 
     /**
