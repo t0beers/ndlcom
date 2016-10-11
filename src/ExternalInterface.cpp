@@ -83,6 +83,9 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     // check for errors after writing. because in the pty-case, fwrite() will
     // happily write into a not-anymore existing symlink, reporting as if
     // nothing happend and all is shiny...
+    //
+    // FIXME: this can also fail in case of a serial device which is not (yet?)
+    // finished setting up. observed at least once, when changing the default baudrate.
     if (std::ferror(fd_write)) {
         reportRuntimeError("error after fwrite(): " +
                                std::string(strerror(errno)),
