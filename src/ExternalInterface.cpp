@@ -197,6 +197,11 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
                                            unsigned int out_port, uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
+
+    if (in_port == out_port) {
+        reportRuntimeError("inport and outport are the same", __FILE__,
+                           __LINE__);
+    }
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
     // conversion to ipv6 needs more than changing this... also convert all
