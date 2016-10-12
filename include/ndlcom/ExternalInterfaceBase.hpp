@@ -8,16 +8,18 @@
 namespace ndlcom {
 
 /**
- * @brief virtual class to wrap "struct NDLComExternalInterface" into cpp-object
+ * @brief Virtual class to wrap "struct NDLComExternalInterface" into cpp-object
  *
- * use this base class to implement tight and lean wrappers which are able to
- * be used with the rest of the code. although i doubt that this will will be
- * done ever, even once. but alas, this is how we write code -- reusable.
+ * This base class implements a tight and lean wrapper which are able to use
+ * the C-based core implementation for message handling.  This is how we write
+ * code -- reusable.
  *
- * stores private reference of the "struct NDLComBridge" where this interface
+ * Stores private reference of the "struct NDLComBridge" where this interface
  * is connected to.
  *
- * has protected reference to the preferred output stream.
+ * Has reference to the preferred output stream for status reports.
+ * Additionally adds some statistics and convenience things like statistics, a
+ * label and pausing.
  */
 class ExternalInterfaceBase {
   public:
@@ -42,7 +44,22 @@ class ExternalInterfaceBase {
     struct NDLComBridge &bridge;
     struct NDLComExternalInterface external;
 
+    /**
+     * Helper function which adds up the number of incoming bytes into
+     * "bytesReceived".
+     *
+     * @param buf pointer to the buffer
+     * @param count size of the buffer
+     */
     virtual void noteIncomingBytes(const void *buf, size_t count);
+
+    /**
+     * Helper function which adds up the number of outgoing bytes into
+     * "bytesTransmitted".
+     *
+     * @param buf pointer to the buffer
+     * @param count size of the buffer
+     */
     virtual void noteOutgoingBytes(const void *buf, size_t count);
 
     std::ostream &out;

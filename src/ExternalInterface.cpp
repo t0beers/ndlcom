@@ -170,7 +170,8 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
 }
 
 ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
-                                        std::string device_name, uint8_t flags)
+                                             std::string device_name,
+                                             uint8_t flags)
     : ExternalInterfaceStream(_bridge) {
     {
         std::stringstream ss;
@@ -400,7 +401,7 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
         }
     }
     if (fstat(fd_in, &status_in) == -1) {
-            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     if (!S_ISFIFO(status_in.st_mode)) {
         reportRuntimeError(pipename_rx + " is not a fifo?", __FILE__, __LINE__);
@@ -419,7 +420,7 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
         }
     }
     if (fstat(fd_out, &status_out) == -1) {
-            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     if (!S_ISFIFO(status_out.st_mode)) {
         reportRuntimeError(pipename_tx + " is not a fifo?", __FILE__, __LINE__);
