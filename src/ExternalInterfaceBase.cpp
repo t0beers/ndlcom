@@ -51,6 +51,15 @@ void ExternalInterfaceBase::noteOutgoingBytes(const void *buf, size_t count) {
     bytesTransmitted += count;
 }
 
+void ExternalInterfaceBase::setFlag(uint8_t flag, bool value) {
+    uint8_t oldFlags = external.flags;
+    if (value) {
+        ndlcomExternalInterfaceSetFlags(&external, oldFlags | flag);
+    } else {
+        ndlcomExternalInterfaceSetFlags(&external, oldFlags & ~flag);
+    }
+}
+
 void ExternalInterfaceBase::reportRuntimeError(const std::string &error,
                                                const std::string &file,
                                                const int &line) const {

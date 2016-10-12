@@ -40,6 +40,8 @@ class ExternalInterfaceBase {
     unsigned long bytesTransmitted;
     unsigned long bytesReceived;
 
+    void setFlag(uint8_t flag, bool value);
+
   protected:
     struct NDLComBridge &bridge;
     struct NDLComExternalInterface external;
