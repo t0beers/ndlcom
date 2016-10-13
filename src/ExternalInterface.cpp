@@ -21,7 +21,6 @@
 
 // pty
 #include <stdlib.h>
-#include <poll.h>
 #include <sys/select.h>
 #include <linux/limits.h>
 
@@ -30,7 +29,11 @@ using namespace ndlcom;
 ExternalInterfaceStream::ExternalInterfaceStream(NDLComBridge &_bridge,
                                                  uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags), fd_read(NULL),
-      fd_write(NULL) {}
+      fd_write(NULL) {
+    // setting "udf.events" implicitly to zero means: listen only to the
+    // error-events POLLHUP, POLLERR, and POLLNVAL
+    bzero(&ufd, sizeof(struct pollfd));
+}
 
 ExternalInterfaceStream::~ExternalInterfaceStream() {
     if (fd_write) {
@@ -46,6 +49,21 @@ size_t ExternalInterfaceStream::readEscapedBytes(void *buf, size_t count) {
     if (!fd_read) {
         return 0;
     }
+
+    // check if our descriptor is still valid
+    ufd.fd = fileno(fd_read);
+again:
+    if (poll(&ufd, 1, 0) < 0) {
+        // cope with signals
+        if (errno == EINTR) {
+            goto again;
+        }
+    }
+    // if there are any bits set in "ufd.revents", an error occured
+    if (ufd.revents) {
+        reportRuntimeError("connection closed itself", __FILE__, __LINE__);
+    }
+
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
     if (bytesRead == 0) {
         if (ferror(fd_read)) {
@@ -68,30 +86,15 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     /* out << "trying to write " << count << "\n"; */
     if (!fd_write)
         return;
-    size_t alreadyWritten = 0;
-    while (alreadyWritten < count) {
-        size_t written = fwrite((const char *)buf + alreadyWritten,
-                                sizeof(char), count - alreadyWritten, fd_write);
-        if (written == 0) {
-            reportRuntimeError("no bytes written by fwrite(): " +
-                                   std::string(strerror(errno)),
-                               __FILE__, __LINE__);
-        }
-        alreadyWritten += written;
+    size_t written = fwrite((const char *)buf, sizeof(char), count, fd_write);
+    // happens when there is a "slow" interface gettings data from a
+    // "fast" one. it cannot cope.
+    if (written != count) {
+        out << "warning, not all bytes could be written\n";
     }
+    // not sure: flushing needed?
     fflush(fd_write);
-    // check for errors after writing. because in the pty-case, fwrite() will
-    // happily write into a not-anymore existing symlink, reporting as if
-    // nothing happend and all is shiny...
-    //
-    // FIXME: this can also fail in case of a serial device which is not (yet?)
-    // finished setting up. observed at least once, when changing the default baudrate.
-    if (std::ferror(fd_write)) {
-        reportRuntimeError("error after fwrite(): " +
-                               std::string(strerror(errno)),
-                           __FILE__, __LINE__);
-    }
-    /* out << "stream wrote " << (int)count << " bytes\n"; */
+
     return;
 }
 
@@ -145,9 +148,14 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceSerial::~ExternalInterfaceSerial() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
@@ -175,9 +183,16 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
-ExternalInterfaceFpga::~ExternalInterfaceFpga() { close(fd); }
+ExternalInterfaceFpga::~ExternalInterfaceFpga() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    close(fd);
+}
 
 ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
                                            std::string hostname,
@@ -185,6 +200,11 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
                                            unsigned int out_port, uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
+
+    if (in_port == out_port) {
+        reportRuntimeError("inport and outport are the same", __FILE__,
+                           __LINE__);
+    }
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
     // conversion to ipv6 needs more than changing this... also convert all
@@ -247,9 +267,16 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
 
     // clean the shit up
     freeaddrinfo(result);
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
-ExternalInterfaceUdp::~ExternalInterfaceUdp() { close(fd); }
+ExternalInterfaceUdp::~ExternalInterfaceUdp() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    close(fd);
+}
 
 size_t ExternalInterfaceUdp::readEscapedBytes(void *buf, size_t count) {
     /* out << "trying to read " << count << " bytes\n"; */
@@ -384,9 +411,14 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
     if (!str_out) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePipe::~ExternalInterfacePipe() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
@@ -483,14 +515,6 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
     // O_NONBLOCKing access as usual
     fcntl(pty_fd, F_SETFL, O_NONBLOCK);
 
-    /**
-     * there is the trick of using SIGHUP and "poll()" to detect a read
-     * present... but this results in racy code, as the slave could still
-     * disconnected after checking but before writing.
-     *
-     * see http://stackoverflow.com/a/3490197/4658481
-     */
-
     // provide a nice symlink pointing to our "/dev/pts/\d\+"
     prepareSymlink();
 
@@ -506,9 +530,14 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
 
     out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
         << "', the symlink is '" << symlinkname << "'\n";
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePty::~ExternalInterfacePty() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
     // delete the previously created symlink
     cleanSymlink();
     // not sure...
@@ -607,9 +636,6 @@ size_t ExternalInterfacePty::readEscapedBytes(void *buf, size_t count) {
             if (errno == EAGAIN || errno == EIO) {
                 // in case of a pty, slaves connecting and disconnecting are
                 // seen as "errors", but we need to ignore some of them
-                //
-                // using the POLLHUP trick is not safe, as there is still a
-                // race condition...
                 return 0;
             } else {
                 reportRuntimeError("error during fread(): " +

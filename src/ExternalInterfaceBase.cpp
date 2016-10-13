@@ -14,12 +14,6 @@ ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &_bridge,
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
-
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
-}
-
-ExternalInterfaceBase::~ExternalInterfaceBase() {
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
 }
 
 // static wrapper function for the C-callback

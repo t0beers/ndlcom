@@ -7,6 +7,8 @@
  */
 #include <getopt.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>   /* for strerror() */
 
 #include <cstdio>
 #include <sstream>
@@ -40,6 +42,19 @@ void signal_handler(int signal) { stopMainLoop = true; }
 class ndlcom::BridgePrintAll *printAll = NULL;
 class ndlcom::BridgePrintMissEvents *printMiss = NULL;
 
+// TODO: use chrono from c++11
+struct timespec diff(struct timespec start, struct timespec end) {
+    timespec temp;
+    if ((end.tv_nsec - start.tv_nsec) < 0) {
+        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
+        temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+    } else {
+        temp.tv_sec = end.tv_sec - start.tv_sec;
+        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+    }
+    return temp;
+}
+
 void help(const char *_name) {
     std::string name(_name);
     size_t pos = name.find_last_of("/");
@@ -61,6 +76,7 @@ void help(const char *_name) {
 "--print-all\t-A\tPrint every packet\n"
 "--print-own\t-O\tPrint packets directed at the last given 'ownDeviceId'\n"
 "--print-miss\t-M\tPrint miss events of packets passing thorugh the bridge\n"
+"--realtime\t-R\ttry to obtain realtime scheduling. needs root.\n"
 "\n"
 "examples:\n"
 "\n"
@@ -112,9 +128,10 @@ int main(int argc, char *argv[]) {
             {"print-all", no_argument, 0, 'A'},
             {"print-own", no_argument, 0, 'O'},
             {"print-miss", no_argument, 0, 'M'},
+            {"realtime", no_argument, 0, 'R'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "u:m:i:f:AOMh", long_options,
+        c = getopt_long(argc, argv, "u:m:i:f:AOMRh", long_options,
                         &option_index);
         if (c == -1) {
             break;
@@ -199,6 +216,18 @@ int main(int argc, char *argv[]) {
             }
             break;
         }
+        case 'R': {
+            struct sched_param p;
+            p.sched_priority = 99;
+            std::cerr << "enabling SCHED_FIFO with priority "
+                      << p.sched_priority << "\n";
+            int r = sched_setscheduler(0, SCHED_FIFO, &p);
+            if (r == -1) {
+                std::cerr << "sched_setscheduler() failed: '" << strerror(errno) << "'\n";
+                exit(EXIT_FAILURE);
+            }
+            break;
+        }
         case 'h':
         case '?':
         default:
@@ -238,14 +267,35 @@ int main(int argc, char *argv[]) {
         printf("printing miss-events for passing message streams\n");
     }
 
+    struct timespec last_ts, now_ts;
+    clock_gettime(CLOCK_MONOTONIC, &last_ts);
+    usleep(usleep_us);
     while (!stopMainLoop) {
         // printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
-        /* when a Node is sending here, it will see its own message! */
-        // if (!allNodes.empty())
-        //    ndlcomNodeSend(allNodes.back().first, 0xff, 0, 0);
 
-        usleep(usleep_us);
+        // taking care to actually sleep the right number of microseconds as
+        // specified in the commandline
+        clock_gettime(CLOCK_MONOTONIC, &now_ts);
+        struct timespec sinceLast_ts = diff(last_ts, now_ts);;
+        last_ts = now_ts;
+
+        // some juggling with numbers...
+        int sinceLast_us = lrint(sinceLast_ts.tv_nsec / 1000.0) + sinceLast_ts.tv_sec * 1000000;
+        // another uncomprehensible calculation:
+        int processingDuration_us = sinceLast_us - usleep_us;
+        if (processingDuration_us < 0) {
+            processingDuration_us += usleep_us;
+        }
+
+        int finalSleepDuration_us = usleep_us - processingDuration_us;
+        if (finalSleepDuration_us > 0) {
+            usleep(usleep_us);
+            /* printf("processing took %ius, will sleep for %ius\n", processingDuration_us, */
+            /*        finalSleepDuration_us); */
+        /* } else { */
+            /* printf("processing took %ius, will not sleep\n", processingDuration_us); */
+        }
     }
 
     // clean up our memory
