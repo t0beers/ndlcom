@@ -21,7 +21,6 @@
 
 // pty
 #include <stdlib.h>
-#include <poll.h>
 #include <sys/select.h>
 #include <linux/limits.h>
 
@@ -30,7 +29,11 @@ using namespace ndlcom;
 ExternalInterfaceStream::ExternalInterfaceStream(NDLComBridge &_bridge,
                                                  uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags), fd_read(NULL),
-      fd_write(NULL) {}
+      fd_write(NULL) {
+    // setting "udf.events" implicitly to zero means: listen only to the
+    // error-events POLLHUP, POLLERR, and POLLNVAL
+    bzero(&ufd, sizeof(struct pollfd));
+}
 
 ExternalInterfaceStream::~ExternalInterfaceStream() {
     if (fd_write) {
@@ -46,6 +49,21 @@ size_t ExternalInterfaceStream::readEscapedBytes(void *buf, size_t count) {
     if (!fd_read) {
         return 0;
     }
+
+    // check if our descriptor is still valid
+    ufd.fd = fileno(fd_read);
+again:
+    if (poll(&ufd, 1, 0) < 0) {
+        // cope with signals
+        if (errno == EINTR) {
+            goto again;
+        }
+    }
+    // if there are any bits set in "ufd.revents", an error occured
+    if (ufd.revents) {
+        reportRuntimeError("connection closed itself", __FILE__, __LINE__);
+    }
+
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
     if (bytesRead == 0) {
         if (ferror(fd_read)) {
@@ -512,14 +530,6 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
     // O_NONBLOCKing access as usual
     fcntl(pty_fd, F_SETFL, O_NONBLOCK);
 
-    /**
-     * there is the trick of using SIGHUP and "poll()" to detect a read
-     * present... but this results in racy code, as the slave could still
-     * disconnected after checking but before writing.
-     *
-     * see http://stackoverflow.com/a/3490197/4658481
-     */
-
     // provide a nice symlink pointing to our "/dev/pts/\d\+"
     prepareSymlink();
 
@@ -641,9 +651,6 @@ size_t ExternalInterfacePty::readEscapedBytes(void *buf, size_t count) {
             if (errno == EAGAIN || errno == EIO) {
                 // in case of a pty, slaves connecting and disconnecting are
                 // seen as "errors", but we need to ignore some of them
-                //
-                // using the POLLHUP trick is not safe, as there is still a
-                // race condition...
                 return 0;
             } else {
                 reportRuntimeError("error during fread(): " +

@@ -9,6 +9,8 @@
 #include <termios.h>
 // for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
+// detecting closed interfaces
+#include <poll.h>
 
 namespace ndlcom {
 
@@ -32,6 +34,9 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
 
     size_t readEscapedBytes(void *buf, size_t count);
     void writeEscapedBytes(const void *buf, size_t count);
+  private:
+    /* used to detect when the underlying device vanishes. like usb-ports */
+    struct pollfd ufd;
 };
 
 /**
