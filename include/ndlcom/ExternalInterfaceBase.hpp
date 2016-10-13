@@ -35,10 +35,15 @@ class ExternalInterfaceBase {
 
     std::string label;
     bool paused;
+    unsigned long bytesTransmitted;
+    unsigned long bytesReceived;
 
   protected:
     struct NDLComBridge &bridge;
     struct NDLComExternalInterface external;
+
+    virtual void noteIncomingBytes(const void *buf, size_t count);
+    virtual void noteOutgoingBytes(const void *buf, size_t count);
 
     std::ostream &out;
 

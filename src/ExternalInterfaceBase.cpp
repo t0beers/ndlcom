@@ -10,7 +10,8 @@ using namespace ndlcom;
 
 ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &_bridge,
                                              std::ostream &_out, uint8_t flags)
-    : paused(false), bridge(_bridge), out(_out) {
+    : paused(false), bytesTransmitted(0), bytesReceived(0), bridge(_bridge),
+      out(_out) {
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
@@ -25,6 +26,7 @@ void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
         return;
     }
     self->writeEscapedBytes(buf, count);
+    self->noteOutgoingBytes(buf, count);
 }
 
 // static wrapper function for the C-callback
@@ -37,7 +39,16 @@ size_t ExternalInterfaceBase::readWrapper(void *context, void *buf,
     if (self->paused) {
         read = 0;
     }
+    self->noteIncomingBytes(buf, read);
     return read;
+}
+
+void ExternalInterfaceBase::noteIncomingBytes(const void *buf, size_t count) {
+    bytesReceived += count;
+}
+
+void ExternalInterfaceBase::noteOutgoingBytes(const void *buf, size_t count) {
+    bytesTransmitted += count;
 }
 
 void ExternalInterfaceBase::reportRuntimeError(const std::string &error,
