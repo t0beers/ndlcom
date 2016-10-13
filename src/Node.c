@@ -16,6 +16,9 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
     /* initialize all the list we have */
     INIT_LIST_HEAD(&node->internalHandlerList);
 
+    /* also initialize the packet counter used for headers */
+    ndlcomHeaderPrepareInit(&node->headerConfig, ownSenderId);
+
     /* calling this will also initialize the routing table */
     ndlcomNodeSetOwnSenderId(node, ownSenderId);
 
