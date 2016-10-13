@@ -9,6 +9,7 @@
 #include <cstring>
 #include <errno.h>
 #include <cstdio>
+#include <sstream>
 
 // serial:
 #include <fcntl.h>
@@ -103,6 +104,11 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
                                                  speed_t baudrate,
                                                  uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags) {
+    {
+        std::stringstream ss;
+        ss << "serial://" << device_name << ":" << baudrate;
+        label = ss.str();
+    }
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
@@ -164,8 +170,14 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
 }
 
 ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
-                                        std::string device_name, uint8_t flags)
+                                             std::string device_name,
+                                             uint8_t flags)
     : ExternalInterfaceStream(_bridge) {
+    {
+        std::stringstream ss;
+        ss << "fpga://" << device_name;
+        label = ss.str();
+    }
     if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
         reportRuntimeError("fpga module does only support default flags?",
                            __FILE__, __LINE__);
@@ -201,20 +213,32 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
 
+    {
+        std::stringstream ss;
+        ss << "udp://" << hostname << ":" << in_port << ":" << out_port;
+        label = ss.str();
+    }
+    // prevent this:
     if (in_port == out_port) {
         reportRuntimeError("inport and outport are the same", __FILE__,
                            __LINE__);
     }
+
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
     // conversion to ipv6 needs more than changing this... also convert all
     // calls from "inet_ntoa()" to "inet_ntop()"
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
 
     // create the socket (which is a file descriptor):
-    fd = socket(hints.ai_family, SOCK_NONBLOCK | hints.ai_socktype, 0);
+    fd = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
     if (fd == -1) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    // non-blocking access
+    if (fcntl(fd, F_SETFL, O_NONBLOCK)) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
@@ -351,12 +375,109 @@ again:
     return;
 }
 
+ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(NDLComBridge &_bridge,
+                                                       std::string hostname,
+                                                       unsigned int port,
+                                                       uint8_t flags)
+    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags) {
+    {
+        std::stringstream ss;
+        ss << "tcpclient://" << hostname << ":" << port;
+        label = ss.str();
+    }
+
+    struct addrinfo hints = {0};
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    if ((fd = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol)) < 0) {
+        reportRuntimeError("failed to create socket: " +
+                               std::string(strerror(errno)),
+                           __FILE__, __LINE__);
+    }
+
+    struct addrinfo *result;
+    // try to resolve the hostname-string
+    if (int retval =
+            getaddrinfo(hostname.c_str(), NULL, &hints, &result) != 0) {
+        reportRuntimeError(gai_strerror(retval), __FILE__, __LINE__);
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    memcpy(&addr, (struct sockaddr_in *)result->ai_addr,
+           sizeof(struct sockaddr_in));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    /* establish connection */
+    if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        reportRuntimeError("failed to connect: " + std::string(strerror(errno)),
+                           __FILE__, __LINE__);
+    }
+    // only after calling "connect()" we switch to nonblocking mode. would have
+    // to wait anyways... this blocks the gui during "connect()", but...
+    fcntl(fd, F_SETFL, O_NONBLOCK);
+
+    freeaddrinfo(result);
+
+    // after everything is setup, register at the given "bridge" object.
+    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
+}
+
+ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() {
+    // at first deregister the interface
+    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    close(fd);
+}
+
+size_t ExternalInterfaceTcpClient::readEscapedBytes(void *buf, size_t count) {
+again:
+    ssize_t bytesRead = recv(fd, buf, count, 0);
+    if (bytesRead < 0) {
+        if (errno == EINTR) {
+            // ignore signals
+            goto again;
+        } else if (errno == EAGAIN) {
+            // nothing to read, just return
+            return 0;
+        }
+        // TODO: is this correct?
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    return bytesRead;
+}
+
+void ExternalInterfaceTcpClient::writeEscapedBytes(const void *buf,
+                                                   size_t count) {
+    size_t alreadyWritten = 0;
+again:
+    while (alreadyWritten < count) {
+        ssize_t written = send(fd, (const char *)buf + alreadyWritten,
+                               count - alreadyWritten, MSG_NOSIGNAL);
+        if (written == -1) {
+            if (errno == EINTR) {
+                // ignore signals
+                goto again;
+            }
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        }
+        alreadyWritten += written;
+    }
+    return;
+
+}
+
 ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
       pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
+    {
+        std::stringstream ss;
+        ss << "pipe://" << pipename;
+        label = ss.str();
+    }
 
     struct stat status_in;
     struct stat status_out;
@@ -377,7 +498,7 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
         }
     }
     if (fstat(fd_in, &status_in) == -1) {
-            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     if (!S_ISFIFO(status_in.st_mode)) {
         reportRuntimeError(pipename_rx + " is not a fifo?", __FILE__, __LINE__);
@@ -396,7 +517,7 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
         }
     }
     if (fstat(fd_out, &status_out) == -1) {
-            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     if (!S_ISFIFO(status_out.st_mode)) {
         reportRuntimeError(pipename_tx + " is not a fifo?", __FILE__, __LINE__);
@@ -491,6 +612,11 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
                                            std::string _symlinkname,
                                            uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {
+    {
+        std::stringstream ss;
+        ss << "pty://" << symlinkname;
+        label = ss.str();
+    }
 
     int rc;
     // request a new pseudoterminal

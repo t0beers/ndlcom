@@ -108,6 +108,29 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
 };
 
 /**
+ * essentially (only) a tcp-listener
+ *
+ * need some server-implementation to "listen()" before we can connect to it.
+ * closes connection (with throw) on error, like unreachable destination.
+ *
+ * Note: the call to "connect()" is done in a blocking manner!
+ */
+class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
+  public:
+    ExternalInterfaceTcpClient(
+        NDLComBridge &_bridge, std::string hostname, unsigned int port,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceTcpClient();
+
+    size_t readEscapedBytes(void *buf, size_t count);
+    void writeEscapedBytes(const void *buf, size_t count);
+
+  private:
+    struct sockaddr_in addr;
+    int fd;
+};
+
+/**
  * @brief transport data through "named pipe" in hex-encoded strings
  *
  * for example "0x04 0x5e 0x00 0xfd"
