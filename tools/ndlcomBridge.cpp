@@ -7,6 +7,8 @@
  */
 #include <getopt.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>   /* for strerror() */
 
 #include <cstdio>
 #include <sstream>
@@ -61,6 +63,7 @@ void help(const char *_name) {
 "--print-all\t-A\tPrint every packet\n"
 "--print-own\t-O\tPrint packets directed at the last given 'ownDeviceId'\n"
 "--print-miss\t-M\tPrint miss events of packets passing thorugh the bridge\n"
+"--realtime\t-R\ttry to obtain realtime scheduling. needs root.\n"
 "\n"
 "examples:\n"
 "\n"
@@ -112,9 +115,10 @@ int main(int argc, char *argv[]) {
             {"print-all", no_argument, 0, 'A'},
             {"print-own", no_argument, 0, 'O'},
             {"print-miss", no_argument, 0, 'M'},
+            {"realtime", no_argument, 0, 'R'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "u:m:i:f:AOMh", long_options,
+        c = getopt_long(argc, argv, "u:m:i:f:AOMRh", long_options,
                         &option_index);
         if (c == -1) {
             break;
@@ -195,6 +199,18 @@ int main(int argc, char *argv[]) {
                 printMiss = new ndlcom::BridgePrintMissEvents(bridge, std::cerr);
             } else {
                 help(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+            break;
+        }
+        case 'R': {
+            struct sched_param p;
+            p.sched_priority = 99;
+            std::cerr << "enabling SCHED_FIFO with priority "
+                      << p.sched_priority << "\n";
+            int r = sched_setscheduler(0, SCHED_FIFO, &p);
+            if (r == -1) {
+                std::cerr << "sched_setscheduler() failed: '" << strerror(errno) << "'\n";
                 exit(EXIT_FAILURE);
             }
             break;
