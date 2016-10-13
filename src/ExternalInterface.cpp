@@ -473,6 +473,9 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
       pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
+    if (pipename.empty()) {
+        reportRuntimeError("no pipename given", __FILE__, __LINE__);
+    }
     {
         std::stringstream ss;
         ss << "pipe://" << pipename;
@@ -612,6 +615,9 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
                                            std::string _symlinkname,
                                            uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {
+    if (symlinkname.empty()) {
+        reportRuntimeError("no symlinkname for pty given", __FILE__, __LINE__);
+    }
     {
         std::stringstream ss;
         ss << "pty://" << symlinkname;
