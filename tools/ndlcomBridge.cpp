@@ -42,6 +42,19 @@ void signal_handler(int signal) { stopMainLoop = true; }
 class ndlcom::BridgePrintAll *printAll = NULL;
 class ndlcom::BridgePrintMissEvents *printMiss = NULL;
 
+// TODO: use chrono from c++11
+struct timespec diff(struct timespec start, struct timespec end) {
+    timespec temp;
+    if ((end.tv_nsec - start.tv_nsec) < 0) {
+        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
+        temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+    } else {
+        temp.tv_sec = end.tv_sec - start.tv_sec;
+        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+    }
+    return temp;
+}
+
 void help(const char *_name) {
     std::string name(_name);
     size_t pos = name.find_last_of("/");
@@ -254,14 +267,35 @@ int main(int argc, char *argv[]) {
         printf("printing miss-events for passing message streams\n");
     }
 
+    struct timespec last_ts, now_ts;
+    clock_gettime(CLOCK_MONOTONIC, &last_ts);
+    usleep(usleep_us);
     while (!stopMainLoop) {
         // printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
-        /* when a Node is sending here, it will see its own message! */
-        // if (!allNodes.empty())
-        //    ndlcomNodeSend(allNodes.back().first, 0xff, 0, 0);
 
-        usleep(usleep_us);
+        // taking care to actually sleep the right number of microseconds as
+        // specified in the commandline
+        clock_gettime(CLOCK_MONOTONIC, &now_ts);
+        struct timespec sinceLast_ts = diff(last_ts, now_ts);;
+        last_ts = now_ts;
+
+        // some juggling with numbers...
+        int sinceLast_us = lrint(sinceLast_ts.tv_nsec / 1000.0) + sinceLast_ts.tv_sec * 1000000;
+        // another uncomprehensible calculation:
+        int processingDuration_us = sinceLast_us - usleep_us;
+        if (processingDuration_us < 0) {
+            processingDuration_us += usleep_us;
+        }
+
+        int finalSleepDuration_us = usleep_us - processingDuration_us;
+        if (finalSleepDuration_us > 0) {
+            usleep(usleep_us);
+            /* printf("processing took %ius, will sleep for %ius\n", processingDuration_us, */
+            /*        finalSleepDuration_us); */
+        /* } else { */
+            /* printf("processing took %ius, will not sleep\n", processingDuration_us); */
+        }
     }
 
     // clean up our memory
