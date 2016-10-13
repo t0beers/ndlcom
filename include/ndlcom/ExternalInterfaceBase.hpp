@@ -33,6 +33,7 @@ class ExternalInterfaceBase {
     virtual void writeEscapedBytes(const void *buf, size_t count) = 0;
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
+    std::string label;
     bool paused;
 
   protected:

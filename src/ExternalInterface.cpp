@@ -9,6 +9,7 @@
 #include <cstring>
 #include <errno.h>
 #include <cstdio>
+#include <sstream>
 
 // serial:
 #include <fcntl.h>
@@ -103,6 +104,11 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
                                                  speed_t baudrate,
                                                  uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags) {
+    {
+        std::stringstream ss;
+        ss << "serial://" << device_name << ":" << baudrate;
+        label = ss.str();
+    }
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
@@ -166,6 +172,11 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
 ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
                                         std::string device_name, uint8_t flags)
     : ExternalInterfaceStream(_bridge) {
+    {
+        std::stringstream ss;
+        ss << "fpga://" << device_name;
+        label = ss.str();
+    }
     if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
         reportRuntimeError("fpga module does only support default flags?",
                            __FILE__, __LINE__);
@@ -201,10 +212,17 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
 
+    {
+        std::stringstream ss;
+        ss << "udp://" << hostname << ":" << in_port << ":" << out_port;
+        label = ss.str();
+    }
+    // prevent this:
     if (in_port == out_port) {
         reportRuntimeError("inport and outport are the same", __FILE__,
                            __LINE__);
     }
+
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
     // conversion to ipv6 needs more than changing this... also convert all
@@ -357,6 +375,11 @@ ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
       unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
       pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
+    {
+        std::stringstream ss;
+        ss << "pipe://" << pipename;
+        label = ss.str();
+    }
 
     struct stat status_in;
     struct stat status_out;
@@ -491,6 +514,11 @@ ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
                                            std::string _symlinkname,
                                            uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {
+    {
+        std::stringstream ss;
+        ss << "pty://" << symlinkname;
+        label = ss.str();
+    }
 
     int rc;
     // request a new pseudoterminal
