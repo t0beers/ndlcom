@@ -86,30 +86,15 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     /* out << "trying to write " << count << "\n"; */
     if (!fd_write)
         return;
-    size_t alreadyWritten = 0;
-    while (alreadyWritten < count) {
-        size_t written = fwrite((const char *)buf + alreadyWritten,
-                                sizeof(char), count - alreadyWritten, fd_write);
-        if (written == 0) {
-            reportRuntimeError("no bytes written by fwrite(): " +
-                                   std::string(strerror(errno)),
-                               __FILE__, __LINE__);
-        }
-        alreadyWritten += written;
+    size_t written = fwrite((const char *)buf, sizeof(char), count, fd_write);
+    // happens when there is a "slow" interface gettings data from a
+    // "fast" one. it cannot cope.
+    if (written != count) {
+        out << "warning, not all bytes could be written\n";
     }
+    // not sure: flushing needed?
     fflush(fd_write);
-    // check for errors after writing. because in the pty-case, fwrite() will
-    // happily write into a not-anymore existing symlink, reporting as if
-    // nothing happend and all is shiny...
-    //
-    // FIXME: this can also fail in case of a serial device which is not (yet?)
-    // finished setting up. observed at least once, when changing the default baudrate.
-    if (std::ferror(fd_write)) {
-        reportRuntimeError("error after fwrite(): " +
-                               std::string(strerror(errno)),
-                           __FILE__, __LINE__);
-    }
-    /* out << "stream wrote " << (int)count << " bytes\n"; */
+
     return;
 }
 
