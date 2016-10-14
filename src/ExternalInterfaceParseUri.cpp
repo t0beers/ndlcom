@@ -7,7 +7,7 @@ const std::string uri_prefix_udp = "udp://";
 const std::string uri_prefix_pipe = "pipe://";
 const std::string uri_prefix_fpga = "fpga://";
 const std::string uri_prefix_pty = "pty://";
-const std::string uri_prefix_tcpclient= "tcpclient://";
+const std::string uri_prefix_tcpclient = "tcpclient://";
 
 /**
  * TODO:

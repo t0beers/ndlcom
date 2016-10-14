@@ -18,13 +18,14 @@
  * "serial:///dev/ttyUSB:$BAUDRATE" (default: 921600)
  * "pipe:///tmp/testpipe"
  * "pty:///tmp/testpty"
+ * "tcpclient://localhost:<port>
  *
  * for information about the specific behaviour of returned interface classes
  * see their respective header.
  *
  * @param out stream for writing status messages
  * @param bridge reference to the bridge to attach the new interface to
- * @param uri user-given string saying which kind of interface to create and return
+ * @param uri string stating which kind of interface to create and return
  * @param flags settings for the low-level "struct ndlcomExternalInterface"
  *
  * @return NULL on failure to parse, an "ndlcom::ExternalInterfaceBase" object
