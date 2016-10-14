@@ -66,7 +66,7 @@ void help(const char *_name) {
 "\n%s\n\n"
 "Low-level tool to create multiple NDLCom-interfaces, connect them by routing messages as needed and listen to multiple nodeIds. Can print miss-events by observing the packet-counter of pasing messages\n"
 "\n"
-"Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and allows injecting arbritrary messages without updating the routing table\n"
+"Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and allows injecting arbritrary messages without updating the routing table. To print the content of the current routingTable press 'r' during normal operation.\n"
 "\n"
 "options:\n"
 "--uri\t\t-u\tInterface to create. Possible: 'fpga', 'serial', 'pty', 'pipe', 'udp'\n"
@@ -111,6 +111,52 @@ void help(const char *_name) {
 actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
 }
 /* clang-format on */
+
+void printRoutingTable(const struct NDLComBridge *b) {
+    std::cout << "routingTable: \n";
+    struct NDLComExternalInterface *externalInterface;
+    if (list_empty(&b->externalInterfaceList)) {
+        std::cout << "no external interfaces registered, the routingTable "
+                     "should be kinda trivial...\n";
+        return;
+    }
+    list_for_each_entry(externalInterface, &b->externalInterfaceList, list) {
+
+        class ndlcom::ExternalInterfaceBase *base =
+            static_cast<class ndlcom::ExternalInterfaceBase *>(
+                externalInterface->context);
+        std::cout << base->label << "\n";
+
+        bool printed = false;
+        for (size_t id = 0; id < 256; ++id) {
+            if (b->routingTable.table[id] == externalInterface) {
+                std::cout << id << " ";
+                printed = true;
+            }
+        }
+        if (!printed) {
+            std::cout << "<none>";
+        }
+        std::cout << "\n";
+    }
+}
+
+void handleInput() {
+    fd_set s_rd;
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    FD_ZERO(&s_rd);
+    FD_SET(fileno(stdin), &s_rd);
+    int r = select(fileno(stdin) + 1, &s_rd, NULL, NULL, &tv);
+    if (r != 0) {
+        std::string entered;
+        std::getline(std::cin, entered);
+        if (entered == "r") {
+            printRoutingTable(&bridge);
+        }
+    }
+}
 
 int main(int argc, char *argv[]) {
 
@@ -273,6 +319,8 @@ int main(int argc, char *argv[]) {
     while (!stopMainLoop) {
         // printf("new loop\n");
         ndlcomBridgeProcess(&bridge);
+
+        handleInput();
 
         // taking care to actually sleep the right number of microseconds as
         // specified in the commandline
