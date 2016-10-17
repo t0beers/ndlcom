@@ -12,7 +12,9 @@ const std::string uri_prefix_tcpclient= "tcpclient://";
 /**
  * TODO:
  * - datastructure with functions to be called for specific match-strings.
- *   allows to be extendeble by defining additional functions...
+ *   allows to be extendeble by defining additional functions... regexes would
+ *   be nice...
+ * - think about generic factory to allow creation from other places
  */
 
 #define DEFAULT_SERIAL_BAUDRATE 921600
