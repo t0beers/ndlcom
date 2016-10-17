@@ -6,11 +6,11 @@
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
 /**
- * @brief parse string containing uri, create "ndlcom::ExternalInterfaceBase"
+ * @brief Parse string containing "uri", create "ndlcom::ExternalInterfaceBase"
  *
- * this function is a tooling function which reads a string and tries to parse
+ * This function is a tooling function which reads a string and tries to parse
  * it into information about which kind of specialization for the low-level
- * "ExternalInterface" to create. suitable for commandline-parsing. knows about
+ * "ExternalInterface" to create. Suitable for commandline-parsing. Knows about
  * the following types:
  *
  * "udp://localhost:$SRCPORT:$DSTPORT (default: 34000 and 34001)
@@ -19,7 +19,10 @@
  * "pipe:///tmp/testpipe"
  * "pty:///tmp/testpty"
  *
- * for information about the specific behaviour of returned interface classes
+ * Every uri might have a trailing string specifying apriori routing
+ * information for this interface in the format "&1,2,3".
+ *
+ * For information about the specific behaviour of returned interface classes
  * see their respective header.
  *
  * @param out stream for writing status messages
