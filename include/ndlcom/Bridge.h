@@ -149,11 +149,35 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge);
 size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge);
 
 /**
+ * @brief Update NDLComRoutingTable with known interface for given deviceId
+ *
+ * This is helpful in case the bridge will receive a large amount of data
+ * directed to a deviceId which is either not active at all or send packets
+ * very irregularly. In case the probable location of such a device in the
+ * network is known, initializing the routing table will prevent handling all
+ * traffic as having an unknown direction. Thus, slower interfaces will not be
+ * overloaded with traffic not directed at them.
+ *
+ * Similar to ndlcomBridgeMarkDeviceIdAsInternal() and friends.
+ *
+ * @param bridge The bridge to work on
+ * @param externalInterface Pointer to the interface where deviceId shall be
+ *        reached. Pointer cannot be const as it is stored as "void*" in the
+ *        NDLComRoutingTable.
+ * @param deviceId The deviceId which is reachable via the given interface
+ */
+void ndlcomBridgeAddRoutingInformationForDeviceId(
+    struct NDLComBridge *bridge, const NDLComId deviceId,
+    struct NDLComExternalInterface *externalInterface);
+
+/**
  * @brief Tell the bridge about deviceIds used by an InternalHandler
  *
- * Messages to this deviceId are not longer considered as "unknown destinations"
- * and not forwarded to external interfaces anymore. They are supposed to not
- * be transmitted to the outside.
+ * Messages to this deviceId are not longer considered as having an "unknown
+ * destination" and not forwarded to external interfaces anymore. They are
+ * supposed to not be transmitted to the outside. This effectivly disables
+ * routing messages for this deviceId to the outside and they will hopefully be
+ * handled on the inside.
  *
  * @param bridge The bridge to work on
  * @param deviceId The deviceId which belongs to an InternalHandler
@@ -164,9 +188,10 @@ void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
 /**
  * @brief Clear a previously internally used deviceId
  *
- * The given deviceId was used connected to an InternalHandler, probably via
+ * The given deviceId was connected to an InternalHandler, probably via
  * an NDLComNode, and will no longer be used. This function will set the
- * destination in the RoutingTable from "internal" to "unknown" again.
+ * destination in the RoutingTable from "internal" to "unknown" again. Not
+ * messages for this deviceId are forwarded again.
  *
  * @param bridge The bridge to work on
  * @param deviceId The previously "internally" used deviceId
