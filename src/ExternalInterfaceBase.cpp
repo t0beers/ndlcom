@@ -60,6 +60,10 @@ void ExternalInterfaceBase::setFlag(uint8_t flag, bool value) {
     }
 }
 
+struct NDLComExternalInterface * ExternalInterfaceBase::getInterface() {
+    return &external;
+}
+
 void ExternalInterfaceBase::reportRuntimeError(const std::string &error,
                                                const std::string &file,
                                                const int &line) const {
