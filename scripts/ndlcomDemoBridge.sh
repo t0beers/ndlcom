@@ -56,13 +56,18 @@ BRIDGE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomBridge"
 PRODUCE_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketProducer"
 CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
 
-
+function cleanup_handler {
+    # remove trap to prevent recursion
+    trap - EXIT INT TERM
+    # the final kill will stop this script as well
+    kill 0
+}
 # a trap to cleanup all background-child processes on script exit
 #
 # see http://stackoverflow.com/a/22644006/4658481
-trap "exit" INT TERM
+trap exit INT TERM
 # send SIGINT (ctrl-c) to every process in our process group on exit
-trap "kill -SIGINT 0" EXIT
+trap cleanup_handler EXIT
 
 GRAPHVIZ_FILE=tree.dot
 graphviz_cluster_counter=0

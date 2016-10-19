@@ -2,6 +2,10 @@
 
 #include "ndlcom/ExternalInterface.hpp"
 
+#include <vector>
+#include <limits>
+#include <stdlib.h>
+
 const std::string uri_prefix_serial = "serial://";
 const std::string uri_prefix_udp = "udp://";
 const std::string uri_prefix_pipe = "pipe://";
@@ -12,7 +16,9 @@ const std::string uri_prefix_tcpclient = "tcpclient://";
 /**
  * TODO:
  * - datastructure with functions to be called for specific match-strings.
- *   allows to be extendeble by defining additional functions...
+ *   allows to be extendeble by defining additional functions... regexes would
+ *   be nice...
+ * - think about generic factory to allow creation from other places
  */
 
 #define DEFAULT_SERIAL_BAUDRATE 921600
@@ -20,9 +26,49 @@ const std::string uri_prefix_tcpclient = "tcpclient://";
 #define DEFAULT_UDP_DSTPORT 34001
 #define DEFAULT_TCP_PORT 2000
 
+// split one "delim" separated string into several substrings
+std::vector<std::string> splitStringIntoStrings(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+std::vector<NDLComId>
+convertStringToIds(const std::vector<std::string> &numbers, std::ostream &out) {
+    std::vector<NDLComId> retval;
+    for (std::vector<std::string>::const_iterator it = numbers.begin();
+         it != numbers.end(); it++) {
+        int number = atoi((*it).c_str());
+        if (number < std::numeric_limits<NDLComId>::min()) {
+            out << "ParseUri: too small a deviceId '" << (*it) << "'\n";
+        }
+        if (number > std::numeric_limits<NDLComId>::max()) {
+            out << "ParseUri: too large a deviceId '" << (*it) << "'\n";
+        }
+        retval.push_back(number);
+    }
+    return retval;
+}
+
 class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
-    std::ostream &out, struct NDLComBridge &bridge, const std::string &uri,
+    std::ostream &out, struct NDLComBridge &bridge, const std::string &uriIn,
     uint8_t flags) {
+
+    class ExternalInterfaceBase* retval = NULL;
+    size_t ampersand_position = uriIn.find_last_of("&");
+    std::string deviceIdsForRoutingTable;
+    std::string uri;
+    if (ampersand_position != std::string::npos) {
+        uri = uriIn.substr(0, ampersand_position);
+        deviceIdsForRoutingTable = uriIn.substr(ampersand_position +1);
+    } else {
+        uri = uriIn;
+    }
 
     if (uri.compare(0, uri_prefix_serial.length(), uri_prefix_serial) == 0) {
         size_t begin_device =
@@ -39,7 +85,7 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         }
         out << "opening serial '" << device << "' with " << baudrate
             << "baud\n";
-        return new ExternalInterfaceSerial(bridge, device, baudrate, flags);
+        retval =  new ExternalInterfaceSerial(bridge, device, baudrate, flags);
 
     } else if (uri.compare(0, uri_prefix_udp.length(), uri_prefix_udp) == 0) {
         size_t begin_hostname =
@@ -66,7 +112,7 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         }
         out << "opening udp '" << hostname << "' with inport " << inport
             << " and outport " << outport << "\n";
-        return new ExternalInterfaceUdp(bridge, hostname, inport, outport,
+        retval = new ExternalInterfaceUdp(bridge, hostname, inport, outport,
                                         flags);
 
     } else if (uri.compare(0, uri_prefix_pipe.length(), uri_prefix_pipe) == 0) {
@@ -74,7 +120,7 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
             uri.find(uri_prefix_pipe) + uri_prefix_pipe.size();
         std::string pipename(uri.substr(begin_pipename));
         out << "opening pipe '" << pipename << "'\n";
-        return new ExternalInterfacePipe(bridge, pipename, flags);
+        retval = new ExternalInterfacePipe(bridge, pipename, flags);
 
     } else if (uri.compare(0, uri_prefix_fpga.length(), uri_prefix_fpga) == 0) {
         size_t begin_fpganame =
@@ -83,13 +129,13 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         if (fpganame.empty())
             fpganame = "/dev/NDLCom";
         out << "opening fpga '" << fpganame << "'\n";
-        return new ExternalInterfaceFpga(bridge, fpganame);
+        retval = new ExternalInterfaceFpga(bridge, fpganame);
 
     } else if (uri.compare(0, uri_prefix_pty.length(), uri_prefix_pty) == 0) {
         size_t begin_ptyname = uri.find(uri_prefix_pty) + uri_prefix_pty.size();
         std::string ptyname(uri.substr(begin_ptyname));
         out << "opening pty master '" << ptyname << "'\n";
-        return new ExternalInterfacePty(bridge, ptyname);
+        retval = new ExternalInterfacePty(bridge, ptyname);
     } else if (uri.compare(0, uri_prefix_tcpclient.length(),
                            uri_prefix_tcpclient) == 0) {
         size_t begin_hostname =
@@ -105,10 +151,26 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
             out << "falling back to default port of '" << port << "'\n";
         }
         out << "opening tcpclient '" << hostname << "'\n";
-        return new ExternalInterfaceTcpClient(bridge, hostname, port);
+        retval = new ExternalInterfaceTcpClient(bridge, hostname, port);
     }
 
-    out << "could not create any interface from string '" << uri << "'\n";
-    // when reaching here, nothing was created
-    return NULL;
+    if (!retval) {
+        out << "ParseUri: could not create any interface from string '" + uri +
+                   "'";
+        return NULL;
+    }
+
+    std::vector<NDLComId> ids = convertStringToIds(
+        splitStringIntoStrings(deviceIdsForRoutingTable, ','), out);
+
+    for (std::vector<NDLComId>::const_iterator it = ids.begin();
+         it != ids.end(); it++) {
+        out << "ParseUri: adding deviceId " << (int)(*it) << " for interface '"
+            << retval->label << "'\n";
+        ndlcomBridgeAddRoutingInformationForDeviceId(&bridge, *it,
+                                                     retval->getInterface());
+    }
+
+    // done...
+    return retval;
 }

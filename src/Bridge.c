@@ -351,8 +351,17 @@ size_t ndlcomBridgeProcessOnce(struct NDLComBridge *bridge) {
     return bytesReadOverall;
 }
 
+void ndlcomBridgeAddRoutingInformationForDeviceId(
+    struct NDLComBridge *bridge, const NDLComId deviceId,
+    struct NDLComExternalInterface *externalInterface) {
+
+    ndlcomRoutingTableUpdate(&bridge->routingTable, deviceId,
+                             externalInterface);
+}
+
 void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
                                         const NDLComId deviceId) {
+
     ndlcomRoutingTableUpdate(&bridge->routingTable, deviceId, bridge);
 }
 
