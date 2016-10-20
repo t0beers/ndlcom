@@ -79,6 +79,7 @@ size_t readBytesBlocking(void *buf, size_t count) {
     return readSoFar;
 }
 
+int numberOfLinesToRead = -1;
 bool print_header = true;
 bool print_payload = false;
 bool print_timestamp = true;
@@ -131,7 +132,8 @@ void help(const char *name) {
 "--payload\t\t-P\tprint the payload\n"
 "--notimestamp\t\t-S\tdon't print the timestamp\n"
 "--filter-receiverId\t-r\tadd given Id to the filter list\n"
-"--filter-senderId\t-r\tadd given Id to the filter list\n",
+"--filter-senderId\t-r\tadd given Id to the filter list\n"
+"--number-of-packages\t-n\tonly read n packets. defaults to -1, meaning infinity\n",
 name);
     /* clang-format on */
 }
@@ -152,9 +154,10 @@ int main(int argc, char *argv[]) {
             {"notimestamp", no_argument, 0, 'S'},
             {"filter-receiverId", required_argument, 0, 'r'},
             {"filter-senderId", required_argument, 0, 's'},
+            {"number-of-packages", required_argument, 0, 'n'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "HPSr:s:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "HPSr:s:n:h", long_options, &option_index);
         if (c == -1) {
             break;
         }
@@ -183,6 +186,15 @@ int main(int argc, char *argv[]) {
             int temp;
             ss >> temp;
             filterSenderId.push_back((NDLComId)temp);
+            break;
+        }
+        case 'n': {
+            std::istringstream ss(optarg);
+            ss >> numberOfLinesToRead;
+            // hrmpf... trivial, but crazy users might want this:
+            if (numberOfLinesToRead == 0) {
+                exit(EXIT_SUCCESS);
+            }
             break;
         }
         case 'h':
@@ -234,8 +246,15 @@ int main(int argc, char *argv[]) {
                     goto skipPrint;
 
                 printPackage(header, payload);
+                if (numberOfLinesToRead > 0) {
+                    numberOfLinesToRead--;
+                }
             skipPrint:
                 ndlcomParserDestroyPacket(&parser);
+            }
+
+            if (numberOfLinesToRead == 0) {
+                break;
             }
 
         } while (bytesRead != bytesProcessed);
@@ -247,7 +266,7 @@ int main(int argc, char *argv[]) {
             throw std::runtime_error(strerror(errno));
         }
 
-    } while (true);
+    } while (numberOfLinesToRead != 0);
 
     exit(EXIT_SUCCESS);
 }
