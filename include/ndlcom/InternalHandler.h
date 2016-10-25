@@ -3,26 +3,36 @@
 
 #include "ndlcom/Types.h"
 #include "ndlcom/list.h"
-#include <stdint.h>
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-/**
- * no flags in the moment
- */
+/** default, nothing special */
 #define NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT 0x00
 /**
- * if this flag is used, the internal handler will not see messages sent from
- * the internal side of the bridge, eg which were created by calling
+ * @brief Do not handle messages originating from internal
+ *
+ * If this flag is used, this InternalHandler will not see messages sent from
+ * the internal side of the NDLComBridge, eg which were created by calling
  * "ndlcomBridgeSendRaw()" or "ndlcomNodeSend()".
+ *
+ * This is useful to prevent loop by responding to a respond of a respond of
+ * an internal message. Additionally, handles which are not interested in these
+ * message can skip testing the senderId of messages.
  */
 #define NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL 0x01
 
 /**
- * callback-function for handling internal packets. note that you have to
- * _know_ was is passed in the "context" pointer.
+ * Callback-function for internal handling of received messages. Note that you
+ * have to _know_ was is passed in the "context" pointer.
+ *
+ * @param context Arbitrary pointer given to "ndlcomInternalHandlerInit"
+ * @param header The header of the message
+ * @param payload The payload of the message. See "header->mDataLen" for the size.
+ * @param origin The ExternalInterface where this message came from. Can be the
+ *               "NDLComBridge" pointer if it is originating from the internal
+ *               side. This might change.
  */
 typedef void (*NDLComInternalHandlerFkt)(void *context,
                                          const struct NDLComHeader *header,
@@ -31,39 +41,45 @@ typedef void (*NDLComInternalHandlerFkt)(void *context,
 
 struct NDLComInternalHandler {
     /**
-     * three usecases for the "context" pointer:
+     * Three use cases for the "context" pointer:
      * - reply to a message by sending messages to the outside --
-     *   bridge-pointer as context
+     *   NDLComBridge pointer as context
      * - print all received messages to stdout -- no context
-     * - count missEvents, do statistics... -- own "this" as context, where
-     *   additional data can be stored
+     * - count missEvents, do statistics... -- use the objects own "this" as
+     *   context, where additional data can be stored
      *
-     * not so good: you have to know what you do...
+     * What is not so good: you have to know what you do...
      */
     void *context;
-    /** influences the behaviour of the internal handler */
+    /** Influences the behaviour of the InternalHandler */
     uint8_t flags;
-    /** function called to handle all decoded packets */
+    /** function called to handle decoded packets for handling */
     NDLComInternalHandlerFkt handler;
-    /** stored  inside a doubly linked list as part of a "NDLComBridge" */
+    /** doubly linked list as part of "NDLComBridge" or "NDLComNode" */
     struct list_head list;
 };
 
 /**
- * @brief
- * @param internalHandler
- * @param handler
- * @param flags
- * @param context
+ * @brief Initialize the data structures belonging to an InternalHandler
+ *
+ * Will not connect it to any other object, will just prepare everything.
+ *
+ * @param internalHandler The object to initialize
+ * @param handler Callback function to use
+ * @param flags Initial flags
+ * @param context Arbitrary pointer
  */
 void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internalHandler,
                                NDLComInternalHandlerFkt handler,
                                const uint8_t flags, void *context);
 
 /**
- * @brief
- * @param internalHandler
- * @param flags
+ * @brief Setting optional flags influencing behaviour of the InternalHandler
+ *
+ * Will set the given flag pattern. Be careful not to overwrite anything.
+ *
+ * @param internalHandler Pointer to work on
+ * @param flags The pattern to set.
  */
 void
 ndlcomInternalHandlerSetFlags(struct NDLComInternalHandler *internalHandler,

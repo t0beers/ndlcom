@@ -185,9 +185,10 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     list_for_each_entry_safe(internalHandler, temp,
                              &bridge->internalHandlerList, list) {
         /*
-         * internal handler can opt-out from seeing messages sent by other
-         * callers on the internal side. in this case (flag is set), we compare
-         * the "origin" to be the "bridge" pointer itself.
+         * Internal handler can opt-out from seeing messages sent by other
+         * callers on the internal side. In this case (the flag is set), we
+         * compare the "origin" to be the "bridge" pointer itself to not handle
+         * these messages.
          */
         if (!(internalHandler->flags &
               NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
@@ -200,7 +201,7 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     }
 }
 
-/* reading and parsing bytes from one external interface */
+/* reading and parsing bytes from one ExternalInterface */
 static size_t ndlcomBridgeProcessExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface) {
@@ -235,8 +236,8 @@ static size_t ndlcomBridgeProcessExternalInterface(
              * Updating the table before processing the message allows
              * readily responding on the right interface.
              *
-             * TODO: take care that no one can override "deviceIds" which
-             * are actually used by a node from "us".
+             * TODO: take care that no one can override "deviceIds" in the
+             * RoutingTable which are actually used by a node from "us".
              */
             if (!(externalInterface->flags &
                   NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
