@@ -68,7 +68,7 @@ trap cleanup_handler EXIT
 ${BRIDGE_COMMAND} -u pipe://${SECOND_PIPE} -u "${ACTUAL_OUTPUT}" -m pipe:///tmp/out &
 sleep 1
 
-echo "connecting the two pipes ratelimited for ${BW_LIMIT} (actually ${ACTUAL_BW_LIMIT} characters/s)"
+echo "connecting the two pipes ratelimited for ${BW_LIMIT}B/s (actually ${ACTUAL_BW_LIMIT} characters/s)"
 stdbuf -o0 tail -q -n +1 -f "${FIRST_PIPE}"_tx | pv --quiet --rate-limit ${ACTUAL_BW_LIMIT}  > "${SECOND_PIPE}"_rx &
 stdbuf -o0 tail -q -n +1 -f "${SECOND_PIPE}"_tx | pv --quiet --rate-limit ${ACTUAL_BW_LIMIT}  > "${FIRST_PIPE}"_rx &
 
