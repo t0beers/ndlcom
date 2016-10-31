@@ -394,6 +394,7 @@ void ndlcomBridgeRegisterExternalInterface(
     }
     /* and now we can add it */
     list_add(&externalInterface->list, &bridge->externalInterfaceList);
+    externalInterface->bridge = bridge;
 }
 
 void ndlcomBridgeDeregisterInternalHandler(
@@ -420,6 +421,7 @@ void ndlcomBridgeDeregisterExternalInterface(
                                             externalInterface);
     /* and now we can delete it */
     list_del_init(&externalInterface->list);
+    externalInterface->bridge = 0;
 
 }
 
