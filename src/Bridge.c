@@ -381,6 +381,8 @@ void ndlcomBridgeRegisterInternalHandler(
     }
     /* and now we can add it */
     list_add(&internalHandler->list, &bridge->internalHandlerList);
+    // this handler is not connected to a Node, but to a bridge...
+    internalHandler->node = 0;
 }
 
 void ndlcomBridgeRegisterExternalInterface(
@@ -403,6 +405,7 @@ void ndlcomBridgeDeregisterInternalHandler(
     }
     /* and now we can delete it */
     list_del_init(&internalHandler->list);
+    internalHandler->node = 0;
 }
 
 void ndlcomBridgeDeregisterExternalInterface(

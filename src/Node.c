@@ -104,10 +104,12 @@ void ndlcomNodeRegisterInternalHandler(
     struct NDLComNode *node, struct NDLComInternalHandler *internalHandler) {
 
     list_add(&internalHandler->list, &node->internalHandlerList);
+    internalHandler->node = node;
 }
 
 void ndlcomNodeDeregisterInternalHandler(
     struct NDLComNode *node, struct NDLComInternalHandler *internalHandler) {
 
     list_del_init(&internalHandler->list);
+    internalHandler->node = 0;
 }

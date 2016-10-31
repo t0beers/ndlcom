@@ -41,6 +41,11 @@ typedef void (*NDLComInternalHandlerFkt)(void *context,
 
 struct NDLComInternalHandler {
     /**
+     * The NDLComNode where this handler is connected to. Keep in mind that
+     * InternalHandlers can also be connected to a NDLComBridge. This case is
+     * not reflected in the API. */
+    struct NDLComNode *node;
+    /**
      * Three use cases for the "context" pointer:
      * - reply to a message by sending messages to the outside --
      *   NDLComBridge pointer as context
