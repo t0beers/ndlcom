@@ -184,7 +184,7 @@ void ndlcomParserDestroyPacket(struct NDLComParser *parser) {
 }
 
 const char *ndlcomParserGetState(const struct NDLComParser *parser) {
-    if (parser->mState > mcNUMBER_OF_STATES || parser->mState < 0) {
+    if (parser->mState > mcNUMBER_OF_STATES) {
         return NULL;
     }
     return ndlcomParserStateName[parser->mState];
