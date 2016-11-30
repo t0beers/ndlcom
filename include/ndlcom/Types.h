@@ -86,6 +86,7 @@ struct NDLComHeader {
  * - Packets exceeding these limits should not disturb the NDLComParser, they
  *   will be discarded and cannot be received. Keep in mind that outing these
  *   packages using "store and forward" will also not work!
+ * - Ouou: As the BROADCAST deviceId is 255, this will also not work?
  * - The encoder does not care
  */
 #ifndef NDLCOM_MAX_NUMBER_OF_DEVICES
