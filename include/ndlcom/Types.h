@@ -6,8 +6,9 @@
 #define NDLCOM_TYPES_H
 
 /**
- * this header-file declares the size/type of "NDLComCrc", depending on which
- * mode is chosen, 8bit XOR or 16bit FCS */
+ * This header-file declares the size/type of "NDLComCrc", depending on which
+ * mode is chosen, 8bit XOR or 16bit FCS. See the define NDLCOM_CRC16.
+ */
 #include "ndlcom/Crc.h"
 
 #include <stdint.h>
@@ -16,111 +17,133 @@
 extern "C" {
 #endif
 
-/** Type for sender and receiver ids in the header. */
+/** Type for senderId and receiverId to address devices in the header. */
 typedef uint8_t NDLComId;
 
-/** Type for counter field in the header. */
+/** Type for the packet counter field in the header. */
 typedef uint8_t NDLComCounter;
 
-/** Type for the data length field in the header */
+/** Type for the payload length field in the header */
 typedef uint8_t NDLComDataLen;
 
 /**
  * @brief The byte format of a header
  *
- * Contains all used data-structures.
+ * Keep in mind that changing this would also need corresponding changes in the
+ * VHDL code.
  */
 struct NDLComHeader {
-    /** id of receiver. 0xff for broadcast, 0x00 reserved (error). */
+    /**
+     * DeviceId of the receiver this packet is directed to. 0xff for broadcast
+     * (see NDLCOM_ADDR_BROADCAST), 0x00 kindof reserved (error?)
+     */
     NDLComId mReceiverId;
-    /** id of the sender of the packet. */
+    /**
+     * deviceId of the sender of this packet.
+     */
     NDLComId mSenderId;
-    /** Frame counter. */
+    /**
+     * Frame counter. To be increased by the sender for each packet sent to a
+     * specific receiverId.
+     */
     NDLComCounter mCounter;
-    /** Length of following data structure, limited to 255 bytes. */
+    /**
+     * Length of following payload, limited to a maximum of 255 bytes (see
+     * NDLCOM_MAX_PAYLOAD_SIZE)
+     */
     NDLComDataLen mDataLen;
-    /* is "packed" because the header will be used in ndlcom-messages */
+    /* This structure is "packed" to force tight memory alignment */
 } __attribute__((packed));
 
 /**
- * @brief current escape-byte
+ * @brief Escape-byte
+ *
+ * Denotes occurence of reserved bytes in the datastream.
  */
 #define NDLCOM_ESC_CHAR 0x7d
 
 /**
- * @brief current flag to denote an escaped byte
+ * @brief Flag-byte
+ *
+ * Denotes the beginning of a new packet. Using it at the end of a packet is
+ * not forbidden and helps when performing cut-through forwarding.
  */
 #define NDLCOM_START_STOP_FLAG 0x7e
 
 /**
- * @brief current broadcast address
+ * @brief Broadcast address
  */
-
 #define NDLCOM_ADDR_BROADCAST 0xff
 
 /**
- * calculate the number of possible devices, 256 by default
+ * @brief The number of possible deviceIds, 256 by default
  *
- * this can be altered from outside to cut away the upper Ids from the global
- * adressspace. safes memory in routing and header tables.
+ * This can be altered from outside to cut away the upper Ids from the global
+ * address space. This reduces static memory consumption in NDLComRoutingTable
+ * and NDLComHeaderConfig.
  *
- * TODO: correct?
- * - packets exceeding these limits should not disturb the parser, they just
- *   cannot be received.
- * - the encoder does not care
+ * TODO: Is this correct?
+ * - Packets exceeding these limits should not disturb the NDLComParser, they
+ *   will be discarded and cannot be received. Keep in mind that outing these
+ *   packages using "store and forward" will also not work!
+ * - The encoder does not care
  */
 #ifndef NDLCOM_MAX_NUMBER_OF_DEVICES
 #define NDLCOM_MAX_NUMBER_OF_DEVICES (1 << (sizeof(NDLComId) * 8))
 #endif
 
 /**
- * how much payload a packet can carry in maximum
+ * @brief How much bytes of payload a packet can contain as maximum
  *
- * can be overridden to restrict datastructures to lower maximum packet sizes,
- * safes memory
+ * Can be overridden to restrict static memory consumption in NDLComParser and
+ * stack memory consumption in ndlcomBridgeProcessExternalInterface().
+ *
  *
  * TODO: correct?
- * - packets exceeding these limits should not disturb the parser, they just
- *   cannot be received.
- * - the encoder does not care
+ * - Packets exceeding these limits should not disturb the NDLComParser, they
+ *   will be discarded and cannot be received. Keep in mind that outing these
+ *   packages using "store and forward" will also not work!
+ * - The encoder does not care
  */
 #ifndef NDLCOM_MAX_PAYLOAD_SIZE
 #define NDLCOM_MAX_PAYLOAD_SIZE (1 << (sizeof(NDLComDataLen) * 8))
 #endif
 
 /**
- * @brief worst-case size of rx-buffer
+ * @brief Worst-case size of a decoded message
  *
- * an decoded message can contain upto 255byte, a header and the crc. no bytes
- * are escaped and there are no start/stop flags. this results in 261bytes by
- * default.
+ * A decoded message can contain up to 255bytes of payload, an NDLComHeader and
+ * the NDLComCrc. This is it for the decoded version of a packet and results in
+ * 261bytes by default.
  */
 #define NDLCOM_MAX_DECODED_MESSAGE_SIZE                                        \
     (sizeof(struct NDLComHeader) + NDLCOM_MAX_PAYLOAD_SIZE + sizeof(NDLComCrc))
 
 /**
- * @brief size to store a complete given packet
+ * @brief Size to store a decoded packet with known payload-size
  *
- * this macro is probably useless
+ * This macro is probably useless...
  */
 #define NDLCOM_MAX_DECODED_MESSAGE_SIZE_FOR_PACKET(header)                     \
     (sizeof(struct NDLComHeader) + header->mDataLen + sizeof(NDLComCrc))
 
 /**
- * @brief worst-case size of tx-buffer
+ * @brief Worst-case size of encoded message
  *
- * in an encoded message, the worst case would be to escape _each_ single byte
- * of an decoded message, plus the initial start-flag and the optional stop
- * flag. The CRC is included in the decoded message, and can be escaped as
- * well. this is 524 by default
+ * Useful to size the raw rx/tx-buffers.
+ *
+ * In an encoded message, the worst case would be to escape every single byte
+ * of an decoded message (see NDLCOM_MAX_DECODED_MESSAGE_SIZE), plus the
+ * initial start-flag (and the optional stop flag). This results is 524 by
+ * default.
  */
 #define NDLCOM_MAX_ENCODED_MESSAGE_SIZE                                        \
     (2 + 2 * NDLCOM_MAX_DECODED_MESSAGE_SIZE)
 
 /**
- * @brief how much space it needed to encode a given packet in worst case
+ * @brief Size to store a encoded packet with known payload-size
  *
- * probably less.
+ * This macro is probably useless...
  */
 #define NDLCOM_MAX_ENCODED_MESSAGE_SIZE_FOR_PACKET(header)                     \
     (2 + 2 * NDLCOM_MAX_DECODED_MESSAGE_SIZE_FOR_PACKET(header))

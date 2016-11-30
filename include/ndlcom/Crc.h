@@ -11,6 +11,9 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Existence of this define enforces 16bit checksum. The default since 2014.
+ */
 #define NDLCOM_CRC16
 
 /** 8bit XOR */
