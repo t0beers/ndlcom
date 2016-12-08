@@ -77,7 +77,10 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
             /* NodeHandler will see their own broadcast messages if this is
              * not disabled by a special config-flag...  Messages from the
              * internal side can be detected by checking "origin" to be _not_
-             * zero */
+             * zero
+             *
+             * FIXME: the flag is not checked!
+             */
             nodeHandler->handler(nodeHandler->context, header, payload,
                                      origin);
         }

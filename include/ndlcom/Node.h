@@ -12,8 +12,9 @@ extern "C" {
 /**
  * @brief a "NDLComNode" has a "deviceId" and is connected to a NDLComBridge
  *
- * Every active participant in a NDLCom network has a "deviceId" which is used
- * in the senderId in the message header. The Node is responsible to correctly
+ * An NDLComNode is wrapped around a NDLComBridgeHandler. Every active
+ * participant in a NDLCom network has a "deviceId" which is used in the
+ * senderId in the message header. The Node is responsible to correctly
  * increase the packet counter in the header for every new message transmitted.
  *
  * Additionally a Node can receive messages directed at its "deviceId" (or the
@@ -22,6 +23,9 @@ extern "C" {
  * called.
  *
  * A Node can be only be connected to one single NDLComBridge.
+ *
+ * Note: But there is no sensible way to enforce that a NDLComBridge has only one
+ * NDLComNode for a given receiverId...
  */
 struct NDLComNode {
     /**
@@ -88,7 +92,7 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
  * Broadcasts, every broadcast sent here will be seen by the handlers
  * registered in this Node.
  *
- * @param node
+ * @param node the node to use when sending the message. determines the senderId
  * @param receiverId
  * @param payload
  * @param payloadSize

@@ -189,6 +189,8 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
          * callers connected on the internal side. In this case (if the flag is
          * set), we compare the "origin" to be the "bridge" pointer itself to
          * not handle these messages.
+         *
+         * Hm, would be nicer to pass NULL in case it is the bridge...
          */
         if ((bridgeHandler->flags &
              NDLCOM_BRIDGE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
