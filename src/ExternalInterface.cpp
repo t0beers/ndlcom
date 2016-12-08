@@ -578,7 +578,11 @@ size_t ExternalInterfacePipe::readEscapedBytes(void *buf, size_t count) {
             // be doable more efficiently...
             char t[2];
             // should not return EOF, "fscanf()" should have handled this
-            fgets(t, 2, str_in);
+            char *ret = fgets(t, 2, str_in);
+            // error or EOF...? honestly, I don't care
+            if (!ret) {
+                reportRuntimeError("fgets didn't zer0?", __FILE__, __LINE__);
+            }
             /* std::cerr << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
             /* std::cerr << "jo, did read: 0x" << std::hex << byte << std::dec

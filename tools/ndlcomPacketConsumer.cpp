@@ -61,7 +61,11 @@ size_t readBytesBlocking(void *buf, size_t count) {
             char t[2];
             // should not return EOF, "fscanf()" should have handled this
             /* std::cerr << "throw away?\n"; */
-            fgets(t, 2, stdin);
+            char* ret = fgets(t, 2, stdin);
+            // error or EOF...? honestly, I don't care
+            if (!ret) {
+                throw std::runtime_error("fgets didn't zer0?");
+            }
             /* std::cerr << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
             /* std::cerr << "did read: 0x" << std::hex << byte << std::dec */
