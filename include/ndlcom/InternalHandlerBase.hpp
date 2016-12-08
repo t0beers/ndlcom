@@ -33,7 +33,7 @@ class BridgeHandlerBase {
     std::ostream &out;
 
   private:
-    struct NDLComInternalHandler internal;
+    struct NDLComBridgeHandler internal;
 };
 
 /**

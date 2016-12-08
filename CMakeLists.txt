@@ -31,6 +31,7 @@ set(SOURCES_lib
     src/InternalHandler.c
     src/InternalHandler.cpp
     src/InternalHandlerBase.cpp
+    src/BridgeHandler.c
     src/Bridge.c
     src/Node.c
 )
@@ -46,6 +47,7 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/InternalHandler.hpp
     include/${PROJECT_NAME}/InternalHandlerBase.hpp
     include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
+    include/${PROJECT_NAME}/BridgeHandler.h
     include/${PROJECT_NAME}/Bridge.h
     include/${PROJECT_NAME}/Node.h
     include/${PROJECT_NAME}/list.h

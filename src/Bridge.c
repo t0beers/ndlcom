@@ -17,7 +17,7 @@
 /**
  * @brief Helper macro written to solve a problem at hand...
  *
- * Problem is that an InternalHandler (like a "post register value write
+ * Problem is that an BridgeHandler (like a "post register value write
  * callback") could decide to remove an existing ExternalInterface from the
  * bridge. Which is bad, it can cause endless loops if the wrong one is removed
  * because it is no longer connected to the rest of the list, but just an
@@ -173,7 +173,7 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
                                               const void *payload,
                                               void *origin) {
     /* used as loop-variable for the lists */
-    struct NDLComInternalHandler *internalHandler, *temp;
+    struct NDLComBridgeHandler *bridgeHandler, *temp;
 
     /*
      * First thing to do: forward/transmit outgoing messages on the actual
@@ -182,23 +182,23 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
     /* call the internal handlers to handle the message */
-    list_for_each_entry_safe(internalHandler, temp,
+    list_for_each_entry_safe(bridgeHandler, temp,
                              &bridge->internalHandlerList, list) {
         /*
-         * Every InternalHandler can opt-out from seeing messages sent by other
+         * Every BridgeHandler can opt-out from seeing messages sent by other
          * callers connected on the internal side. In this case (if the flag is
          * set), we compare the "origin" to be the "bridge" pointer itself to
          * not handle these messages.
          */
-        if ((internalHandler->flags &
-             NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
+        if ((bridgeHandler->flags &
+             NDLCOM_BRIDGE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
             (origin == bridge)) {
             continue;
         }
-        internalHandler->handler(internalHandler->context, header, payload,
+        bridgeHandler->handler(bridgeHandler->context, header, payload,
                                  origin);
         /* guard against removal of handlers by other handlers... */
-        CHECK_LIST_IN_LOOP(internalHandler, temp, list);
+        CHECK_LIST_IN_LOOP(bridgeHandler, temp, list);
     }
 }
 
@@ -264,7 +264,7 @@ static size_t ndlcomBridgeProcessExternalInterface(
             ndlcomParserDestroyPacket(&externalInterface->parser);
 
             /**
-             * Problem: If some InternalHandler deregistered this
+             * Problem: If some BridgeHandler deregistered this
              * ExternalInterface, we should not proceed parsing any residual
              * bytes, mayhem would ensue: The interface-pointer will be
              * reinserted into the routing table!
@@ -373,17 +373,16 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
                              NDLCOM_ROUTING_ALL_INTERFACES);
 }
 
-void ndlcomBridgeRegisterInternalHandler(
+void ndlcomBridgeRegisterBridgeHandler(
     struct NDLComBridge *bridge,
-    struct NDLComInternalHandler *internalHandler) {
+    struct NDLComBridgeHandler *bridgeHandler) {
     /* check that the given handler is not yet part of the bridge */
-    if (ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
+    if (ndlcomBridgeCheckBridgeHandler(bridge, bridgeHandler)) {
         return;
     }
     /* and now we can add it */
-    list_add(&internalHandler->list, &bridge->internalHandlerList);
-    // this handler is not connected to a Node, but to a bridge...
-    internalHandler->node = 0;
+    list_add(&bridgeHandler->list, &bridge->internalHandlerList);
+    bridgeHandler->bridge = bridge;
 }
 
 void ndlcomBridgeRegisterExternalInterface(
@@ -398,16 +397,16 @@ void ndlcomBridgeRegisterExternalInterface(
     externalInterface->bridge = bridge;
 }
 
-void ndlcomBridgeDeregisterInternalHandler(
+void ndlcomBridgeDeregisterBridgeHandler(
     struct NDLComBridge *bridge,
-    struct NDLComInternalHandler *internalHandler) {
+    struct NDLComBridgeHandler *bridgeHandler) {
     /* check that the given handler is really part of the bridge */
-    if (!ndlcomBridgeCheckInternalHandler(bridge, internalHandler)) {
+    if (!ndlcomBridgeCheckBridgeHandler(bridge, bridgeHandler)) {
         return;
     }
     /* and now we can delete it */
-    list_del_init(&internalHandler->list);
-    internalHandler->node = 0;
+    list_del_init(&bridgeHandler->list);
+    bridgeHandler->bridge = 0;
 }
 
 void ndlcomBridgeDeregisterExternalInterface(
@@ -439,13 +438,13 @@ uint8_t ndlcomBridgeCheckExternalInterface(
     return 0;
 }
 
-uint8_t ndlcomBridgeCheckInternalHandler(
+uint8_t ndlcomBridgeCheckBridgeHandler(
     struct NDLComBridge *bridge,
-    struct NDLComInternalHandler *internalHandler) {
+    struct NDLComBridgeHandler *bridgeHandler) {
     /* iterate all handlers, check if the one in the argument is present */
-    struct NDLComInternalHandler *it;
+    struct NDLComBridgeHandler *it;
     list_for_each_entry(it, &bridge->internalHandlerList, list) {
-        if (it == internalHandler) {
+        if (it == bridgeHandler) {
             return 1;
         }
     }

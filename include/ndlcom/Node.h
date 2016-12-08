@@ -2,6 +2,7 @@
 #define NDLCOM_NODE_H
 
 #include "ndlcom/Bridge.h"
+#include "ndlcom/InternalHandler.h"
 #include "ndlcom/list.h"
 
 #if defined(__cplusplus)
@@ -43,7 +44,7 @@ struct NDLComNode {
      * filter out messages not directed at us. This handler in turn will call
      * all the handlers in our own list for message directed at us.
      */
-    struct NDLComInternalHandler myIdHandler;
+    struct NDLComBridgeHandler myIdHandler;
 };
 
 /**

@@ -23,15 +23,15 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
     ndlcomNodeSetOwnSenderId(node, ownSenderId);
 
     /* initialize handler which this Node is going to register in the bridge */
-    ndlcomInternalHandlerInit(&node->myIdHandler, ndlcomNodeMessageHandler,
+    ndlcomBridgeHandlerInit(&node->myIdHandler, ndlcomNodeMessageHandler,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, node);
     /* na, what did I say? */
-    ndlcomBridgeRegisterInternalHandler(bridge, &node->myIdHandler);
+    ndlcomBridgeRegisterBridgeHandler(bridge, &node->myIdHandler);
 }
 
 void ndlcomNodeDeinit(struct NDLComNode *node) {
     /* we do not want to be called anymore in the future */
-    ndlcomBridgeDeregisterInternalHandler(node->bridge, &node->myIdHandler);
+    ndlcomBridgeDeregisterBridgeHandler(node->bridge, &node->myIdHandler);
     /* additionally inform the bridge that our deviceId is no longer used
      * internally */
     ndlcomBridgeClearInternalDeviceId(node->bridge,

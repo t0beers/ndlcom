@@ -4,13 +4,13 @@ using namespace ndlcom;
 
 BridgeHandlerBase::BridgeHandlerBase(NDLComBridge &_bridge, std::ostream &_out)
     : bridge(_bridge), out(_out) {
-    ndlcomInternalHandlerInit(&internal, BridgeHandlerBase::handleWrapper,
+    ndlcomBridgeHandlerInit(&internal, BridgeHandlerBase::handleWrapper,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
-    ndlcomBridgeRegisterInternalHandler(&bridge, &internal);
+    ndlcomBridgeRegisterBridgeHandler(&bridge, &internal);
 }
 
 BridgeHandlerBase::~BridgeHandlerBase() {
-    ndlcomBridgeDeregisterInternalHandler(&bridge, &internal);
+    ndlcomBridgeDeregisterBridgeHandler(&bridge, &internal);
 }
 
 void BridgeHandlerBase::handleWrapper(void *context,
