@@ -29,9 +29,11 @@ set(SOURCES_lib
     src/ExternalInterface.c
     src/ExternalInterfaceBase.cpp
     src/NodeHandler.c
-    src/InternalHandler.cpp
-    src/InternalHandlerBase.cpp
+    src/NodeHandler.cpp
+    src/NodeHandlerBase.cpp
     src/BridgeHandler.c
+    src/BridgeHandler.cpp
+    src/BridgeHandlerBase.cpp
     src/Bridge.c
     src/Node.c
 )
@@ -44,10 +46,12 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Routing.h
     include/${PROJECT_NAME}/ExternalInterface.h
     include/${PROJECT_NAME}/NodeHandler.h
-    include/${PROJECT_NAME}/InternalHandler.hpp
-    include/${PROJECT_NAME}/InternalHandlerBase.hpp
+    include/${PROJECT_NAME}/NodeHandler.hpp
+    include/${PROJECT_NAME}/NodeHandlerBase.hpp
     include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
     include/${PROJECT_NAME}/BridgeHandler.h
+    include/${PROJECT_NAME}/BridgeHandler.hpp
+    include/${PROJECT_NAME}/BridgeHandlerBase.hpp
     include/${PROJECT_NAME}/Bridge.h
     include/${PROJECT_NAME}/Node.h
     include/${PROJECT_NAME}/list.h

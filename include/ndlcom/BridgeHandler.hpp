@@ -1,9 +1,9 @@
-#ifndef INTERNALHANDLER_HPP
-#define INTERNALHANDLER_HPP
+#ifndef NDLCOM_BRIDGE_HANDLER_HPP
+#define NDLCOM_BRIDGE_HANDLER_HPP
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
-#include "ndlcom/InternalHandlerBase.hpp"
+#include "ndlcom/BridgeHandlerBase.hpp"
 
 #include <bitset>
 
@@ -17,19 +17,6 @@ class BridgePrintAll : public BridgeHandlerBase {
   public:
     BridgePrintAll(struct NDLComBridge &_bridge,
                    std::ostream &_out = std::cerr);
-    void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin);
-};
-
-/**
- * @brief prints information about messages received by the node
- *
- * just a simple outputting class to print a line containing information of the
- * header for every message observed.
- */
-class NodePrintOwnId : public NodeHandlerBase {
-  public:
-    NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin);
 };
@@ -70,4 +57,4 @@ class BridgePrintMissEvents : public BridgeHandlerBase {
 };
 }
 
-#endif /*INTERNALHANDLER_HPP*/
+#endif /*NDLCOM_BRIDGE_HANDLER_HPP*/
