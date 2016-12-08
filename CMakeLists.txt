@@ -28,7 +28,7 @@ set(SOURCES_lib
     src/Routing.c
     src/ExternalInterface.c
     src/ExternalInterfaceBase.cpp
-    src/InternalHandler.c
+    src/NodeHandler.c
     src/InternalHandler.cpp
     src/InternalHandlerBase.cpp
     src/BridgeHandler.c
@@ -43,7 +43,7 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Crc.h
     include/${PROJECT_NAME}/Routing.h
     include/${PROJECT_NAME}/ExternalInterface.h
-    include/${PROJECT_NAME}/InternalHandler.h
+    include/${PROJECT_NAME}/NodeHandler.h
     include/${PROJECT_NAME}/InternalHandler.hpp
     include/${PROJECT_NAME}/InternalHandlerBase.hpp
     include/${PROJECT_NAME}/ExternalInterfaceBase.hpp

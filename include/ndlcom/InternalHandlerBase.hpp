@@ -63,7 +63,7 @@ class NodeHandlerBase {
     std::ostream &out;
 
   private:
-    struct NDLComInternalHandler internal;
+    struct NDLComNodeHandler internal;
 };
 }
 

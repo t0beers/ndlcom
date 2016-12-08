@@ -23,13 +23,13 @@ void BridgeHandlerBase::handleWrapper(void *context,
 
 NodeHandlerBase::NodeHandlerBase(NDLComNode &_node, std::ostream &_out)
     : node(_node), out(_out) {
-    ndlcomInternalHandlerInit(&internal, NodeHandlerBase::handleWrapper,
+    ndlcomNodeHandlerInit(&internal, NodeHandlerBase::handleWrapper,
                               NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
-    ndlcomNodeRegisterInternalHandler(&node, &internal);
+    ndlcomNodeRegisterNodeHandler(&node, &internal);
 }
 
 NodeHandlerBase::~NodeHandlerBase() {
-    ndlcomNodeDeregisterInternalHandler(&node, &internal);
+    ndlcomNodeDeregisterNodeHandler(&node, &internal);
 }
 
 // static wrapper function for the C-callback
