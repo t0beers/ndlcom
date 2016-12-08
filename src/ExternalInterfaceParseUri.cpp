@@ -55,11 +55,11 @@ convertStringToIds(const std::vector<std::string> &numbers, std::ostream &out) {
     return retval;
 }
 
-class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
+std::shared_ptr<class ndlcom::ExternalInterfaceBase >ndlcom::ParseUriAndCreateExternalInterface(
     std::ostream &out, struct NDLComBridge &bridge, const std::string &uriIn,
     uint8_t flags) {
 
-    class ExternalInterfaceBase* retval = NULL;
+    std::shared_ptr<class ExternalInterfaceBase> retval; // initialized to zero
     size_t ampersand_position = uriIn.find_last_of("&");
     std::string deviceIdsForRoutingTable;
     std::string uri;
@@ -85,7 +85,8 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         }
         out << "opening serial '" << device << "' with " << baudrate
             << "baud\n";
-        retval =  new ExternalInterfaceSerial(bridge, device, baudrate, flags);
+        retval = std::make_shared<class ndlcom::ExternalInterfaceSerial>(
+            bridge, device, baudrate, flags);
 
     } else if (uri.compare(0, uri_prefix_udp.length(), uri_prefix_udp) == 0) {
         size_t begin_hostname =
@@ -112,15 +113,16 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         }
         out << "opening udp '" << hostname << "' with inport " << inport
             << " and outport " << outport << "\n";
-        retval = new ExternalInterfaceUdp(bridge, hostname, inport, outport,
-                                        flags);
+        retval = std::make_shared<class ndlcom::ExternalInterfaceUdp>(
+            bridge, hostname, inport, outport, flags);
 
     } else if (uri.compare(0, uri_prefix_pipe.length(), uri_prefix_pipe) == 0) {
         size_t begin_pipename =
             uri.find(uri_prefix_pipe) + uri_prefix_pipe.size();
         std::string pipename(uri.substr(begin_pipename));
         out << "opening pipe '" << pipename << "'\n";
-        retval = new ExternalInterfacePipe(bridge, pipename, flags);
+        retval = std::make_shared<class ndlcom::ExternalInterfacePty>(
+            bridge, pipename, flags);
 
     } else if (uri.compare(0, uri_prefix_fpga.length(), uri_prefix_fpga) == 0) {
         size_t begin_fpganame =
@@ -129,13 +131,14 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
         if (fpganame.empty())
             fpganame = "/dev/NDLCom";
         out << "opening fpga '" << fpganame << "'\n";
-        retval = new ExternalInterfaceFpga(bridge, fpganame);
+        retval = std::make_shared<class ndlcom::ExternalInterfaceFpga>(
+            bridge, fpganame);
 
     } else if (uri.compare(0, uri_prefix_pty.length(), uri_prefix_pty) == 0) {
         size_t begin_ptyname = uri.find(uri_prefix_pty) + uri_prefix_pty.size();
         std::string ptyname(uri.substr(begin_ptyname));
         out << "opening pty master '" << ptyname << "'\n";
-        retval = new ExternalInterfacePty(bridge, ptyname);
+        retval = std::make_shared<class ndlcom::ExternalInterfacePty>(bridge, ptyname);
     } else if (uri.compare(0, uri_prefix_tcpclient.length(),
                            uri_prefix_tcpclient) == 0) {
         size_t begin_hostname =
@@ -151,7 +154,8 @@ class ndlcom::ExternalInterfaceBase *ndlcom::ParseUriAndCreateExternalInterface(
             out << "falling back to default port of '" << port << "'\n";
         }
         out << "opening tcpclient '" << hostname << "'\n";
-        retval = new ExternalInterfaceTcpClient(bridge, hostname, port);
+        retval = std::make_shared<class ndlcom::ExternalInterfaceTcpClient>(
+            bridge, hostname, port);
     }
 
     if (!retval) {

@@ -2,6 +2,7 @@
 #define NDLCOMBRIDGEPARSEURI_H
 
 #include <sstream>
+#include <memory>
 
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
@@ -31,12 +32,13 @@
  * @param uri string stating which kind of interface to create and return
  * @param flags settings for the low-level "struct ndlcomExternalInterface"
  *
- * @return NULL on failure to parse, an "ndlcom::ExternalInterfaceBase" object
- *         in case parsing was successfull
+ * @return nullptr on failure to parse, a shared_ptr to an
+ *         "ndlcom::ExternalInterfaceBase" object in case parsing was successfull
  *
  */
 namespace ndlcom {
-class ndlcom::ExternalInterfaceBase *ParseUriAndCreateExternalInterface(
+std::shared_ptr<class ndlcom::ExternalInterfaceBase>
+ParseUriAndCreateExternalInterface(
     std::ostream &out, struct NDLComBridge &bridge, const std::string &uri,
     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 }

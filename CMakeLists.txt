@@ -57,6 +57,8 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/list.h
 )
 
+set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
+
 include(CheckFunctionExists)
 check_function_exists(usleep SEEMS_TO_BE_POSIX)
 if(SEEMS_TO_BE_POSIX)
