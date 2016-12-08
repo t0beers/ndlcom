@@ -9,20 +9,7 @@ extern "C" {
 #endif
 
 /** default, nothing special */
-#define NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT 0x00
-/**
- * @brief Do not handle messages originating from internal
- *
- * If this flag is used, this NodeHandler will not see messages sent from
- * the internal side of the NDLComBridge, eg which were created by calling
- * "ndlcomBridgeSendRaw()" or "ndlcomNodeSend()".
- *
- * This is useful to prevent loops by responding to a respond of a respond of an
- * internal message. Additionally, handlers which are not interested in these
- * message can skip testing the senderId of messages. this is actually only
- * useful for internal handlers connected directly to a bridge...
- */
-#define NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL 0x01
+#define NDLCOM_NODE_HANDLER_FLAGS_DEFAULT 0x00
 
 /**
  * Callback-function for internal handling of received messages. Note that you
@@ -76,8 +63,8 @@ struct NDLComNodeHandler {
  * @param context Arbitrary pointer
  */
 void ndlcomNodeHandlerInit(struct NDLComNodeHandler *nodeHandler,
-                               NDLComNodeHandlerFkt handler,
-                               const uint8_t flags, void *context);
+                           NDLComNodeHandlerFkt handler, const uint8_t flags,
+                           void *context);
 
 /**
  * @brief Setting optional flags influencing behaviour of the NodeHandler

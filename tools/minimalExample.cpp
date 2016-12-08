@@ -6,12 +6,11 @@
  * to messages of a certain pattern and regularly transmits an empty dummy
  * message to another device.
  *
- * No command line parsing, not fancy implementations. This file only covers the
+ * No command line parsing, no fancy implementations. This file only covers the
  * bare minimum needed.
  */
-
-#include "ndlcom/Node.h"
-#include "ndlcom/Bridge.h"
+#include "ndlcom/Bridge.hpp"
+#include "ndlcom/Node.hpp"
 /* provides the base-class for the ExampleHandler */
 #include "ndlcom/NodeHandlerBase.hpp"
 /* convenience function to create "ExternalInterface" */
@@ -19,19 +18,22 @@
 
 /* some standard headers */
 #include <unistd.h>
-#include <stdio.h>
-#include <string.h>
+#include <csignal>
+
+bool stopMainLoop = false;
+void signal_handler(int signal) { stopMainLoop = true; }
 
 /* Just an example */
 uint8_t ownDeviceId = 82;
 /* This will be used to filter messages in the "handle()" function of the
  * receiver class */
 uint8_t someFirstByteToListen = 0;
-/* Where messages are sent to */
-uint8_t destinationDeviceId = 1;
-/* String for a convenience helper function, will create a local udp-interface.
- * listens on port 34000 and writes to port 34001. */
-std::string connectionUri = "udp://localhost:34000:34001";
+/* string for a convenience helper function. is used to create a local
+ * udp-interface. listens on port 34000 and writes to port 34001. you can
+ * connect with any ndlcom-client to this port */
+std::string connectionUdp = "udp://localhost:34000:34001";
+/* additionally, a pseudo terminal: */
+std::string connectionPty = "pty://ptytest";
 
 namespace example {
 /**
@@ -42,9 +44,9 @@ namespace example {
  */
 class ExampleHandler : public ndlcom::NodeHandlerBase {
   private:
-      /**
-       * This byte will be compared to the first byte of every observed
-       * message. If they match, information is printed. */
+    /**
+     * This byte will be compared to the first byte of every observed
+     * message. If they match, information is printed. */
     uint8_t firstByteToListen;
 
   public:
@@ -55,20 +57,22 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
      * directed at its own deviceId. */
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin) {
-        /* Casting of the payload-pointer for easier access. */
-        const char *r = (const char *)payload;
-        /* For this specific example: Check the first byte of the for a certain
-         * byte, ignore all other packets.  */
-        if (r[0] != firstByteToListen) {
-            return;
-        }
-        /* Just print for now. But you can do anything. Really. */
-        printf("got a message from sender 0x%02x with %i bytes via interface "
-               "0x%p, where the first byte is %i",
-               header->mSenderId, (int)header->mDataLen, origin,
-               (int)firstByteToListen);
+
+        /* at first do some printing */
+        printf("message from 0x%02x with %i bytes via interface %p\n",
+               header->mSenderId, (int)header->mDataLen, origin);
         /* NOTE: The "payload" pointer points to a data-array with the size
          * given in header->mDataLen. */
+        if (header->mDataLen > 0) {
+            /* Casting of the payload-pointer for easier access. */
+            const char *r = (const char *)payload;
+            /* For this specific example: Check the first byte of the for a
+             * certain byte, ignore all other packets.  */
+            if (r[0] == firstByteToListen) {
+                printf("specially marked message with first byte: 0x%02x\n",
+                       (int)firstByteToListen);
+            }
+        }
     };
 };
 }
@@ -77,49 +81,67 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
 int main(int argc, char *argv[]) {
 
     /* The actual NDLComBridge, responsible to carry data between registered
-     * "ExternalInterface" and "InternalInterface". */
-    struct NDLComBridge bridge;
-    ndlcomBridgeInit(&bridge);
+     * "ExternalInterface" and "BridgeHandler". */
+    class ndlcom::Bridge bridge;
 
-    /* And a NDLComNode, which will register itself as an "InternalInterface"
-     * in the bridge. Will handle messages for the given deviceId. */
-    struct NDLComNode node;
-    ndlcomNodeInit(&node, &bridge, ownDeviceId);
+    /* And a NDLComNode, which will register itself as an "BridgeHandler"
+     * at the bridge. Will filter messages for the given deviceId. */
+    std::shared_ptr<class ndlcom::Node> node = bridge.createNode(ownDeviceId);
 
-    /* The actual handler. Will register itself on the given NDLComNode during
-     * initialization in the base-constructor and listen to messages which have
+    /* The actual message handler. Will register itself on the given NDLComNode
+     * during
+     * initialization in the base-constructor and listens to messages which have
      * the first byte as given in the ctor. */
-    class example::ExampleHandler handler(node, someFirstByteToListen);
+    std::shared_ptr<class example::ExampleHandler> handler =
+        node->createNodeHandler<class example::ExampleHandler>(
+            someFirstByteToListen);
 
     /* Little helper function, which parses the given string to create and
      * register "ExternalInterface" at the given NDLComBridge. Status messages
      * and errors will be printed to std::cerr. A pointer to the new interface
      * is returned, but as no removing of registered interfaces is needed the
      * pointer is not stored. */
-    ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge,
-                                               connectionUri);
+    bridge.createInterface(connectionUdp);
+    /* also add the second interface. note that the "createInterface()" returns
+     * a shared pointer, but keeps an internaly copy to prevent it going out of
+     * scope. */
+    {
+        std::shared_ptr<class ndlcom::ExternalInterfaceBase> inter =
+            bridge.createInterface(connectionPty);
+    }
+
+    std::signal(SIGINT, signal_handler);
 
     int cnt = 0;
     /* Runs forever, quit with ctrl-c */
-    while (1) {
-        printf("entering new loop\n");
+    while (!stopMainLoop) {
+        cnt++;
+        printf("entering loop %i\n", cnt);
 
         /* Repeat every 100ms, or in other words: 10Hz */
         usleep(100000);
         /* Check for new data. This will trigger the callback in the
          * ExampleHandler on a received message.  */
-        ndlcomBridgeProcess(&bridge);
+        bridge.process();
 
         /* Just to show that we can: sometimes send a message. */
-        if (!((++cnt) % 20)) {
+        if (!((cnt) % 10)) {
 
             /* This will be our toy-message: Just a bunch of zeros. */
-            char array[15];
-            memset(array, 0, sizeof(array));
+            char array[5] = {0};
             /* And send it away. */
-            ndlcomNodeSend(&node, destinationDeviceId, &array, sizeof(array));
+            struct NDLComHeader hdr = {NDLCOM_ADDR_BROADCAST, ownDeviceId, 0,
+                                       sizeof(array)};
+            bridge.sendMessageRaw(&hdr, &array);
+            printf("bridge sent raw broadcast message\n");
+        }
 
-            printf("did send a toy-message myself\n");
+        if (!((cnt) % 5)) {
+            node->send(ownDeviceId, 0, 0);
+            /* the handler has a send-method as well: */
+            //handler->send(ownDeviceId, 0, 0);
+
+            printf("node sent message at myself\n");
         }
     }
 

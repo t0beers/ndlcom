@@ -15,6 +15,9 @@ namespace ndlcom {
  * directed as this node's id and broadcast messages.
  *
  * comes with a protected "out" stream, intended for outputs.
+ *
+ * The base-class will already register at the bridge! derived classes should
+ * be ready to receive data at any time.
  */
 class NodeHandlerBase {
   public:

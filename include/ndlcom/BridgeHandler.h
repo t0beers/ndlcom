@@ -12,7 +12,7 @@ extern "C" {
 #define NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT 0x00
 /**
  * @brief Do not handle messages originating from NDLComBridgeHandler or
- *        NDLComInternalHandler
+ *        NDLComNodeHandler
  *
  * If this flag is used, this BridgeHandler will not see messages sent from
  * the internal side of the NDLComBridge, eg which were created by calling
@@ -29,7 +29,7 @@ extern "C" {
  * Callback-function for internal handling of received messages. Note that you
  * have to _know_ was is passed in the "context" pointer.
  *
- * @param context Arbitrary pointer given to "ndlcomInternalHandlerInit"
+ * @param context Arbitrary pointer given to "ndlcomBridgeHandlerInit"
  * @param header The header of the message
  * @param payload The payload of the message. See "header->mDataLen" for the size.
  * @param origin The ExternalInterface where this message came from. Can be the
@@ -43,9 +43,8 @@ typedef void (*NDLComBridgeHandlerFkt)(void *context,
 
 struct NDLComBridgeHandler {
     /**
-     * The NDLComNode where this handler is connected to. Keep in mind that
-     * InternalHandlers can also be connected to a NDLComBridge. This case is
-     * not reflected in the API. */
+     * The NDLComBridge where this handler is connected to
+     */
     struct NDLComBridge *bridge;
     /**
      * Three use cases for the "context" pointer:
@@ -58,7 +57,7 @@ struct NDLComBridgeHandler {
      * What is not so good: you have to know what you do...
      */
     void *context;
-    /** Influences the behaviour of the InternalHandler */
+    /** Influences the behaviour of the BridgeHandler */
     uint8_t flags;
     /** function called to handle decoded packets for handling */
     NDLComBridgeHandlerFkt handler;
@@ -67,21 +66,19 @@ struct NDLComBridgeHandler {
 };
 
 /**
- * @brief Initialize the data structures belonging to an InternalHandler
+ * @brief Initialize the data structures belonging to an BridgeHandler
  *
- * Will not connect it to any other object, will just prepare everything.
- *
- * @param internalHandler The object to initialize
+ * @param bridgeHandler The object to initialize
  * @param handler Callback function to use
  * @param flags Initial flags
  * @param context Arbitrary pointer
  */
 void ndlcomBridgeHandlerInit(struct NDLComBridgeHandler *bridgeHandler,
-                               NDLComBridgeHandlerFkt handler,
-                               const uint8_t flags, void *context);
+                             NDLComBridgeHandlerFkt handler,
+                             const uint8_t flags, void *context);
 
 /**
- * @brief Setting optional flags influencing behaviour of the InternalHandler
+ * @brief Setting optional flags influencing behaviour of the BridgeHandler
  *
  * Will set the given flag pattern. Be careful not to overwrite anything.
  *

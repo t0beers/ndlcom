@@ -1,8 +1,6 @@
 #ifndef NDLCOM_BRIDGE_HANDLER_HPP
 #define NDLCOM_BRIDGE_HANDLER_HPP
 
-#include "ndlcom/Bridge.h"
-#include "ndlcom/Node.h"
 #include "ndlcom/BridgeHandlerBase.hpp"
 
 #include <bitset>

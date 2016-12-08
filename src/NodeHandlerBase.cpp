@@ -1,11 +1,13 @@
 #include "ndlcom/NodeHandlerBase.hpp"
 
+#include "ndlcom/Node.h"
+
 using namespace ndlcom;
 
 NodeHandlerBase::NodeHandlerBase(NDLComNode &_node, std::ostream &_out)
     : node(_node), out(_out) {
     ndlcomNodeHandlerInit(&internal, NodeHandlerBase::handleWrapper,
-                              NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, this);
+                              NDLCOM_NODE_HANDLER_FLAGS_DEFAULT, this);
     ndlcomNodeRegisterNodeHandler(&node, &internal);
 }
 

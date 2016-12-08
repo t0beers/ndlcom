@@ -1,7 +1,7 @@
 #ifndef EXTERNALINTERFACEBASE_H
 #define EXTERNALINTERFACEBASE_H
 
-#include "ndlcom/Bridge.h"
+#include "ndlcom/ExternalInterface.h"
 
 #include <iostream>
 

@@ -35,7 +35,9 @@ set(SOURCES_lib
     src/BridgeHandler.cpp
     src/BridgeHandlerBase.cpp
     src/Bridge.c
+    src/Bridge.cpp
     src/Node.c
+    src/Node.cpp
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Parser.h
@@ -53,7 +55,9 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/BridgeHandler.hpp
     include/${PROJECT_NAME}/BridgeHandlerBase.hpp
     include/${PROJECT_NAME}/Bridge.h
+    include/${PROJECT_NAME}/Bridge.hpp
     include/${PROJECT_NAME}/Node.h
+    include/${PROJECT_NAME}/Node.hpp
     include/${PROJECT_NAME}/list.h
 )
 

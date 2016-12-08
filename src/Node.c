@@ -24,7 +24,7 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
 
     /* initialize handler which this Node is going to register in the bridge */
     ndlcomBridgeHandlerInit(&node->myIdHandler, ndlcomNodeMessageHandler,
-                              NDLCOM_INTERNAL_HANDLER_FLAGS_DEFAULT, node);
+                              NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, node);
     /* na, what did I say? */
     ndlcomBridgeRegisterBridgeHandler(bridge, &node->myIdHandler);
 }
@@ -36,6 +36,8 @@ void ndlcomNodeDeinit(struct NDLComNode *node) {
      * internally */
     ndlcomBridgeClearInternalDeviceId(node->bridge,
                                       node->headerConfig.mOwnSenderId);
+
+    /* missing? deinit of handlers... */
 }
 
 /*

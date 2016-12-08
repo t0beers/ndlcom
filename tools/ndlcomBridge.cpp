@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <errno.h>
+#include <memory>
 #include <string.h>   /* for strerror() */
 
 #include <cstdio>
@@ -21,28 +22,19 @@
 #include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
 
-#include "ndlcom/Bridge.h"
+#include "ndlcom/Bridge.hpp"
 #include "ndlcom/Node.h"
 
 #include "ndlcom/BridgeHandler.hpp"
 #include "ndlcom/NodeHandler.hpp"
 
-struct NDLComBridge bridge;
+class ndlcom::Bridge bridge;
 
 bool stopMainLoop = false;
 
 double mainLoopFrequency_hz = 100.0;
 
-/* all external interfaces */
-std::vector<std::shared_ptr<class ndlcom::ExternalInterfaceBase> > allInterfaces;
-/* all internal "personalities", with optional printers attached */
-std::vector<std::pair<struct NDLComNode *, class ndlcom::NodePrintOwnId *> >
-    allNodes;
-
 void signal_handler(int signal) { stopMainLoop = true; }
-
-class ndlcom::BridgePrintAll *printAll = NULL;
-class ndlcom::BridgePrintMissEvents *printMiss = NULL;
 
 // TODO: use chrono from c++11
 struct timespec diff(struct timespec start, struct timespec end) {
@@ -76,7 +68,7 @@ void help(const char *_name) {
 "--ownDeviceId\t-i\tCreates and adds a node to the bridge listening to this deviceId\n"
 "--frequency\t-f\tPolling of the main-loop in Hz\n"
 "--print-all\t-A\tPrint every packet\n"
-"--print-own\t-O\tPrint packets directed at the last given 'ownDeviceId'\n"
+"--print-own\t-O\tPrint packets directed at the given 'deviceId'\n"
 "--print-miss\t-M\tPrint miss events of packets passing thorugh the bridge\n"
 "--realtime\t-R\ttry to obtain realtime scheduling. needs root.\n"
 "\n"
@@ -114,35 +106,6 @@ actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), fold
 }
 /* clang-format on */
 
-void printRoutingTable(const struct NDLComBridge *b) {
-    std::cout << "routingTable: \n";
-    struct NDLComExternalInterface *externalInterface;
-    if (list_empty(&b->externalInterfaceList)) {
-        std::cout << "no external interfaces registered, the routingTable "
-                     "should be kinda trivial...\n";
-        return;
-    }
-    list_for_each_entry(externalInterface, &b->externalInterfaceList, list) {
-
-        class ndlcom::ExternalInterfaceBase *base =
-            static_cast<class ndlcom::ExternalInterfaceBase *>(
-                externalInterface->context);
-        std::cout << base->label << "\n";
-
-        bool printed = false;
-        for (size_t id = 0; id < 256; ++id) {
-            if (b->routingTable.table[id] == externalInterface) {
-                std::cout << id << " ";
-                printed = true;
-            }
-        }
-        if (!printed) {
-            std::cout << "<none>";
-        }
-        std::cout << "\n";
-    }
-}
-
 void handleInput() {
     fd_set s_rd;
     struct timeval tv;
@@ -155,14 +118,16 @@ void handleInput() {
         std::string entered;
         std::getline(std::cin, entered);
         if (entered == "r") {
-            printRoutingTable(&bridge);
+            bridge.printRoutingTable();
+        } else if (entered == "q") {
+            stopMainLoop = true;
+        } else if (entered == "s") {
+            bridge.printStatus();
         }
     }
 }
 
 int main(int argc, char *argv[]) {
-
-    ndlcomBridgeInit(&bridge);
 
     /* option handling is based on the manpage optarg(3). */
     int c;
@@ -174,12 +139,12 @@ int main(int argc, char *argv[]) {
             {"ownDeviceId", required_argument, 0, 'i'},
             {"frequency", required_argument, 0, 'f'},
             {"print-all", no_argument, 0, 'A'},
-            {"print-own", no_argument, 0, 'O'},
+            {"print-own", required_argument, 0, 'O'},
             {"print-miss", no_argument, 0, 'M'},
             {"realtime", no_argument, 0, 'R'},
             {"help", no_argument, 0, 'h'},
             {0, 0, 0, 0}};
-        c = getopt_long(argc, argv, "u:m:i:f:AOMRh", long_options,
+        c = getopt_long(argc, argv, "u:m:i:f:AO:MRh", long_options,
                         &option_index);
         if (c == -1) {
             break;
@@ -187,26 +152,20 @@ int main(int argc, char *argv[]) {
         switch (c) {
         case 'u': {
             std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret =
-                ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge,
-                                                           optarg);
+                bridge.createInterface(optarg);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
-            } else {
-                allInterfaces.push_back(ret);
             }
             break;
         }
         case 'm': {
-            std::shared_ptr<class ndlcom::ExternalInterfaceBase >ret =
-                ndlcom::ParseUriAndCreateExternalInterface(
-                    std::cerr, bridge, optarg,
-                    NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
+            std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret =
+                bridge.createInterface(optarg,
+                                       NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
-            } else {
-                allInterfaces.push_back(ret);
             }
             break;
         }
@@ -214,11 +173,7 @@ int main(int argc, char *argv[]) {
             std::istringstream ss(optarg);
             int tempId;
             ss >> tempId;
-            std::pair<struct NDLComNode *, class ndlcom::NodePrintOwnId *> entry;
-            entry.first = new struct NDLComNode;
-            entry.second = NULL;
-            ndlcomNodeInit(entry.first, &bridge, tempId);
-            allNodes.push_back(entry);
+            bridge.enableOwnId(tempId, false);
             break;
         }
         case 'f': {
@@ -228,40 +183,18 @@ int main(int argc, char *argv[]) {
         }
         // these will be deleted implicitly on programm exit
         case 'A': {
-            if (printAll == NULL) {
-                printAll = new ndlcom::BridgePrintAll(bridge, std::cerr);
-            } else {
-                help(argv[0]);
-                exit(EXIT_FAILURE);
-            }
+            bridge.enablePrintAll();
             break;
         }
         case 'O': {
-            /* check that we have "nodes" already, where we'll add the printer
-             * to the last one */
-            if (allNodes.empty()) {
-                help(argv[0]);
-                exit(EXIT_FAILURE);
-            }
-            /* so get the last node added as a reference */
-            std::pair<struct NDLComNode *, class ndlcom::NodePrintOwnId *> &
-                lastEntry = allNodes.back();
-            /* check that it does not have a "printOwnId" yet */
-            if (lastEntry.second != NULL) {
-                help(argv[0]);
-                exit(EXIT_FAILURE);
-            }
-            /* and create the own-id printer */
-            lastEntry.second = new ndlcom::NodePrintOwnId(*lastEntry.first, std::cerr);
+            std::istringstream ss(optarg);
+            int tempId;
+            ss >> tempId;
+            bridge.enableOwnId(tempId, true);
             break;
         }
         case 'M': {
-            if (printMiss == NULL) {
-                printMiss = new ndlcom::BridgePrintMissEvents(bridge, std::cerr);
-            } else {
-                help(argv[0]);
-                exit(EXIT_FAILURE);
-            }
+            bridge.enablePrintMiss();
             break;
         }
         case 'R': {
@@ -271,7 +204,8 @@ int main(int argc, char *argv[]) {
                       << p.sched_priority << "\n";
             int r = sched_setscheduler(0, SCHED_FIFO, &p);
             if (r == -1) {
-                std::cerr << "sched_setscheduler() failed: '" << strerror(errno) << "'\n";
+                std::cerr << "sched_setscheduler() failed: '" << strerror(errno)
+                          << "'\n";
                 exit(EXIT_FAILURE);
             }
             break;
@@ -296,31 +230,14 @@ int main(int argc, char *argv[]) {
     std::cerr << "using update rate of " << mainLoopFrequency_hz
               << "Hz (update every " << usleep_us << "us)\n";
 
-    for (std::vector<std::pair<struct NDLComNode *,
-                               class ndlcom::NodePrintOwnId *> >::iterator it =
-             allNodes.begin();
-         it != allNodes.end(); ++it) {
-        if ((*it).second != NULL) {
-            printf("printing all messages for receiverId 0x%02x\n",
-                   (*it).first->headerConfig.mOwnSenderId);
-        } else {
-            printf("silently listening to receiverId 0x%02x\n",
-                   (*it).first->headerConfig.mOwnSenderId);
-        }
-    }
-    if (printAll) {
-        printf("printing all messages passing through the bridge\n");
-    }
-    if (printMiss) {
-        printf("printing miss-events for passing message streams\n");
-    }
+    bridge.printStatus();
 
     struct timespec last_ts, now_ts;
     clock_gettime(CLOCK_MONOTONIC, &last_ts);
     usleep(usleep_us);
     while (!stopMainLoop) {
         // printf("new loop\n");
-        ndlcomBridgeProcess(&bridge);
+        bridge.process();
 
         handleInput();
 
@@ -346,31 +263,6 @@ int main(int argc, char *argv[]) {
         /* } else { */
             /* printf("processing took %ius, will not sleep\n", processingDuration_us); */
         }
-    }
-
-    // clean up our memory
-    allInterfaces.clear();
-
-    for (std::vector<std::pair<struct NDLComNode *,
-                               class ndlcom::NodePrintOwnId *> >::iterator it =
-             allNodes.begin();
-         it != allNodes.end(); ++it) {
-        ndlcomNodeDeinit((*it).first);
-        if ((*it).second) {
-            delete (*it).second;
-        }
-        delete (*it).first;
-    }
-    allNodes.clear();
-
-    /* more cleaning up */
-    if (printAll) {
-        delete printAll;
-        printAll = NULL;
-    }
-    if (printMiss) {
-        delete printMiss;
-        printMiss = NULL;
     }
 
     std::cerr << "quitting\n";

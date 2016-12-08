@@ -1,19 +1,16 @@
 #include "ndlcom/NodeHandler.hpp"
 
-#include "ndlcom/Bridge.h"
-#include "ndlcom/Node.h"
-
 // input/output
 #include <iostream>
 #include <iomanip>
 
 using namespace ndlcom;
 
-NodePrintOwnId::NodePrintOwnId(struct NDLComNode &_node, std::ostream &_out)
+NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &_node, std::ostream &_out)
     : NodeHandlerBase(_node, _out) {}
 
-void NodePrintOwnId::handle(const struct NDLComHeader *header,
-                            const void *payload, const void *origin) {
+void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
+                                   const void *payload, const void *origin) {
     out << std::string("listener ");
     out << std::showbase << std::hex;
     out << std::setfill('0') << std::setw(4) << std::internal

@@ -1,20 +1,22 @@
 #ifndef NDLCOM_BRIDGE_HANDLER_BASE_HPP
 #define NDLCOM_BRIDGE_HANDLER_BASE_HPP
 
-#include "ndlcom/Bridge.h"
-#include "ndlcom/Node.h"
+#include "ndlcom/BridgeHandler.h"
 
 #include <iostream>
 
 namespace ndlcom {
 
 /**
- * @brief virtual base class to wrap "struct NDLComInternalHandler" into object
+ * @brief virtual base class to wrap "struct NDLComBridgeHandler"
  *
- * the "handle()" function of this object will be called for every messages
+ * The "handle()" function of this object will be called for every messages
  * passing through the bridge.
  *
- * comes with a protected "out" stream, intended for outputs.
+ * Comes with a protected "out" stream, intended for outputs.
+ *
+ * The base-class will already register at the bridge! derived classes should
+ * be ready to receive data at any time.
  */
 class BridgeHandlerBase {
   public:
