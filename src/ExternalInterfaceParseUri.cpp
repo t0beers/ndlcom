@@ -5,6 +5,7 @@
 #include <vector>
 #include <limits>
 #include <stdlib.h>
+#include <iomanip>
 
 const std::string uri_prefix_serial = "serial://";
 const std::string uri_prefix_udp = "udp://";
@@ -169,8 +170,9 @@ std::shared_ptr<class ndlcom::ExternalInterfaceBase >ndlcom::ParseUriAndCreateEx
 
     for (std::vector<NDLComId>::const_iterator it = ids.begin();
          it != ids.end(); it++) {
-        out << "ParseUri: adding deviceId " << (int)(*it) << " for interface '"
-            << retval->label << "'\n";
+        out << "ParseUri: set routingTable to use '" << retval->label
+            << "' for deviceId 0x" << std::setfill('0') << std::hex
+            << std::setw(2) << (int)(*it) << std::dec << "\n";
         ndlcomBridgeAddRoutingInformationForDeviceId(&bridge, *it,
                                                      retval->getInterface());
     }
