@@ -24,7 +24,7 @@ namespace ndlcom {
 class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceStream(
-        NDLComBridge &_bridge,
+        struct NDLComBridge &_bridge,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceStream();
 
@@ -34,6 +34,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
 
     size_t readEscapedBytes(void *buf, size_t count);
     void writeEscapedBytes(const void *buf, size_t count);
+
   private:
     /* used to detect when the underlying device vanishes. like usb-ports */
     struct pollfd ufd;
@@ -47,7 +48,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
 class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
     ExternalInterfaceSerial(
-        NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
+        struct NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceSerial();
 
@@ -71,7 +72,7 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
 class ExternalInterfaceFpga : public ExternalInterfaceStream {
   public:
     ExternalInterfaceFpga(
-        NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
+        struct NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceFpga();
 
@@ -89,8 +90,8 @@ class ExternalInterfaceFpga : public ExternalInterfaceStream {
 class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceUdp(
-        NDLComBridge &_bridge, std::string hostname, unsigned int in_port,
-        unsigned int out_port,
+        struct NDLComBridge &_bridge, std::string hostname,
+        unsigned int in_port, unsigned int out_port,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceUdp();
 
@@ -118,7 +119,7 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
 class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceTcpClient(
-        NDLComBridge &_bridge, std::string hostname, unsigned int port,
+        struct NDLComBridge &_bridge, std::string hostname, unsigned int port,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceTcpClient();
 
@@ -148,7 +149,7 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
 class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfacePipe(
-        NDLComBridge &_bridge, std::string pipename,
+        struct NDLComBridge &_bridge, std::string pipename,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfacePipe();
 
@@ -173,7 +174,7 @@ class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
 class ExternalInterfacePty : public ExternalInterfaceStream {
   public:
     ExternalInterfacePty(
-        NDLComBridge &_bridge, std::string _symlinkname,
+        struct NDLComBridge &_bridge, std::string _symlinkname,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfacePty();
 
