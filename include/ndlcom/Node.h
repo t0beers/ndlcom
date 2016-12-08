@@ -22,7 +22,6 @@ extern "C" {
  * called.
  *
  * A Node can be only be connected to one single NDLComBridge.
- *
  */
 struct NDLComNode {
     /**

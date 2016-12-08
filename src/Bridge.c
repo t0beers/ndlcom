@@ -183,7 +183,7 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
 
     /* call the internal handlers to handle the message */
     list_for_each_entry_safe(bridgeHandler, temp,
-                             &bridge->internalHandlerList, list) {
+                             &bridge->bridgeHandlerList, list) {
         /*
          * Every BridgeHandler can opt-out from seeing messages sent by other
          * callers connected on the internal side. In this case (if the flag is
@@ -286,7 +286,7 @@ static size_t ndlcomBridgeProcessExternalInterface(
 void ndlcomBridgeInit(struct NDLComBridge *bridge) {
 
     /* Initialize all the lists we have */
-    INIT_LIST_HEAD(&bridge->internalHandlerList);
+    INIT_LIST_HEAD(&bridge->bridgeHandlerList);
     INIT_LIST_HEAD(&bridge->externalInterfaceList);
 
     /* And initialize the RoutingTable */
@@ -381,7 +381,7 @@ void ndlcomBridgeRegisterBridgeHandler(
         return;
     }
     /* and now we can add it */
-    list_add(&bridgeHandler->list, &bridge->internalHandlerList);
+    list_add(&bridgeHandler->list, &bridge->bridgeHandlerList);
     bridgeHandler->bridge = bridge;
 }
 
@@ -443,7 +443,7 @@ uint8_t ndlcomBridgeCheckBridgeHandler(
     struct NDLComBridgeHandler *bridgeHandler) {
     /* iterate all handlers, check if the one in the argument is present */
     struct NDLComBridgeHandler *it;
-    list_for_each_entry(it, &bridge->internalHandlerList, list) {
+    list_for_each_entry(it, &bridge->bridgeHandlerList, list) {
         if (it == bridgeHandler) {
             return 1;
         }

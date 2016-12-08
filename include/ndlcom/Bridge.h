@@ -64,7 +64,7 @@ struct NDLComBridge {
      * These handlers are called for _each_ single message after it was
      * decoded, prior to being forwarded.
      */
-    struct list_head internalHandlerList;
+    struct list_head bridgeHandlerList;
     /**
      * These are the actual hardware interfaces which are used to
      * receive/transmit an escaped byte stream to/from the real world. The
@@ -107,9 +107,9 @@ void ndlcomBridgeSetFlags(struct NDLComBridge *bridge, const uint8_t flags);
  * destination for the "receiverId" in the given NDLComHeader is unknown, the
  * message will be sent on every external interface.
  *
- * NOTE: The messages written here will be seen by the internal handlers as
+ * NOTE: The messages written here will be seen by the NDLComBridgeHandler as
  * well (after they where written out to the correct external interfaces). Be
- * carefull to not have a internal handler responding to its own message!
+ * carefull to not have a handler responding to its own message!
  *
  * NOTE: The packet length in the given header is used to copy data from the
  * given pointer.
