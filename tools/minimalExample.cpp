@@ -13,7 +13,7 @@
 #include "ndlcom/Node.h"
 #include "ndlcom/Bridge.h"
 /* provides the base-class for the ExampleHandler */
-#include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/NodeHandlerBase.hpp"
 /* convenience function to create "ExternalInterface" */
 #include "ndlcom/ExternalInterfaceParseUri.hpp"
 

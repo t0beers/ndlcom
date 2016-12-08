@@ -2,6 +2,7 @@
 #define NDLCOM_NODE_H
 
 #include "ndlcom/Bridge.h"
+#include "ndlcom/NodeHandler.h"
 #include "ndlcom/list.h"
 
 #if defined(__cplusplus)
@@ -37,13 +38,13 @@ struct NDLComNode {
      * These are called for _each_ single message intended for us after it was
      * decoded, prior to being forwarded.
      */
-    struct list_head internalHandlerList;
+    struct list_head nodeHandlerList;
     /**
      * Handler which will be registered at the NDLComBridge and is used to
      * filter out messages not directed at us. This handler in turn will call
      * all the handlers in our own list for message directed at us.
      */
-    struct NDLComInternalHandler myIdHandler;
+    struct NDLComBridgeHandler myIdHandler;
 };
 
 /**
@@ -97,23 +98,23 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
                     const void *payload, const size_t payloadSize);
 
 /**
- * @brief Register internal handler
+ * @brief Register node handler
  *
  * Will be called for every messages directed at this Node
  *
  * @param node
- * @param internalHandler
+ * @param nodeHandler
  */
-void ndlcomNodeRegisterInternalHandler(
-    struct NDLComNode *node, struct NDLComInternalHandler *internalHandler);
+void ndlcomNodeRegisterNodeHandler(
+    struct NDLComNode *node, struct NDLComNodeHandler *nodeHandler);
 /**
- * @brief De-register internal handler
+ * @brief De-register node handler
  *
  * @param node
- * @param internalHandler
+ * @param nodeHandler
  */
-void ndlcomNodeDeregisterInternalHandler(
-    struct NDLComNode *node, struct NDLComInternalHandler *internalHandler);
+void ndlcomNodeDeregisterNodeHandler(
+    struct NDLComNode *node, struct NDLComNodeHandler *nodeHandler);
 
 #if defined(__cplusplus)
 }

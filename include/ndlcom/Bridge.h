@@ -4,7 +4,7 @@
 #include "ndlcom/HeaderPrepare.h"
 #include "ndlcom/Routing.h"
 #include "ndlcom/ExternalInterface.h"
-#include "ndlcom/InternalHandler.h"
+#include "ndlcom/BridgeHandler.h"
 #include "ndlcom/list.h"
 
 #if defined(__cplusplus)
@@ -20,14 +20,14 @@ extern "C" {
  * @brief Encapsulate sending, receiving and routing of NDLCom messages
  *
  * A NDLComBridge has one RoutingTable and a number of ExternalInterfaces as
- * well as InternalHandlers.
+ * well as BridgeHandlers.
  *
  * All processing is done after calling a single-point-of-entry. Implementers
  * have to provide function-pointers to non-blocking IO for actually reading
  * and writing the escaped byte-streams from the hardware.
  *
  * ExternalInterfaces use their "write" and "read" functions to handle a raw
- * byte-stream consisting of fully escaped NDLCom messages. InternalHandlers
+ * byte-stream consisting of fully escaped NDLCom messages. BridgeHandlers
  * provide a "handle" function which is called for each decoded message with
  * the "header,payload".
  *
@@ -38,7 +38,7 @@ extern "C" {
  * record/replay.
  *
  * Each valid message received by one of the ExternalInterfaces is seen by
- * every InternalHandler. To give a bridge a "personality" so that it only
+ * every BridgeHandler. To give a bridge a "personality" so that it only
  * listens to messages directed at its own "deviceId" (and all broadcasts) use
  * a NDLComNode, see "ndlcom/Node.h".
  *
@@ -171,16 +171,16 @@ void ndlcomBridgeAddRoutingInformationForDeviceId(
     struct NDLComExternalInterface *externalInterface);
 
 /**
- * @brief Tell the bridge about deviceIds used by an InternalHandler
+ * @brief Tell the bridge about deviceIds used to send messages from internal
  *
  * Messages to this deviceId are not longer considered as having an "unknown
- * destination" and not forwarded to external interfaces anymore. They are
- * supposed to not be transmitted to the outside. This effectivly disables
- * routing messages for this deviceId to the outside and they will hopefully be
- * handled on the inside.
+ * destination" and not forwarded to existing NDLComExternalInterface anymore.
+ * They are supposed to not be transmitted to the outside. This effectivly
+ * disables routing messages for this deviceId to the outside and they will
+ * hopefully be handled on the inside.
  *
  * @param bridge The bridge to work on
- * @param deviceId The deviceId which belongs to an InternalHandler
+ * @param deviceId The deviceId which belongs to the internal side
  */
 void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
                                         const NDLComId deviceId);
@@ -188,10 +188,10 @@ void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
 /**
  * @brief Clear a previously internally used deviceId
  *
- * The given deviceId was connected to an InternalHandler, probably via
- * an NDLComNode, and will no longer be used. This function will set the
- * destination in the RoutingTable from "internal" to "unknown" again. Not
- * messages for this deviceId are forwarded again.
+ * The given deviceId was used by internal code, probably via an NDLComNode,
+ * and will no longer be used. This function will set the destination in the
+ * RoutingTable from "internal" to "unknown" again. Messages for this
+ * deviceId will be forwarded again.
  *
  * @param bridge The bridge to work on
  * @param deviceId The previously "internally" used deviceId
@@ -200,15 +200,15 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
                                        const NDLComId deviceId);
 
 /**
- * @brief Register additional InternalHandlers
+ * @brief Register additional BridgeHandler
  *
  * Does nothing if the interface is already part of the bridge
  *
  * @param bridge The bridge to use
- * @param internalHandler The InternalHandler to register
+ * @param bridgeHandler The BridgeHandler to register
  */
-void ndlcomBridgeRegisterInternalHandler(
-    struct NDLComBridge *bridge, struct NDLComInternalHandler *internalHandler);
+void ndlcomBridgeRegisterBridgeHandler(
+    struct NDLComBridge *bridge, struct NDLComBridgeHandler *bridgeHandler);
 
 /**
  * @brief Register additional ExternalInterfaces
@@ -223,15 +223,15 @@ void ndlcomBridgeRegisterExternalInterface(
     struct NDLComExternalInterface *externalInterface);
 
 /**
- * @brief Remove existing InternalHandler
+ * @brief Remove existing BridgeHandler
  *
  * does nothing if the handler is not part of the bridge
  *
  * @param bridge The bridge to use
- * @param internalHandler The InternalHandler to deregister
+ * @param bridgeHandler The BridgeHandler to deregister
  */
-void ndlcomBridgeDeregisterInternalHandler(
-    struct NDLComBridge *bridge, struct NDLComInternalHandler *internalHandler);
+void ndlcomBridgeDeregisterBridgeHandler(
+    struct NDLComBridge *bridge, struct NDLComBridgeHandler *bridgeHandler);
 
 /**
  * @brief Remove existing ExternalInterface
@@ -246,15 +246,15 @@ void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComExternalInterface *externalInterface);
 
 /**
- * @brief Check if an InternalHandler is part of a bridge
+ * @brief Check if an BridgeHandler is part of a bridge
  *
  * @param bridge The bridge to use
- * @param internalHandler The handler to check
- * @return true if InternalHandler is already registered
+ * @param bridgeHandler The handler to check
+ * @return true if BridgeHandler is already registered
  */
-uint8_t ndlcomBridgeCheckInternalHandler(
+uint8_t ndlcomBridgeCheckBridgeHandler(
     struct NDLComBridge *bridge,
-    struct NDLComInternalHandler *internalHandler);
+    struct NDLComBridgeHandler *bridgeHandler);
 
 /**
  * @brief Check if an ExternalInterface is part of a bridge

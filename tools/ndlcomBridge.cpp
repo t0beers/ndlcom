@@ -20,10 +20,12 @@
 
 #include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
-#include "ndlcom/InternalHandler.hpp"
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/Node.h"
+
+#include "ndlcom/BridgeHandler.hpp"
+#include "ndlcom/NodeHandler.hpp"
 
 struct NDLComBridge bridge;
 
