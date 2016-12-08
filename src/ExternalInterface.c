@@ -9,6 +9,8 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
     externalInterface->context = context;
     externalInterface->read = read;
     externalInterface->write = write;
+    // this interface is not connected to a "bridge" yet.
+    externalInterface->bridge = 0;
 
     ndlcomExternalInterfaceSetFlags(externalInterface, flags);
     ndlcomParserCreate(&externalInterface->parser, sizeof(struct NDLComParser));

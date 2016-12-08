@@ -64,6 +64,8 @@ typedef size_t (*NDLComExternalInterfaceReadEscapedBytes)(void *context,
  * incoming data-stream.
  */
 struct NDLComExternalInterface {
+    /** The NDLComBridge where this interface is connected to.  */
+    struct NDLComBridge *bridge;
     /** the context will be provided in the read/write functions */
     void *context;
     /** influences the behaviour of the external interface */

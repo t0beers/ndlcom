@@ -185,19 +185,20 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     list_for_each_entry_safe(internalHandler, temp,
                              &bridge->internalHandlerList, list) {
         /*
-         * Internal handler can opt-out from seeing messages sent by other
-         * callers on the internal side. In this case (the flag is set), we
-         * compare the "origin" to be the "bridge" pointer itself to not handle
-         * these messages.
+         * Every InternalHandler can opt-out from seeing messages sent by other
+         * callers connected on the internal side. In this case (if the flag is
+         * set), we compare the "origin" to be the "bridge" pointer itself to
+         * not handle these messages.
          */
-        if (!(internalHandler->flags &
-              NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
-            (origin != bridge)) {
-            internalHandler->handler(internalHandler->context, header, payload,
-                                     origin);
-            /* guard against removal of handlers by other handlers... */
-            CHECK_LIST_IN_LOOP(internalHandler, temp, list);
+        if ((internalHandler->flags &
+             NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
+            (origin == bridge)) {
+            continue;
         }
+        internalHandler->handler(internalHandler->context, header, payload,
+                                 origin);
+        /* guard against removal of handlers by other handlers... */
+        CHECK_LIST_IN_LOOP(internalHandler, temp, list);
     }
 }
 
@@ -381,6 +382,8 @@ void ndlcomBridgeRegisterInternalHandler(
     }
     /* and now we can add it */
     list_add(&internalHandler->list, &bridge->internalHandlerList);
+    // this handler is not connected to a Node, but to a bridge...
+    internalHandler->node = 0;
 }
 
 void ndlcomBridgeRegisterExternalInterface(
@@ -392,6 +395,7 @@ void ndlcomBridgeRegisterExternalInterface(
     }
     /* and now we can add it */
     list_add(&externalInterface->list, &bridge->externalInterfaceList);
+    externalInterface->bridge = bridge;
 }
 
 void ndlcomBridgeDeregisterInternalHandler(
@@ -403,6 +407,7 @@ void ndlcomBridgeDeregisterInternalHandler(
     }
     /* and now we can delete it */
     list_del_init(&internalHandler->list);
+    internalHandler->node = 0;
 }
 
 void ndlcomBridgeDeregisterExternalInterface(
@@ -417,6 +422,7 @@ void ndlcomBridgeDeregisterExternalInterface(
                                             externalInterface);
     /* and now we can delete it */
     list_del_init(&externalInterface->list);
+    externalInterface->bridge = 0;
 
 }
 

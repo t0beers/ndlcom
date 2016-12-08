@@ -6,6 +6,8 @@ void ndlcomInternalHandlerInit(struct NDLComInternalHandler *internalHandler,
     internalHandler->context = context;
     internalHandler->handler = handler;
     ndlcomInternalHandlerSetFlags(internalHandler, flags);
+    // this handler is not connected to any "node" yet.
+    internalHandler->node = 0;
 
     INIT_LIST_HEAD(&internalHandler->list);
 }

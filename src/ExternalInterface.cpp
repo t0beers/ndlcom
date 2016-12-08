@@ -27,7 +27,7 @@
 
 using namespace ndlcom;
 
-ExternalInterfaceStream::ExternalInterfaceStream(NDLComBridge &_bridge,
+ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &_bridge,
                                                  uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags), fd_read(NULL),
       fd_write(NULL) {
@@ -99,7 +99,7 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     return;
 }
 
-ExternalInterfaceSerial::ExternalInterfaceSerial(NDLComBridge &_bridge,
+ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &_bridge,
                                                  std::string device_name,
                                                  speed_t baudrate,
                                                  uint8_t flags)
@@ -169,7 +169,7 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
     close(fd);
 }
 
-ExternalInterfaceFpga::ExternalInterfaceFpga(NDLComBridge &_bridge,
+ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &_bridge,
                                              std::string device_name,
                                              uint8_t flags)
     : ExternalInterfaceStream(_bridge) {
@@ -206,7 +206,7 @@ ExternalInterfaceFpga::~ExternalInterfaceFpga() {
     close(fd);
 }
 
-ExternalInterfaceUdp::ExternalInterfaceUdp(NDLComBridge &_bridge,
+ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &_bridge,
                                            std::string hostname,
                                            unsigned int in_port,
                                            unsigned int out_port, uint8_t flags)
@@ -375,10 +375,9 @@ again:
     return;
 }
 
-ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(NDLComBridge &_bridge,
-                                                       std::string hostname,
-                                                       unsigned int port,
-                                                       uint8_t flags)
+ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
+    struct NDLComBridge &_bridge, std::string hostname, unsigned int port,
+    uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags) {
     {
         std::stringstream ss;
@@ -467,7 +466,7 @@ again:
 
 }
 
-ExternalInterfacePipe::ExternalInterfacePipe(NDLComBridge &_bridge,
+ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &_bridge,
                                              std::string pipename,
                                              uint8_t flags)
     : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
@@ -611,7 +610,7 @@ void ExternalInterfacePipe::writeEscapedBytes(const void *buf, size_t count) {
     return;
 }
 
-ExternalInterfacePty::ExternalInterfacePty(NDLComBridge &_bridge,
+ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &_bridge,
                                            std::string _symlinkname,
                                            uint8_t flags)
     : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {

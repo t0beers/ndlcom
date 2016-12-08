@@ -17,9 +17,10 @@ extern "C" {
  * the internal side of the NDLComBridge, eg which were created by calling
  * "ndlcomBridgeSendRaw()" or "ndlcomNodeSend()".
  *
- * This is useful to prevent loop by responding to a respond of a respond of
- * an internal message. Additionally, handles which are not interested in these
- * message can skip testing the senderId of messages.
+ * This is useful to prevent loop by responding to a respond of a respond of an
+ * internal message. Additionally, handlers which are not interested in these
+ * message can skip testing the senderId of messages. this is actually only
+ * usefull for internal handlers connected directly to a bridge...
  */
 #define NDLCOM_INTERNAL_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL 0x01
 
@@ -40,6 +41,11 @@ typedef void (*NDLComInternalHandlerFkt)(void *context,
                                          const void *origin);
 
 struct NDLComInternalHandler {
+    /**
+     * The NDLComNode where this handler is connected to. Keep in mind that
+     * InternalHandlers can also be connected to a NDLComBridge. This case is
+     * not reflected in the API. */
+    struct NDLComNode *node;
     /**
      * Three use cases for the "context" pointer:
      * - reply to a message by sending messages to the outside --
