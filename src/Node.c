@@ -29,13 +29,12 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
 }
 
 void ndlcomNodeDeinit(struct NDLComNode *node) {
+    /* inform the bridge that deviceId is no longer to be used internally */
+    ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
+                                      node->headerConfig.mOwnSenderId);
     /* we do not want to be called by anymore in the future */
     ndlcomBridgeDeregisterBridgeHandler(node->bridgeHandler.bridge,
                                         &node->bridgeHandler);
-    /* additionally inform the bridge that our deviceId is no longer used
-     * internally */
-    ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
-                                      node->headerConfig.mOwnSenderId);
 
     /* missing? deinit of handlers... */
 }
