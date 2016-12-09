@@ -7,7 +7,7 @@ using namespace ndlcom;
 BridgeHandlerBase::BridgeHandlerBase(NDLComBridge &_bridge, std::ostream &_out)
     : bridge(_bridge), out(_out) {
     ndlcomBridgeHandlerInit(&internal, BridgeHandlerBase::handleWrapper,
-                              NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, this);
+                            NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, this);
     ndlcomBridgeRegisterBridgeHandler(&bridge, &internal);
 }
 

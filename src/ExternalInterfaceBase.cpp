@@ -15,6 +15,8 @@ ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &_bridge,
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
+    // carefull, the BaseClass does not register the interface! The last
+    // inheriting ctor has to do this!
 }
 
 // static wrapper function for the C-callback
@@ -60,7 +62,7 @@ void ExternalInterfaceBase::setFlag(uint8_t flag, bool value) {
     }
 }
 
-struct NDLComExternalInterface * ExternalInterfaceBase::getInterface() {
+struct NDLComExternalInterface *ExternalInterfaceBase::getInterface() {
     return &external;
 }
 

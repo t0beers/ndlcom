@@ -14,8 +14,8 @@ extern "C" {
  * @brief Do not handle messages originating from NDLComBridgeHandler or
  *        NDLComNodeHandler
  *
- * If this flag is used, this BridgeHandler will not see messages sent from
- * the internal side of the NDLComBridge, eg which were created by calling
+ * If this flag is used, this NDLComBridgeHandler will not see messages sent
+ * from the internal side of the NDLComBridge, eg which were created by calling
  * "ndlcomBridgeSendRaw()" or "ndlcomNodeSend()".
  *
  * This is useful to prevent loops by responding to a respond of a respond of an
@@ -31,15 +31,15 @@ extern "C" {
  *
  * @param context Arbitrary pointer given to "ndlcomBridgeHandlerInit"
  * @param header The header of the message
- * @param payload The payload of the message. See "header->mDataLen" for the size.
+ * @param payload The payload of the message. See "header->mDataLen" for the
+ *        size.
  * @param origin The ExternalInterface where this message came from. Can be the
  *               "NDLComBridge" pointer if it is originating from the internal
  *               side. This might change.
  */
 typedef void (*NDLComBridgeHandlerFkt)(void *context,
-                                         const struct NDLComHeader *header,
-                                         const void *payload,
-                                         const void *origin);
+                                       const struct NDLComHeader *header,
+                                       const void *payload, const void *origin);
 
 struct NDLComBridgeHandler {
     /**
@@ -61,7 +61,7 @@ struct NDLComBridgeHandler {
     uint8_t flags;
     /** function called to handle decoded packets for handling */
     NDLComBridgeHandlerFkt handler;
-    /** doubly linked list as part of "NDLComBridge" or "NDLComNode" */
+    /** doubly linked list to be part of NDLComBridge */
     struct list_head list;
 };
 
@@ -85,9 +85,8 @@ void ndlcomBridgeHandlerInit(struct NDLComBridgeHandler *bridgeHandler,
  * @param internalHandler Pointer to work on
  * @param flags The pattern to set.
  */
-void
-ndlcomBridgeHandlerSetFlags(struct NDLComBridgeHandler *bridgeHandler,
-                              const uint8_t flags);
+void ndlcomBridgeHandlerSetFlags(struct NDLComBridgeHandler *bridgeHandler,
+                                 const uint8_t flags);
 
 #if defined(__cplusplus)
 }

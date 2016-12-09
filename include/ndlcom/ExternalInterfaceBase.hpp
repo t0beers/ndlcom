@@ -63,7 +63,7 @@ class ExternalInterfaceBase {
      * @brief Obtain pointer to NDLComExternalInterface used in the background
      *
      * Does not expose a const-pointer, as the purpose of this function is to
-     * expose an identifier which may be used as an entry in the oruting table.
+     * expose an identifier which may be used as an entry in the NDLComRoutingTable.
      * But these have to be non-const by design.
      */
     struct NDLComExternalInterface *getInterface();
