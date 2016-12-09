@@ -24,17 +24,16 @@ class BridgeHandlerBase {
                       std::ostream &out = std::cerr);
     virtual ~BridgeHandlerBase();
 
-    static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload, const void *origin);
+  protected:
+    std::ostream &out;
+    struct NDLComBridgeHandler internal;
 
     virtual void handle(const struct NDLComHeader *header, const void *payload,
                         const void *origin) = 0;
 
-  protected:
-    std::ostream &out;
-
   private:
-    struct NDLComBridgeHandler internal;
+    static void handleWrapper(void *context, const struct NDLComHeader *header,
+                              const void *payload, const void *origin);
 };
 }
 

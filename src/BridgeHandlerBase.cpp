@@ -4,7 +4,8 @@
 
 using namespace ndlcom;
 
-BridgeHandlerBase::BridgeHandlerBase(NDLComBridge &bridge, std::ostream &_out)
+BridgeHandlerBase::BridgeHandlerBase(struct NDLComBridge &bridge,
+                                     std::ostream &_out)
     : out(_out) {
     ndlcomBridgeHandlerInit(&internal, BridgeHandlerBase::handleWrapper,
                             NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, this);

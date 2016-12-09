@@ -1,4 +1,5 @@
 #include "ndlcom/NodeHandler.hpp"
+#include "ndlcom/Node.h"
 
 // input/output
 #include <iostream>

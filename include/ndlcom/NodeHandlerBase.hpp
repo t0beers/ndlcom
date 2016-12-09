@@ -1,8 +1,7 @@
 #ifndef NDLCOM_NODE_HANDLER_BASE_HPP
 #define NDLCOM_NODE_HANDLER_BASE_HPP
 
-#include "ndlcom/Bridge.h"
-#include "ndlcom/Node.h"
+#include "ndlcom/NodeHandler.h"
 
 #include <iostream>
 
@@ -24,15 +23,15 @@ class NodeHandlerBase {
     NodeHandlerBase(struct NDLComNode &node, std::ostream &out = std::cerr);
     virtual ~NodeHandlerBase();
 
-    virtual void handle(const struct NDLComHeader *header, const void *payload,
-                        const void *origin) = 0;
-
     void send(const NDLComId destination, const void *payload,
               const size_t length);
 
   protected:
     std::ostream &out;
     struct NDLComNodeHandler internal;
+
+    virtual void handle(const struct NDLComHeader *header, const void *payload,
+                        const void *origin) = 0;
 
   private:
     static void handleWrapper(void *context, const struct NDLComHeader *header,
