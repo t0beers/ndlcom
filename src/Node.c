@@ -21,14 +21,15 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
 
     /* initialize handler which this Node is going to register in the bridge */
     ndlcomBridgeHandlerInit(&node->bridgeHandler, ndlcomNodeMessageHandler,
-                              NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, node);
+                            NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, node);
     /* na, what did I say? */
     ndlcomBridgeRegisterBridgeHandler(bridge, &node->bridgeHandler);
 }
 
 void ndlcomNodeDeinit(struct NDLComNode *node) {
-    /* we do not want to be called anymore in the future */
-    ndlcomBridgeDeregisterBridgeHandler(node->bridgeHandler.bridge, &node->bridgeHandler);
+    /* we do not want to be called by anymore in the future */
+    ndlcomBridgeDeregisterBridgeHandler(node->bridgeHandler.bridge,
+                                        &node->bridgeHandler);
     /* additionally inform the bridge that our deviceId is no longer used
      * internally */
     ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
@@ -75,8 +76,7 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
      */
     if ((header->mReceiverId == node->headerConfig.mOwnSenderId) ||
         (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
-        list_for_each_entry(nodeHandler, &node->nodeHandlerList, list)
-        {
+        list_for_each_entry(nodeHandler, &node->nodeHandlerList, list) {
             /* NodeHandler will see their own broadcast messages if this is
              * not disabled by a special config-flag...  Messages from the
              * internal side can be detected by checking "origin" to be _not_
@@ -84,8 +84,7 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
              *
              * FIXME: the flag is not checked!
              */
-            nodeHandler->handler(nodeHandler->context, header, payload,
-                                     origin);
+            nodeHandler->handler(nodeHandler->context, header, payload, origin);
         }
     }
 }
@@ -106,15 +105,15 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
     ndlcomBridgeSendRaw(node->bridgeHandler.bridge, &header, payload);
 }
 
-void ndlcomNodeRegisterNodeHandler(
-    struct NDLComNode *node, struct NDLComNodeHandler *nodeHandler) {
+void ndlcomNodeRegisterNodeHandler(struct NDLComNode *node,
+                                   struct NDLComNodeHandler *nodeHandler) {
 
     list_add(&nodeHandler->list, &node->nodeHandlerList);
     nodeHandler->node = node;
 }
 
-void ndlcomNodeDeregisterNodeHandler(
-    struct NDLComNode *node, struct NDLComNodeHandler *nodeHandler) {
+void ndlcomNodeDeregisterNodeHandler(struct NDLComNode *node,
+                                     struct NDLComNodeHandler *nodeHandler) {
 
     list_del_init(&nodeHandler->list);
     nodeHandler->node = 0;

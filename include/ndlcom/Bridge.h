@@ -230,8 +230,9 @@ void ndlcomBridgeRegisterExternalInterface(
  * @param bridge The bridge to use
  * @param bridgeHandler The BridgeHandler to deregister
  */
-void ndlcomBridgeDeregisterBridgeHandler(
-    struct NDLComBridge *bridge, struct NDLComBridgeHandler *bridgeHandler);
+void
+ndlcomBridgeDeregisterBridgeHandler(struct NDLComBridge *bridge,
+                                    struct NDLComBridgeHandler *bridgeHandler);
 
 /**
  * @brief Remove existing ExternalInterface

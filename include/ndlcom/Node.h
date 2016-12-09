@@ -10,22 +10,24 @@ extern "C" {
 #endif
 
 /**
- * @brief a "NDLComNode" has a "deviceId" and is connected to a NDLComBridge
+ * @brief a NDLComNode has a deviceId and is connected to an NDLComBridge
  *
  * An NDLComNode is wrapped around a NDLComBridgeHandler. Every active
- * participant in a NDLCom network has a "deviceId" which is used in the
- * senderId in the message header. The Node is responsible to correctly
- * increase the packet counter in the header for every new message transmitted.
+ * participant in a NDLCom network has a "deviceId" which is used as the
+ * senderId in the message header when transmitting a message, which is
+ * provided by the NDLComNode. Additionally it is responsible to correctly
+ * increase the packet counter in the header for every new message transmitted
+ * to a specific deviceId.
  *
- * Additionally a Node can receive messages directed at its "deviceId" (or the
- * special broadcast messages). Therefore, the Node will register a handler in
- * the bridge and decide for every message if its own handlers should be
- * called.
+ * Additionally an NDLComNode is used to handle messages directed at its
+ * "deviceId" (and the special broadcast address). Therefore, the NDLComNode
+ * registers a NDLComBridgeHandler at the bridge and uses the callback handler
+ * to decide for every message if its own handlers should be called.
  *
- * A Node can be only be connected to one single NDLComBridge.
+ * A NDLComNode can be only be connected to one single NDLComBridge.
  *
- * Note: But there is no sensible way to enforce that a NDLComBridge has only one
- * NDLComNode for a given receiverId...
+ * Note: There is no sensible way to enforce that a NDLComBridge has only one
+ * NDLComNode for a given receiverId...?
  */
 struct NDLComNode {
     /**
@@ -51,9 +53,9 @@ struct NDLComNode {
 /**
  * @brief Initializes the data structure
  *
- * @param node pointer to "struct NDLComNode" which has to be initialized.
- * @param bridge Pointer to the bridge this Node should connect to
- * @param ownSenderId provide an "NDLComId" during initialization
+ * @param node pointer to an NDLComNode which has to be initialized.
+ * @param bridge Pointer to the NDLComBridge this Node should connect to
+ * @param ownSenderId provide an deviceId during initialization
  */
 void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
                     const NDLComId ownSenderId);
@@ -61,8 +63,9 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
 /**
  * @brief Remove the callback of this Node from the bridges list
  *
- * Since we register at the "bridge", we have to unregister as well... We also
- * have to disable the entry in the routing table.
+ * Since we register at a NDLComBridge, we have to unregister as well... We
+ * also have to disable the special marking for our deviceId in the routing
+ * table.
  *
  * @param node pointer to our data structure
  */
@@ -103,19 +106,19 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
  *
  * Will be called for every messages directed at this Node
  *
- * @param node
- * @param nodeHandler
+ * @param node The node to register at
+ * @param nodeHandler The handler which is to be registered
  */
-void ndlcomNodeRegisterNodeHandler(
-    struct NDLComNode *node, struct NDLComNodeHandler *nodeHandler);
+void ndlcomNodeRegisterNodeHandler(struct NDLComNode *node,
+                                   struct NDLComNodeHandler *nodeHandler);
 /**
  * @brief De-register node handler
  *
- * @param node
- * @param nodeHandler
+ * @param node The node to disconnect from
+ * @param nodeHandler The handler to be disconnected
  */
-void ndlcomNodeDeregisterNodeHandler(
-    struct NDLComNode *node, struct NDLComNodeHandler *nodeHandler);
+void ndlcomNodeDeregisterNodeHandler(struct NDLComNode *node,
+                                     struct NDLComNodeHandler *nodeHandler);
 
 #if defined(__cplusplus)
 }
