@@ -10,9 +10,6 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
 void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
                     const NDLComId ownSenderId) {
 
-    /* safe the bridge-pointer which we'll gonna use to transmit messages */
-    node->bridge = bridge;
-
     /* initialize all the list we have */
     INIT_LIST_HEAD(&node->nodeHandlerList);
 
@@ -23,18 +20,18 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
     ndlcomNodeSetOwnSenderId(node, ownSenderId);
 
     /* initialize handler which this Node is going to register in the bridge */
-    ndlcomBridgeHandlerInit(&node->myIdHandler, ndlcomNodeMessageHandler,
+    ndlcomBridgeHandlerInit(&node->bridgeHandler, ndlcomNodeMessageHandler,
                               NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, node);
     /* na, what did I say? */
-    ndlcomBridgeRegisterBridgeHandler(bridge, &node->myIdHandler);
+    ndlcomBridgeRegisterBridgeHandler(bridge, &node->bridgeHandler);
 }
 
 void ndlcomNodeDeinit(struct NDLComNode *node) {
     /* we do not want to be called anymore in the future */
-    ndlcomBridgeDeregisterBridgeHandler(node->bridge, &node->myIdHandler);
+    ndlcomBridgeDeregisterBridgeHandler(node->bridgeHandler.bridge, &node->bridgeHandler);
     /* additionally inform the bridge that our deviceId is no longer used
      * internally */
-    ndlcomBridgeClearInternalDeviceId(node->bridge,
+    ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
                                       node->headerConfig.mOwnSenderId);
 
     /* missing? deinit of handlers... */
@@ -48,7 +45,7 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
     /*
      * disabling the old senderId, which is still stored in the headerConfig
      */
-    ndlcomBridgeClearInternalDeviceId(node->bridge,
+    ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
                                       node->headerConfig.mOwnSenderId);
     /*
      * resets the packet-counters to use for each receiver, and is used to
@@ -62,9 +59,13 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
      *
      * TODO: check that using "bridge" as the origin will work here...
      */
-    ndlcomBridgeMarkDeviceIdAsInternal(node->bridge, ownSenderId);
+    ndlcomBridgeMarkDeviceIdAsInternal(node->bridgeHandler.bridge, ownSenderId);
 }
 
+/**
+ * Handler will be called by the NDLComBridge, here is where the filtering
+ * for messages directed at "us" happens: Our receiverId and the Broadcast.
+ */
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
                               const void *payload, const void *origin) {
     struct NDLComNode *node = (struct NDLComNode *)context;
@@ -102,7 +103,7 @@ void ndlcomNodeSend(struct NDLComNode *node, const NDLComId receiverId,
     /*
      * transmitting a message using the bridge
      */
-    ndlcomBridgeSendRaw(node->bridge, &header, payload);
+    ndlcomBridgeSendRaw(node->bridgeHandler.bridge, &header, payload);
 }
 
 void ndlcomNodeRegisterNodeHandler(

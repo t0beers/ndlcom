@@ -29,10 +29,6 @@ extern "C" {
  */
 struct NDLComNode {
     /**
-     * The bridge used by this node.
-     */
-    struct NDLComBridge *bridge;
-    /**
      * The Node is also responsible to create headers with correct packet
      * counters. This structure is also used to store the "ownSenderId".
      */
@@ -46,8 +42,10 @@ struct NDLComNode {
      * Handler which will be registered at the NDLComBridge and is used to
      * filter out messages not directed at us. This handler in turn will call
      * all the handlers in our own list for message directed at us.
+     *
+     * Note that this struct provides a pointer to the attached NDLComBridge.
      */
-    struct NDLComBridgeHandler myIdHandler;
+    struct NDLComBridgeHandler bridgeHandler;
 };
 
 /**
