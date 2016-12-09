@@ -13,7 +13,7 @@ namespace ndlcom {
  */
 class BridgePrintAll : public BridgeHandlerBase {
   public:
-    BridgePrintAll(struct NDLComBridge &_bridge,
+    BridgePrintAll(struct NDLComBridge &bridge,
                    std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin);
@@ -27,7 +27,7 @@ class BridgePrintAll : public BridgeHandlerBase {
  */
 class BridgePrintMissEvents : public BridgeHandlerBase {
   public:
-    BridgePrintMissEvents(struct NDLComBridge &_bridge,
+    BridgePrintMissEvents(struct NDLComBridge &bridge,
                           std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin);

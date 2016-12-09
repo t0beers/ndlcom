@@ -13,7 +13,8 @@ namespace ndlcom {
  */
 class NodeHandlerPrintOwnId : public NodeHandlerBase {
   public:
-    NodeHandlerPrintOwnId(struct NDLComNode &_node, std::ostream &_out = std::cerr);
+    NodeHandlerPrintOwnId(struct NDLComNode &node,
+                          std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin);
 };

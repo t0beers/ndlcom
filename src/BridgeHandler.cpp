@@ -9,8 +9,8 @@
 
 using namespace ndlcom;
 
-BridgePrintAll::BridgePrintAll(struct NDLComBridge &_bridge, std::ostream &_out)
-    : BridgeHandlerBase(_bridge, _out) {}
+BridgePrintAll::BridgePrintAll(struct NDLComBridge &bridge, std::ostream &_out)
+    : BridgeHandlerBase(bridge, _out) {}
 
 void BridgePrintAll::handle(const struct NDLComHeader *header,
                             const void *payload, const void *origin) {
@@ -28,9 +28,9 @@ void BridgePrintAll::handle(const struct NDLComHeader *header,
     out << std::string(" bytes of payload\n");
 }
 
-BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &_bridge,
+BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &bridge,
                                              std::ostream &_out)
-    : BridgeHandlerBase(_bridge, _out) {}
+    : BridgeHandlerBase(bridge, _out) {}
 
 void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {

@@ -27,9 +27,9 @@
 
 using namespace ndlcom;
 
-ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &_bridge,
+ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &bridge,
                                                  uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags), fd_read(NULL),
+    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags), fd_read(NULL),
       fd_write(NULL) {
     // setting "udf.events" implicitly to zero means: listen only to the
     // error-events POLLHUP, POLLERR, and POLLNVAL
@@ -99,11 +99,11 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     return;
 }
 
-ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &_bridge,
+ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &bridge,
                                                  std::string device_name,
                                                  speed_t baudrate,
                                                  uint8_t flags)
-    : ExternalInterfaceStream(_bridge, flags) {
+    : ExternalInterfaceStream(bridge, flags) {
     {
         std::stringstream ss;
         ss << "serial://" << device_name << ":" << baudrate;
@@ -155,13 +155,13 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &_bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
-    // after everything is setup, register at the given "bridge" object.
+    // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceSerial::~ExternalInterfaceSerial() {
     // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
@@ -169,10 +169,10 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
     close(fd);
 }
 
-ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &_bridge,
+ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
                                              std::string device_name,
                                              uint8_t flags)
-    : ExternalInterfaceStream(_bridge) {
+    : ExternalInterfaceStream(bridge) {
     {
         std::stringstream ss;
         ss << "fpga://" << device_name;
@@ -196,21 +196,21 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &_bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
-    // after everything is setup, register at the given "bridge" object.
+    // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceFpga::~ExternalInterfaceFpga() {
     // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
     close(fd);
 }
 
-ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &_bridge,
+ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
                                            std::string hostname,
                                            unsigned int in_port,
                                            unsigned int out_port, uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
+    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
 
     {
@@ -292,13 +292,13 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &_bridge,
     // clean the shit up
     freeaddrinfo(result);
 
-    // after everything is setup, register at the given "bridge" object.
+    // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceUdp::~ExternalInterfaceUdp() {
     // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
     close(fd);
 }
 
@@ -376,9 +376,9 @@ again:
 }
 
 ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
-    struct NDLComBridge &_bridge, std::string hostname, unsigned int port,
+    struct NDLComBridge &bridge, std::string hostname, unsigned int port,
     uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags) {
+    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags) {
     {
         std::stringstream ss;
         ss << "tcpclient://" << hostname << ":" << port;
@@ -419,13 +419,13 @@ ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
 
     freeaddrinfo(result);
 
-    // after everything is setup, register at the given "bridge" object.
+    // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() {
     // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
     close(fd);
 }
 
@@ -463,13 +463,12 @@ again:
         alreadyWritten += written;
     }
     return;
-
 }
 
-ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &_bridge,
+ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &bridge,
                                              std::string pipename,
                                              uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(_bridge, std::cerr, flags),
+    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags),
       unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
       pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
     if (pipename.empty()) {
@@ -535,13 +534,13 @@ ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &_bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
-    // after everything is setup, register at the given "bridge" object.
+    // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePipe::~ExternalInterfacePipe() {
     // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
@@ -614,10 +613,10 @@ void ExternalInterfacePipe::writeEscapedBytes(const void *buf, size_t count) {
     return;
 }
 
-ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &_bridge,
+ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &bridge,
                                            std::string _symlinkname,
                                            uint8_t flags)
-    : ExternalInterfaceStream(_bridge, flags), symlinkname(_symlinkname) {
+    : ExternalInterfaceStream(bridge, flags), symlinkname(_symlinkname) {
     if (symlinkname.empty()) {
         reportRuntimeError("no symlinkname for pty given", __FILE__, __LINE__);
     }
@@ -666,13 +665,13 @@ ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &_bridge,
     out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
         << "', the symlink is '" << symlinkname << "'\n";
 
-    // after everything is setup, register at the given "bridge" object.
+    // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePty::~ExternalInterfacePty() {
     // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(&bridge, &external);
+    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
     // delete the previously created symlink
     cleanSymlink();
     // not sure...

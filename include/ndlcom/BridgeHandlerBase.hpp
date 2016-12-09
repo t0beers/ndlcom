@@ -20,7 +20,7 @@ namespace ndlcom {
  */
 class BridgeHandlerBase {
   public:
-    BridgeHandlerBase(struct NDLComBridge &_bridge,
+    BridgeHandlerBase(struct NDLComBridge &bridge,
                       std::ostream &out = std::cerr);
     virtual ~BridgeHandlerBase();
 
@@ -31,7 +31,6 @@ class BridgeHandlerBase {
                         const void *origin) = 0;
 
   protected:
-    struct NDLComBridge &bridge;
     std::ostream &out;
 
   private:

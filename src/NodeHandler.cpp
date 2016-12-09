@@ -6,15 +6,16 @@
 
 using namespace ndlcom;
 
-NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &_node, std::ostream &_out)
-    : NodeHandlerBase(_node, _out) {}
+NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
+                                             std::ostream &_out)
+    : NodeHandlerBase(node, _out) {}
 
 void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {
     out << std::string("listener ");
     out << std::showbase << std::hex;
     out << std::setfill('0') << std::setw(4) << std::internal
-        << (int)node.headerConfig.mOwnSenderId;
+        << (int)internal.node->headerConfig.mOwnSenderId;
     out << std::string(" got message from ");
     out << std::setfill('0') << std::setw(4) << std::internal
         << (int)header->mSenderId;

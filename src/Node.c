@@ -16,14 +16,16 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
     /* also initialize the packet counter used for headers */
     ndlcomHeaderPrepareInit(&node->headerConfig, ownSenderId);
 
-    /* calling this will also initialize the routing table */
-    ndlcomNodeSetOwnSenderId(node, ownSenderId);
-
     /* initialize handler which this Node is going to register in the bridge */
     ndlcomBridgeHandlerInit(&node->bridgeHandler, ndlcomNodeMessageHandler,
                             NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, node);
     /* na, what did I say? */
     ndlcomBridgeRegisterBridgeHandler(bridge, &node->bridgeHandler);
+
+    /* calling this will also initialize our own NDLComHeaderConfig and mark
+     * our deviceId in the NDLComRoutingTable as internal. This has to be done
+     * after registering at the NDLComBridge. */
+    ndlcomNodeSetOwnSenderId(node, ownSenderId);
 }
 
 void ndlcomNodeDeinit(struct NDLComNode *node) {

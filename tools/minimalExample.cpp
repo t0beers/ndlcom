@@ -50,8 +50,8 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
     uint8_t firstByteToListen;
 
   public:
-    ExampleHandler(struct NDLComNode &_node, uint8_t _firstByteToListen)
-        : NodeHandlerBase(_node), firstByteToListen(_firstByteToListen) {}
+    ExampleHandler(struct NDLComNode &node, uint8_t _firstByteToListen)
+        : NodeHandlerBase(node), firstByteToListen(_firstByteToListen) {}
 
     /* This function will be called when the NDLComNode received a message
      * directed at its own deviceId. */

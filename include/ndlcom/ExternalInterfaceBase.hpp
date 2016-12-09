@@ -25,9 +25,9 @@ namespace ndlcom {
 class ExternalInterfaceBase {
   public:
     ExternalInterfaceBase(
-        struct NDLComBridge &_bridge, std::ostream &out = std::cerr,
+        struct NDLComBridge &bridge, std::ostream &out = std::cerr,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    virtual ~ExternalInterfaceBase(){}
+    virtual ~ExternalInterfaceBase() {}
 
     virtual void writeEscapedBytes(const void *buf, size_t count) = 0;
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
@@ -63,18 +63,12 @@ class ExternalInterfaceBase {
      * @brief Obtain pointer to NDLComExternalInterface used in the background
      *
      * Does not expose a const-pointer, as the purpose of this function is to
-     * expose an identifier which may be used as an entry in the NDLComRoutingTable.
-     * But these have to be non-const by design.
+     * expose an identifier which may be used as an entry in the
+     * NDLComRoutingTable. But these have to be non-const by design.
      */
     struct NDLComExternalInterface *getInterface();
 
   protected:
-
-    /**
-     * The bridge where this interface is connected to
-     */
-    struct NDLComBridge &bridge;
-
     /**
      * The wrapped C-datastructure
      */
