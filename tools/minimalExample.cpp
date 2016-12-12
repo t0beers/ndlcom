@@ -68,8 +68,15 @@ class ExampleHandler final : public ndlcom::NodeHandlerBase {
                 const void *origin) {
 
         /* at first do some printing */
-        printf("message from 0x%02x with %i bytes via interface %p\n",
-               header->mSenderId, (int)header->mDataLen, origin);
+        printf("message from 0x%02x with %i bytes",
+               header->mSenderId, (int)header->mDataLen);
+        if (origin) {
+            printf(" from %s\n",
+                   static_cast<const class ndlcom::ExternalInterfaceBase *>(
+                       origin)->label.c_str());
+        } else {
+            printf(" from internal\n");
+        }
         /* NOTE: The "payload" pointer points to a data-array with the size
          * given in header->mDataLen. */
         if (header->mDataLen > 0) {
