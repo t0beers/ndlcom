@@ -10,6 +10,7 @@ extern "C" {
 
 /** default, nothing special */
 #define NDLCOM_NODE_HANDLER_FLAGS_DEFAULT 0x00
+#define NDLCOM_NODE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL 0x01
 
 /**
  * Callback-function for internal handling of received messages. Note that you
@@ -72,9 +73,8 @@ void ndlcomNodeHandlerInit(struct NDLComNodeHandler *nodeHandler,
  * @param nodeHandler Pointer to work on
  * @param flags The pattern to set.
  */
-void
-ndlcomNodeHandlerSetFlags(struct NDLComNodeHandler *nodeHandler,
-                              const uint8_t flags);
+void ndlcomNodeHandlerSetFlags(struct NDLComNodeHandler *nodeHandler,
+                               const uint8_t flags);
 
 #if defined(__cplusplus)
 }

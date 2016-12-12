@@ -78,13 +78,17 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
     if ((header->mReceiverId == node->headerConfig.mOwnSenderId) ||
         (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
         list_for_each_entry(nodeHandler, &node->nodeHandlerList, list) {
-            /* NodeHandler will see their own broadcast messages if this is
-             * not disabled by a special config-flag...  Messages from the
+            /**
+             * NDLComNodeHandler would see their own messages if this is
+             * not disabled by a special config-flag... Messages from the
              * internal side can be detected by checking "origin" to be _not_
-             * zero
-             *
-             * FIXME: the flag is not checked!
+             * zero.
              */
+            if (!origin &&
+                (nodeHandler->flags &
+                 NDLCOM_NODE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL)) {
+                continue;
+            }
             nodeHandler->handler(nodeHandler->context, header, payload, origin);
         }
     }
