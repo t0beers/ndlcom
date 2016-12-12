@@ -15,8 +15,7 @@ namespace ndlcom {
  *
  * comes with a protected "out" stream, intended for outputs.
  *
- * The base-class will already register at the bridge! derived classes should
- * be ready to receive data at any time.
+ * Note that deriving classes still have to register at the Node!
  */
 class NodeHandlerBase {
   public:

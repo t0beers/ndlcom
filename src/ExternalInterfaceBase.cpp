@@ -14,7 +14,7 @@ ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &bridge,
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
-    // carefull, the BaseClass does not register the interface! The last
+    // careful, the BaseClass does not register the interface! The last
     // inheriting ctor has to do this!
 }
 

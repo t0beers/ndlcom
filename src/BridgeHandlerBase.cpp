@@ -9,7 +9,8 @@ BridgeHandlerBase::BridgeHandlerBase(struct NDLComBridge &bridge,
     : out(_out) {
     ndlcomBridgeHandlerInit(&internal, BridgeHandlerBase::handleWrapper,
                             NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, this);
-    ndlcomBridgeRegisterBridgeHandler(&bridge, &internal);
+    // note that deriving classes still have to register at the bridge, after
+    // setting everything up
 }
 
 BridgeHandlerBase::~BridgeHandlerBase() {

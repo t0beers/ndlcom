@@ -54,6 +54,9 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
         : NodeHandlerBase(node), firstByteToListen(_firstByteToListen) {
         // this label is used for proper status-displays
         label = "ExampleHandler";
+        // all deriving class still have to register, after their internal data
+        // was set up in the ctor
+        ndlcomNodeRegisterNodeHandler(&node, &internal);
     }
 
     /* This function will be called when the NDLComNode received a message

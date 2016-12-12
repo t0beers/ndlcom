@@ -11,6 +11,7 @@ NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
                                              std::ostream &_out)
     : NodeHandlerBase(node, _out) {
     label = "NodeHandlerPrintOwnId";
+    ndlcomNodeRegisterNodeHandler(&node, &internal);
 }
 
 void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,

@@ -8,7 +8,8 @@ NodeHandlerBase::NodeHandlerBase(NDLComNode &node, std::ostream &_out)
     : out(_out) {
     ndlcomNodeHandlerInit(&internal, NodeHandlerBase::handleWrapper,
                           NDLCOM_NODE_HANDLER_FLAGS_DEFAULT, this);
-    ndlcomNodeRegisterNodeHandler(&node, &internal);
+    // note that deriving classes still have to register at the bridge, after
+    // setting everything up
 }
 
 NodeHandlerBase::~NodeHandlerBase() {
