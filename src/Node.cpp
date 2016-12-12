@@ -12,6 +12,8 @@ Node::~Node() {
     ndlcomNodeDeinit(&node);
 }
 
+NDLComId Node::getOwnDeviceId() const { return node.headerConfig.mOwnSenderId; }
+
 void Node::send(const NDLComId receiverId, const void *payload,
                 size_t payloadSize) {
     ndlcomNodeSend(&node, receiverId, payload, payloadSize);

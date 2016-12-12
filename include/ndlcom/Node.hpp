@@ -28,6 +28,8 @@ class Node {
         return p;
     }
 
+    NDLComId getOwnDeviceId() const;
+
     /**
      * guess what this does...
      */
