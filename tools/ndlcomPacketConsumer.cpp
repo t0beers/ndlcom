@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     // we need "unbuffered io" on stdin, so that we can read any byte
     // available, as soon as it is there... perform this before any other
     // action was done in this stream.
-    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdin, nullptr, _IONBF, 0);
 
     struct NDLComParser parser;
     ndlcomParserCreate(&parser, sizeof(struct NDLComParser));
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
 
         // use select to sleep until new data is available on stdin
         FD_SET(0, &fds);
-        int ret = select(1, &fds, NULL, NULL, NULL);
+        int ret = select(1, &fds, nullptr, nullptr, nullptr);
         if (ret == -1) {
             throw std::runtime_error(strerror(errno));
         }

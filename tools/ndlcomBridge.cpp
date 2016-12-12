@@ -99,7 +99,7 @@ void handleInput() {
     tv.tv_usec = 0;
     FD_ZERO(&s_rd);
     FD_SET(fileno(stdin), &s_rd);
-    int r = select(fileno(stdin) + 1, &s_rd, NULL, NULL, &tv);
+    int r = select(fileno(stdin) + 1, &s_rd, nullptr, nullptr, &tv);
     if (r != 0) {
         std::string entered;
         std::getline(std::cin, entered);

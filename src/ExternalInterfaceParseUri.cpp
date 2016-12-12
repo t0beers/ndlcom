@@ -162,7 +162,7 @@ std::shared_ptr<class ndlcom::ExternalInterfaceBase >ndlcom::ParseUriAndCreateEx
     if (!retval) {
         out << "ParseUri: could not create any interface from string '" + uri +
                    "'";
-        return NULL;
+        return retval;
     }
 
     std::vector<NDLComId> ids = convertStringToIds(

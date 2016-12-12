@@ -29,8 +29,8 @@ using namespace ndlcom;
 
 ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &bridge,
                                                  uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags), fd_read(NULL),
-      fd_write(NULL) {
+    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags), fd_read(nullptr),
+      fd_write(nullptr) {
     // setting "udf.events" implicitly to zero means: listen only to the
     // error-events POLLHUP, POLLERR, and POLLNVAL
     bzero(&ufd, sizeof(struct pollfd));
@@ -246,13 +246,13 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
     struct addrinfo *result;
     // try to resolve the hostname-string
     if (int retval =
-            getaddrinfo(hostname.c_str(), NULL, &hints, &result) != 0) {
+            getaddrinfo(hostname.c_str(), nullptr, &hints, &result) != 0) {
         reportRuntimeError(gai_strerror(retval), __FILE__, __LINE__);
     }
 
     // FIXME: if multiple results are provided: how to choose?
     /* int ctr = 0; */
-    /* for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next) { */
+    /* for (struct addrinfo *rp = result; rp != nullptr; rp = rp->ai_next) { */
     /*     out << "hostname " << ctr++ << ": '" << hostname.c_str() */
     /*         << "' resolved to '" */
     /*         << inet_ntoa(((struct sockaddr_in *)rp->ai_addr)->sin_addr) */
@@ -399,7 +399,7 @@ ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
     struct addrinfo *result;
     // try to resolve the hostname-string
     if (int retval =
-            getaddrinfo(hostname.c_str(), NULL, &hints, &result) != 0) {
+            getaddrinfo(hostname.c_str(), nullptr, &hints, &result) != 0) {
         reportRuntimeError(gai_strerror(retval), __FILE__, __LINE__);
     }
 
