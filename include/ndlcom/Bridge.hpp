@@ -25,9 +25,11 @@ class Bridge final {
 
     /**
      * @brief Main entry to data processing
-     * @return The time it took to process
+     *
+     * blocks until all available bytes are processed. could therefore run
+     * forever.
      */
-    struct timespec process();
+    void process();
 
     /**
      * @brief Transmitting a new message from the bridge

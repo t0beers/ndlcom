@@ -6,19 +6,6 @@
 
 using namespace ndlcom;
 
-struct timespec ndlcomBridgeTimeDiff(struct timespec start,
-                                     struct timespec end) {
-    timespec temp;
-    if ((end.tv_nsec - start.tv_nsec) < 0) {
-        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
-        temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-    } else {
-        temp.tv_sec = end.tv_sec - start.tv_sec;
-        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
-    }
-    return temp;
-}
-
 Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
 
 Bridge::~Bridge() {
@@ -127,14 +114,8 @@ Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
     return p;
 }
 
-struct timespec Bridge::process() {
-    struct timespec start, end;
-
-    clock_gettime(CLOCK_MONOTONIC, &start);
+void Bridge::process() {
     ndlcomBridgeProcess(&bridge);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-
-    return ndlcomBridgeTimeDiff(start, end);
 }
 
 void Bridge::sendMessageRaw(const struct NDLComHeader *header,
