@@ -32,8 +32,8 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
     FILE *fd_read;
     FILE *fd_write;
 
-    size_t readEscapedBytes(void *buf, size_t count);
-    void writeEscapedBytes(const void *buf, size_t count);
+    size_t readEscapedBytes(void *buf, size_t count) override;
+    void writeEscapedBytes(const void *buf, size_t count) override;
 
   private:
     /* used to detect when the underlying device vanishes. like usb-ports */
@@ -95,8 +95,8 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceUdp();
 
-    size_t readEscapedBytes(void *buf, size_t count);
-    void writeEscapedBytes(const void *buf, size_t count);
+    size_t readEscapedBytes(void *buf, size_t count) override;
+    void writeEscapedBytes(const void *buf, size_t count) override;
 
   private:
     struct sockaddr_in addr_in;
@@ -123,8 +123,8 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceTcpClient();
 
-    size_t readEscapedBytes(void *buf, size_t count);
-    void writeEscapedBytes(const void *buf, size_t count);
+    size_t readEscapedBytes(void *buf, size_t count) override;
+    void writeEscapedBytes(const void *buf, size_t count) override;
 
   private:
     struct sockaddr_in addr;
@@ -153,8 +153,8 @@ class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfacePipe();
 
-    size_t readEscapedBytes(void *buf, size_t count);
-    void writeEscapedBytes(const void *buf, size_t count);
+    size_t readEscapedBytes(void *buf, size_t count) override;
+    void writeEscapedBytes(const void *buf, size_t count) override;
 
   private:
     FILE *str_in;
@@ -178,7 +178,7 @@ class ExternalInterfacePty : public ExternalInterfaceStream {
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfacePty();
 
-    size_t readEscapedBytes(void *buf, size_t count);
+    size_t readEscapedBytes(void *buf, size_t count) override;
     // we can reuse the write function of the base-class
 
   private:

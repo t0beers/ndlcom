@@ -16,7 +16,7 @@ class BridgePrintAll : public BridgeHandlerBase {
     BridgePrintAll(struct NDLComBridge &bridge,
                    std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin);
+                const void *origin) override;
 };
 
 /**
@@ -30,7 +30,7 @@ class BridgePrintMissEvents : public BridgeHandlerBase {
     BridgePrintMissEvents(struct NDLComBridge &bridge,
                           std::ostream &_out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin);
+                const void *origin) override;
     /** clears every internal datastructure */
     void resetMissEvents();
 
