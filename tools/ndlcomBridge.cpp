@@ -6,18 +6,17 @@
  *
  */
 #include <getopt.h>
-#include <unistd.h>
 #include <errno.h>
 #include <memory>
-#include <string.h>   /* for strerror() */
+#include <string.h> /* for strerror() */
 
-#include <cstdio>
 #include <sstream>
 #include <iostream>
 #include <csignal>
-#include <cstdlib>
 #include <vector>
 #include <cmath>
+#include <chrono>
+#include <thread> /* sleep_until */
 
 #include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
@@ -35,19 +34,6 @@ bool stopMainLoop = false;
 double mainLoopFrequency_hz = 100.0;
 
 void signal_handler(int signal) { stopMainLoop = true; }
-
-// TODO: use chrono from c++11
-struct timespec diff(struct timespec start, struct timespec end) {
-    timespec temp;
-    if ((end.tv_nsec - start.tv_nsec) < 0) {
-        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
-        temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-    } else {
-        temp.tv_sec = end.tv_sec - start.tv_sec;
-        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
-    }
-    return temp;
-}
 
 void help(const char *_name) {
     std::string name(_name);
@@ -224,43 +210,26 @@ int main(int argc, char *argv[]) {
 
     std::signal(SIGINT, signal_handler);
 
-    useconds_t usleep_us = round(1. / mainLoopFrequency_hz * 1000000);
+    std::chrono::microseconds sleepTime(
+        std::lround(1. / mainLoopFrequency_hz * 1000000L));
     std::cerr << "using update rate of " << mainLoopFrequency_hz
-              << "Hz (update every " << usleep_us << "us)\n";
+              << "Hz (update every " << sleepTime.count() << "us)\n\n";
 
     bridge.printStatus();
 
-    struct timespec last_ts, now_ts;
-    clock_gettime(CLOCK_MONOTONIC, &last_ts);
-    usleep(usleep_us);
+    std::chrono::time_point<std::chrono::high_resolution_clock> nextProcessing =
+        std::chrono::system_clock::now();
     while (!stopMainLoop) {
-        // printf("new loop\n");
+
+        /* printf("new loop\n"); */
         bridge.process();
 
+        // check for keyboard-input to create a cheap user-interface
         handleInput();
 
-        // taking care to actually sleep the right number of microseconds as
-        // specified in the commandline
-        clock_gettime(CLOCK_MONOTONIC, &now_ts);
-        struct timespec sinceLast_ts = diff(last_ts, now_ts);;
-        last_ts = now_ts;
-
-        // some juggling with numbers...
-        int sinceLast_us = lrint(sinceLast_ts.tv_nsec / 1000.0) + sinceLast_ts.tv_sec * 1000000;
-        // another uncomprehensible calculation:
-        int processingDuration_us = sinceLast_us - usleep_us;
-        if (processingDuration_us < 0) {
-            processingDuration_us += usleep_us;
-        }
-
-        int finalSleepDuration_us = usleep_us - processingDuration_us;
-        if (finalSleepDuration_us > 0) {
-            usleep(usleep_us);
-            /* printf("processing took %ius, will sleep for %ius\n", processingDuration_us, */
-            /*        finalSleepDuration_us); */
-        /* } else { */
-            /* printf("processing took %ius, will not sleep\n", processingDuration_us); */
-        }
+        // take care that we sleep enough, but not too long
+        nextProcessing += sleepTime;
+        std::this_thread::sleep_until(nextProcessing);
     }
 
     std::cerr << "quitting\n";
