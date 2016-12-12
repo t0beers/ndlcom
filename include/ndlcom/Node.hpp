@@ -36,6 +36,9 @@ class Node final {
      */
     template <class T, class... A>
     std::shared_ptr<T> createNodeHandler(A... args) {
+        static_assert(
+            std::is_base_of<class ndlcom::NodeHandlerBase, T>(),
+            "can only create classes derived from ndlcom::NodeHandlerBase");
         std::shared_ptr<T> p = std::make_shared<T>(node, args...);
         allHandler.push_back(p);
         return p;

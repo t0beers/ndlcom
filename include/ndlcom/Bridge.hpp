@@ -54,6 +54,9 @@ class Bridge final {
      */
     template <class T, class... A>
     std::shared_ptr<T> createExternalInterface(A... args) {
+        static_assert(
+            std::is_base_of<class ndlcom::ExternalInterfaceBase, T>(),
+            "can only create classes derived from ndlcom::ExternalInterfaceBase");
         std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
         externalInterfaces.push_back(p);
         return p;
@@ -64,6 +67,9 @@ class Bridge final {
      */
     template <class T, class... A>
     std::shared_ptr<T> createBridgeHandler(A... args) {
+        static_assert(
+            std::is_base_of<class ndlcom::BridgeHandlerBase, T>(),
+            "can only create classes derived from ndlcom::BridgeHandlerBase");
         std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
         bridgeHandler.push_back(p);
         return p;
