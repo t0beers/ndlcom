@@ -55,7 +55,7 @@ class Bridge {
     template <class T, class... A>
     std::shared_ptr<T> createExternalInterface(A... args) {
         std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
-        allInterfaces.push_back(p);
+        externalInterfaces.push_back(p);
         return p;
     }
 
@@ -65,6 +65,7 @@ class Bridge {
     template <class T, class... A>
     std::shared_ptr<T> createBridgeHandler(A... args) {
         std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
+        bridgeHandler.push_back(p);
         return p;
     }
 
@@ -91,12 +92,12 @@ class Bridge {
      * create a ndlcom::BridgeHandler which prints every message. keeps
      * internal copy of shared_ptr
      */
-    std::shared_ptr<class ndlcom::BridgePrintAll> enablePrintAll();
+    std::shared_ptr<class ndlcom::BridgeHandlerBase> enablePrintAll();
     /**
      * create a ndlcom::BridgeHandler which prints missing message. keeps
      * internal copy of shared_ptr
      */
-    std::shared_ptr<class ndlcom::BridgePrintMissEvents> enablePrintMiss();
+    std::shared_ptr<class ndlcom::BridgeHandlerBase> enablePrintMiss();
 
   private:
 
@@ -104,10 +105,10 @@ class Bridge {
     // these datastructures are needed to be able to cleanup the created
     // classes/structs in dtor, but not earlier.
     std::vector<std::shared_ptr<class ndlcom::ExternalInterfaceBase> >
-        allInterfaces;
-    std::map<const NDLComId, std::shared_ptr<class ndlcom::Node> > allNodes;
-    std::shared_ptr<class ndlcom::BridgePrintAll> printAll;
-    std::shared_ptr<class ndlcom::BridgePrintMissEvents> printMiss;
+        externalInterfaces;
+    std::vector<std::shared_ptr<class ndlcom::BridgeHandlerBase> >
+        bridgeHandler;
+    std::vector<std::shared_ptr<class ndlcom::Node> > nodes;
 
     // harhar. by having this struct private we can more or less be sure that
     // there are not so many additional nodes we do not know about...?

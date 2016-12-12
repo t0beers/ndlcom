@@ -115,6 +115,8 @@ int main(int argc, char *argv[]) {
 
     std::signal(SIGINT, signal_handler);
 
+    bridge.printStatus();
+
     int cnt = 0;
     /* Runs forever, quit with ctrl-c */
     while (!stopMainLoop) {

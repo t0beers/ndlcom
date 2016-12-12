@@ -19,26 +19,20 @@ struct timespec ndlcomBridgeTimeDiff(struct timespec start,
     return temp;
 }
 
-Bridge::Bridge() : printAll(NULL), printMiss(NULL) {
-    ndlcomBridgeInit(&bridge);
-}
+Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
 
 Bridge::~Bridge() {
-    allInterfaces.clear();
-    allNodes.clear();
-    // release the object before we go out-of-scope. prevents use-after-free
-    printAll.reset();
-    printMiss.reset();
+    externalInterfaces.clear();
+    bridgeHandler.clear();
+    nodes.clear();
 }
 
-std::shared_ptr<class ndlcom::BridgePrintAll> Bridge::enablePrintAll() {
-    printAll = createBridgeHandler<ndlcom::BridgePrintAll>();
-    return printAll;
+std::shared_ptr<class ndlcom::BridgeHandlerBase> Bridge::enablePrintAll() {
+    return createBridgeHandler<ndlcom::BridgePrintAll>();
 }
 
-std::shared_ptr<class ndlcom::BridgePrintMissEvents> Bridge::enablePrintMiss() {
-    printMiss = createBridgeHandler<ndlcom::BridgePrintMissEvents>();
-    return printMiss;
+std::shared_ptr<class ndlcom::BridgeHandlerBase> Bridge::enablePrintMiss() {
+    return createBridgeHandler<ndlcom::BridgePrintMissEvents>();
 }
 
 std::shared_ptr<class ndlcom::ExternalInterfaceBase>
@@ -46,34 +40,39 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
     std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret =
         ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
                                                    flags);
-    allInterfaces.push_back(ret);
+    externalInterfaces.push_back(ret);
     return ret;
 }
 
-std::shared_ptr<class ndlcom::Node> Bridge::createNode(const NDLComId nodeDeviceId) {
-    std::shared_ptr<class ndlcom::Node> p;
-    auto it = allNodes.find(nodeDeviceId);
-    if (it != allNodes.end()) {
-        p = it->second;
-    } else {
-        p = std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
-        allNodes.insert(std::make_pair(nodeDeviceId, p));
+std::shared_ptr<class ndlcom::Node>
+Bridge::createNode(const NDLComId nodeDeviceId) {
+    std::shared_ptr<class ndlcom::Node> retval;
+    for (auto it : nodes) {
+        if (it->getOwnDeviceId() == nodeDeviceId) {
+            return it;
+        }
     }
+    retval = std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
+    nodes.push_back(retval);
 
-    return p;
+    return retval;
 }
 
 void Bridge::printStatus(std::ostream &out) {
-
-    for (auto it : allNodes) {
-        out << "listening messages for receiverId 0x" << std::setfill('0')
-            << std::hex << std::setw(2) << (int)it.first << std::dec << "\n";
+    for (auto it : nodes) {
+        it->printStatus(out);
     }
-    if (printAll) {
-        out << "printing all messages passing through the bridge\n";
+    if (!bridgeHandler.empty()) {
+        out << "BridgeHandler:\n";
+        for (auto it : bridgeHandler) {
+            out << "- " << it->label << "\n";
+        }
     }
-    if (printMiss) {
-        out << "printing miss-events for passing message streams\n";
+    if (!externalInterfaces.empty()) {
+        out << "ExternalInterfaces:\n";
+        for (auto it : externalInterfaces) {
+            out << "- " << it->label << "\n";
+        }
     }
 }
 
@@ -106,18 +105,9 @@ void Bridge::printRoutingTable(std::ostream &out) {
     }
 }
 
-std::shared_ptr<class ndlcom::Node> Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
-
-    std::shared_ptr<class ndlcom::Node> p;
-    auto it = allNodes.find(nodeDeviceId);
-    if (it != allNodes.end()) {
-        p = it->second;
-    } else {
-        p = createNode(nodeDeviceId);
-        allNodes.insert(std::make_pair(nodeDeviceId, p));
-    }
-    // sadly, there is no API in the moment to query if a given ndlcom::Node
-    // owns a node of type "NodeHandlerPrintOwnId"
+std::shared_ptr<class ndlcom::Node>
+Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
+    std::shared_ptr<class ndlcom::Node> p = createNode(nodeDeviceId);
     if (print) {
         p->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
     }
