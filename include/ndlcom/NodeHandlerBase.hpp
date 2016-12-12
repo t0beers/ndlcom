@@ -25,6 +25,9 @@ class NodeHandlerBase {
     void send(const NDLComId destination, const void *payload,
               const size_t length);
 
+    /**
+     * To be set in deriving classes to something meaningful for a human
+     */
     std::string label;
 
   protected:

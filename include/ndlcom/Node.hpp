@@ -9,6 +9,18 @@
 
 namespace ndlcom {
 
+/**
+ * @brief c++ wrapper for NDLComNode
+ *
+ * Sadly, the class-structure (even in c) does not reflect what is going on.  A
+ * Node is really an encapsulated NDLComBridgeHandler with added stuff going
+ * on. But we cannot use the BridgeHandlerBase class, as it contains an
+ * additional copy of the NDLComBridgeHandler struct.
+ *
+ * So then this is its own thing.
+ *
+ * Can create objects derived from ndlcom::NodeHandlerBase, takes ownership.
+ */
 class Node {
   public:
     Node(struct NDLComBridge &bridge, NDLComId ownDeviceId);

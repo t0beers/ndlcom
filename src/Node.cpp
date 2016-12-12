@@ -4,7 +4,7 @@
 using namespace ndlcom;
 
 Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId) {
-    // this call will also add the node to the bridge
+    // this call will also register the node to the bridge
     ndlcomNodeInit(&node, &bridge, ownDeviceId);
 }
 
@@ -14,8 +14,8 @@ Node::~Node() {
 }
 
 void Node::printStatus(std::ostream &out) {
-    out << "Node (receiverId " << std::setfill('0') << std::showbase
-        << std::hex << std::setfill('0') << std::setw(4) << std::internal
+    out << "Node (receiverId " << std::setfill('0') << std::showbase << std::hex
+        << std::setfill('0') << std::setw(4) << std::internal
         << (int)node.headerConfig.mOwnSenderId << "):\n";
     for (auto it : allHandler) {
         out << "- " << it->label << "\n";

@@ -27,6 +27,7 @@ class BridgeHandlerBase {
      * To be set in deriving classes to something meaningful for a human
      */
     std::string label;
+
   protected:
     std::ostream &out;
     struct NDLComBridgeHandler internal;
