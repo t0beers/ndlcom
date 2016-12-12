@@ -51,7 +51,10 @@ class ExampleHandler : public ndlcom::NodeHandlerBase {
 
   public:
     ExampleHandler(struct NDLComNode &node, uint8_t _firstByteToListen)
-        : NodeHandlerBase(node), firstByteToListen(_firstByteToListen) {}
+        : NodeHandlerBase(node), firstByteToListen(_firstByteToListen) {
+        // this label is used for proper status-displays
+        label = "ExampleHandler";
+    }
 
     /* This function will be called when the NDLComNode received a message
      * directed at its own deviceId. */

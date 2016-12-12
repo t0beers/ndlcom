@@ -10,7 +10,9 @@
 using namespace ndlcom;
 
 BridgePrintAll::BridgePrintAll(struct NDLComBridge &bridge, std::ostream &_out)
-    : BridgeHandlerBase(bridge, _out) {}
+    : BridgeHandlerBase(bridge, _out) {
+    label = "BridgePrintAll";
+}
 
 void BridgePrintAll::handle(const struct NDLComHeader *header,
                             const void *payload, const void *origin) {
@@ -30,7 +32,9 @@ void BridgePrintAll::handle(const struct NDLComHeader *header,
 
 BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &bridge,
                                              std::ostream &_out)
-    : BridgeHandlerBase(bridge, _out) {}
+    : BridgeHandlerBase(bridge, _out) {
+    label = "BridgePrintMissEvents";
+}
 
 void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {

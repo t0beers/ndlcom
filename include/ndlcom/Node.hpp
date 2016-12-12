@@ -2,6 +2,7 @@
 #define NDLCOM_NODE_HPP
 
 #include "ndlcom/NodeHandlerBase.hpp"
+#include "ndlcom/Node.h"
 
 #include <memory>
 #include <vector>
@@ -27,6 +28,8 @@ class Node {
         allHandler.push_back(p);
         return p;
     }
+
+    void printStatus(std::ostream &out);
 
     NDLComId getOwnDeviceId() const;
 

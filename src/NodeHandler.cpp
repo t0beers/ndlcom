@@ -9,7 +9,9 @@ using namespace ndlcom;
 
 NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
                                              std::ostream &_out)
-    : NodeHandlerBase(node, _out) {}
+    : NodeHandlerBase(node, _out) {
+    label = "NodeHandlerPrintOwnId";
+}
 
 void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {

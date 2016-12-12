@@ -26,6 +26,8 @@ class NodeHandlerBase {
     void send(const NDLComId destination, const void *payload,
               const size_t length);
 
+    std::string label;
+
   protected:
     std::ostream &out;
     struct NDLComNodeHandler internal;

@@ -1,4 +1,5 @@
 #include "ndlcom/Node.hpp"
+#include <iomanip>
 
 using namespace ndlcom;
 
@@ -10,6 +11,15 @@ Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId) {
 Node::~Node() {
     allHandler.clear();
     ndlcomNodeDeinit(&node);
+}
+
+void Node::printStatus(std::ostream &out) {
+    out << "Node (receiverId " << std::setfill('0') << std::showbase
+        << std::hex << std::setfill('0') << std::setw(4) << std::internal
+        << (int)node.headerConfig.mOwnSenderId << "):\n";
+    for (auto it : allHandler) {
+        out << "- " << it->label << "\n";
+    }
 }
 
 NDLComId Node::getOwnDeviceId() const { return node.headerConfig.mOwnSenderId; }
