@@ -182,23 +182,22 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
     ndlcomBridgeProcessOutgoingMessage(bridge, header, payload, origin);
 
     /* call the internal handlers to handle the message */
-    list_for_each_entry_safe(bridgeHandler, temp,
-                             &bridge->bridgeHandlerList, list) {
+    list_for_each_entry_safe(bridgeHandler, temp, &bridge->bridgeHandlerList,
+                             list) {
         /*
          * Every BridgeHandler can opt-out from seeing messages sent by other
          * callers connected on the internal side. In this case (if the flag is
          * set), we compare the "origin" to be the "bridge" pointer itself to
          * not handle these messages.
-         *
-         * Hm, would be nicer to pass NULL in case it is the bridge...
          */
         if ((bridgeHandler->flags &
              NDLCOM_BRIDGE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL) &&
             (origin == bridge)) {
             continue;
         }
+        /* will pass NULL if the origin was "internal", eg "bridge" */
         bridgeHandler->handler(bridgeHandler->context, header, payload,
-                                 origin);
+                               origin == bridge ? NULL : origin);
         /* guard against removal of handlers by other handlers... */
         CHECK_LIST_IN_LOOP(bridgeHandler, temp, list);
     }

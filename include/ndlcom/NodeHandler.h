@@ -17,15 +17,13 @@ extern "C" {
  *
  * @param context Arbitrary pointer given to "ndlcomNodeHandlerInit"
  * @param header The header of the message
- * @param payload The payload of the message. See "header->mDataLen" for the size.
+ * @param payload Payload of the message. See "header->mDataLen" for the size
  * @param origin The ExternalInterface where this message came from. Can be the
- *               "NDLComBridge" pointer if it is originating from the internal
- *               side. This might change.
+ *               null if the message is originating from the internal side
  */
 typedef void (*NDLComNodeHandlerFkt)(void *context,
-                                         const struct NDLComHeader *header,
-                                         const void *payload,
-                                         const void *origin);
+                                     const struct NDLComHeader *header,
+                                     const void *payload, const void *origin);
 
 struct NDLComNodeHandler {
     /**
