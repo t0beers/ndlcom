@@ -1,32 +1,10 @@
-# i played a little bit with c++11 -- my first time, actually, while in
-# "production" sadly, not all compiler will eat this shit...
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++0x" HAS_CPP_0X)
-check_cxx_compiler_flag("-std=c++11" HAS_CPP_11)
+add_executable(timing-decoder timing-decoder.cpp)
+add_executable(encoderDecoder_pingPong encoderDecoder_pingPong.cpp)
 
-if(HAS_CPP_11 OR HAS_CPP_0X)
-    add_executable(timing-decoder timing-decoder.cpp)
-    add_executable(encoderDecoder_pingPong encoderDecoder_pingPong.cpp)
-    if (HAS_CPP_11)
-        set_source_files_properties(timing-decoder.cpp
-            PROPERTIES COMPILE_FLAGS "-std=c++11")
-        set_source_files_properties(encoderDecoder_pingPong.cpp
-            PROPERTIES COMPILE_FLAGS "-std=c++11")
-    else()
-        set_source_files_properties(timing-decoder.cpp
-            PROPERTIES COMPILE_FLAGS "-std=c++0x")
-        set_source_files_properties(encoderDecoder_pingPong.cpp
-            PROPERTIES COMPILE_FLAGS "-std=c++0x")
-    endif()
-
-    target_link_libraries(timing-decoder ndlcom)
-    target_link_libraries(encoderDecoder_pingPong ndlcom rt)
-    add_test(NAME timing-decoder
-        COMMAND timing-decoder 10000000)
-    add_test(NAME encoderDecoder_pingPong
-        COMMAND encoderDecoder_pingPong 100000)
-
-endif()
+target_link_libraries(timing-decoder ndlcom)
+target_link_libraries(encoderDecoder_pingPong ndlcom rt)
+add_test(NAME timing-decoder COMMAND timing-decoder 10000000)
+add_test(NAME encoderDecoder_pingPong COMMAND encoderDecoder_pingPong 100000)
 
 # these are two executales, each of them encapsulating the encoder/decoder in a
 # small cmdline tool. both read from characters from stdin in a certain format
