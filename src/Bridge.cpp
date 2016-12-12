@@ -24,8 +24,9 @@ std::shared_ptr<class ndlcom::BridgeHandlerBase> Bridge::enablePrintMiss() {
 
 std::shared_ptr<class ndlcom::ExternalInterfaceBase>
 Bridge::createInterface(std::string uri, uint8_t flags) {
-    auto ret = ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge,
-                                                          uri, flags);
+    std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret(
+        ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
+                                                   flags));
     externalInterfaces.push_back(ret);
     return ret;
 }

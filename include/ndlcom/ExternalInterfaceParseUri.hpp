@@ -6,6 +6,8 @@
 
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
+namespace ndlcom {
+
 /**
  * @brief Parse string containing "uri", create "ndlcom::ExternalInterfaceBase"
  *
@@ -27,20 +29,21 @@
  * For information about the specific behaviour of returned interface classes
  * see their respective header.
  *
+ * This function does not take ownership of the created object.
+ *
  * @param out stream for writing status messages
  * @param bridge reference to the bridge to attach the new interface to
  * @param uri string stating which kind of interface to create and return
  * @param flags settings for the low-level "struct ndlcomExternalInterface"
  *
- * @return nullptr on failure to parse, a shared_ptr to an
- *         "ndlcom::ExternalInterfaceBase" object in case parsing was successfull
+ * @return nullptr on failure, unique_ptr of an ExternalInterfaceBase otherwise
  *
  */
-namespace ndlcom {
-std::shared_ptr<class ndlcom::ExternalInterfaceBase>
+std::unique_ptr<class ndlcom::ExternalInterfaceBase>
 ParseUriAndCreateExternalInterface(
     std::ostream &out, struct NDLComBridge &bridge, const std::string &uri,
     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-}
+
+} // of namespace
 
 #endif /*NDLCOMBRIDGEPARSEURI_H*/
