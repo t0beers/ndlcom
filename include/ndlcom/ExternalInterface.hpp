@@ -45,7 +45,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
  *
  * straightforward.
  */
-class ExternalInterfaceSerial : public ExternalInterfaceStream {
+class ExternalInterfaceSerial final : public ExternalInterfaceStream {
   public:
     ExternalInterfaceSerial(
         struct NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
@@ -69,7 +69,7 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
  *
  * @see https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom
  */
-class ExternalInterfaceFpga : public ExternalInterfaceStream {
+class ExternalInterfaceFpga final : public ExternalInterfaceStream {
   public:
     ExternalInterfaceFpga(
         struct NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
@@ -87,7 +87,7 @@ class ExternalInterfaceFpga : public ExternalInterfaceStream {
  *
  * has distinct send- and receive-ports to allows usage on localhost.
  */
-class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceUdp final : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceUdp(
         struct NDLComBridge &_bridge, std::string hostname,
@@ -116,7 +116,7 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
  *
  * Note: the call to "connect()" is done in a blocking manner!
  */
-class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceTcpClient final : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceTcpClient(
         struct NDLComBridge &_bridge, std::string hostname, unsigned int port,
@@ -146,7 +146,7 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
  * symlink-name. this stems from the fact that existing pipes are reused... is
  * that this a good idea?
  */
-class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfacePipe final : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfacePipe(
         struct NDLComBridge &_bridge, std::string pipename,
@@ -171,7 +171,7 @@ class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
  *
  * tries to create a named symlink in tmp pointing to the actual device node
  */
-class ExternalInterfacePty : public ExternalInterfaceStream {
+class ExternalInterfacePty final : public ExternalInterfaceStream {
   public:
     ExternalInterfacePty(
         struct NDLComBridge &_bridge, std::string _symlinkname,

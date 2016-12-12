@@ -11,7 +11,7 @@ namespace ndlcom {
  * Just a simple outputting class to print a line containing information of the
  * header for every message observed.
  */
-class NodeHandlerPrintOwnId : public NodeHandlerBase {
+class NodeHandlerPrintOwnId final : public NodeHandlerBase {
   public:
     NodeHandlerPrintOwnId(struct NDLComNode &node,
                           std::ostream &_out = std::cerr);

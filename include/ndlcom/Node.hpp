@@ -21,7 +21,7 @@ namespace ndlcom {
  *
  * Can create objects derived from ndlcom::NodeHandlerBase, takes ownership.
  */
-class Node {
+class Node final {
   public:
     Node(struct NDLComBridge &bridge, NDLComId ownDeviceId);
     ~Node();

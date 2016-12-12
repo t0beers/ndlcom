@@ -11,7 +11,7 @@ namespace ndlcom {
  * @brief uses callback to print out information header of EVERY observed packet
  *
  */
-class BridgePrintAll : public BridgeHandlerBase {
+class BridgePrintAll final : public BridgeHandlerBase {
   public:
     BridgePrintAll(struct NDLComBridge &bridge,
                    std::ostream &_out = std::cerr);
@@ -25,7 +25,7 @@ class BridgePrintAll : public BridgeHandlerBase {
  * this class hooks looks at every received pacakge and checks the packet
  * counter for a miss-event; prints a message but never sends messages itself.
  */
-class BridgePrintMissEvents : public BridgeHandlerBase {
+class BridgePrintMissEvents final : public BridgeHandlerBase {
   public:
     BridgePrintMissEvents(struct NDLComBridge &bridge,
                           std::ostream &_out = std::cerr);

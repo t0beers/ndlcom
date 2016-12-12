@@ -41,8 +41,11 @@ namespace example {
  *
  * Listening to the deviceId of the corresponding NDLComNode and printing
  * message-information if a certain first-byte is seen in a message.
+ *
+ * using the "final" keyword is not strictly needed, but good practice to
+ * prevent bugs from unwanted inheritance
  */
-class ExampleHandler : public ndlcom::NodeHandlerBase {
+class ExampleHandler final : public ndlcom::NodeHandlerBase {
   private:
     /**
      * This byte will be compared to the first byte of every observed
