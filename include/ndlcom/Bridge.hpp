@@ -75,17 +75,22 @@ class Bridge final {
         return p;
     }
 
-    /*
-     * this class makes sure that there may be only one node for a given
-     * id... am not sure if this makes sense...
+    /**
+     * @brief Construct and initialize a new Node object
      *
-     * copy of the shared_ptr is kept inside this class
+     * This function makes sure that there may be only one ndlcom::Node for a
+     * given deviceId (technically, there may be more than on). It caches the
+     * returned ndlcom::Node to create a new instance or return the pointer to
+     * an existing one.
+     *
+     * Copy of the shared_ptr is kept inside this class.
      */
     std::shared_ptr<class ndlcom::Node> createNode(const NDLComId nodeDeviceId);
 
     /**
-     * will create a node which is listening to the given id, and maybe prints
-     * received messages.
+     * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed
+     *
+     * Will create a Node and optionally add a "printer" for its own id
      *
      * @param nodeDeviceId the deviceId to set in the node
      * @param print if set to true, an additional NodeHandler is added to the Node

@@ -14,9 +14,9 @@ Node::~Node() {
 }
 
 void Node::printStatus(std::ostream &out) {
-    out << "Node (receiverId " << std::setfill('0') << std::showbase << std::hex
+    out << "Node-" << std::setfill('0') << std::showbase << std::hex
         << std::setfill('0') << std::setw(4) << std::internal
-        << (int)node.headerConfig.mOwnSenderId << "):\n";
+        << (int)node.headerConfig.mOwnSenderId << ":\n";
     for (auto it : allHandler) {
         out << "- " << it->label << "\n";
     }

@@ -37,28 +37,28 @@ std::shared_ptr<class ndlcom::BridgeHandlerBase> Bridge::enablePrintMiss() {
 
 std::shared_ptr<class ndlcom::ExternalInterfaceBase>
 Bridge::createInterface(std::string uri, uint8_t flags) {
-    std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret =
-        ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
-                                                   flags);
+    auto ret = ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge,
+                                                          uri, flags);
     externalInterfaces.push_back(ret);
     return ret;
 }
 
 std::shared_ptr<class ndlcom::Node>
 Bridge::createNode(const NDLComId nodeDeviceId) {
-    std::shared_ptr<class ndlcom::Node> retval;
     for (auto it : nodes) {
         if (it->getOwnDeviceId() == nodeDeviceId) {
             return it;
         }
     }
-    retval = std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
+    auto retval =
+        std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
     nodes.push_back(retval);
 
     return retval;
 }
 
 void Bridge::printStatus(std::ostream &out) {
+    out << "Bridge status:\n";
     for (auto it : nodes) {
         it->printStatus(out);
     }
@@ -77,27 +77,40 @@ void Bridge::printStatus(std::ostream &out) {
 }
 
 void Bridge::printRoutingTable(std::ostream &out) {
-    out << "Bridge::printRoutingTable: \n";
     struct NDLComExternalInterface *externalInterface;
     if (list_empty(&bridge.externalInterfaceList)) {
-        out << "No external interfaces registered. RoutingTable empty\n";
+        out << "printRoutingTable: No external interfaces registered. "
+               "RoutingTable "
+               "probably empty\n";
         return;
+    } else {
+        out << "printRoutingTable: \n";
     }
+    /*
+     * this block needs to use the c-level loop to obtain the lowest-level
+     * pointer to the externalInterface struct so that we are able to compare
+     * values in the NDLComRoutingTable.
+     */
     list_for_each_entry(externalInterface, &bridge.externalInterfaceList,
                         list) {
 
-        class ndlcom::ExternalInterfaceBase *base =
-            static_cast<class ndlcom::ExternalInterfaceBase *>(
-                externalInterface->context);
-        out << "interface '" << base->label << "':\n";
+        out << "interface '"
+            << static_cast<const class ndlcom::ExternalInterfaceBase *>(
+                   externalInterface->context)->label << "': ";
 
+        out << std::setfill('0') << std::showbase << std::hex
+            << std::setfill('0') << std::setw(4) << std::internal;
         bool printed = false;
-        for (size_t deviceId = 0; deviceId < 256; ++deviceId) { // todo: sizeof
+        for (size_t deviceId = 0;
+             deviceId < sizeof(bridge.routingTable.table) /
+                            sizeof(bridge.routingTable.table[0]);
+             ++deviceId) {
             if (bridge.routingTable.table[deviceId] == externalInterface) {
                 out << deviceId << " ";
                 printed = true;
             }
         }
+        out << std::noshowbase << std::dec;
         if (!printed) {
             out << "<none>";
         }
@@ -107,7 +120,7 @@ void Bridge::printRoutingTable(std::ostream &out) {
 
 std::shared_ptr<class ndlcom::Node>
 Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
-    std::shared_ptr<class ndlcom::Node> p = createNode(nodeDeviceId);
+    auto p = createNode(nodeDeviceId);
     if (print) {
         p->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
     }

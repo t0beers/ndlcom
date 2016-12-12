@@ -151,8 +151,7 @@ int main(int argc, char *argv[]) {
         }
         switch (c) {
         case 'u': {
-            std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret =
-                bridge.createInterface(optarg);
+            auto ret = bridge.createInterface(optarg);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
@@ -160,9 +159,8 @@ int main(int argc, char *argv[]) {
             break;
         }
         case 'm': {
-            std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret =
-                bridge.createInterface(optarg,
-                                       NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+            auto ret = bridge.createInterface(
+                optarg, NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
             if (!ret) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
