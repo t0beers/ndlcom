@@ -8,18 +8,15 @@
 using namespace ndlcom;
 
 NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
-                                             std::ostream &_out)
-    : NodeHandlerBase(node, _out) {
-    label = "NodeHandlerPrintOwnId";
-    ndlcomNodeRegisterNodeHandler(&node, &internal);
-}
+                                             std::ostream &out)
+    : NodeHandler(node, "NodeHandlerPrintOwnId", out) {}
 
 void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {
     out << std::string("listener ");
     out << std::showbase << std::hex;
     out << std::setfill('0') << std::setw(4) << std::internal
-        << (int)internal.node->headerConfig.mOwnSenderId;
+        << (int)getOwnDeviceId();
     out << std::string(" got message from ");
     out << std::setfill('0') << std::setw(4) << std::internal
         << (int)header->mSenderId;

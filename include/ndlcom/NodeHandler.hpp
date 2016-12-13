@@ -1,7 +1,7 @@
 #ifndef NDLCOM_NODE_HANDLER_HPP
 #define NDLCOM_NODE_HANDLER_HPP
 
-#include "ndlcom/NodeHandlerBase.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 namespace ndlcom {
 
@@ -11,7 +11,7 @@ namespace ndlcom {
  * Just a simple outputting class to print a line containing information of the
  * header for every message observed.
  */
-class NodeHandlerPrintOwnId final : public NodeHandlerBase {
+class NodeHandlerPrintOwnId final : public NodeHandler {
   public:
     NodeHandlerPrintOwnId(struct NDLComNode &node,
                           std::ostream &_out = std::cerr);

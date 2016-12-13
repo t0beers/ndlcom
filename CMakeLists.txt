@@ -62,24 +62,22 @@ message("-- ${PROJECT_NAME} detected 'usleep'. enabling tools and c++ classes")
 list(APPEND SOURCES_lib
     src/Bridge.cpp
     src/BridgeHandler.cpp
-    src/BridgeHandlerBase.cpp
     src/ExternalInterface.cpp
     src/ExternalInterfaceBase.cpp
     src/ExternalInterfaceParseUri.cpp
     src/Node.cpp
     src/NodeHandler.cpp
-    src/NodeHandlerBase.cpp
+    src/InternalHandler.cpp
     )
 list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/Bridge.hpp
     include/${PROJECT_NAME}/BridgeHandler.hpp
-    include/${PROJECT_NAME}/BridgeHandlerBase.hpp
     include/${PROJECT_NAME}/ExternalInterface.hpp
     include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
     include/${PROJECT_NAME}/ExternalInterfaceParseUri.hpp
     include/${PROJECT_NAME}/Node.hpp
     include/${PROJECT_NAME}/NodeHandler.hpp
-    include/${PROJECT_NAME}/NodeHandlerBase.hpp
+    include/${PROJECT_NAME}/InternalHandler.hpp
     )
 endif(SEEMS_TO_BE_POSIX)
 

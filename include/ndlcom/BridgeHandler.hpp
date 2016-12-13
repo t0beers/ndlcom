@@ -1,7 +1,7 @@
 #ifndef NDLCOM_BRIDGE_HANDLER_HPP
 #define NDLCOM_BRIDGE_HANDLER_HPP
 
-#include "ndlcom/BridgeHandlerBase.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 #include <bitset>
 
@@ -11,10 +11,9 @@ namespace ndlcom {
  * @brief uses callback to print out information header of EVERY observed packet
  *
  */
-class BridgePrintAll final : public BridgeHandlerBase {
+class BridgePrintAll final : public BridgeHandler {
   public:
-    BridgePrintAll(struct NDLComBridge &bridge,
-                   std::ostream &_out = std::cerr);
+    BridgePrintAll(struct NDLComBridge &bridge, std::ostream &out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin) override;
 };
@@ -25,10 +24,10 @@ class BridgePrintAll final : public BridgeHandlerBase {
  * this class hooks looks at every received pacakge and checks the packet
  * counter for a miss-event; prints a message but never sends messages itself.
  */
-class BridgePrintMissEvents final : public BridgeHandlerBase {
+class BridgePrintMissEvents final : public BridgeHandler {
   public:
     BridgePrintMissEvents(struct NDLComBridge &bridge,
-                          std::ostream &_out = std::cerr);
+                          std::ostream &out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin) override;
     /** clears every internal datastructure */

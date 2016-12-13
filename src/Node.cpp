@@ -3,7 +3,8 @@
 
 using namespace ndlcom;
 
-Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId) {
+Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
+    : BridgeHandlerWrapper(bridge, node.bridgeHandler, "Node") {
     // this call will also register the node to the bridge
     ndlcomNodeInit(&node, &bridge, ownDeviceId);
 }

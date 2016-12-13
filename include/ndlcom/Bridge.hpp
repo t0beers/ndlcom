@@ -4,8 +4,7 @@
 #include "ndlcom/Node.hpp"
 
 #include "ndlcom/ExternalInterfaceBase.hpp"
-#include "ndlcom/BridgeHandlerBase.hpp"
-#include "ndlcom/NodeHandlerBase.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 #include <sstream>
 #include <vector>
@@ -56,9 +55,9 @@ class Bridge final {
      */
     template <class T, class... A>
     std::shared_ptr<T> createExternalInterface(A... args) {
-        static_assert(
-            std::is_base_of<class ndlcom::ExternalInterfaceBase, T>(),
-            "can only create classes derived from ndlcom::ExternalInterfaceBase");
+        static_assert(std::is_base_of<class ndlcom::ExternalInterfaceBase, T>(),
+                      "can only create classes derived from "
+                      "ndlcom::ExternalInterfaceBase");
         std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
         externalInterfaces.push_back(p);
         return p;
@@ -70,7 +69,7 @@ class Bridge final {
     template <class T, class... A>
     std::shared_ptr<T> createBridgeHandler(A... args) {
         static_assert(
-            std::is_base_of<class ndlcom::BridgeHandlerBase, T>(),
+            std::is_base_of<ndlcom::BridgeHandlerBase, T>(),
             "can only create classes derived from ndlcom::BridgeHandlerBase");
         std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
         bridgeHandler.push_back(p);
@@ -95,7 +94,7 @@ class Bridge final {
      * Will create a Node and optionally add a "printer" for its own id
      *
      * @param nodeDeviceId the deviceId to set in the node
-     * @param print if set to true, an additional NodeHandler is added to the Node
+     * @param print if set to true, an additional NodeHandler is added to Node
      * @return the actually created ndlcom::Node object
      */
     std::shared_ptr<class ndlcom::Node> enableOwnId(const NDLComId nodeDeviceId,
@@ -105,26 +104,28 @@ class Bridge final {
      * create a ndlcom::BridgeHandler which prints every message. keeps
      * internal copy of shared_ptr
      */
-    std::shared_ptr<class ndlcom::BridgeHandlerBase> enablePrintAll();
+    std::shared_ptr<class ndlcom::BridgeHandler> enablePrintAll();
     /**
      * create a ndlcom::BridgeHandler which prints missing message. keeps
      * internal copy of shared_ptr
      */
-    std::shared_ptr<class ndlcom::BridgeHandlerBase> enablePrintMiss();
+    std::shared_ptr<class ndlcom::BridgeHandler> enablePrintMiss();
 
   private:
-
-
     // these datastructures are needed to be able to cleanup the created
     // classes/structs in dtor, but not earlier.
     std::vector<std::shared_ptr<class ndlcom::ExternalInterfaceBase> >
         externalInterfaces;
-    std::vector<std::shared_ptr<class ndlcom::BridgeHandlerBase> >
-        bridgeHandler;
+    // "bridgeHandler" and "nodes" have the same base-class. still kept in
+    // different vectors to allow nicer lookup of existing nodes prior to
+    // creating a new one
+    std::vector<std::shared_ptr<ndlcom::BridgeHandler> > bridgeHandler;
     std::vector<std::shared_ptr<class ndlcom::Node> > nodes;
 
-    // harhar. by having this struct private we can more or less be sure that
-    // there are not so many additional nodes we do not know about...?
+    /*
+     * harhar. by having this struct private we can more or less be sure that
+     * there are not so many additional nodes we do not know about...?
+     */
     struct NDLComBridge bridge;
 };
 }

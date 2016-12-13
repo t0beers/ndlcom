@@ -9,8 +9,8 @@
 using namespace ndlcom;
 
 ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &bridge,
-                                             std::ostream &_out, uint8_t flags)
-    : paused(false), bytesTransmitted(0), bytesReceived(0), out(_out) {
+                                             std::ostream &out, uint8_t flags)
+    : paused(false), bytesTransmitted(0), bytesReceived(0), out(out) {
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);

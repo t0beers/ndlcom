@@ -16,12 +16,12 @@ Bridge::~Bridge() {
     nodes.clear();
 }
 
-std::shared_ptr<class ndlcom::BridgeHandlerBase> Bridge::enablePrintAll() {
-    return createBridgeHandler<ndlcom::BridgePrintAll>();
+std::shared_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {
+    return createBridgeHandler<class ndlcom::BridgePrintAll>();
 }
 
-std::shared_ptr<class ndlcom::BridgeHandlerBase> Bridge::enablePrintMiss() {
-    return createBridgeHandler<ndlcom::BridgePrintMissEvents>();
+std::shared_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintMiss() {
+    return createBridgeHandler<class ndlcom::BridgePrintMissEvents>();
 }
 
 std::shared_ptr<class ndlcom::ExternalInterfaceBase>
@@ -117,9 +117,7 @@ Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
     return p;
 }
 
-void Bridge::process() {
-    ndlcomBridgeProcess(&bridge);
-}
+void Bridge::process() { ndlcomBridgeProcess(&bridge); }
 
 void Bridge::sendMessageRaw(const struct NDLComHeader *header,
                             const void *payload) {

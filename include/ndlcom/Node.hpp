@@ -1,8 +1,8 @@
 #ifndef NDLCOM_NODE_HPP
 #define NDLCOM_NODE_HPP
 
-#include "ndlcom/NodeHandlerBase.hpp"
 #include "ndlcom/Node.h"
+#include "ndlcom/InternalHandler.hpp"
 
 #include <memory>
 #include <vector>
@@ -20,8 +20,12 @@ namespace ndlcom {
  * So then this is its own thing.
  *
  * Can create objects derived from ndlcom::NodeHandlerBase, takes ownership.
+ *
+ * Derives from the "BridgeHandlerWrapper" to be able to reuse the
+ * c-implementation. therefore, this c++ object does not do much, see
+ * NDLComNode.
  */
-class Node final {
+class Node : public BridgeHandlerWrapper {
   public:
     Node(struct NDLComBridge &bridge, NDLComId ownDeviceId);
     ~Node();
@@ -37,7 +41,7 @@ class Node final {
     template <class T, class... A>
     std::shared_ptr<T> createNodeHandler(A... args) {
         static_assert(
-            std::is_base_of<class ndlcom::NodeHandlerBase, T>(),
+            std::is_base_of<ndlcom::NodeHandlerBase, T>(),
             "can only create classes derived from ndlcom::NodeHandlerBase");
         std::shared_ptr<T> p = std::make_shared<T>(node, args...);
         allHandler.push_back(p);
@@ -52,17 +56,17 @@ class Node final {
      * guess what this does...
      */
     void send(const NDLComId receiverId, const void *payload,
-              size_t payloadSize);
+              const size_t payloadSize);
 
+  private:
     /**
-     * narf... needs to be public... so that the c-code from represupport for
-     * example can get the pointer... need c++ there as well...
+     * harhar, private! please use the factor-functions to obtain new objects.
+     * this will take care of valid creation and deletion
      */
     struct NDLComNode node;
 
-  private:
     /* needed to keep the shared_ptr in scope until our ctor is called */
-    std::vector<std::shared_ptr<class ndlcom::NodeHandlerBase> > allHandler;
+    std::vector<std::shared_ptr<ndlcom::NodeHandlerBase> > allHandler;
 };
 }
 

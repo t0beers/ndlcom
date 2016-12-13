@@ -12,9 +12,7 @@
 #include "ndlcom/Bridge.hpp"
 #include "ndlcom/Node.hpp"
 /* provides the base-class for the ExampleHandler */
-#include "ndlcom/NodeHandlerBase.hpp"
-/* convenience function to create "ExternalInterface" */
-#include "ndlcom/ExternalInterfaceParseUri.hpp"
+#include "ndlcom/InternalHandler.hpp"
 
 /* some standard headers */
 #include <unistd.h>
@@ -45,7 +43,7 @@ namespace example {
  * using the "final" keyword is not strictly needed, but good practice to
  * prevent bugs from unwanted inheritance
  */
-class ExampleHandler final : public ndlcom::NodeHandlerBase {
+class ExampleHandler final : public ndlcom::NodeHandler {
   private:
     /**
      * This byte will be compared to the first byte of every observed
@@ -54,13 +52,8 @@ class ExampleHandler final : public ndlcom::NodeHandlerBase {
 
   public:
     ExampleHandler(struct NDLComNode &node, uint8_t _firstByteToListen)
-        : NodeHandlerBase(node), firstByteToListen(_firstByteToListen) {
-        // this label is used for proper status-displays
-        label = "ExampleHandler";
-        // all deriving class still have to register, after their internal data
-        // was set up in the ctor
-        ndlcomNodeRegisterNodeHandler(&node, &internal);
-    }
+        : NodeHandler(node, "ExampleHandler"),
+          firstByteToListen(_firstByteToListen) {}
 
     /* This function will be called when the NDLComNode received a message
      * directed at its own deviceId. */
