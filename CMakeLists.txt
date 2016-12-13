@@ -27,17 +27,10 @@ set(SOURCES_lib
     src/Crc.c
     src/Routing.c
     src/ExternalInterface.c
-    src/ExternalInterfaceBase.cpp
     src/NodeHandler.c
-    src/NodeHandler.cpp
-    src/NodeHandlerBase.cpp
     src/BridgeHandler.c
-    src/BridgeHandler.cpp
-    src/BridgeHandlerBase.cpp
     src/Bridge.c
-    src/Bridge.cpp
     src/Node.c
-    src/Node.cpp
 )
 set(HEADERS_lib
     include/${PROJECT_NAME}/Parser.h
@@ -48,16 +41,9 @@ set(HEADERS_lib
     include/${PROJECT_NAME}/Routing.h
     include/${PROJECT_NAME}/ExternalInterface.h
     include/${PROJECT_NAME}/NodeHandler.h
-    include/${PROJECT_NAME}/NodeHandler.hpp
-    include/${PROJECT_NAME}/NodeHandlerBase.hpp
-    include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
     include/${PROJECT_NAME}/BridgeHandler.h
-    include/${PROJECT_NAME}/BridgeHandler.hpp
-    include/${PROJECT_NAME}/BridgeHandlerBase.hpp
     include/${PROJECT_NAME}/Bridge.h
-    include/${PROJECT_NAME}/Bridge.hpp
     include/${PROJECT_NAME}/Node.h
-    include/${PROJECT_NAME}/Node.hpp
     include/${PROJECT_NAME}/list.h
 )
 
@@ -70,12 +56,26 @@ if(SEEMS_TO_BE_POSIX)
 
 # test
 list(APPEND SOURCES_lib
+    src/Bridge.cpp
+    src/BridgeHandler.cpp
+    src/BridgeHandlerBase.cpp
     src/ExternalInterface.cpp
+    src/ExternalInterfaceBase.cpp
     src/ExternalInterfaceParseUri.cpp
+    src/Node.cpp
+    src/NodeHandler.cpp
+    src/NodeHandlerBase.cpp
     )
 list(APPEND HEADERS_lib
+    include/${PROJECT_NAME}/Bridge.hpp
+    include/${PROJECT_NAME}/BridgeHandler.hpp
+    include/${PROJECT_NAME}/BridgeHandlerBase.hpp
     include/${PROJECT_NAME}/ExternalInterface.hpp
+    include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
     include/${PROJECT_NAME}/ExternalInterfaceParseUri.hpp
+    include/${PROJECT_NAME}/Node.hpp
+    include/${PROJECT_NAME}/NodeHandler.hpp
+    include/${PROJECT_NAME}/NodeHandlerBase.hpp
     )
 endif(SEEMS_TO_BE_POSIX)
 

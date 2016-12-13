@@ -3,9 +3,9 @@
 
 #include "ndlcom/Node.hpp"
 
-#include "ndlcom/ExternalInterface.hpp"
-#include "ndlcom/BridgeHandler.hpp"
-#include "ndlcom/NodeHandler.hpp"
+#include "ndlcom/ExternalInterfaceBase.hpp"
+#include "ndlcom/BridgeHandlerBase.hpp"
+#include "ndlcom/NodeHandlerBase.hpp"
 
 #include <sstream>
 #include <vector>

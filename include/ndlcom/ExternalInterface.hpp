@@ -1,12 +1,13 @@
-#ifndef NDLCOMBRIDGEEXTERNALINTERFACE_H
-#define NDLCOMBRIDGEEXTERNALINTERFACE_H
+#ifndef NDLCOM_EXTERNALINTERFACE_HPP
+#define NDLCOM_EXTERNALINTERFACE_HPP
 
 #include "ndlcom/Bridge.h"
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
+
 #include <string>
 // for "speed_t":
-#include <termios.h>
+#include <sys/termios.h>
 // for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
 // detecting closed interfaces
@@ -45,7 +46,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
  *
  * straightforward.
  */
-class ExternalInterfaceSerial final : public ExternalInterfaceStream {
+class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
     ExternalInterfaceSerial(
         struct NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
@@ -69,7 +70,7 @@ class ExternalInterfaceSerial final : public ExternalInterfaceStream {
  *
  * @see https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom
  */
-class ExternalInterfaceFpga final : public ExternalInterfaceStream {
+class ExternalInterfaceFpga : public ExternalInterfaceStream {
   public:
     ExternalInterfaceFpga(
         struct NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
@@ -87,7 +88,7 @@ class ExternalInterfaceFpga final : public ExternalInterfaceStream {
  *
  * has distinct send- and receive-ports to allows usage on localhost.
  */
-class ExternalInterfaceUdp final : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceUdp(
         struct NDLComBridge &_bridge, std::string hostname,
@@ -116,7 +117,7 @@ class ExternalInterfaceUdp final : public ndlcom::ExternalInterfaceBase {
  *
  * Note: the call to "connect()" is done in a blocking manner!
  */
-class ExternalInterfaceTcpClient final : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceTcpClient(
         struct NDLComBridge &_bridge, std::string hostname, unsigned int port,
@@ -146,7 +147,7 @@ class ExternalInterfaceTcpClient final : public ndlcom::ExternalInterfaceBase {
  * symlink-name. this stems from the fact that existing pipes are reused... is
  * that this a good idea?
  */
-class ExternalInterfacePipe final : public ndlcom::ExternalInterfaceBase {
+class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfacePipe(
         struct NDLComBridge &_bridge, std::string pipename,
@@ -171,7 +172,7 @@ class ExternalInterfacePipe final : public ndlcom::ExternalInterfaceBase {
  *
  * tries to create a named symlink in tmp pointing to the actual device node
  */
-class ExternalInterfacePty final : public ExternalInterfaceStream {
+class ExternalInterfacePty : public ExternalInterfaceStream {
   public:
     ExternalInterfacePty(
         struct NDLComBridge &_bridge, std::string _symlinkname,
@@ -194,4 +195,4 @@ class ExternalInterfacePty final : public ExternalInterfaceStream {
 };
 }
 
-#endif /*NDLCOMBRIDGEEXTERNALINTERFACE_H*/
+#endif /*NDLCOM_EXTERNALINTERFACE_HPP*/

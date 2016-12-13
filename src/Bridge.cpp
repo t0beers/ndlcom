@@ -1,6 +1,8 @@
 #include "ndlcom/Bridge.hpp"
 #include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
+#include "ndlcom/BridgeHandler.hpp"
+#include "ndlcom/NodeHandler.hpp"
 
 #include <iomanip>
 
