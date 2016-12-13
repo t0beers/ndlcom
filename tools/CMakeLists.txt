@@ -1,10 +1,5 @@
-# some native tooling for POSIX based systems is provided. they are optional
-# and don't make sense in non-posix environments
-check_function_exists(usleep SEEMS_TO_BE_POSIX)
-
 # only add the tooling-section if we might be compiling in a posix environment
 if(SEEMS_TO_BE_POSIX)
-    message(STATUS "${PROJECT_NAME}: assuming POSIX and building tools")
 
     add_executable(ndlcomPacketProducer ndlcomPacketProducer.cpp)
     target_link_libraries(ndlcomPacketProducer ndlcom

@@ -51,10 +51,14 @@ set (CMAKE_C_FLAGS "-std=gnu11 ${CMAKE_C_FLAGS}")
 set (CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}")
 
 include(CheckFunctionExists)
+# the c++ wrapper classes and the native tooling is only intended for usage in
+# POSIX based systems. they are optional and don't make sense in non-posix
+# environments. 
 check_function_exists(usleep SEEMS_TO_BE_POSIX)
 if(SEEMS_TO_BE_POSIX)
 
-# test
+message("-- ${PROJECT_NAME} detected 'usleep'. enabling tools and c++ classes")
+
 list(APPEND SOURCES_lib
     src/Bridge.cpp
     src/BridgeHandler.cpp
