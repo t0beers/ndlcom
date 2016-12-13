@@ -196,6 +196,7 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
             continue;
         }
         /* will pass NULL if the origin was "internal", eg "bridge" */
+        // TODO: may change signature of "origin" to be a promised pointer to the actual NDLComExternalInterface
         bridgeHandler->handler(bridgeHandler->context, header, payload,
                                origin == bridge ? NULL : origin);
         /* guard against removal of handlers by other handlers... */
