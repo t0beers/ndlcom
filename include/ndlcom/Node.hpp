@@ -31,6 +31,9 @@ class Node : public BridgeHandlerBase {
     ~Node();
 
     /**
+     * This factory function shall be the only way to create Handler objects,
+     * to make sure that the "registerHandler" function is always called
+     *
      * factory function. call like so:
      *
      *    std::shared_ptr<class ndlcom::NodePrintOwnId> p2 =
@@ -44,8 +47,6 @@ class Node : public BridgeHandlerBase {
             std::is_base_of<ndlcom::NodeHandlerBase, T>(),
             "can only create classes derived from ndlcom::NodeHandlerBase");
         std::shared_ptr<T> ret = std::make_shared<T>(node, args...);
-        // this factory function shall be the only way to create these objects,
-        // to make sure that the "registerHandler" function is always called
         ret->registerHandler();
         allHandler.push_back(ret);
         return ret;
@@ -53,6 +54,12 @@ class Node : public BridgeHandlerBase {
 
     void printStatus(std::ostream &out);
 
+    /**
+     * @brief obtain the deviceId used in the NDLComNode object
+     *
+     * Please note that this function will only work after everything is
+     * finished with setting up...
+     */
     NDLComId getOwnDeviceId() const;
 
     /**

@@ -47,11 +47,10 @@ Bridge::createNode(const NDLComId nodeDeviceId) {
             return it;
         }
     }
-    auto retval =
-        std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
-    nodes.push_back(retval);
+    auto ret = std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
+    nodes.push_back(ret);
 
-    return retval;
+    return ret;
 }
 
 void Bridge::printStatus(std::ostream &out) {
@@ -117,11 +116,11 @@ void Bridge::printRoutingTable(std::ostream &out) {
 
 std::shared_ptr<class ndlcom::Node>
 Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
-    auto p = createNode(nodeDeviceId);
+    auto ret = createNode(nodeDeviceId);
     if (print) {
-        p->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
+        ret->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
     }
-    return p;
+    return ret;
 }
 
 void Bridge::process() { ndlcomBridgeProcess(&bridge); }

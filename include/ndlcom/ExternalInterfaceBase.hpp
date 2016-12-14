@@ -1,13 +1,14 @@
 #ifndef EXTERNALINTERFACEBASE_H
 #define EXTERNALINTERFACEBASE_H
 
-#include "ndlcom/ExternalInterface.h"
 #include "ndlcom/HandlerBase.hpp"
-
-#include <iostream>
+#include "ndlcom/ExternalInterface.h"
 
 namespace ndlcom {
 
+/**
+ * Will use this typedef with a silly name
+ */
 typedef class HandlerBase<struct NDLComBridge, struct NDLComExternalInterface>
     ExternalInterfaceVeryBase;
 
@@ -39,9 +40,9 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
     /**
-     * Allows to disable this interface. No more data will be written. Note
-     * that reads are still performed to empty the system buffers, but no data
-     * goes into the bridge.
+     * Allows to temporarily silence this interface. No more data will be
+     * written. Note that reads are still performed to empty the system
+     * buffers, but no data goes into the bridge.
      */
     bool paused;
 
