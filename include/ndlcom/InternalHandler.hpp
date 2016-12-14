@@ -77,10 +77,10 @@ class BridgeHandler
     void send(const struct NDLComHeader *header, const void *payload) {
         ndlcomBridgeSendRaw(&caller, header, payload);
     }
-    void registerHandler() override {
+    void registerHandler() override final {
         ndlcomBridgeRegisterBridgeHandler(&caller, &internal);
     }
-    void deregisterHandler() override {
+    void deregisterHandler() override final {
         ndlcomBridgeDeregisterBridgeHandler(&caller, &internal);
     }
 
@@ -105,10 +105,10 @@ class NodeHandler
               const size_t length) {
         ndlcomNodeSend(&caller, receiverId, payload, length);
     }
-    void registerHandler() override {
+    void registerHandler() override final {
         ndlcomNodeRegisterNodeHandler(&caller, &internal);
     }
-    void deregisterHandler() override {
+    void deregisterHandler() override final {
         ndlcomNodeDeregisterNodeHandler(&caller, &internal);
     }
     /* does only work after finished initialization */

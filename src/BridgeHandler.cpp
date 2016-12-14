@@ -64,7 +64,7 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
                 expectedNextPacketCounter[header->mSenderId][header
                                                                  ->mReceiverId];
             // output the "event"
-            out << std::string("miss event in message from 0x");
+            out << std::string("miss event in message from ");
             out << std::showbase << std::hex;
             out << std::setfill('0') << std::setw(4) << std::internal
                 << (int)header->mSenderId;
