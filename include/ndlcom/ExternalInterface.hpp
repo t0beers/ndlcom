@@ -26,6 +26,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceStream(
         struct NDLComBridge &_bridge,
+        std::string label,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceStream();
 
@@ -175,7 +176,7 @@ class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
 class ExternalInterfacePty : public ExternalInterfaceStream {
   public:
     ExternalInterfacePty(
-        struct NDLComBridge &_bridge, std::string _symlinkname,
+        struct NDLComBridge &bridge, std::string symlinkname,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfacePty();
 

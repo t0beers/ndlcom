@@ -9,7 +9,6 @@
 #include <cstring>
 #include <errno.h>
 #include <cstdio>
-#include <sstream>
 
 // serial:
 #include <fcntl.h>
@@ -28,9 +27,10 @@
 using namespace ndlcom;
 
 ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &bridge,
+                                                 std::string label,
                                                  uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags), fd_read(nullptr),
-      fd_write(nullptr) {
+    : ndlcom::ExternalInterfaceBase(bridge, label, std::cerr, flags),
+      fd_read(nullptr), fd_write(nullptr) {
     // setting "udf.events" implicitly to zero means: listen only to the
     // error-events POLLHUP, POLLERR, and POLLNVAL
     bzero(&ufd, sizeof(struct pollfd));
@@ -103,12 +103,9 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &bridge,
                                                  std::string device_name,
                                                  speed_t baudrate,
                                                  uint8_t flags)
-    : ExternalInterfaceStream(bridge, flags) {
-    {
-        std::stringstream ss;
-        ss << "serial://" << device_name << ":" << baudrate;
-        label = ss.str();
-    }
+    : ExternalInterfaceStream(bridge, "serial://" + device_name + ":" +
+                                          std::to_string(baudrate),
+                              flags) {
     fd = open(device_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
@@ -172,12 +169,7 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
 ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
                                              std::string device_name,
                                              uint8_t flags)
-    : ExternalInterfaceStream(bridge) {
-    {
-        std::stringstream ss;
-        ss << "fpga://" << device_name;
-        label = ss.str();
-    }
+    : ExternalInterfaceStream(bridge, "fpga://" + device_name) {
     if (flags != NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
         reportRuntimeError("fpga module does only support default flags?",
                            __FILE__, __LINE__);
@@ -195,7 +187,6 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-
     // after everything is setup, register at the given NDLComBridge object.
     ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
@@ -210,14 +201,12 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
                                            std::string hostname,
                                            unsigned int in_port,
                                            unsigned int out_port, uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags),
+    : ndlcom::ExternalInterfaceBase(bridge, "udp://" + hostname +
+                                                std::to_string(in_port) + ":" +
+                                                std::to_string(out_port),
+                                    std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
 
-    {
-        std::stringstream ss;
-        ss << "udp://" << hostname << ":" << in_port << ":" << out_port;
-        label = ss.str();
-    }
     // prevent this:
     if (in_port == out_port) {
         reportRuntimeError("inport and outport are the same", __FILE__,
@@ -378,12 +367,9 @@ again:
 ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
     struct NDLComBridge &bridge, std::string hostname, unsigned int port,
     uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags) {
-    {
-        std::stringstream ss;
-        ss << "tcpclient://" << hostname << ":" << port;
-        label = ss.str();
-    }
+    : ndlcom::ExternalInterfaceBase(bridge, "tcpclient://" + hostname + ":" +
+                                                std::to_string(port),
+                                    std::cerr, flags) {
 
     struct addrinfo hints = {0};
     hints.ai_family = AF_INET;
@@ -468,16 +454,11 @@ again:
 ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &bridge,
                                              std::string pipename,
                                              uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, std::cerr, flags),
+    : ndlcom::ExternalInterfaceBase(bridge, "pipe://"+pipename, std::cerr, flags),
       unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
       pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
     if (pipename.empty()) {
         reportRuntimeError("no pipename given", __FILE__, __LINE__);
-    }
-    {
-        std::stringstream ss;
-        ss << "pipe://" << pipename;
-        label = ss.str();
     }
 
     struct stat status_in;
@@ -614,16 +595,12 @@ void ExternalInterfacePipe::writeEscapedBytes(const void *buf, size_t count) {
 }
 
 ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &bridge,
-                                           std::string _symlinkname,
+                                           std::string symlinkname,
                                            uint8_t flags)
-    : ExternalInterfaceStream(bridge, flags), symlinkname(_symlinkname) {
+    : ExternalInterfaceStream(bridge, "pty://" + symlinkname, flags),
+      symlinkname(symlinkname) {
     if (symlinkname.empty()) {
         reportRuntimeError("no symlinkname for pty given", __FILE__, __LINE__);
-    }
-    {
-        std::stringstream ss;
-        ss << "pty://" << symlinkname;
-        label = ss.str();
     }
 
     int rc;

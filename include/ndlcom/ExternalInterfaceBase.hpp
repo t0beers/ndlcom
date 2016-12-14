@@ -25,7 +25,8 @@ namespace ndlcom {
 class ExternalInterfaceBase {
   public:
     ExternalInterfaceBase(
-        struct NDLComBridge &bridge, std::ostream &out = std::cerr,
+        struct NDLComBridge &bridge, std::string label,
+        std::ostream &out = std::cerr,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     virtual ~ExternalInterfaceBase() {}
 
