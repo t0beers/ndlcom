@@ -38,7 +38,7 @@ class InternalHandler : public HandlerBase<Caller, Handler> {
   public:
     template <typename... Args>
     InternalHandler(Args &&... args)
-        : HandlerBase<Caller, Handler>(std::forward<Args>(args)...){};
+        : HandlerBase<Caller, Handler>(std::forward<Args>(args)...){}
 
     // this "handle" could be called before the last ctor did finish!
     virtual void handle(const struct NDLComHeader *header, const void *payload,

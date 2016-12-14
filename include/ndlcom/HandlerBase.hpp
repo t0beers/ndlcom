@@ -21,7 +21,7 @@ template <class Caller, class Handler> class HandlerBase {
   public:
     HandlerBase(Caller &caller, Handler &handler, std::string label,
                 std::ostream &out = std::cerr)
-        : handler(handler), caller(caller), label(label), out(out) {}
+        : label(label), out(out), handler(handler), caller(caller) {}
     virtual ~HandlerBase(){};
     std::string label;
 
