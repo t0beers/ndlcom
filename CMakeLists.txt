@@ -68,6 +68,7 @@ list(APPEND SOURCES_lib
     src/Node.cpp
     src/NodeHandler.cpp
     src/InternalHandler.cpp
+    src/HandlerBase.cpp
     )
 list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/Bridge.hpp
@@ -78,6 +79,7 @@ list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/Node.hpp
     include/${PROJECT_NAME}/NodeHandler.hpp
     include/${PROJECT_NAME}/InternalHandler.hpp
+    include/${PROJECT_NAME}/HandlerBase.hpp
     )
 endif(SEEMS_TO_BE_POSIX)
 

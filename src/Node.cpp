@@ -4,20 +4,25 @@
 using namespace ndlcom;
 
 Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
-    : BridgeHandlerWrapper(bridge, node.bridgeHandler, "Node") {
+    : BridgeHandlerBase(bridge, node.bridgeHandler,
+                        "Node-" + std::to_string(ownDeviceId)) {
     // this call will also register the node to the bridge
     ndlcomNodeInit(&node, &bridge, ownDeviceId);
 }
 
 Node::~Node() {
+    for (auto &it : allHandler) {
+        it->deregisterHandler();
+    }
     allHandler.clear();
     ndlcomNodeDeinit(&node);
 }
 
+void Node::registerHandler() {}
+void Node::deregisterHandler() {}
+
 void Node::printStatus(std::ostream &out) {
-    out << "Node-" << std::setfill('0') << std::showbase << std::hex
-        << std::setfill('0') << std::setw(4) << std::internal
-        << (int)node.headerConfig.mOwnSenderId << ":\n";
+    out << label << ":\n";
     for (auto it : allHandler) {
         out << "- " << it->label << "\n";
     }

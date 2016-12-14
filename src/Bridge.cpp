@@ -13,6 +13,9 @@ Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
 Bridge::~Bridge() {
     externalInterfaces.clear();
     bridgeHandler.clear();
+    for (auto &it : nodes) {
+        it->deregisterHandler();
+    }
     nodes.clear();
 }
 

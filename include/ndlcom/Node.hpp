@@ -25,7 +25,7 @@ namespace ndlcom {
  * c-implementation. therefore, this c++ object does not do much, see
  * NDLComNode.
  */
-class Node : public BridgeHandlerWrapper {
+class Node : public BridgeHandlerBase {
   public:
     Node(struct NDLComBridge &bridge, NDLComId ownDeviceId);
     ~Node();
@@ -43,9 +43,12 @@ class Node : public BridgeHandlerWrapper {
         static_assert(
             std::is_base_of<ndlcom::NodeHandlerBase, T>(),
             "can only create classes derived from ndlcom::NodeHandlerBase");
-        std::shared_ptr<T> p = std::make_shared<T>(node, args...);
-        allHandler.push_back(p);
-        return p;
+        std::shared_ptr<T> ret = std::make_shared<T>(node, args...);
+        // this factory function shall be the only way to create these objects,
+        // to make sure that the "registerHandler" function is always called
+        ret->registerHandler();
+        allHandler.push_back(ret);
+        return ret;
     }
 
     void printStatus(std::ostream &out);
@@ -57,6 +60,10 @@ class Node : public BridgeHandlerWrapper {
      */
     void send(const NDLComId receiverId, const void *payload,
               const size_t payloadSize);
+
+    // no-ops in the moment...
+    void registerHandler() override;
+    void deregisterHandler() override;
 
   private:
     /**

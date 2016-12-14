@@ -71,9 +71,10 @@ class Bridge final {
         static_assert(
             std::is_base_of<ndlcom::BridgeHandlerBase, T>(),
             "can only create classes derived from ndlcom::BridgeHandlerBase");
-        std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
-        bridgeHandler.push_back(p);
-        return p;
+        std::shared_ptr<T> ret = std::make_shared<T>(bridge, args...);
+        ret->registerHandler();
+        bridgeHandler.push_back(ret);
+        return ret;
     }
 
     /**
