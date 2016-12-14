@@ -71,8 +71,8 @@ void ExternalInterfaceBase::setFlag(uint8_t flag, bool value) {
     }
 }
 
-struct NDLComExternalInterface *ExternalInterfaceBase::getInterface() {
-    return &external;
+void ExternalInterfaceBase::setRoutingForDeviceId(const NDLComId deviceId) {
+    ndlcomExternalInterfaceSetRoutingForDeviceId(&external, deviceId);
 }
 
 void ExternalInterfaceBase::reportRuntimeError(const std::string &error,

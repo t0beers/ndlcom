@@ -1,4 +1,5 @@
 #include "ndlcom/ExternalInterface.h"
+#include "ndlcom/Bridge.h"
 
 void
 ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
@@ -21,6 +22,16 @@ ndlcomExternalInterfaceInit(struct NDLComExternalInterface *externalInterface,
 uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface) {
     return ndlcomParserGetNumberOfCRCFails(&externalInterface->parser);
+}
+
+void ndlcomExternalInterfaceSetRoutingForDeviceId(
+    struct NDLComExternalInterface *externalInterface,
+    const NDLComId deviceId) {
+    if (!externalInterface->bridge) {
+        return;
+    }
+    ndlcomBridgeAddRoutingInformationForDeviceId(externalInterface->bridge,
+                                                 deviceId, externalInterface);
 }
 
 void ndlcomExternalInterfaceSetFlags(

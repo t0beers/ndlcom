@@ -167,6 +167,10 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         return retval;
     }
 
+    // need to register the interface, so that we can modify the routing table
+    // if we are asked
+    retval->registerHandler();
+
     std::vector<NDLComId> ids = convertStringToIds(
         splitStringIntoStrings(deviceIdsForRoutingTable, ','), out);
 
@@ -175,8 +179,7 @@ ndlcom::ParseUriAndCreateExternalInterface(std::ostream &out,
         out << "ParseUri: set routingTable to use '" << retval->label
             << "' for deviceId 0x" << std::setfill('0') << std::hex
             << std::setw(2) << (int)(*it) << std::dec << "\n";
-        ndlcomBridgeAddRoutingInformationForDeviceId(&bridge, *it,
-                                                     retval->getInterface());
+        retval->setRoutingForDeviceId(*it);
     }
 
     // done...

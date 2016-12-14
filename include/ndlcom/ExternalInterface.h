@@ -110,6 +110,17 @@ uint32_t ndlcomExternalInterfaceGetCrcFails(
     const struct NDLComExternalInterface *externalInterface);
 
 /**
+ * @brief Tell the NDLComBridge that deviceId is reachable on this interface
+ *
+ * Does nothing if this interface is not connected to any NDLComBridge
+ *
+ * @param externalInterface the interface in question
+ * @param deviceId the deviceId to use
+ */
+void ndlcomExternalInterfaceSetRoutingForDeviceId(
+    struct NDLComExternalInterface *externalInterface, const NDLComId deviceId);
+
+/**
  * @brief Influence flags defined for the interface at runtime.
  *
  * Will set the given flag pattern. Be carefull not to overwrite anything.

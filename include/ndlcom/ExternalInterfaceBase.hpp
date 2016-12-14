@@ -62,15 +62,9 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     void setFlag(uint8_t flag, bool value);
 
     /**
-     * @brief Obtain pointer to NDLComExternalInterface used in the background
-     *
-     * Does not expose a const-pointer, as the purpose of this function is to
-     * expose an identifier which may be used as an entry in the
-     * NDLComRoutingTable. But these have to be non-const by design.
-     *
-     * TODO: move functionality
+     * use this interface to reach deviceId
      */
-    struct NDLComExternalInterface *getInterface();
+    void setRoutingForDeviceId(const NDLComId deviceId);
 
     void registerHandler() override final;
     void deregisterHandler() override final;
