@@ -27,9 +27,9 @@
 using namespace ndlcom;
 
 ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &bridge,
-                                                 std::string label,
+                                                 std::string _label,
                                                  uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, label, std::cerr, flags),
+    : ndlcom::ExternalInterfaceBase(bridge, _label, std::cerr, flags),
       fd_read(nullptr), fd_write(nullptr) {
     // setting "udf.events" implicitly to zero means: listen only to the
     // error-events POLLHUP, POLLERR, and POLLNVAL
@@ -581,10 +581,10 @@ void ExternalInterfacePipe::writeEscapedBytes(const void *buf, size_t count) {
 }
 
 ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &bridge,
-                                           std::string symlinkname,
+                                           std::string _symlinkname,
                                            uint8_t flags)
-    : ExternalInterfaceStream(bridge, "pty://" + symlinkname, flags),
-      symlinkname(symlinkname) {
+    : ExternalInterfaceStream(bridge, "pty://" + _symlinkname, flags),
+      symlinkname(_symlinkname) {
     if (symlinkname.empty()) {
         reportRuntimeError("no symlinkname for pty given", __FILE__, __LINE__);
     }

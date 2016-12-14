@@ -20,7 +20,7 @@ Node::~Node() {
 void Node::registerHandler() { ndlcomNodeRegister(&node, &caller); }
 void Node::deregisterHandler() { ndlcomNodeDeregister(&node); }
 
-void Node::printStatus(std::ostream &out) {
+void Node::printStatus() {
     out << label << ":\n";
     for (auto it : allHandler) {
         out << "- " << it->label << "\n";

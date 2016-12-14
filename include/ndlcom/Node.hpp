@@ -52,7 +52,7 @@ class Node : public BridgeHandlerBase {
         return ret;
     }
 
-    void printStatus(std::ostream &out);
+    void printStatus();
 
     /**
      * @brief obtain the deviceId used in the NDLComNode object

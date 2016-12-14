@@ -19,10 +19,10 @@ namespace ndlcom {
  */
 template <class Caller, class Handler> class HandlerBase {
   public:
-    HandlerBase(Caller &caller, Handler &handler, std::string label,
-                std::ostream &out = std::cerr)
-        : label(label), out(out), handler(handler), caller(caller) {}
-    virtual ~HandlerBase(){};
+    HandlerBase(Caller &_caller, Handler &_handler, std::string _label,
+                std::ostream &_out = std::cerr)
+        : label(_label), out(_out), handler(_handler), caller(_caller) {}
+    virtual ~HandlerBase(){}
     std::string label;
 
     /**

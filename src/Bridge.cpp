@@ -57,7 +57,7 @@ Bridge::createNode(const NDLComId nodeDeviceId) {
 void Bridge::printStatus(std::ostream &out) {
     out << "Bridge status:\n";
     for (auto it : nodes) {
-        it->printStatus(out);
+        it->printStatus();
     }
     if (!bridgeHandler.empty()) {
         out << "BridgeHandler:\n";

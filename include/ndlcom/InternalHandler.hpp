@@ -68,8 +68,8 @@ class BridgeHandler
     : public InternalHandler<struct NDLComBridge, struct NDLComBridgeHandler> {
   public:
     template <typename... Args>
-    BridgeHandler(struct NDLComBridge &caller, Args &&... args)
-        : InternalHandler(caller, internal, std::forward<Args>(args)...) {
+    BridgeHandler(struct NDLComBridge &_caller, Args &&... args)
+        : InternalHandler(_caller, internal, std::forward<Args>(args)...) {
         /* static "handleWrapper" as callback and "this" as context */
         ndlcomBridgeHandlerInit(&internal, handleWrapper,
                                 NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, this);
@@ -96,8 +96,8 @@ class NodeHandler
     : public InternalHandler<struct NDLComNode, struct NDLComNodeHandler> {
   public:
     template <typename... Args>
-    NodeHandler(struct NDLComNode &caller, Args &&... args)
-        : InternalHandler(caller, internal, std::forward<Args>(args)...) {
+    NodeHandler(struct NDLComNode &_caller, Args &&... args)
+        : InternalHandler(_caller, internal, std::forward<Args>(args)...) {
         ndlcomNodeHandlerInit(&internal, handleWrapper,
                               NDLCOM_NODE_HANDLER_FLAGS_DEFAULT, this);
     }

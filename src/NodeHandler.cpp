@@ -8,8 +8,8 @@
 using namespace ndlcom;
 
 NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
-                                             std::ostream &out)
-    : NodeHandler(node, "NodeHandlerPrintOwnId", out) {}
+                                             std::ostream &_out)
+    : NodeHandler(node, "NodeHandlerPrintOwnId", _out) {}
 
 void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {
