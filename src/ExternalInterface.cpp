@@ -151,14 +151,11 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-
-    // after everything is setup, register at the given NDLComBridge object.
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceSerial::~ExternalInterfaceSerial() {
-    // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
+    // make sure that this handler will not be used anymore
+    deregisterHandler();
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
@@ -187,13 +184,11 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
     if (!fd_write) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-    // after everything is setup, register at the given NDLComBridge object.
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceFpga::~ExternalInterfaceFpga() {
-    // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
+    // make sure that this handler will not be used anymore
+    deregisterHandler();
     close(fd);
 }
 
@@ -280,14 +275,11 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
 
     // clean the shit up
     freeaddrinfo(result);
-
-    // after everything is setup, register at the given NDLComBridge object.
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceUdp::~ExternalInterfaceUdp() {
-    // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
+    // make sure that this handler will not be used anymore
+    deregisterHandler();
     close(fd);
 }
 
@@ -404,14 +396,11 @@ ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
     fcntl(fd, F_SETFL, O_NONBLOCK);
 
     freeaddrinfo(result);
-
-    // after everything is setup, register at the given NDLComBridge object.
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() {
-    // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
+    // make sure that this handler will not be used anymore
+    deregisterHandler();
     close(fd);
 }
 
@@ -514,14 +503,11 @@ ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &bridge,
     if (!str_out) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-
-    // after everything is setup, register at the given NDLComBridge object.
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePipe::~ExternalInterfacePipe() {
-    // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
+    // make sure that this handler will not be used anymore
+    deregisterHandler();
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
@@ -641,14 +627,11 @@ ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &bridge,
 
     out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
         << "', the symlink is '" << symlinkname << "'\n";
-
-    // after everything is setup, register at the given NDLComBridge object.
-    ndlcomBridgeRegisterExternalInterface(&bridge, &external);
 }
 
 ExternalInterfacePty::~ExternalInterfacePty() {
-    // at first deregister the interface
-    ndlcomBridgeDeregisterExternalInterface(external.bridge, &external);
+    // make sure that this handler will not be used anymore
+    deregisterHandler();
     // delete the previously created symlink
     cleanSymlink();
     // not sure...

@@ -58,9 +58,10 @@ class Bridge final {
         static_assert(std::is_base_of<class ndlcom::ExternalInterfaceBase, T>(),
                       "can only create classes derived from "
                       "ndlcom::ExternalInterfaceBase");
-        std::shared_ptr<T> p = std::make_shared<T>(bridge, args...);
-        externalInterfaces.push_back(p);
-        return p;
+        std::shared_ptr<T> ret = std::make_shared<T>(bridge, args...);
+        ret->registerHandler();
+        externalInterfaces.push_back(ret);
+        return ret;
     }
 
     /**

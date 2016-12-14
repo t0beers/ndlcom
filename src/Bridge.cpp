@@ -12,6 +12,9 @@ Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
 
 Bridge::~Bridge() {
     externalInterfaces.clear();
+    for (auto &it : bridgeHandler) {
+        it->deregisterHandler();
+    }
     bridgeHandler.clear();
     for (auto &it : nodes) {
         it->deregisterHandler();
@@ -32,6 +35,7 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
     std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret(
         ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
                                                    flags));
+    ret->registerHandler();
     externalInterfaces.push_back(ret);
     return ret;
 }

@@ -1,4 +1,5 @@
 #include "ndlcom/ExternalInterfaceBase.hpp"
+#include "ndlcom/Bridge.h"
 
 #include <stdexcept>
 #include <cstring>
@@ -11,16 +12,23 @@ using namespace ndlcom;
 ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &bridge,
                                              std::string label,
                                              std::ostream &out, uint8_t flags)
-    : paused(false), bytesTransmitted(0), bytesReceived(0), label(label),
-      out(out) {
+    : ExternalInterfaceVeryBase(bridge, external, label, out), paused(false),
+      bytesTransmitted(0), bytesReceived(0) {
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
-    // careful, the BaseClass does not register the interface! The last
-    // inheriting ctor has to do this!
+    // careful, the BaseClass does not register the interface!
 }
 
-// static wrapper function for the C-callback
+void ExternalInterfaceBase::registerHandler() {
+    ndlcomBridgeRegisterExternalInterface(&caller, &handler);
+}
+
+void ExternalInterfaceBase::deregisterHandler() {
+    ndlcomBridgeDeregisterExternalInterface(&caller, &handler);
+}
+
+// static wrapper function for the c-callback
 void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
                                          const size_t count) {
     class ExternalInterfaceBase *self =

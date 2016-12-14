@@ -2,27 +2,32 @@
 #define EXTERNALINTERFACEBASE_H
 
 #include "ndlcom/ExternalInterface.h"
+#include "ndlcom/HandlerBase.hpp"
 
 #include <iostream>
 
 namespace ndlcom {
 
-/** @brief C++ wrapper for "struct NDLComExternalInterface"
+typedef class HandlerBase<struct NDLComBridge, struct NDLComExternalInterface>
+    ExternalInterfaceVeryBase;
+
+/**
+ * @brief C++ wrapper for "struct NDLComExternalInterface"
  *
- * This base class implements a tight and lean wrapper which are able to use
- * the C-based core implementation for message handling.
+ * This implements a wrapper which is able to use the c-based implementation
+ * for message handling.
  *
- * Stores private reference of the "struct NDLComBridge" where this interface
- * is connected to. Handles interaction with the bridge, wrapping virtual
- * functions around the read/write interface and provides some convenience like
- * common output stream, pauseing and statistics.
+ * Relies on the references to NDLComBridge and NDLComExternalInterface stored
+ * in the very base class. Handles interaction with the Bridge, wrapping
+ * virtual functions around the read/write interface and provides some
+ * convenience like common output stream, pauseing and statistics.
  *
  * TODO:
  * - change signature of "writeEscapedBytes" to return the number of bytes
  *   actually written so that we can count bytes which where lost due to
  *   buffer-full.
  */
-class ExternalInterfaceBase {
+class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
   public:
     ExternalInterfaceBase(
         struct NDLComBridge &bridge, std::string label,
@@ -34,14 +39,9 @@ class ExternalInterfaceBase {
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
     /**
-     * To be set in deriving classes to something meaningful for a human
-     */
-    std::string label;
-
-    /**
      * Allows to disable this interface. No more data will be written. Note
-     * that reads are still performed to empty buffers, but no data goes into
-     * the bridge.
+     * that reads are still performed to empty the system buffers, but no data
+     * goes into the bridge.
      */
     bool paused;
 
@@ -66,8 +66,13 @@ class ExternalInterfaceBase {
      * Does not expose a const-pointer, as the purpose of this function is to
      * expose an identifier which may be used as an entry in the
      * NDLComRoutingTable. But these have to be non-const by design.
+     *
+     * TODO: move functionality
      */
     struct NDLComExternalInterface *getInterface();
+
+    void registerHandler() override final;
+    void deregisterHandler() override final;
 
   protected:
     /**
@@ -98,11 +103,6 @@ class ExternalInterfaceBase {
      * @param count size of the buffer
      */
     virtual void noteOutgoingBytes(const void *buf, size_t count);
-
-    /**
-     * Stream where non-fatal information will be printed too
-     */
-    std::ostream &out;
 
     /**
      * a common error-reporting function, which shall be used to report
