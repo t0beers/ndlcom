@@ -21,13 +21,13 @@ extern "C" {
  *
  * Additionally an NDLComNode is used to handle messages directed at its
  * "deviceId" (and the special broadcast address). Therefore, the NDLComNode
- * registers a NDLComBridgeHandler at the bridge and uses the callback handler
- * to decide for every message if its own handlers should be called.
+ * registers a NDLComBridgeHandler at the provided bridge and uses the callback
+ * handler to decide for every message if its own handlers should be called.
  *
  * A NDLComNode can be only be connected to one single NDLComBridge.
  *
- * Note: There is no sensible way to enforce that a NDLComBridge has only one
- * NDLComNode for a given receiverId...?
+ * Note: There seem to be no sensible way to enforce that a NDLComBridge has
+ * only one NDLComNode for a given receiverId... But it might work...
  */
 struct NDLComNode {
     /**
@@ -53,15 +53,27 @@ struct NDLComNode {
 /**
  * @brief Initializes the data structure
  *
+ * Note: In order to be used by the NDLComBridge, you still have to call
+ * ndlcomNodeRegister() and provide a suitable pointer.
+ *
  * @param node pointer to an NDLComNode which has to be initialized.
- * @param bridge Pointer to the NDLComBridge this Node should connect to
  * @param ownSenderId provide an deviceId during initialization
  */
-void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
+void ndlcomNodeInit(struct NDLComNode *node,
                     const NDLComId ownSenderId);
 
 /**
- * @brief Remove the callback of this Node from the bridges list
+ * @brief attach the NDLComBridgeHandler to the NDLComBridge
+ *
+ * Will also mark our own deviceId as "internally used" to allow obtaining
+ * messages.
+ *
+ * @param node pointer to our data structure
+ */
+void ndlcomNodeRegister(struct NDLComNode *node, struct NDLComBridge *bridge);
+
+/**
+ * @brief Remove the callback of this Node from the list in NDLComBridge
  *
  * Since we register at a NDLComBridge, we have to unregister as well... We
  * also have to disable the special marking for our deviceId in the routing
@@ -69,7 +81,7 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
  *
  * @param node pointer to our data structure
  */
-void ndlcomNodeDeinit(struct NDLComNode *node);
+void ndlcomNodeDeregister(struct NDLComNode *node);
 
 /**
  * @brief Change the "deviceId" of the given node used for new packages

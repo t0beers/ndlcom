@@ -7,7 +7,7 @@ Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
     : BridgeHandlerBase(bridge, node.bridgeHandler,
                         "Node-" + std::to_string(ownDeviceId)) {
     // this call will also register the node to the bridge
-    ndlcomNodeInit(&node, &bridge, ownDeviceId);
+    ndlcomNodeInit(&node, ownDeviceId);
 }
 
 Node::~Node() {
@@ -15,11 +15,10 @@ Node::~Node() {
         it->deregisterHandler();
     }
     allHandler.clear();
-    ndlcomNodeDeinit(&node);
 }
 
-void Node::registerHandler() {}
-void Node::deregisterHandler() {}
+void Node::registerHandler() { ndlcomNodeRegister(&node, &caller); }
+void Node::deregisterHandler() { ndlcomNodeDeregister(&node); }
 
 void Node::printStatus(std::ostream &out) {
     out << label << ":\n";

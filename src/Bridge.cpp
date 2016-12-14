@@ -48,6 +48,7 @@ Bridge::createNode(const NDLComId nodeDeviceId) {
         }
     }
     auto ret = std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
+    ret->registerHandler();
     nodes.push_back(ret);
 
     return ret;

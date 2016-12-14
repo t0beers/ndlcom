@@ -89,13 +89,14 @@ int main(int argc, char *argv[]) {
                                 NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT, 0);
     ndlcomBridgeRegisterExternalInterface(&bridge, &inter);
 
-    /* NDLComNode, which will register itself as an "BridgeHandler"
-     * at the bridge. Will filter messages for the given deviceId. */
+    /* NDLComNode, which will filter messages for the given deviceId */
     struct NDLComNode nodeA;
-    ndlcomNodeInit(&nodeA, &bridge, idA);
+    ndlcomNodeInit(&nodeA, idA);
+    ndlcomNodeRegister(&nodeA, &bridge);
     /** for this specific example we'll need two: */
     struct NDLComNode nodeB;
-    ndlcomNodeInit(&nodeB, &bridge, idB);
+    ndlcomNodeInit(&nodeB, idB);
+    ndlcomNodeRegister(&nodeB, &bridge);
 
     /** both nodes will get a "NodeHandler" which is called for every message
      * directed at the nodes device id */
@@ -136,8 +137,8 @@ int main(int argc, char *argv[]) {
     // very important: proper cleanup!
     ndlcomNodeDeregisterNodeHandler(&nodeA, &nodeHandlerA);
     ndlcomNodeDeregisterNodeHandler(&nodeB, &nodeHandlerB);
-    ndlcomNodeDeinit(&nodeA);
-    ndlcomNodeDeinit(&nodeB);
+    ndlcomNodeDeregister(&nodeA);
+    ndlcomNodeDeregister(&nodeB);
 
     return 0;
 }

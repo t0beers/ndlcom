@@ -7,7 +7,7 @@
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
                               const void *payload, const void *origin);
 
-void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
+void ndlcomNodeInit(struct NDLComNode *node,
                     const NDLComId ownSenderId) {
 
     /* initialize all the list we have */
@@ -19,49 +19,49 @@ void ndlcomNodeInit(struct NDLComNode *node, struct NDLComBridge *bridge,
     /* initialize handler which this Node is going to register in the bridge */
     ndlcomBridgeHandlerInit(&node->bridgeHandler, ndlcomNodeMessageHandler,
                             NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, node);
-    /* na, what did I say? */
-    ndlcomBridgeRegisterBridgeHandler(bridge, &node->bridgeHandler);
 
-    /* calling this will also initialize our own NDLComHeaderConfig and mark
-     * our deviceId in the NDLComRoutingTable as internal. This has to be done
-     * after registering at the NDLComBridge. */
-    ndlcomNodeSetOwnSenderId(node, ownSenderId);
+    /* initialize our own NDLComHeaderConfig */
+    ndlcomHeaderPrepareInit(&node->headerConfig, ownSenderId);
 }
 
-void ndlcomNodeDeinit(struct NDLComNode *node) {
+/* register our own NDLComBridgeHandler at the NDLComBridge */
+void ndlcomNodeRegister(struct NDLComNode *node, struct NDLComBridge *bridge) {
+    /* na, what did I say? */
+    ndlcomBridgeRegisterBridgeHandler(bridge, &node->bridgeHandler);
+    /*
+     * putting our own "deviceId" into the routingtable. this is a hack in the
+     * NDLComBridge, to be able to detect messages which have to go "to us" and
+     * not process them in the outgoing side
+     */
+    ndlcomBridgeMarkDeviceIdAsInternal(node->bridgeHandler.bridge,
+                                       node->headerConfig.mOwnSenderId);
+}
+
+/* disconnect our handler form the bridge */
+void ndlcomNodeDeregister(struct NDLComNode *node) {
     /* inform the bridge that deviceId is no longer to be used internally */
     ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
                                       node->headerConfig.mOwnSenderId);
     /* we do not want to be called by anymore in the future */
     ndlcomBridgeDeregisterBridgeHandler(node->bridgeHandler.bridge,
                                         &node->bridgeHandler);
-
-    /* missing? deinit of handlers... */
 }
 
-/*
- * Initializes internal structs with correct values.
- */
+/* Initializes internal structs with correct values.  */
 void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
                               const NDLComId ownSenderId) {
-    /*
-     * disabling the old senderId, which is still stored in the headerConfig
-     */
+    /* inform the bridge that deviceId is no longer to be used internally */
     ndlcomBridgeClearInternalDeviceId(node->bridgeHandler.bridge,
                                       node->headerConfig.mOwnSenderId);
     /*
-     * resets the packet-counters to use for each receiver, and is used to
+     * Since we are asked to become a new personality we have to reset the
+     * packet-counters to use for each receiver. This function is also used to
      * store our own deviceId at a convenient place
      */
     ndlcomHeaderPrepareInit(&node->headerConfig, ownSenderId);
-    /*
-     * NOTE: putting our own "deviceId" into the routingtable. this is a hack,
-     * to be able to detect messages going "to us" and not process them in the
-     * outgoing side
-     *
-     * TODO: check that using "bridge" as the origin will work here...
-     */
-    ndlcomBridgeMarkDeviceIdAsInternal(node->bridgeHandler.bridge, ownSenderId);
+    /* and update the routing table */
+    ndlcomBridgeMarkDeviceIdAsInternal(node->bridgeHandler.bridge,
+                                       node->headerConfig.mOwnSenderId);
 }
 
 /**
