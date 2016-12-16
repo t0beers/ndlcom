@@ -18,10 +18,10 @@ namespace ndlcom {
  *
  * "udp://localhost:$SRCPORT:$DSTPORT (default: 34000 and 34001)
  * "fpga:///dev/NDLCom"
- * "serial:///dev/ttyUSB:$BAUDRATE" (default: 921600)
+ * "serial:///dev/ttyUSB0:$BAUDRATE" (default: 921600)
  * "pipe:///tmp/testpipe"
  * "pty:///tmp/testpty"
- * "tcpclient://localhost:<port>
+ * "tcpclient://localhost:$PORT" (default: 2000)
  *
  * Every uri might have a trailing string specifying apriori routing
  * information for this interface in the format "&1,2,3".

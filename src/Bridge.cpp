@@ -35,7 +35,8 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
     std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret(
         ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
                                                    flags));
-    // the interface is already "registered" at the Bridge
+    // the interface is already "registered" at the Bridge, done by the parsing
+    // function
     externalInterfaces.push_back(ret);
     return ret;
 }

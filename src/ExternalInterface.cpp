@@ -196,7 +196,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
                                            std::string hostname,
                                            unsigned int in_port,
                                            unsigned int out_port, uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, "udp://" + hostname +
+    : ndlcom::ExternalInterfaceBase(bridge, "udp://" + hostname + ":" +
                                                 std::to_string(in_port) + ":" +
                                                 std::to_string(out_port),
                                     std::cerr, flags),
