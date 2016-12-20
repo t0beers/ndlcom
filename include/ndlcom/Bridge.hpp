@@ -7,6 +7,7 @@
 #include "ndlcom/InternalHandler.hpp"
 
 #include <sstream>
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <memory>
@@ -99,6 +100,28 @@ class Bridge {
         return ret;
     }
 
+    /**
+     * using the "erase-remove" ideom
+     */
+    template <class T> void destroyNode(std::weak_ptr<T> a) {
+        std::shared_ptr<T> p = a.lock();
+        p->deregisterHandler();
+        nodes.erase(std::remove(nodes.begin(), nodes.end(), p), nodes.end());
+    }
+    template <class T> void destroyBridgeHandler(std::weak_ptr<T> a) {
+        std::shared_ptr<T> p = a.lock();
+        p->deregisterHandler();
+        bridgeHandler.erase(
+            std::remove(bridgeHandler.begin(), bridgeHandler.end(), p),
+            bridgeHandler.end());
+    }
+    template <class T> void destroyExternalInterface(std::weak_ptr<T> a) {
+        std::shared_ptr<T> p = a.lock();
+        p->deregisterHandler();
+        externalInterfaces.erase(std::remove(externalInterfaces.begin(),
+                                             externalInterfaces.end(), p),
+                                 externalInterfaces.end());
+    }
 
     /**
      * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed

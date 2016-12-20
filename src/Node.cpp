@@ -12,9 +12,8 @@ Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
 
 Node::~Node() {
     for (auto &it : allHandler) {
-        it->deregisterHandler();
+        destroyNodeHandler(std::weak_ptr<ndlcom::NodeHandlerBase>(it));
     }
-    allHandler.clear();
 }
 
 void Node::registerHandler() { ndlcomNodeRegister(&node, &caller); }

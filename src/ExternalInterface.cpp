@@ -154,8 +154,6 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &bridge,
 }
 
 ExternalInterfaceSerial::~ExternalInterfaceSerial() {
-    // make sure that this handler will not be used anymore
-    deregisterHandler();
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
@@ -187,8 +185,6 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
 }
 
 ExternalInterfaceFpga::~ExternalInterfaceFpga() {
-    // make sure that this handler will not be used anymore
-    deregisterHandler();
     close(fd);
 }
 
@@ -278,8 +274,6 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
 }
 
 ExternalInterfaceUdp::~ExternalInterfaceUdp() {
-    // make sure that this handler will not be used anymore
-    deregisterHandler();
     close(fd);
 }
 
@@ -399,8 +393,6 @@ ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
 }
 
 ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() {
-    // make sure that this handler will not be used anymore
-    deregisterHandler();
     close(fd);
 }
 
@@ -506,8 +498,6 @@ ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &bridge,
 }
 
 ExternalInterfacePipe::~ExternalInterfacePipe() {
-    // make sure that this handler will not be used anymore
-    deregisterHandler();
     // calling "fclose" will close the underlying fd as well
     fclose(str_in);
     fclose(str_out);
@@ -630,8 +620,6 @@ ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &bridge,
 }
 
 ExternalInterfacePty::~ExternalInterfacePty() {
-    // make sure that this handler will not be used anymore
-    deregisterHandler();
     // delete the previously created symlink
     cleanSymlink();
     // not sure...

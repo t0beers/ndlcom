@@ -11,15 +11,26 @@ using namespace ndlcom;
 Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
 
 Bridge::~Bridge() {
-    externalInterfaces.clear();
+    /**
+     * The dtor _has_ to explicitly destroy (to deregister the handlers in) all
+     * owner+attached objects before it is finished itself. otherwise attached
+     * objects may call into this bridge, use-after-free
+     */
+    for (auto &it : externalInterfaces) {
+        destroyExternalInterface(
+            std::weak_ptr<ndlcom::ExternalInterfaceBase>(it));
+    }
+    // "BridgeHandler" and "Node" are essentially the same on the c level
+    // (stored in "internalHandler" list), but additionally kept in two
+    // distinct datastructures on the c++ level to allow easy lookup for an
+    // existing Node
     for (auto &it : bridgeHandler) {
-        it->deregisterHandler();
+        destroyBridgeHandler(std::weak_ptr<ndlcom::BridgeHandler>(it));
     }
     bridgeHandler.clear();
     for (auto &it : nodes) {
-        it->deregisterHandler();
+        destroyNode(std::weak_ptr<ndlcom::Node>(it));
     }
-    nodes.clear();
 }
 
 std::shared_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {

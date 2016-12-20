@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 namespace ndlcom {
 
@@ -50,6 +51,17 @@ class Node : public BridgeHandlerBase {
         ret->registerHandler();
         allHandler.push_back(ret);
         return ret;
+    }
+
+    /**
+     * generic "destory" function, will take care to do all the right steps in
+     * order to get rid of the assiciated node.
+     */
+    template <class T> void destroyNodeHandler(std::weak_ptr<T> a) {
+        std::shared_ptr<T> p = a.lock();
+        p->deregisterHandler();
+        allHandler.erase(std::remove(allHandler.begin(), allHandler.end(), p),
+                         allHandler.end());
     }
 
     void printStatus();
