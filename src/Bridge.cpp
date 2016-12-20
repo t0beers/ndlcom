@@ -54,6 +54,7 @@ Bridge::createNode(const NDLComId nodeDeviceId) {
 
     return ret;
 }
+#endif
 
 void Bridge::printStatus(std::ostream &out) {
     out << "Bridge status:\n";
@@ -118,7 +119,7 @@ void Bridge::printRoutingTable(std::ostream &out) {
 
 std::shared_ptr<class ndlcom::Node>
 Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
-    auto ret = createNode(nodeDeviceId);
+    auto ret = createNode<class ndlcom::Node>(nodeDeviceId);
     if (print) {
         ret->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
     }

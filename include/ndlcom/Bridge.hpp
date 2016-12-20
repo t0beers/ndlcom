@@ -88,7 +88,17 @@ class Bridge {
      *
      * Copy of the shared_ptr is kept inside this class.
      */
-    std::shared_ptr<class ndlcom::Node> createNode(const NDLComId nodeDeviceId);
+    template<class T, class... A>
+    std::shared_ptr<T> createNode(A... args){
+        static_assert(
+            std::is_base_of<ndlcom::Node, T>(),
+            "can only create classes derived from ndlcom::Node");
+        std::shared_ptr<T> ret = std::make_shared<T>(bridge, args...);
+        ret->registerHandler();
+        nodes.push_back(ret);
+        return ret;
+    }
+
 
     /**
      * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed

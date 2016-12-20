@@ -95,7 +95,8 @@ int main(int argc, char *argv[]) {
 
     /* And a NDLComNode, which will register itself as an "BridgeHandler"
      * at the bridge. Will filter messages for the given deviceId. */
-    std::shared_ptr<class ndlcom::Node> node = bridge.createNode(ownDeviceId);
+    std::shared_ptr<class ndlcom::Node> node =
+        bridge.createNode<class ndlcom::Node>(ownDeviceId);
 
     /* The actual message handler. Will register itself on the given NDLComNode
      * during
