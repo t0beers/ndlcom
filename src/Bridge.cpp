@@ -42,15 +42,15 @@ Bridge::~Bridge() {
     }
 }
 
-std::shared_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {
+std::weak_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {
     return createBridgeHandler<class ndlcom::BridgePrintAll>();
 }
 
-std::shared_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintMiss() {
+std::weak_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintMiss() {
     return createBridgeHandler<class ndlcom::BridgePrintMissEvents>();
 }
 
-std::shared_ptr<class ndlcom::ExternalInterfaceBase>
+std::weak_ptr<class ndlcom::ExternalInterfaceBase>
 Bridge::createInterface(std::string uri, uint8_t flags) {
     std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret(
         ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
@@ -139,11 +139,11 @@ void Bridge::printRoutingTable(std::ostream &out) {
     }
 }
 
-std::shared_ptr<class ndlcom::Node>
+std::weak_ptr<class ndlcom::Node>
 Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
     auto ret = createNode<class ndlcom::Node>(nodeDeviceId);
     if (print) {
-        ret->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
+        ret.lock()->createNodeHandler<class ndlcom::NodeHandlerPrintOwnId>();
     }
     return ret;
 }

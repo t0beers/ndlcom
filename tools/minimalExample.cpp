@@ -95,15 +95,15 @@ int main(int argc, char *argv[]) {
 
     /* And a NDLComNode, which will register itself as an "BridgeHandler"
      * at the bridge. Will filter messages for the given deviceId. */
-    std::shared_ptr<class ndlcom::Node> node =
+    std::weak_ptr<class ndlcom::Node> node =
         bridge.createNode<class ndlcom::Node>(ownDeviceId);
 
     /* The actual message handler. Will register itself on the given NDLComNode
      * during
      * initialization in the base-constructor and listens to messages which have
      * the first byte as given in the ctor. */
-    std::shared_ptr<class example::ExampleHandler> handler =
-        node->createNodeHandler<class example::ExampleHandler>(
+    std::weak_ptr<class example::ExampleHandler> handler =
+        node.lock()->createNodeHandler<class example::ExampleHandler>(
             someFirstByteToListen);
 
     /* Little helper function, which parses the given string to create and
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
      * a shared pointer, but keeps an internaly copy to prevent it going out of
      * scope. */
     {
-        std::shared_ptr<class ndlcom::ExternalInterfaceBase> inter =
+        std::weak_ptr<class ndlcom::ExternalInterfaceBase> inter =
             bridge.createInterface(connectionPty);
     }
 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (!((cnt) % 5)) {
-            node->send(ownDeviceId, 0, 0);
+            node.lock()->send(ownDeviceId, 0, 0);
             /* the handler has a send-method as well: */
             //handler->send(ownDeviceId, 0, 0);
 

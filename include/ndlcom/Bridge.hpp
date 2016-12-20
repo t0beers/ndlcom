@@ -39,7 +39,7 @@ class Bridge {
     /**
      * using the "parseUri" string-based functions
      */
-    std::shared_ptr<class ndlcom::ExternalInterfaceBase>
+    std::weak_ptr<class ndlcom::ExternalInterfaceBase>
     createInterface(std::string uri,
                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
@@ -55,7 +55,7 @@ class Bridge {
      *        bridge.createExternalInterface<ndlcom::MyExternalInterface();
      */
     template <class T, class... A>
-    std::shared_ptr<T> createExternalInterface(A... args) {
+    std::weak_ptr<T> createExternalInterface(A... args) {
         static_assert(std::is_base_of<class ndlcom::ExternalInterfaceBase, T>(),
                       "can only create classes derived from "
                       "ndlcom::ExternalInterfaceBase");
@@ -69,7 +69,7 @@ class Bridge {
      * similar factor for the BridgeHandler
      */
     template <class T, class... A>
-    std::shared_ptr<T> createBridgeHandler(A... args) {
+    std::weak_ptr<T> createBridgeHandler(A... args) {
         static_assert(
             std::is_base_of<ndlcom::BridgeHandlerBase, T>(),
             "can only create classes derived from ndlcom::BridgeHandlerBase");
@@ -90,7 +90,7 @@ class Bridge {
      * Copy of the shared_ptr is kept inside this class.
      */
     template<class T, class... A>
-    std::shared_ptr<T> createNode(A... args){
+    std::weak_ptr<T> createNode(A... args){
         static_assert(
             std::is_base_of<ndlcom::Node, T>(),
             "can only create classes derived from ndlcom::Node");
@@ -132,19 +132,19 @@ class Bridge {
      * @param print if set to true, an additional NodeHandler is added to Node
      * @return the actually created ndlcom::Node object
      */
-    std::shared_ptr<class ndlcom::Node> enableOwnId(const NDLComId nodeDeviceId,
-                                                    bool print = false);
+    std::weak_ptr<class ndlcom::Node> enableOwnId(const NDLComId nodeDeviceId,
+                                                  bool print = false);
 
     /**
      * create a ndlcom::BridgeHandler which prints every message. keeps
      * internal copy of shared_ptr
      */
-    std::shared_ptr<class ndlcom::BridgeHandler> enablePrintAll();
+    std::weak_ptr<class ndlcom::BridgeHandler> enablePrintAll();
     /**
      * create a ndlcom::BridgeHandler which prints missing message. keeps
      * internal copy of shared_ptr
      */
-    std::shared_ptr<class ndlcom::BridgeHandler> enablePrintMiss();
+    std::weak_ptr<class ndlcom::BridgeHandler> enablePrintMiss();
 
   private:
     // these datastructures are needed to be able to cleanup the created

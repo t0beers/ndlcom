@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
         switch (c) {
         case 'u': {
             auto ret = bridge.createInterface(optarg);
-            if (!ret) {
+            if (ret.expired()) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
             }
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
         case 'm': {
             auto ret = bridge.createInterface(
                 optarg, NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR);
-            if (!ret) {
+            if (ret.expired()) {
                 std::cerr << "invalid uri: '" << optarg << "'\n";
                 exit(EXIT_FAILURE);
             }

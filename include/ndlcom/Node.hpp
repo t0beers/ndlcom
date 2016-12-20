@@ -43,7 +43,7 @@ class Node : public BridgeHandlerBase {
      * keeps internal copy of the returned shared_ptr to prevent early delete.
      */
     template <class T, class... A>
-    std::shared_ptr<T> createNodeHandler(A... args) {
+    std::weak_ptr<T> createNodeHandler(A... args) {
         static_assert(
             std::is_base_of<ndlcom::NodeHandlerBase, T>(),
             "can only create classes derived from ndlcom::NodeHandlerBase");
