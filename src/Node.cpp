@@ -1,4 +1,5 @@
 #include "ndlcom/Node.hpp"
+#include "ndlcom/Node.h"
 #include <iomanip>
 
 using namespace ndlcom;
@@ -13,6 +14,9 @@ Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
 Node::~Node() {
     for (auto &it : allHandler) {
         destroyNodeHandler(std::weak_ptr<ndlcom::NodeHandlerBase>(it));
+    }
+    if (!list_empty(&node.nodeHandlerList)) {
+        throw std::runtime_error("oioioi...");
     }
 }
 

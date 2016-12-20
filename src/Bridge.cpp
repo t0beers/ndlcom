@@ -4,6 +4,8 @@
 #include "ndlcom/BridgeHandler.hpp"
 #include "ndlcom/NodeHandler.hpp"
 
+#include "ndlcom/list.h"
+
 #include <iomanip>
 
 using namespace ndlcom;
@@ -31,6 +33,13 @@ Bridge::~Bridge() {
     for (auto &it : nodes) {
         destroyNode(std::weak_ptr<ndlcom::Node>(it));
     }
+    // check that the internal c linked list is really empty
+    if (!list_empty(&bridge.externalInterfaceList)) {
+        throw std::runtime_error("boa");
+    }
+    if (!list_empty(&bridge.bridgeHandlerList)) {
+        throw std::runtime_error("hossa");
+    }
 }
 
 std::shared_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {
@@ -52,6 +61,8 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
     return ret;
 }
 
+#if 0
+// enforce one-node-per-id?
 std::shared_ptr<class ndlcom::Node>
 Bridge::createNode(const NDLComId nodeDeviceId) {
     for (auto it : nodes) {
