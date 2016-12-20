@@ -40,9 +40,9 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
 
     /**
-     * Allows to temporarily silence this interface. No more data will be
-     * written. Note that reads are still performed to empty the system
-     * buffers, but no data goes into the bridge.
+     * Allows to temporarily silence this ExternalInterface. No more data will
+     * be written to hardware. Note that reads are still performed to empty the
+     * system buffers, but no data goes into the bridge.
      */
     bool paused;
 

@@ -33,3 +33,7 @@ void Node::send(const NDLComId receiverId, const void *payload,
                 size_t payloadSize) {
     ndlcomNodeSend(&node, receiverId, payload, payloadSize);
 }
+
+void Node::setOwnDeviceId(const NDLComId ownSenderId) {
+    ndlcomNodeSetOwnSenderId(&node, ownSenderId);
+}

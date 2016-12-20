@@ -10,7 +10,7 @@
 namespace ndlcom {
 
 /**
- * @brief Parse string containing "uri" to create "ndlcom::ExternalInterfaceBase"
+ * @brief Parse string containing "uri", create "ndlcom::ExternalInterfaceBase"
  *
  * This function is a tooling function which reads a string and tries to parse
  * it into information about which kind of specialization for the low-level
@@ -63,9 +63,9 @@ T createByParse(std::ostream &out, struct NDLComBridge &bridge,
                 uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
 /**
- * regexes for each different interface type.
+ * Regexes to validate valid uri strings for each different interface type.
  *
- * granted, the naming and location is kinda stupid...
+ * Granted, the naming and location is kinda stupid...
  */
 extern const std::regex pty_rx;
 extern const std::regex pipe_rx;

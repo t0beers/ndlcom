@@ -13,7 +13,7 @@
 
 namespace ndlcom {
 
-class Bridge final {
+class Bridge {
   public:
     Bridge();
     ~Bridge();

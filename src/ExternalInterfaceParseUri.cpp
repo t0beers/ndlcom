@@ -8,14 +8,14 @@
 #include <iomanip>
 #include <regex>
 
-// regexes for all interface types, including the optional routing table
-// initialization at the end
+/* clang-format off */
 const std::regex ndlcom::pty_rx("^pty://([^:&]*)(?:&(.*))?$");
 const std::regex ndlcom::pipe_rx("^pipe://([^:&]*)(?:&(.*))?$");
 const std::regex ndlcom::udp_rx("^udp://([^:&]*)(?::(\\d+))?(?::(\\d+))?(?:&(.*))?$");
 const std::regex ndlcom::fpga_rx("^fpga://([^:&]*)(?:&:(.*))?$");
 const std::regex ndlcom::serial_rx("^serial://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
 const std::regex ndlcom::tcpClient_rx("^tcpclient://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
+/* clang-format on */
 
 const int defaultSerialBaudrate = 921600;
 const int defaultUdpSrcPort = 34000;

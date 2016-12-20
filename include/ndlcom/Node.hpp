@@ -61,6 +61,10 @@ class Node : public BridgeHandlerBase {
      * finished with setting up...
      */
     NDLComId getOwnDeviceId() const;
+    /**
+     * @brief simple...
+     */
+    void setOwnDeviceId(const NDLComId ownSenderId);
 
     /**
      * guess what this does...
