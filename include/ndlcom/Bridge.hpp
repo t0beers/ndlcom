@@ -16,7 +16,7 @@ namespace ndlcom {
 
 class Bridge {
   public:
-    Bridge();
+    Bridge(std::ostream &_out = std::cerr);
     ~Bridge();
 
     /** printer functions. move outside of this class? */
@@ -162,6 +162,8 @@ class Bridge {
      * there are not so many additional nodes we do not know about...?
      */
     struct NDLComBridge bridge;
+
+    std::ostream &out;
 };
 }
 

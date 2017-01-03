@@ -10,7 +10,7 @@
 
 using namespace ndlcom;
 
-Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
+Bridge::Bridge(std::ostream &_out) : out(_out) { ndlcomBridgeInit(&bridge); }
 
 Bridge::~Bridge() {
     // no iterators, as the call inside the loop would invalidate them
