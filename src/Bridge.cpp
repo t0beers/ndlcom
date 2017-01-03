@@ -36,10 +36,12 @@ Bridge::~Bridge() {
     }
     // check that the internal c linked list is really empty
     if (!list_empty(&bridge.externalInterfaceList)) {
-        throw std::runtime_error("boa");
+        out << "Attention, something went wrong during teardown, "
+               "c-ExternalInterfaceList is not empty\n";
     }
     if (!list_empty(&bridge.bridgeHandlerList)) {
-        throw std::runtime_error("hossa");
+        out << "Attention, something went wrong during teardown, "
+               "c-BridgeHandlerList is not empty\n";
     }
 }
 

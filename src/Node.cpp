@@ -19,7 +19,8 @@ Node::~Node() {
     }
     /** compare c list with c++ vector. both should be empty! */
     if (!list_empty(&node.nodeHandlerList)) {
-        throw std::runtime_error("oioioi...");
+        out << "Attention, something went wrong during teardown, "
+               "c-NodeHandlerList is not empty\n";
     }
 }
 
