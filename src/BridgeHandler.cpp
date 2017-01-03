@@ -83,3 +83,29 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
     expectedNextPacketCounter[header->mSenderId][header->mReceiverId] =
         header->mCounter + 1;
 }
+
+BridgeHandlerStatistics::BridgeHandlerStatistics(struct NDLComBridge &_caller)
+    : BridgeHandler(_caller, "BridgeHandlerStatistics"), bytesTransmitted(0),
+      bytesReceived(0) {}
+
+void BridgeHandlerStatistics::handle(const struct NDLComHeader *header,
+                                     const void *payload, const void *origin) {
+    if (origin) {
+        bytesReceived += sizeof(struct NDLComHeader) + header->mDataLen;
+    } else {
+        bytesTransmitted += sizeof(struct NDLComHeader) + header->mDataLen;
+    }
+}
+
+unsigned long BridgeHandlerStatistics::currentBytesTx() const {
+    return bytesTransmitted;
+}
+
+unsigned long BridgeHandlerStatistics::currentBytesRx() const {
+    return bytesReceived;
+}
+
+void BridgeHandlerStatistics::resetBytes() {
+    bytesTransmitted = 0;
+    bytesReceived = 0;
+}

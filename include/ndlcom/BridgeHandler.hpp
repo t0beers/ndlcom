@@ -52,6 +52,30 @@ class BridgePrintMissEvents final : public BridgeHandler {
      */
     std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES << 8> alreadySeen;
 };
+
+/**
+ * @brief Provide statistics
+ *
+ * Will count how many bytes are flowing through the bridge, divided by "sent
+ * internally" and "received externally", depending on the "origin" value in
+ * the handle function.
+ */
+class BridgeHandlerStatistics : public BridgeHandler {
+  public:
+    BridgeHandlerStatistics(struct NDLComBridge &_caller);
+    /** to make matters simple, this class is not allowed to transmit */
+    void send(const struct NDLComHeader *header, const void *payload) = delete;
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const void *origin);
+
+    unsigned long currentBytesTx() const;
+    unsigned long currentBytesRx() const;
+    void resetBytes();
+
+  private:
+    unsigned long bytesTransmitted;
+    unsigned long bytesReceived;
+};
 }
 
 #endif /*NDLCOM_BRIDGE_HANDLER_HPP*/

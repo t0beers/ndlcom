@@ -18,6 +18,22 @@ class NodeHandlerPrintOwnId final : public NodeHandler {
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin) override;
 };
+
+class NodeHandlerStatistics : public NodeHandler {
+  public:
+    NodeHandlerStatistics(struct NDLComNode &_caller);
+    void send(const struct NDLComHeader *header, const void *payload) = delete;
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const void *origin);
+
+    unsigned long currentBytesTx() const;
+    unsigned long currentBytesRx() const;
+    void resetBytes();
+
+  private:
+    unsigned long bytesTransmitted;
+    unsigned long bytesReceived;
+};
 }
 
 #endif /*NDLCOM_NODE_HANDLER_HPP*/
