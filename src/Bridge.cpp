@@ -13,25 +13,26 @@ using namespace ndlcom;
 Bridge::Bridge() { ndlcomBridgeInit(&bridge); }
 
 Bridge::~Bridge() {
+    // no iterators, as the call inside the loop would invalidate them
     /**
      * The dtor _has_ to explicitly destroy (to deregister the handlers in) all
      * owner+attached objects before it is finished itself. otherwise attached
      * objects may call into this bridge, use-after-free
      */
-    for (auto &it : externalInterfaces) {
-        destroyExternalInterface(
-            std::weak_ptr<ndlcom::ExternalInterfaceBase>(it));
+    while (!externalInterfaces.empty()) {
+        destroyExternalInterface(std::weak_ptr<ndlcom::ExternalInterfaceBase>(
+            externalInterfaces.front()));
     }
     // "BridgeHandler" and "Node" are essentially the same on the c level
     // (stored in "internalHandler" list), but additionally kept in two
     // distinct datastructures on the c++ level to allow easy lookup for an
     // existing Node
-    for (auto &it : bridgeHandler) {
-        destroyBridgeHandler(std::weak_ptr<ndlcom::BridgeHandler>(it));
+    while (!bridgeHandler.empty()) {
+        destroyBridgeHandler(
+            std::weak_ptr<ndlcom::BridgeHandler>(bridgeHandler.front()));
     }
-    bridgeHandler.clear();
-    for (auto &it : nodes) {
-        destroyNode(std::weak_ptr<ndlcom::Node>(it));
+    while (!nodes.empty()) {
+        destroyNode(std::weak_ptr<ndlcom::Node>(nodes.front()));
     }
     // check that the internal c linked list is really empty
     if (!list_empty(&bridge.externalInterfaceList)) {

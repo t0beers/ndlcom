@@ -184,9 +184,7 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
     }
 }
 
-ExternalInterfaceFpga::~ExternalInterfaceFpga() {
-    close(fd);
-}
+ExternalInterfaceFpga::~ExternalInterfaceFpga() { close(fd); }
 
 ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
                                            std::string hostname,
@@ -273,9 +271,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
     freeaddrinfo(result);
 }
 
-ExternalInterfaceUdp::~ExternalInterfaceUdp() {
-    close(fd);
-}
+ExternalInterfaceUdp::~ExternalInterfaceUdp() { close(fd); }
 
 size_t ExternalInterfaceUdp::readEscapedBytes(void *buf, size_t count) {
     /* out << "trying to read " << count << " bytes\n"; */
@@ -392,9 +388,7 @@ ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
     freeaddrinfo(result);
 }
 
-ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() {
-    close(fd);
-}
+ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() { close(fd); }
 
 size_t ExternalInterfaceTcpClient::readEscapedBytes(void *buf, size_t count) {
 again:
@@ -435,7 +429,8 @@ again:
 ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &bridge,
                                              std::string pipename,
                                              uint8_t flags)
-    : ndlcom::ExternalInterfaceBase(bridge, "pipe://"+pipename, std::cerr, flags),
+    : ndlcom::ExternalInterfaceBase(bridge, "pipe://" + pipename, std::cerr,
+                                    flags),
       unlinkRxPipeInDtor(false), unlinkTxPipeInDtor(false),
       pipename_rx(pipename + "_rx"), pipename_tx(pipename + "_tx") {
     if (pipename.empty()) {
@@ -628,6 +623,11 @@ ExternalInterfacePty::~ExternalInterfacePty() {
 
 /**
  * this function is complete overkill ;-)
+ *
+ * FIXME:
+ * - somehow i could create two pty with the same symlink. it seemed to work a
+ *   bit?
+ * - there is also some funny receiving-with-noone-connected going on...
  */
 void ExternalInterfacePty::cleanSymlink() const {
     int rc;

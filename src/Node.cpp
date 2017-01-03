@@ -1,5 +1,5 @@
 #include "ndlcom/Node.hpp"
-#include "ndlcom/Node.h"
+
 #include <iomanip>
 
 using namespace ndlcom;
@@ -12,9 +12,12 @@ Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
 }
 
 Node::~Node() {
-    for (auto &it : allHandler) {
-        destroyNodeHandler(std::weak_ptr<ndlcom::NodeHandlerBase>(it));
+    /** no iterators, as the call inside the loop would invalidate them */
+    while (!allHandler.empty()) {
+        destroyNodeHandler(
+            std::weak_ptr<ndlcom::NodeHandlerBase>(allHandler.front()));
     }
+    /** compare c list with c++ vector. both should be empty! */
     if (!list_empty(&node.nodeHandlerList)) {
         throw std::runtime_error("oioioi...");
     }
@@ -30,13 +33,15 @@ void Node::printStatus() {
     }
 }
 
-NDLComId Node::getOwnDeviceId() const { return node.headerConfig.mOwnSenderId; }
+const NDLComId Node::getOwnDeviceId() const {
+    return node.headerConfig.mOwnSenderId;
+}
 
 void Node::send(const NDLComId receiverId, const void *payload,
                 size_t payloadSize) {
     ndlcomNodeSend(&node, receiverId, payload, payloadSize);
 }
 
-void Node::setOwnDeviceId(const NDLComId ownSenderId) {
-    ndlcomNodeSetOwnSenderId(&node, ownSenderId);
+void Node::setOwnDeviceId(const NDLComId ownDeviceId) {
+    ndlcomNodeSetOwnSenderId(&node, ownDeviceId);
 }

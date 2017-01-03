@@ -1,5 +1,5 @@
-#ifndef EXTERNALINTERFACEBASE_H
-#define EXTERNALINTERFACEBASE_H
+#ifndef NDLCOM_EXTERNALINTERFACEBASE_H
+#define NDLCOM_EXTERNALINTERFACEBASE_H
 
 #include "ndlcom/HandlerCommon.hpp"
 #include "ndlcom/ExternalInterface.h"
@@ -62,7 +62,8 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     void setFlag(uint8_t flag, bool value);
 
     /**
-     * use this interface to reach deviceId
+     * Set NDLComRoutingTable to use this ExternalInterface to reach the given
+     * deviceId
      */
     void setRoutingForDeviceId(const NDLComId deviceId);
 
@@ -70,11 +71,6 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     void deregisterHandler() override final;
 
   protected:
-    /**
-     * The wrapped C-datastructure
-     */
-    struct NDLComExternalInterface external;
-
     /**
      * Helper function which adds up the number of incoming bytes into
      * "bytesReceived".
@@ -124,7 +120,12 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
      * Wrapper function to bridge between C and C++ realm
      */
     static size_t readWrapper(void *context, void *buf, const size_t count);
+    /**
+     * The wrapped C-datastructure
+     */
+    struct NDLComExternalInterface external;
+
 };
 }
 
-#endif /*EXTERNALINTERFACEBASE_H*/
+#endif /*NDLCOM_EXTERNALINTERFACEBASE_H*/

@@ -11,36 +11,38 @@
 namespace ndlcom {
 
 /**
- * @brief c++ wrapper for NDLComNode
+ * @brief C++ wrapper for NDLComNode
  *
- * Sadly, the class-structure (even in c) does not reflect what is going on.  A
- * Node is really an encapsulated NDLComBridgeHandler with added stuff going
- * on. But we cannot use the BridgeHandlerBase class, as it contains an
- * additional copy of the NDLComBridgeHandler struct.
+ * A Node is in reality an encapsulated NDLComBridgeHandler with additional
+ * stuff going on. So we can use the BridgeHandlerBase class, which uses a
+ * reference to the actual instance of the NDLComBridgeHandler struct inside
+ * this class.
  *
- * So then this is its own thing.
- *
- * Can create objects derived from ndlcom::NodeHandlerBase, takes ownership.
- *
- * Derives from the "BridgeHandlerWrapper" to be able to reuse the
- * c-implementation. therefore, this c++ object does not do much, see
- * NDLComNode.
+ * Can create objects derived from ndlcom::NodeHandlerBase, takes ownership of
+ * these.
  */
 class Node : public BridgeHandlerBase {
   public:
     Node(struct NDLComBridge &bridge, NDLComId ownDeviceId);
-    ~Node();
+    /**
+     * Destroys all NodeHandlerBase owned by this Node
+     */
+    virtual ~Node();
 
     /**
-     * This factory function shall be the only way to create Handler objects,
-     * to make sure that the "registerHandler" function is always called
+     * @brief Create new NodeHandlerBase objects and use in this Node
      *
-     * factory function. call like so:
+     * This factory function shall be the only way to create Handler objects,
+     * to make sure that the "registerHandler" function is always called and
+     * the resulting object is owned by this object.
+     *
+     * Call it like so:
      *
      *    std::shared_ptr<class ndlcom::NodePrintOwnId> p2 =
      *        node->createNodeHandler<ndlcom::NodePrintOwnId>();
      *
-     * keeps internal copy of the returned shared_ptr to prevent early delete.
+     * Keeps internal shared_ptr of the returned weak_ptr to make sure this
+     * object has exclusive ownership.
      */
     template <class T, class... A>
     std::weak_ptr<T> createNodeHandler(A... args) {
@@ -54,8 +56,9 @@ class Node : public BridgeHandlerBase {
     }
 
     /**
-     * generic "destory" function, will take care to do all the right steps in
-     * order to get rid of the assiciated node.
+     * Generic "destory" function takes care to do all the right steps in order
+     * to get rid of the assiciated node. Deregisters the handler from the Node
+     * and removes the shared_ptr from the container.
      */
     template <class T> void destroyNodeHandler(std::weak_ptr<T> a) {
         std::shared_ptr<T> p = a.lock();
@@ -64,38 +67,68 @@ class Node : public BridgeHandlerBase {
                          allHandler.end());
     }
 
+    /**
+     * @brief Print information for each owned handler to "out"
+     *
+     * Note that "out" is a member of the base-class. Using something different
+     * was never tested.
+     */
     void printStatus();
 
     /**
-     * @brief obtain the deviceId used in the NDLComNode object
+     * @brief Obtain the deviceId used in the NDLComNode struct
      *
      * Please note that this function will only work after everything is
-     * finished with setting up...
+     * finished with setting up... E.g. after the ndlcomNodeInit() was called
+     * in the dtor.
      */
-    NDLComId getOwnDeviceId() const;
-    /**
-     * @brief simple...
-     */
-    void setOwnDeviceId(const NDLComId ownSenderId);
+    const NDLComId getOwnDeviceId() const;
 
     /**
-     * guess what this does...
+     * @brief Changing the own personality
+     *
+     * Will change which packages will be seen in the NodeHandlerBase owned by
+     * this class.
+     *
+     * @param ownDeviceId The new deviceId to use when sending/receiving
+     */
+    void setOwnDeviceId(const NDLComId ownDeviceId);
+
+    /**
+     * @brief Sending a new message
+     *
+     * @param receiverId Where to send to
+     * @param payload Pointer to memory containing the payload
+     * @param payloadSize Number of bytes to transmit
      */
     void send(const NDLComId receiverId, const void *payload,
               const size_t payloadSize);
 
-    // no-ops in the moment...
+    /**
+     * Adds the handler-function of this Node (implemented by
+     * BridgeHandlerBase) to the actual Bridge. To be called by the owner of
+     * this object.
+     */
     void registerHandler() override;
+
+    /**
+     * Removes the handler of this class from the owning class list of handlers.
+     */
     void deregisterHandler() override;
 
   private:
     /**
-     * harhar, private! please use the factor-functions to obtain new objects.
-     * this will take care of valid creation and deletion
+     * harhar, private struct!
+     *
+     * Use the factor-functions to create new objects. This will take care of
+     * valid creation and deletion. Never access this struct directly.
      */
     struct NDLComNode node;
 
-    /* needed to keep the shared_ptr in scope until our ctor is called */
+    /**
+     * This vector will keep track of all owned NodeHandlerBase. Keeps the
+     * shared_ptr in scope until our dtor is called.
+     */
     std::vector<std::shared_ptr<ndlcom::NodeHandlerBase> > allHandler;
 };
 }

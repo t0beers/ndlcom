@@ -4,7 +4,6 @@
 #include "ndlcom/Bridge.h"
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
-
 #include <string>
 // for "speed_t":
 #include <sys/termios.h>
@@ -25,8 +24,7 @@ namespace ndlcom {
 class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceStream(
-        struct NDLComBridge &_bridge,
-        std::string label,
+        struct NDLComBridge &_bridge, std::string label,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceStream();
 

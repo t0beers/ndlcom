@@ -63,12 +63,13 @@ void ndlcomNodeInit(struct NDLComNode *node,
                     const NDLComId ownSenderId);
 
 /**
- * @brief attach the NDLComBridgeHandler to the NDLComBridge
+ * @brief attach the NDLComBridgeHandler of this struct to the NDLComBridge
  *
  * Will also mark our own deviceId as "internally used" to allow obtaining
  * messages.
  *
  * @param node pointer to our data structure
+ * @param bridge pointer to the bridge where to connect to
  */
 void ndlcomNodeRegister(struct NDLComNode *node, struct NDLComBridge *bridge);
 

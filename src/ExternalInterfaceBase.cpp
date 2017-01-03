@@ -5,7 +5,6 @@
 #include <cstring>
 #include <errno.h>
 #include <cstdio>
-#include <sstream>
 
 using namespace ndlcom;
 
@@ -17,7 +16,6 @@ ExternalInterfaceBase::ExternalInterfaceBase(struct NDLComBridge &bridge,
     ndlcomExternalInterfaceInit(&external, ExternalInterfaceBase::writeWrapper,
                                 ExternalInterfaceBase::readWrapper, flags,
                                 this);
-    // careful, the BaseClass does not register the interface!
 }
 
 void ExternalInterfaceBase::registerHandler() {
@@ -78,7 +76,6 @@ void ExternalInterfaceBase::setRoutingForDeviceId(const NDLComId deviceId) {
 void ExternalInterfaceBase::reportRuntimeError(const std::string &error,
                                                const std::string &file,
                                                const int &line) const {
-    std::stringstream ss;
-    ss << file << ":" << line << " -- " << error;
-    throw std::runtime_error(ss.str());
+    throw std::runtime_error(file + ":" + std::to_string(line) + " -- " +
+                             error);
 }

@@ -15,6 +15,7 @@ class NodeHandlerPrintOwnId final : public NodeHandler {
   public:
     NodeHandlerPrintOwnId(struct NDLComNode &node,
                           std::ostream &_out = std::cerr);
+    void send(const struct NDLComHeader *header, const void *payload) = delete;
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin) override;
 };
