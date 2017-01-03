@@ -2,18 +2,19 @@
 #define NDLCOM_INTERNAL_HANDLER_HPP
 
 #include "ndlcom/HandlerCommon.hpp"
-#include "ndlcom/NodeHandler.h"
-#include "ndlcom/BridgeHandler.h"
-#include "Node.h"
-#include "Bridge.h"
+#include "ndlcom/Node.h"
+#include "ndlcom/Bridge.h"
 
 #include <iostream>
 
 namespace ndlcom {
 
 /**
- * these are needed when directly implementing a c-wrapper on top of the
- * interface
+ * These are needed when directly implementing a c-wrapper on top of the
+ * interface.
+ *
+ * These two are instantiation of the "InternalHandler" template for the Node
+ * and Bridge case.
  */
 typedef class HandlerCommon<struct NDLComNode, struct NDLComNodeHandler>
     NodeHandlerBase;
@@ -32,6 +33,9 @@ typedef class HandlerCommon<struct NDLComBridge, struct NDLComBridgeHandler>
  * When implementing the derived class, be sure to use the static function
  * "handleWrapper()" when registering at the caller and the "this" pointer as
  * context.
+ *
+ * InternalHandler have to cope with decoded messages, contrary to
+ * ExternalInterfaces which only see chunks of bytes.
  */
 template <class Caller, class Handler>
 class InternalHandler : public HandlerCommon<Caller, Handler> {
@@ -40,11 +44,20 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
     InternalHandler(Args &&... args)
         : HandlerCommon<Caller, Handler>(std::forward<Args>(args)...){}
 
-    // this "handle" could be called before the last ctor did finish!
+    /**
+     * This function will be called by the "Caller" to handle a package
+     *
+     * Node: To prevent early call of this handler never call the
+     * "registerHandler" of the base-class before the last ctor did finish.
+     */
     virtual void handle(const struct NDLComHeader *header, const void *payload,
                         const void *origin) = 0;
 
   protected:
+    /**
+     * Internal wrapper function. This handler will be called by the c-language
+     * core and dispatches to the actual c++ function belonging to this object.
+     */
     static void handleWrapper(void *context, const struct NDLComHeader *header,
                               const void *payload, const void *origin) {
         class InternalHandler *self =
@@ -54,12 +67,12 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
 };
 
 /**
- * to be called from within the bridge
+ * To be called from within the bridge
  *
- * provides c++ interface and uses the c-infrastructure in the background to
+ * Provides c++ interface and uses the c-infrastructure in the background to
  * trigger calling of the virtual "handle()" function of the base-class
  *
- * specializes for the BridgeHandler
+ * Specializes for the BridgeHandler
  *
  * provides registration of the internal bridge-handler at the bridge and a
  * sendRaw-function for convenience
@@ -74,18 +87,18 @@ class BridgeHandler
         ndlcomBridgeHandlerInit(&internal, handleWrapper,
                                 NDLCOM_BRIDGE_HANDLER_FLAGS_DEFAULT, this);
     }
-    void send(const struct NDLComHeader *header, const void *payload) {
-        ndlcomBridgeSendRaw(&caller, header, payload);
-    }
-    void registerHandler() override final {
-        ndlcomBridgeRegisterBridgeHandler(&caller, &internal);
-    }
-    void deregisterHandler() override final {
-        ndlcomBridgeDeregisterBridgeHandler(&caller, &internal);
-    }
+    void sendRaw(const struct NDLComHeader *header, const void *payload);
+    /**
+     * To be called after ctor
+     */
+    void registerHandler() override final;
+    /**
+     * To be called before dtor
+     */
+    void deregisterHandler() override final;
 
   private:
-    /* kept private! */
+    /** Intentionally kept private! */
     struct NDLComBridgeHandler internal;
 };
 
@@ -102,21 +115,22 @@ class NodeHandler
                               NDLCOM_NODE_HANDLER_FLAGS_DEFAULT, this);
     }
     void send(const NDLComId receiverId, const void *payload,
-              const size_t length) {
-        ndlcomNodeSend(&caller, receiverId, payload, length);
-    }
-    void registerHandler() override final {
-        ndlcomNodeRegisterNodeHandler(&caller, &internal);
-    }
-    void deregisterHandler() override final {
-        ndlcomNodeDeregisterNodeHandler(&caller, &internal);
-    }
-    /* does only work after finished initialization */
-    NDLComId getOwnDeviceId() const {
-        return handler.node->headerConfig.mOwnSenderId;
-    }
+              const size_t length);
+    /**
+     * To be called after ctor
+     */
+    void registerHandler() override final;
+    /**
+     * To be called before dtor
+     */
+    void deregisterHandler() override final;
+    /**
+     * Only works after ctor is finished
+     */
+    const NDLComId getOwnDeviceId() const;
 
   private:
+    /** Intentionally kept private! */
     struct NDLComNodeHandler internal;
 };
 }
