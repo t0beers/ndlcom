@@ -1,5 +1,5 @@
-#ifndef NDLCOM_HANDLER_BASE_HPP
-#define NDLCOM_HANDLER_BASE_HPP
+#ifndef NDLCOM_HANDLER_COMMON_HPP
+#define NDLCOM_HANDLER_COMMON_HPP
 
 #include <iostream>
 
@@ -8,30 +8,33 @@ namespace ndlcom {
 /**
  * @brief The interface-class for using callback structs in c++
  *
- * Is used as basis for "ExternalInterface", "NodeHandler" and "BridgeHandler".
+ * Used as basis for "ExternalInterface", "NodeHandler" and "BridgeHandler".
  *
  * Provides some convenience things like a label and the means to
- * register/deregister at the Caller. Maybe it does strictly speaking not need
- * to keep a reference to "Caller", kept nevertheless.
+ * register/deregister the Handler at the Caller. By having this
+ * base-implementation much of the setup/teardown is done automatically in
+ * base-classes.
  *
  * NOTE: Is does work to wrap an existing c-object into c++ using this
- * base-class!
+ * base-class! See ...
  */
-template <class Caller, class Handler> class HandlerBase {
+template <class Caller, class Handler> class HandlerCommon {
   public:
-    HandlerBase(Caller &_caller, Handler &_handler, std::string _label,
+    HandlerCommon(Caller &_caller, Handler &_handler, std::string _label,
                 std::ostream &_out = std::cerr)
         : label(_label), out(_out), handler(_handler), caller(_caller) {}
-    virtual ~HandlerBase(){}
-    std::string label;
-
+    virtual ~HandlerCommon() {}
+    /**
+     * Set this string in ctor of deriving classes, shall not be changed during
+     * runtime. Is used to display a nice name.
+     */
+    const std::string label;
     /**
      * Used to attach the used "Handler" to the "Caller". To prevent
      * uninitialized objects this function shall be called after the ctor of
      * the c++ object finished.
      */
     virtual void registerHandler() = 0;
-
     /**
      * Used to remove the "Handler" from the "Caller". This function can be
      * called on the dtor of the c++ object (?)
@@ -54,4 +57,4 @@ template <class Caller, class Handler> class HandlerBase {
 };
 }
 
-#endif /*NDLCOM_HANDLER_BASE_HPP*/
+#endif /*NDLCOM_HANDLER_COMMON_HPP*/

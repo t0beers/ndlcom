@@ -1,7 +1,7 @@
 #ifndef NDLCOM_INTERNAL_HANDLER_HPP
 #define NDLCOM_INTERNAL_HANDLER_HPP
 
-#include "ndlcom/HandlerBase.hpp"
+#include "ndlcom/HandlerCommon.hpp"
 #include "ndlcom/NodeHandler.h"
 #include "ndlcom/BridgeHandler.h"
 #include "Node.h"
@@ -15,9 +15,9 @@ namespace ndlcom {
  * these are needed when directly implementing a c-wrapper on top of the
  * interface
  */
-typedef class HandlerBase<struct NDLComNode, struct NDLComNodeHandler>
+typedef class HandlerCommon<struct NDLComNode, struct NDLComNodeHandler>
     NodeHandlerBase;
-typedef class HandlerBase<struct NDLComBridge, struct NDLComBridgeHandler>
+typedef class HandlerCommon<struct NDLComBridge, struct NDLComBridgeHandler>
     BridgeHandlerBase;
 
 /**
@@ -34,11 +34,11 @@ typedef class HandlerBase<struct NDLComBridge, struct NDLComBridgeHandler>
  * context.
  */
 template <class Caller, class Handler>
-class InternalHandler : public HandlerBase<Caller, Handler> {
+class InternalHandler : public HandlerCommon<Caller, Handler> {
   public:
     template <typename... Args>
     InternalHandler(Args &&... args)
-        : HandlerBase<Caller, Handler>(std::forward<Args>(args)...){}
+        : HandlerCommon<Caller, Handler>(std::forward<Args>(args)...){}
 
     // this "handle" could be called before the last ctor did finish!
     virtual void handle(const struct NDLComHeader *header, const void *payload,

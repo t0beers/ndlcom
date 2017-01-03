@@ -1,7 +1,7 @@
 #ifndef EXTERNALINTERFACEBASE_H
 #define EXTERNALINTERFACEBASE_H
 
-#include "ndlcom/HandlerBase.hpp"
+#include "ndlcom/HandlerCommon.hpp"
 #include "ndlcom/ExternalInterface.h"
 
 namespace ndlcom {
@@ -9,7 +9,7 @@ namespace ndlcom {
 /**
  * Will use this typedef with a silly name
  */
-typedef class HandlerBase<struct NDLComBridge, struct NDLComExternalInterface>
+typedef class HandlerCommon<struct NDLComBridge, struct NDLComExternalInterface>
     ExternalInterfaceVeryBase;
 
 /**
