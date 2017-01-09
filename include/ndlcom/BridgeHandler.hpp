@@ -66,7 +66,7 @@ class BridgeHandlerStatistics : public BridgeHandler {
     /** to make matters simple, this class is not allowed to transmit */
     void send(const struct NDLComHeader *header, const void *payload) = delete;
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin);
+                const void *origin) override;
 
     unsigned long currentBytesTx() const;
     unsigned long currentBytesRx() const;
@@ -76,6 +76,6 @@ class BridgeHandlerStatistics : public BridgeHandler {
     unsigned long bytesTransmitted;
     unsigned long bytesReceived;
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_BRIDGE_HANDLER_HPP*/

@@ -91,11 +91,11 @@ class BridgeHandler
     /**
      * To be called after ctor
      */
-    void registerHandler() override final;
+    void registerHandler() final;
     /**
      * To be called before dtor
      */
-    void deregisterHandler() override final;
+    void deregisterHandler() final;
 
   private:
     /** Intentionally kept private! */
@@ -119,11 +119,11 @@ class NodeHandler
     /**
      * To be called after ctor
      */
-    void registerHandler() override final;
+    void registerHandler() final;
     /**
      * To be called before dtor
      */
-    void deregisterHandler() override final;
+    void deregisterHandler() final;
     /**
      * Only works after ctor is finished
      */
@@ -133,6 +133,6 @@ class NodeHandler
     /** Intentionally kept private! */
     struct NDLComNodeHandler internal;
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_INTERNAL_HANDLER_HPP*/

@@ -34,7 +34,6 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
         struct NDLComBridge &bridge, std::string label,
         std::ostream &out = std::cerr,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    virtual ~ExternalInterfaceBase() {}
 
     virtual void writeEscapedBytes(const void *buf, size_t count) = 0;
     virtual size_t readEscapedBytes(void *buf, size_t count) = 0;
@@ -67,8 +66,8 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
      */
     void setRoutingForDeviceId(const NDLComId deviceId);
 
-    void registerHandler() override final;
-    void deregisterHandler() override final;
+    void registerHandler() final;
+    void deregisterHandler() final;
 
   protected:
     /**
@@ -126,6 +125,6 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     struct NDLComExternalInterface external;
 
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_EXTERNALINTERFACEBASE_H*/

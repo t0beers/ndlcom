@@ -1,5 +1,4 @@
 #include "ndlcom/Bridge.hpp"
-#include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
 #include "ndlcom/BridgeHandler.hpp"
 #include "ndlcom/NodeHandler.hpp"
@@ -9,6 +8,55 @@
 #include <iomanip>
 
 using namespace ndlcom;
+
+std::vector<std::string> ndlcom::splitStringIntoStrings(std::string s,
+                                                const char delim) {
+    std::vector<std::string> elems;
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+std::vector<NDLComId> ndlcom::convertStringToIds(std::vector<std::string> numbers,
+                                         std::ostream &out) {
+    std::vector<NDLComId> retval;
+    for (auto it : numbers) {
+        int number = std::stoi(it);
+        if (number == NDLCOM_ADDR_BROADCAST) {
+            out << "ParseUri: will ignore broadcast\n";
+            continue;
+        }
+        if (number < std::numeric_limits<NDLComId>::min()) {
+            out << "ParseUri: too small a deviceId '" << it << "'\n";
+        }
+        if (number > std::numeric_limits<NDLComId>::max()) {
+            out << "ParseUri: too large a deviceId '" << it << "'\n";
+        }
+        retval.push_back(number);
+    }
+    return retval;
+}
+
+void
+ndlcom::setRoutingByString(std::weak_ptr<class ndlcom::ExternalInterfaceBase> p,
+                           std::string conn, std::ostream &out) {
+
+    std::vector<NDLComId> ids =
+        convertStringToIds(splitStringIntoStrings(conn, ','), out);
+    std::shared_ptr<class ndlcom::ExternalInterfaceBase> interface = p.lock();
+
+    for (auto it : ids) {
+        out << "ParseUri: set routingTable to use '" << interface->label
+            << "' for deviceId 0x" << std::setfill('0') << std::hex
+            << std::setw(2) << (int)(it) << std::dec << "\n";
+        interface->setRoutingForDeviceId(it);
+    }
+}
+
 
 Bridge::Bridge(std::ostream &_out) : out(_out) { ndlcomBridgeInit(&bridge); }
 
@@ -56,30 +104,12 @@ std::weak_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintMiss() {
 std::weak_ptr<class ndlcom::ExternalInterfaceBase>
 Bridge::createInterface(std::string uri, uint8_t flags) {
     std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret(
-        ndlcom::ParseUriAndCreateExternalInterface(std::cerr, bridge, uri,
-                                                   flags));
-    // the interface is already "registered" at the Bridge, done by the parsing
-    // function
-    externalInterfaces.push_back(ret);
+        createInterfaceByUri<ExternalInterfaceSerial, ExternalInterfaceUdp,
+                             ExternalInterfaceFpga, ExternalInterfacePipe,
+                             ExternalInterfacePty, ExternalInterfaceTcpClient>(
+            uri, flags));
     return ret;
 }
-
-#if 0
-// enforce one-node-per-id?
-std::shared_ptr<class ndlcom::Node>
-Bridge::createNode(const NDLComId nodeDeviceId) {
-    for (auto it : nodes) {
-        if (it->getOwnDeviceId() == nodeDeviceId) {
-            return it;
-        }
-    }
-    auto ret = std::make_shared<class ndlcom::Node>(this->bridge, nodeDeviceId);
-    ret->registerHandler();
-    nodes.push_back(ret);
-
-    return ret;
-}
-#endif
 
 void Bridge::printStatus(std::ostream &out) {
     out << "Bridge status:\n";

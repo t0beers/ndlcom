@@ -64,7 +64,6 @@ list(APPEND SOURCES_lib
     src/BridgeHandler.cpp
     src/ExternalInterface.cpp
     src/ExternalInterfaceBase.cpp
-    src/ExternalInterfaceParseUri.cpp
     src/Node.cpp
     src/NodeHandler.cpp
     src/InternalHandler.cpp
@@ -75,7 +74,6 @@ list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/BridgeHandler.hpp
     include/${PROJECT_NAME}/ExternalInterface.hpp
     include/${PROJECT_NAME}/ExternalInterfaceBase.hpp
-    include/${PROJECT_NAME}/ExternalInterfaceParseUri.hpp
     include/${PROJECT_NAME}/Node.hpp
     include/${PROJECT_NAME}/NodeHandler.hpp
     include/${PROJECT_NAME}/InternalHandler.hpp

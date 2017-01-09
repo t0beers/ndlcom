@@ -6,6 +6,7 @@
 // input/output
 #include <iostream>
 #include <iomanip>
+#include <limits>
 
 using namespace ndlcom;
 
@@ -41,9 +42,11 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
 
     /* allow configuring smaller value for MAX_NUMBER_OF_DEVICES. is
      * always false by default and should be optimized by the compiler */
-    if (header->mSenderId >= NDLCOM_MAX_NUMBER_OF_DEVICES ||
-        header->mReceiverId >= NDLCOM_MAX_NUMBER_OF_DEVICES)
-        return;
+    if (NDLCOM_MAX_NUMBER_OF_DEVICES < std::numeric_limits<NDLComId>::max()) {
+        if (header->mSenderId >= NDLCOM_MAX_NUMBER_OF_DEVICES ||
+            header->mReceiverId >= NDLCOM_MAX_NUMBER_OF_DEVICES)
+            return;
+    }
 
     if (!alreadySeen.test(header->mSenderId << sizeof(NDLComId) * 8 |
                           header->mReceiverId)) {

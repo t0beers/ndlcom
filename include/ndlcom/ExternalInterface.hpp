@@ -12,6 +12,8 @@
 // detecting closed interfaces
 #include <poll.h>
 
+#include <regex>
+
 namespace ndlcom {
 
 /**
@@ -26,7 +28,8 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
     ExternalInterfaceStream(
         struct NDLComBridge &_bridge, std::string label,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfaceStream();
+    ~ExternalInterfaceStream() override;
+
 
   protected:
     FILE *fd_read;
@@ -48,9 +51,20 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
 class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
     ExternalInterfaceSerial(
-        struct NDLComBridge &_bridge, std::string device_name, speed_t baudrate,
+        struct NDLComBridge &_bridge, std::string device_name,
+        speed_t baudrate = defaultBaudrate,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfaceSerial();
+    ~ExternalInterfaceSerial() override;
+
+    // regex for "uri" string, optional routing table at the end
+    static const std::regex uri;
+    static const speed_t defaultBaudrate;
+    // ctor using provided match-argument of the given uri. we pass the
+    // match-object so that we do not have a ctor acception just a string --
+    // which may be the uri or only the "ptyname"
+    ExternalInterfaceSerial(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
     /**
@@ -74,7 +88,12 @@ class ExternalInterfaceFpga : public ExternalInterfaceStream {
     ExternalInterfaceFpga(
         struct NDLComBridge &_bridge, std::string device_name = "/dev/NDLCom",
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfaceFpga();
+    ~ExternalInterfaceFpga() override;
+
+    static const std::regex uri;
+    ExternalInterfaceFpga(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
     int fd;
@@ -91,12 +110,19 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceUdp(
         struct NDLComBridge &_bridge, std::string hostname,
-        unsigned int in_port, unsigned int out_port,
+        unsigned int in_port = defaultInPort, unsigned int out_port = defaultOutPort,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfaceUdp();
+    ~ExternalInterfaceUdp() override;
 
     size_t readEscapedBytes(void *buf, size_t count) override;
     void writeEscapedBytes(const void *buf, size_t count) override;
+
+    static const std::regex uri;
+    static const unsigned int defaultInPort;
+    static const unsigned int defaultOutPort;
+    ExternalInterfaceUdp(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
     struct sockaddr_in addr_in;
@@ -121,10 +147,16 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
     ExternalInterfaceTcpClient(
         struct NDLComBridge &_bridge, std::string hostname, unsigned int port,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfaceTcpClient();
+    ~ExternalInterfaceTcpClient() override;
 
     size_t readEscapedBytes(void *buf, size_t count) override;
     void writeEscapedBytes(const void *buf, size_t count) override;
+
+    static const std::regex uri;
+    static const unsigned int defaultPort;
+    ExternalInterfaceTcpClient(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
     struct sockaddr_in addr;
@@ -151,10 +183,15 @@ class ExternalInterfacePipe : public ndlcom::ExternalInterfaceBase {
     ExternalInterfacePipe(
         struct NDLComBridge &_bridge, std::string pipename,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfacePipe();
+    ~ExternalInterfacePipe() override;
 
     size_t readEscapedBytes(void *buf, size_t count) override;
     void writeEscapedBytes(const void *buf, size_t count) override;
+
+    static const std::regex uri;
+    ExternalInterfacePipe(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
     FILE *str_in;
@@ -176,10 +213,15 @@ class ExternalInterfacePty : public ExternalInterfaceStream {
     ExternalInterfacePty(
         struct NDLComBridge &bridge, std::string symlinkname,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
-    ~ExternalInterfacePty();
+    ~ExternalInterfacePty() override;
 
     size_t readEscapedBytes(void *buf, size_t count) override;
     // we can reuse the write function of the base-class
+
+    static const std::regex uri;
+    ExternalInterfacePty(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
     // the master-side of the pty
@@ -192,6 +234,6 @@ class ExternalInterfacePty : public ExternalInterfaceStream {
     // try to delete the symlink we created before
     void cleanSymlink() const;
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_EXTERNALINTERFACE_HPP*/

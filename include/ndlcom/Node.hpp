@@ -27,7 +27,7 @@ class Node : public BridgeHandlerBase {
     /**
      * Destroys all NodeHandlerBase owned by this Node
      */
-    virtual ~Node();
+    ~Node() override;
 
     /**
      * @brief Create new NodeHandlerBase objects and use in this Node
@@ -131,6 +131,6 @@ class Node : public BridgeHandlerBase {
      */
     std::vector<std::shared_ptr<ndlcom::NodeHandlerBase> > allHandler;
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_NODE_HPP*/

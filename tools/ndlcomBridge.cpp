@@ -18,7 +18,6 @@
 #include <chrono>
 #include <thread> /* sleep_until */
 
-#include "ndlcom/ExternalInterfaceParseUri.hpp"
 #include "ndlcom/ExternalInterface.hpp"
 
 #include "ndlcom/Bridge.hpp"

@@ -153,6 +153,17 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &bridge,
     }
 }
 
+const speed_t ndlcom::ExternalInterfaceSerial::defaultBaudrate = 921600;
+const std::regex ndlcom::ExternalInterfaceSerial::uri(
+    "^serial://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
+ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &_bridge,
+                                                 std::smatch match,
+                                                 uint8_t flags)
+    : ExternalInterfaceSerial(_bridge, match[1],
+                              match[2].length() ? std::stoi(match[2].str())
+                                                : defaultBaudrate,
+                              flags) {}
+
 ExternalInterfaceSerial::~ExternalInterfaceSerial() {
     // release exclusive access
     ioctl(fd, TIOCNXCL);
@@ -183,6 +194,11 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
+
+const std::regex ndlcom::ExternalInterfaceFpga::uri("^fpga://([^:&]*)(?:&:(.*))?$");
+ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &_bridge,
+                                             std::smatch match, uint8_t flags)
+    : ExternalInterfaceFpga(_bridge, match[1], flags) {}
 
 ExternalInterfaceFpga::~ExternalInterfaceFpga() { close(fd); }
 
@@ -270,6 +286,18 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
     // clean the shit up
     freeaddrinfo(result);
 }
+
+const unsigned int ndlcom::ExternalInterfaceUdp::defaultInPort = 34000;
+const unsigned int ndlcom::ExternalInterfaceUdp::defaultOutPort = 34001;
+const std::regex ndlcom::ExternalInterfaceUdp::uri(
+    "^udp://([^:&]*)(?::(\\d+))?(?::(\\d+))?(?:&(.*))?$");
+ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &_bridge,
+                                           std::smatch match, uint8_t flags)
+    : ExternalInterfaceUdp(
+          _bridge, match[1],
+          match[2].length() ? std::stoi(match[2].str()) : defaultInPort,
+          match[3].length() ? std::stoi(match[3].str()) : defaultOutPort,
+          flags) {}
 
 ExternalInterfaceUdp::~ExternalInterfaceUdp() { close(fd); }
 
@@ -388,6 +416,15 @@ ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
     freeaddrinfo(result);
 }
 
+const unsigned int ndlcom::ExternalInterfaceTcpClient::defaultPort = 2000;
+const std::regex ndlcom::ExternalInterfaceTcpClient::uri(
+    "^tcpclient://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
+ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
+    struct NDLComBridge &_bridge, std::smatch match, uint8_t flags)
+    : ExternalInterfaceTcpClient(
+          _bridge, match[1],
+          match[2].length() ? std::stoi(match[2].str()) : defaultPort, flags) {}
+
 ExternalInterfaceTcpClient::~ExternalInterfaceTcpClient() { close(fd); }
 
 size_t ExternalInterfaceTcpClient::readEscapedBytes(void *buf, size_t count) {
@@ -491,6 +528,12 @@ ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 }
+
+const std::regex
+    ndlcom::ExternalInterfacePipe::uri("^pipe://([^:&]*)(?:&(.*))?$");
+ExternalInterfacePipe::ExternalInterfacePipe(struct NDLComBridge &_bridge,
+                                             std::smatch match, uint8_t flags)
+    : ExternalInterfacePipe(_bridge, match[1], flags) {}
 
 ExternalInterfacePipe::~ExternalInterfacePipe() {
     // calling "fclose" will close the underlying fd as well
@@ -613,6 +656,12 @@ ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &bridge,
     out << "ExternalInterfacePty: the slave side is named '" << ptsname(pty_fd)
         << "', the symlink is '" << symlinkname << "'\n";
 }
+
+const std::regex
+    ndlcom::ExternalInterfacePty::uri("^pty://([^:&]*)(?:&(.*))?$");
+ExternalInterfacePty::ExternalInterfacePty(struct NDLComBridge &_bridge,
+                                           std::smatch match, uint8_t flags)
+    : ExternalInterfacePty(_bridge, match[1], flags) {}
 
 ExternalInterfacePty::~ExternalInterfacePty() {
     // delete the previously created symlink

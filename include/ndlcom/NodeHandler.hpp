@@ -25,7 +25,7 @@ class NodeHandlerStatistics : public NodeHandler {
     NodeHandlerStatistics(struct NDLComNode &_caller);
     void send(const struct NDLComHeader *header, const void *payload) = delete;
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin);
+                const void *origin) override;
 
     unsigned long currentBytesTx() const;
     unsigned long currentBytesRx() const;
@@ -35,6 +35,6 @@ class NodeHandlerStatistics : public NodeHandler {
     unsigned long bytesTransmitted;
     unsigned long bytesReceived;
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_NODE_HANDLER_HPP*/

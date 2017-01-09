@@ -10,9 +10,25 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <regex>
 #include <memory>
+#include <iostream>
+#include <iomanip>
 
 namespace ndlcom {
+
+// tooling:
+//
+// split one "delim" separated string into several substrings
+std::vector<std::string> splitStringIntoStrings(std::string s,
+                                                const char delim);
+// extract actual numbers (NDLComId) from a vector if strings
+std::vector<NDLComId> convertStringToIds(std::vector<std::string> numbers,
+                                         std::ostream &out);
+// use uri-string like "3,6,14,66" to initialize routingtable of already
+// registered interface.
+void setRoutingByString(std::weak_ptr<class ndlcom::ExternalInterfaceBase> p,
+                        std::string conn, std::ostream &out);
 
 class Bridge {
   public:
@@ -37,11 +53,127 @@ class Bridge {
     void sendMessageRaw(const struct NDLComHeader *header, const void *payload);
 
     /**
-     * using the "parseUri" string-based functions
+     * @brief Parse string containing "uri", create "ndlcom::ExternalInterfaceBase"
+     *
+     * This function is a factory function which reads a string and tries to
+     * parse it into information about which kind of specialization for the
+     * low-level "ExternalInterface" to create. Suitable for commandline
+     * parsing. Knows about the following types:
+     *
+     * "udp://localhost:$SRCPORT:$DSTPORT (default: 34000 and 34001)
+     * "fpga:///dev/NDLCom"
+     * "serial:///dev/ttyUSB0:$BAUDRATE" (default: 921600)
+     * "pipe:///tmp/testpipe"
+     * "pty:///tmp/testpty"
+     * "tcpclient://localhost:$PORT" (default: 2000)
+     *
+     * Every uri can have a trailing string specifying apriori information
+     * concerning the NDLComRoutingTable for this ExternalInterface in the
+     * format "&1,2,3".
+     *
+     * The actual regexes are implemented in the respective interface. The list
+     * of which interfaces to parse is implemented inside this function. For
+     * information about the specific behaviour of returned interface classes
+     * see their respective header.
+     *
+     * This function obtains ownership of the returned pointers.
+     *
+     * @param uri string stating which kind of interface to create and return
+     * @param flags settings for the low-level "struct ndlcomExternalInterface"
+     *
+     * @return nullptr on failure, weak_ptr of an ExternalInterfaceBase otherwise
      */
     std::weak_ptr<class ndlcom::ExternalInterfaceBase>
     createInterface(std::string uri,
                     uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+
+    /**
+     * Recursive template-based parsing of uri into provided list of types
+     *
+     * Decide wether to call the tail-end (below) or recurse again into this
+     *function
+     *
+     * Due to being a child-class of the Bridge we can access private data
+     *fields.
+     *
+     * This function is where the "regex_match" operation will be called, once
+     * for each member of the "head+tail" types. Can be that the actual
+     * structure is a bit messed up. Well, it works...
+     */
+    template <typename Head, typename... Tail> struct ExternalInterfaceCreator {
+        /** access the first element of the list of types */
+        using FirstOfTail =
+            typename std::tuple_element<0, std::tuple<Tail...> >::type;
+        /** and the factory function */
+        static std::weak_ptr<class ndlcom::ExternalInterfaceBase>
+        createInterfaceByMatch(class ndlcom::Bridge *bridge, std::string uri,
+                               std::smatch &match) {
+            // try to match the given uri to the regex of the Head, and
+            // create interface if it matched:
+            if (std::regex_match(uri, match, Head::uri)) {
+                return ExternalInterfaceCreator<Head>::createInterfaceByMatch(
+                    bridge, uri, match);
+            }
+            // if this didn't work _and_ we have only one type left in the Tail
+            // additionally try to match this type to the uri:
+            if (sizeof...(Tail) == 1) {
+                if (std::regex_match(uri, match, FirstOfTail::uri)) {
+                    return ExternalInterfaceCreator<
+                        FirstOfTail>::createInterfaceByMatch(bridge, uri,
+                                                             match);
+                } else {
+                    // and if this match did not succeed we are not able to
+                    // parse the uri. this is the error-case...
+                    return std::weak_ptr<ndlcom::ExternalInterfaceBase>();
+                }
+            }
+            // recurse into the rest of the given types, the "Tail" of the
+            // template arguments
+            return ExternalInterfaceCreator<Tail...>::createInterfaceByMatch(
+                bridge, uri, match);
+        }
+    };
+
+    /**
+     * The "tail end" of the recursive template class
+     *
+     * Here, the actual objects are created, registered and possibly their
+     * routing tables initialized. The reference to the match-result from the
+     * previous stage is put into the prepared dtor of the ExternalInterface
+     * classes.
+     */
+    template <typename T> struct ExternalInterfaceCreator<T> {
+        static std::weak_ptr<class ndlcom::ExternalInterfaceBase>
+        createInterfaceByMatch(class ndlcom::Bridge *bridge, std::string uri,
+                               std::smatch &match) {
+            // reuse the bridges factory
+            std::weak_ptr<class ExternalInterfaceBase> retval =
+                bridge->createExternalInterface<T>(match);
+            // routingtable intitialization: we just assume that each uri has
+            // the routing-table stuff at the end, last match...
+            setRoutingByString(retval, match[match.size() - 1].str(),
+                               std::cerr);
+            // Note that the bridge is the exclusive owner of the created
+            // interface, we can only return only a weak pointer!
+            return retval;
+        }
+    };
+
+    /**
+     * tries to match one of the given _types_ onto the uri-string given
+     *
+     * Will use a "Args...::uri" regex, so make sure the given interface
+     * classes provide this. Then tries every to match+create a new
+     * ExternalInterface for every type named in the variadic template.
+     */
+    template <typename... Args>
+    std::weak_ptr<class ndlcom::ExternalInterfaceBase> createInterfaceByUri(
+        std::string uri,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+        std::smatch match;
+        return ExternalInterfaceCreator<Args...>::createInterfaceByMatch(
+            this, uri, match);
+    }
 
     /**
      * a generic "factory" function for ExternalInterfaces
@@ -165,6 +297,6 @@ class Bridge {
 
     std::ostream &out;
 };
-}
+}// namespace ndlcom
 
 #endif /*NDLCOM_BRIDGE_HPP*/
