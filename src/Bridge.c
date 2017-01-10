@@ -151,8 +151,8 @@ ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
             /**
              * Do _not_ try to "write" a message destined for us at the
              * "destination" pointer. Works by having our "deviceId" inside the
-             * routing table. The message was hopefully handled at some earlier
-             * stage.
+             * routing table associated with the "bridge" pointer. The message
+             * was hopefully handled at some earlier stage.
              *
              * This specific if-branch indicates a problem somewhere else.
              */
@@ -202,8 +202,10 @@ static void ndlcomBridgeProcessDecodedMessage(struct NDLComBridge *bridge,
             (origin == bridge)) {
             continue;
         }
-        /* will pass NULL if the origin was "internal", eg "bridge" */
-        // TODO: may change signature of "origin" to be a promised pointer to the actual NDLComExternalInterface
+        /*
+         * pass NULL if the origin was "internal", eg "bridge". otherwise it is
+         * a pointer to an ExternalInterface
+         */
         bridgeHandler->handler(bridgeHandler->context, header, payload,
                                origin == bridge ? NULL : origin);
         /* guard against removal of handlers by other handlers... */

@@ -37,8 +37,7 @@ extern "C" {
  * @param payload The payload of the message. See "header->mDataLen" for the
  *        size.
  * @param origin The ExternalInterface where this message came from. Can be the
- *               "NDLComBridge" pointer if it is originating from the internal
- *               side. This might change.
+ *               null if the message is originating from the internal side
  */
 typedef void (*NDLComBridgeHandlerFkt)(void *context,
                                        const struct NDLComHeader *header,
