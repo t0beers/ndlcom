@@ -111,7 +111,7 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
     return ret;
 }
 
-void Bridge::printStatus(std::ostream &out) {
+void Bridge::printStatus() {
     out << "Bridge status:\n";
     for (auto it : nodes) {
         it->printStatus();
@@ -130,7 +130,7 @@ void Bridge::printStatus(std::ostream &out) {
     }
 }
 
-void Bridge::printRoutingTable(std::ostream &out) {
+void Bridge::printRoutingTable() {
     struct NDLComExternalInterface *externalInterface;
     if (list_empty(&bridge.externalInterfaceList)) {
         out << "printRoutingTable: No external interfaces registered. "

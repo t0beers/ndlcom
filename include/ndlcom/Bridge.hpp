@@ -36,8 +36,8 @@ class Bridge {
     ~Bridge();
 
     /** printer functions. move outside of this class? */
-    void printRoutingTable(std::ostream &out = std::cerr);
-    void printStatus(std::ostream &out = std::cerr);
+    void printRoutingTable();
+    void printStatus();
 
     /**
      * @brief Main entry to data processing
