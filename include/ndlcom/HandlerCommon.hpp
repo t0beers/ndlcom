@@ -2,6 +2,7 @@
 #define NDLCOM_HANDLER_COMMON_HPP
 
 #include <iostream>
+#include <string>
 
 namespace ndlcom {
 

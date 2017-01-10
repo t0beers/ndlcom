@@ -1,9 +1,11 @@
 #ifndef NDLCOM_BRIDGE_HANDLER_HPP
 #define NDLCOM_BRIDGE_HANDLER_HPP
 
-#include "ndlcom/InternalHandler.hpp"
-
 #include <bitset>
+#include <iostream>
+
+#include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Types.h"
 
 namespace ndlcom {
 

@@ -7,6 +7,7 @@
  * This example will only use c-language stuff
  */
 #include "ndlcom/Node.h"
+#include "ndlcom/NodeHandler.h"
 #include "ndlcom/Bridge.h"
 #include "ndlcom/ExternalInterface.h"
 

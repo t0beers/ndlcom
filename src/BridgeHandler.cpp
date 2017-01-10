@@ -1,12 +1,10 @@
-#include "ndlcom/BridgeHandler.hpp"
-
-#include "ndlcom/Bridge.h"
-#include "ndlcom/Node.h"
-
+#include <iomanip>
 // input/output
 #include <iostream>
-#include <iomanip>
 #include <limits>
+#include <string>
+
+#include "ndlcom/BridgeHandler.hpp"
 
 using namespace ndlcom;
 

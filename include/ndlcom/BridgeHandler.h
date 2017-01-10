@@ -1,8 +1,11 @@
 #ifndef NDLCOM_BRIDGE_HANDLER_H
 #define NDLCOM_BRIDGE_HANDLER_H
 
-#include "ndlcom/Types.h"
+#include <stdint.h>
+
 #include "ndlcom/list.h"
+
+struct NDLComHeader;
 
 #if defined(__cplusplus)
 extern "C" {

@@ -1,11 +1,15 @@
 #ifndef NDLCOM_BRIDGE_H
 #define NDLCOM_BRIDGE_H
 
-#include "ndlcom/HeaderPrepare.h"
+#include <stddef.h>
+#include <stdint.h>
+
 #include "ndlcom/Routing.h"
-#include "ndlcom/ExternalInterface.h"
-#include "ndlcom/BridgeHandler.h"
+#include "ndlcom/Types.h"
 #include "ndlcom/list.h"
+
+struct NDLComBridgeHandler;
+struct NDLComExternalInterface;
 
 #if defined(__cplusplus)
 extern "C" {

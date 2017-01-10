@@ -1,6 +1,8 @@
 #ifndef NDLCOM_NODE_HANDLER_HPP
 #define NDLCOM_NODE_HANDLER_HPP
 
+#include <iostream>
+
 #include "ndlcom/InternalHandler.hpp"
 
 namespace ndlcom {

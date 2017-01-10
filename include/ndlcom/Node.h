@@ -1,9 +1,15 @@
 #ifndef NDLCOM_NODE_H
 #define NDLCOM_NODE_H
 
+#include <stddef.h>
+
 #include "ndlcom/Bridge.h"
-#include "ndlcom/NodeHandler.h"
+#include "ndlcom/BridgeHandler.h"
+#include "ndlcom/HeaderPrepare.h"
+#include "ndlcom/Types.h"
 #include "ndlcom/list.h"
+
+struct NDLComNodeHandler;
 
 #if defined(__cplusplus)
 extern "C" {

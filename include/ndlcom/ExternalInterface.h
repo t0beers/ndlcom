@@ -1,7 +1,11 @@
 #ifndef NDLCOM_EXTERNAL_INTERFACE_H
 #define NDLCOM_EXTERNAL_INTERFACE_H
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "ndlcom/Parser.h"
+#include "ndlcom/Types.h"
 #include "ndlcom/list.h"
 
 #if defined(__cplusplus)

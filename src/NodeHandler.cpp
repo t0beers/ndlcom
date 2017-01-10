@@ -1,9 +1,10 @@
-#include "ndlcom/NodeHandler.hpp"
-#include "ndlcom/Node.h"
-
+#include <iomanip>
 // input/output
 #include <iostream>
-#include <iomanip>
+#include <string>
+
+#include "ndlcom/NodeHandler.hpp"
+#include "ndlcom/Types.h"
 
 using namespace ndlcom;
 

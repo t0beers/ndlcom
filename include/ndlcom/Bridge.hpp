@@ -1,21 +1,25 @@
 #ifndef NDLCOM_BRIDGE_HPP
 #define NDLCOM_BRIDGE_HPP
 
-#include "ndlcom/Node.hpp"
-
-#include "ndlcom/ExternalInterfaceBase.hpp"
-#include "ndlcom/InternalHandler.hpp"
-
-#include <sstream>
+#include <stdint.h>
 #include <algorithm>
-#include <vector>
-#include <map>
-#include <regex>
-#include <memory>
 #include <iostream>
-#include <iomanip>
+#include <memory>
+#include <regex>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <vector>
+
+#include "ndlcom/Bridge.h"
+#include "ndlcom/ExternalInterface.h"
+#include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Types.h"
 
 namespace ndlcom {
+
+class ExternalInterfaceBase;
+class Node;
 
 // tooling:
 //

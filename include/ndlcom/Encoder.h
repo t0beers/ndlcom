@@ -6,10 +6,9 @@
 #ifndef NDLCOM_ENCODER_H
 #define NDLCOM_ENCODER_H
 
-#include "ndlcom/Types.h"
-
 #include <stddef.h>
-#include <stdarg.h>
+
+struct NDLComHeader;
 
 #if defined(__cplusplus)
 extern "C" {

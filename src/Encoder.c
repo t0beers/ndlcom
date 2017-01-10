@@ -5,6 +5,14 @@
 
 #include "ndlcom/Encoder.h"
 
+#include <stdarg.h>
+#include <stdint.h>
+
+#include "ndlcom/Crc.h"
+#include "ndlcom/Types.h"
+#include "stdarg.h"
+#include "stddef.h"
+
 /* used for one single micro-optimization...
  * see http://stackoverflow.com/questions/109710
  */

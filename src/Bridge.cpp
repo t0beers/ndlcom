@@ -1,11 +1,19 @@
-#include "ndlcom/Bridge.hpp"
-#include "ndlcom/ExternalInterface.hpp"
-#include "ndlcom/BridgeHandler.hpp"
-#include "ndlcom/NodeHandler.hpp"
+#include <stddef.h>
+#include <iomanip>
+#include <limits>
 
+#include "ndlcom/Bridge.hpp"
+#include "ndlcom/BridgeHandler.hpp"
+#include "ndlcom/ExternalInterface.hpp"
+#include "ndlcom/ExternalInterfaceBase.hpp"
+#include "ndlcom/Node.hpp"
+#include "ndlcom/NodeHandler.hpp"
+#include "ndlcom/Routing.h"
 #include "ndlcom/list.h"
 
-#include <iomanip>
+namespace ndlcom {
+class NodeHandlerPrintOwnId;
+}  // namespace ndlcom
 
 using namespace ndlcom;
 

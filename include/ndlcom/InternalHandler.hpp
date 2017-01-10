@@ -1,11 +1,14 @@
 #ifndef NDLCOM_INTERNAL_HANDLER_HPP
 #define NDLCOM_INTERNAL_HANDLER_HPP
 
+#include <stddef.h>
+#include <algorithm>
+
+#include "ndlcom/Bridge.h"
 #include "ndlcom/HandlerCommon.hpp"
 #include "ndlcom/Node.h"
-#include "ndlcom/Bridge.h"
-
-#include <iostream>
+#include "ndlcom/NodeHandler.h"
+#include "ndlcom/Types.h"
 
 namespace ndlcom {
 

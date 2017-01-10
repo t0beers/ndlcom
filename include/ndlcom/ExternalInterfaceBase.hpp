@@ -1,8 +1,14 @@
 #ifndef NDLCOM_EXTERNALINTERFACEBASE_H
 #define NDLCOM_EXTERNALINTERFACEBASE_H
 
-#include "ndlcom/HandlerCommon.hpp"
+#include <stddef.h>
+#include <stdint.h>
+#include <iostream>
+#include <string>
+
 #include "ndlcom/ExternalInterface.h"
+#include "ndlcom/HandlerCommon.hpp"
+#include "ndlcom/Types.h"
 
 namespace ndlcom {
 

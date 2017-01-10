@@ -1,18 +1,19 @@
 #ifndef NDLCOM_EXTERNALINTERFACE_HPP
 #define NDLCOM_EXTERNALINTERFACE_HPP
 
-#include "ndlcom/Bridge.h"
-#include "ndlcom/ExternalInterfaceBase.hpp"
-
-#include <string>
-// for "speed_t":
-#include <sys/termios.h>
 // for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
+#include <netinet/in.h>
 // detecting closed interfaces
 #include <poll.h>
-
+#include <stdint.h>
+#include <stdio.h>
+#include <termios.h>
 #include <regex>
+#include <string>
+
+#include "ndlcom/ExternalInterface.h"
+#include "ndlcom/ExternalInterfaceBase.hpp"
 
 namespace ndlcom {
 

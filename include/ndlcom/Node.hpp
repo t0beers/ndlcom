@@ -2,11 +2,14 @@
 #define NDLCOM_NODE_HPP
 
 #include "ndlcom/Node.h"
-#include "ndlcom/InternalHandler.hpp"
 
+#include <stddef.h>
 #include <memory>
+#include <type_traits>
 #include <vector>
-#include <algorithm>
+
+#include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Types.h"
 
 namespace ndlcom {
 

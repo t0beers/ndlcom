@@ -6,9 +6,11 @@
 #ifndef NDLCOM_PARSER_H
 #define NDLCOM_PARSER_H
 
-#include "ndlcom/Types.h"
-
 #include <stddef.h>
+#include <stdint.h>
+
+#include "ndlcom/Crc.h"
+#include "ndlcom/Types.h"
 
 /**
  * @brief C Implementation of the core parser for the NDLCom protocol.

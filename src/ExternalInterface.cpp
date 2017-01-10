@@ -4,25 +4,20 @@
  * - SA_RESTART http://www.gnu.org/software/libc/manual/html_node/Flags-for-Sigaction.html
  * - add message queue https://www.cs.cf.ac.uk/Dave/C/node25.html
  */
-#include "ndlcom/ExternalInterface.hpp"
-
-#include <cstring>
 #include <errno.h>
-#include <cstdio>
-
-// serial:
 #include <fcntl.h>
+#include <limits.h>
+#include <netdb.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
 
-// udp:
-#include <netdb.h>
-
-// pty
-#include <stdlib.h>
-#include <sys/select.h>
-#include <linux/limits.h>
+#include "ndlcom/ExternalInterface.hpp"
 
 using namespace ndlcom;
 

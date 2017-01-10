@@ -1,6 +1,9 @@
 #include "ndlcom/Bridge.h"
+
+#include "ndlcom/BridgeHandler.h"
 #include "ndlcom/Encoder.h"
-#include "ndlcom/HeaderPrepare.h"
+#include "ndlcom/ExternalInterface.h"
+#include "ndlcom/Parser.h"
 #include "ndlcom/Routing.h"
 
 /**

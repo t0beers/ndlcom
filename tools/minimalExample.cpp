@@ -11,8 +11,11 @@
  */
 #include "ndlcom/Bridge.hpp"
 #include "ndlcom/Node.hpp"
+#include "ndlcom/NodeHandler.hpp"
 /* provides the base-class for the ExampleHandler */
 #include "ndlcom/InternalHandler.hpp"
+/* and the base-class for another interface */
+#include "ndlcom/ExternalInterfaceBase.hpp"
 
 /* some standard headers */
 #include <unistd.h>
