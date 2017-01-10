@@ -57,7 +57,7 @@ class Bridge {
     void sendMessageRaw(const struct NDLComHeader *header, const void *payload);
 
     /**
-     * @brief Parse string containing "uri", create "ndlcom::ExternalInterfaceBase"
+     * @brief Parse string containing "uri", create ExternalInterfaceBase 
      *
      * This function is a factory function which reads a string and tries to
      * parse it into information about which kind of specialization for the
@@ -85,7 +85,7 @@ class Bridge {
      * @param uri string stating which kind of interface to create and return
      * @param flags settings for the low-level "struct ndlcomExternalInterface"
      *
-     * @return nullptr on failure, weak_ptr of an ExternalInterfaceBase otherwise
+     * @return nullptr on failure, otherwise weak_ptr of ExternalInterfaceBase
      */
     std::weak_ptr<class ndlcom::ExternalInterfaceBase>
     createInterface(std::string uri,
@@ -107,7 +107,7 @@ class Bridge {
     template <typename Head, typename... Tail> struct ExternalInterfaceCreator {
         /** access the first element of the list of types */
         using FirstOfTail =
-            typename std::tuple_element<0, std::tuple<Tail...> >::type;
+            typename std::tuple_element<0, std::tuple<Tail...>>::type;
         /** and the factory function */
         static std::weak_ptr<class ndlcom::ExternalInterfaceBase>
         createInterfaceByMatch(class ndlcom::Bridge *bridge, std::string uri,
@@ -225,11 +225,9 @@ class Bridge {
      *
      * Copy of the shared_ptr is kept inside this class.
      */
-    template<class T, class... A>
-    std::weak_ptr<T> createNode(A... args){
-        static_assert(
-            std::is_base_of<ndlcom::Node, T>(),
-            "can only create classes derived from ndlcom::Node");
+    template <class T, class... A> std::weak_ptr<T> createNode(A... args) {
+        static_assert(std::is_base_of<ndlcom::Node, T>(),
+                      "can only create classes derived from ndlcom::Node");
         std::shared_ptr<T> ret = std::make_shared<T>(bridge, args...);
         ret->registerHandler();
         nodes.push_back(ret);
@@ -285,13 +283,13 @@ class Bridge {
   private:
     // these datastructures are needed to be able to cleanup the created
     // classes/structs in dtor, but not earlier.
-    std::vector<std::shared_ptr<class ndlcom::ExternalInterfaceBase> >
+    std::vector<std::shared_ptr<class ndlcom::ExternalInterfaceBase>>
         externalInterfaces;
     // "bridgeHandler" and "nodes" have the same base-class. still kept in
     // different vectors to allow nicer lookup of existing nodes prior to
     // creating a new one
-    std::vector<std::shared_ptr<ndlcom::BridgeHandler> > bridgeHandler;
-    std::vector<std::shared_ptr<class ndlcom::Node> > nodes;
+    std::vector<std::shared_ptr<ndlcom::BridgeHandler>> bridgeHandler;
+    std::vector<std::shared_ptr<class ndlcom::Node>> nodes;
 
     /*
      * harhar. by having this struct private we can more or less be sure that
@@ -301,6 +299,6 @@ class Bridge {
 
     std::ostream &out;
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_BRIDGE_HPP*/

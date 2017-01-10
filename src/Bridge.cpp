@@ -13,12 +13,12 @@
 
 namespace ndlcom {
 class NodeHandlerPrintOwnId;
-}  // namespace ndlcom
+} // namespace ndlcom
 
 using namespace ndlcom;
 
 std::vector<std::string> ndlcom::splitStringIntoStrings(std::string s,
-                                                const char delim) {
+                                                        const char delim) {
     std::vector<std::string> elems;
     std::stringstream ss;
     ss.str(s);
@@ -29,8 +29,9 @@ std::vector<std::string> ndlcom::splitStringIntoStrings(std::string s,
     return elems;
 }
 
-std::vector<NDLComId> ndlcom::convertStringToIds(std::vector<std::string> numbers,
-                                         std::ostream &out) {
+std::vector<NDLComId>
+ndlcom::convertStringToIds(std::vector<std::string> numbers,
+                           std::ostream &out) {
     std::vector<NDLComId> retval;
     for (auto it : numbers) {
         int number = std::stoi(it);
@@ -64,7 +65,6 @@ ndlcom::setRoutingByString(std::weak_ptr<class ndlcom::ExternalInterfaceBase> p,
         interface->setRoutingForDeviceId(it);
     }
 }
-
 
 Bridge::Bridge(std::ostream &_out) : out(_out) { ndlcomBridgeInit(&bridge); }
 

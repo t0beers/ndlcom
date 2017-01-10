@@ -16,8 +16,7 @@ void ndlcomHeaderPrepareInit(struct NDLComHeaderConfig *config,
 }
 
 void ndlcomHeaderPrepare(struct NDLComHeaderConfig *config,
-                         struct NDLComHeader *header,
-                         const NDLComId receiverId,
+                         struct NDLComHeader *header, const NDLComId receiverId,
                          const NDLComDataLen dataLength) {
     header->mReceiverId = receiverId;
     header->mSenderId = config->mOwnSenderId;

@@ -7,12 +7,12 @@
 
 #include <stdint.h>
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
 /**
- * @brief Existence of this define enforces 16bit checksum. The default since 2014.
+ * @brief Existence of this define enforces 16bit checksum. Default since 2014
  */
 #define NDLCOM_CRC16
 
@@ -56,9 +56,8 @@ NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c);
 
 #endif
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif
 
-#endif/*NDLCOM_CRC_H*/
-
+#endif /*NDLCOM_CRC_H*/

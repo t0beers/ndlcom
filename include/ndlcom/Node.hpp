@@ -132,8 +132,8 @@ class Node : public BridgeHandlerBase {
      * This vector will keep track of all owned NodeHandlerBase. Keeps the
      * shared_ptr in scope until our dtor is called.
      */
-    std::vector<std::shared_ptr<ndlcom::NodeHandlerBase> > allHandler;
+    std::vector<std::shared_ptr<ndlcom::NodeHandlerBase>> allHandler;
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_NODE_HPP*/

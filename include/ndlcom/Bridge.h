@@ -211,8 +211,9 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
  * @param bridge The bridge to use
  * @param bridgeHandler The BridgeHandler to register
  */
-void ndlcomBridgeRegisterBridgeHandler(
-    struct NDLComBridge *bridge, struct NDLComBridgeHandler *bridgeHandler);
+void
+ndlcomBridgeRegisterBridgeHandler(struct NDLComBridge *bridge,
+                                  struct NDLComBridgeHandler *bridgeHandler);
 
 /**
  * @brief Register additional ExternalInterfaces
@@ -257,9 +258,9 @@ void ndlcomBridgeDeregisterExternalInterface(
  * @param bridgeHandler The handler to check
  * @return true if BridgeHandler is already registered
  */
-uint8_t ndlcomBridgeCheckBridgeHandler(
-    struct NDLComBridge *bridge,
-    struct NDLComBridgeHandler *bridgeHandler);
+uint8_t
+ndlcomBridgeCheckBridgeHandler(struct NDLComBridge *bridge,
+                               struct NDLComBridgeHandler *bridgeHandler);
 
 /**
  * @brief Check if an ExternalInterface is part of a bridge

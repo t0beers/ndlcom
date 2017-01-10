@@ -31,7 +31,6 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceStream() override;
 
-
   protected:
     FILE *fd_read;
     FILE *fd_write;
@@ -111,7 +110,8 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceUdp(
         struct NDLComBridge &_bridge, std::string hostname,
-        unsigned int in_port = defaultInPort, unsigned int out_port = defaultOutPort,
+        unsigned int in_port = defaultInPort,
+        unsigned int out_port = defaultOutPort,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceUdp() override;
 
@@ -235,6 +235,6 @@ class ExternalInterfacePty : public ExternalInterfaceStream {
     // try to delete the symlink we created before
     void cleanSymlink() const;
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_EXTERNALINTERFACE_HPP*/

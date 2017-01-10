@@ -88,4 +88,4 @@ ndlcomRoutingTableInvalidateInterface(struct NDLComRoutingTable *routingTable,
 }
 #endif
 
-#endif/*NDLCOM_ROUTING_H*/
+#endif /*NDLCOM_ROUTING_H*/

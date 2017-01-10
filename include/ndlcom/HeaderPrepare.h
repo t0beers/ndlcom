@@ -53,12 +53,11 @@ void ndlcomHeaderPrepareInit(struct NDLComHeaderConfig *config,
  * @param dataLength Length of the payload to be sent
  */
 void ndlcomHeaderPrepare(struct NDLComHeaderConfig *config,
-                         struct NDLComHeader *header,
-                         const NDLComId receiverId,
+                         struct NDLComHeader *header, const NDLComId receiverId,
                          const NDLComDataLen dataLength);
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif/*NDLCOM_HEADER_PREPARE_H*/
+#endif /*NDLCOM_HEADER_PREPARE_H*/

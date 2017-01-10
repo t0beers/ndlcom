@@ -23,7 +23,7 @@ extern "C" {
  * additionally to the normal "routing". So when connecting via this "mirror",
  * another instance can act as if it is this Bridge itself.
  *
- * Messages received on this interface will not be used to update the routing table.
+ * Messages received on interface wont be used to update NDLComRoutingTable
  */
 #define NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR 0x01
 
@@ -133,8 +133,7 @@ void ndlcomExternalInterfaceSetRoutingForDeviceId(
  * @param flags The pattern to set.
  */
 void ndlcomExternalInterfaceSetFlags(
-    struct NDLComExternalInterface *externalInterface,
-    const uint8_t flags);
+    struct NDLComExternalInterface *externalInterface, const uint8_t flags);
 
 #if defined(__cplusplus)
 }

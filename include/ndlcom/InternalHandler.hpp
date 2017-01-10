@@ -45,7 +45,7 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
   public:
     template <typename... Args>
     InternalHandler(Args &&... args)
-        : HandlerCommon<Caller, Handler>(std::forward<Args>(args)...){}
+        : HandlerCommon<Caller, Handler>(std::forward<Args>(args)...) {}
 
     /**
      * This function will be called by the "Caller" to handle a package
@@ -136,6 +136,6 @@ class NodeHandler
     /** Intentionally kept private! */
     struct NDLComNodeHandler internal;
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_INTERNAL_HANDLER_HPP*/

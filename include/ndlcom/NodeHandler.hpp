@@ -37,6 +37,6 @@ class NodeHandlerStatistics : public NodeHandler {
     unsigned long bytesTransmitted;
     unsigned long bytesReceived;
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_NODE_HANDLER_HPP*/

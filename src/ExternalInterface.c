@@ -35,7 +35,6 @@ void ndlcomExternalInterfaceSetRoutingForDeviceId(
 }
 
 void ndlcomExternalInterfaceSetFlags(
-    struct NDLComExternalInterface *externalInterface,
-    const uint8_t flags) {
+    struct NDLComExternalInterface *externalInterface, const uint8_t flags) {
     externalInterface->flags = flags;
 }

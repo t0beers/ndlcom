@@ -12,13 +12,9 @@
 /**
  * @brief mapping from "enum NDLComParserState" into human readable strings
  */
-const char *ndlcomParserStateName[] = {"ERROR",
-                                       "WAIT_HEADER",
-                                       "WAIT_DATA",
-                                       "WAIT_FIRST_CRC_BYTE",
-                                       "WAIT_SECOND_CRC_BYTE",
-                                       "COMPLETE",
-                                       0};
+const char *ndlcomParserStateName[] = {
+    "ERROR",                "WAIT_HEADER", "WAIT_DATA", "WAIT_FIRST_CRC_BYTE",
+    "WAIT_SECOND_CRC_BYTE", "COMPLETE",    0};
 
 /** the size needed by the "struct NDLComParser" */
 #define NDLCOM_PARSER_MIN_BUFFER_SIZE (sizeof(struct NDLComParser))
@@ -167,7 +163,8 @@ char ndlcomParserHasPacket(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE;
 }
 
-const struct NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser) {
+const struct NDLComHeader *
+ndlcomParserGetHeader(const struct NDLComParser *parser) {
     return parser->mState == mcCOMPLETE ? &parser->mHeader.hdr : 0;
 }
 

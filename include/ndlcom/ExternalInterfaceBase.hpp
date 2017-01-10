@@ -129,8 +129,7 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
      * The wrapped C-datastructure
      */
     struct NDLComExternalInterface external;
-
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_EXTERNALINTERFACEBASE_H*/

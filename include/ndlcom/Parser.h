@@ -26,7 +26,8 @@
  * initialize the basic struct NDLComParserState by doing
  * @code
  *      uint8_t buffer[sizeof(NDLComParsrer)];
- *      NDLComParser* pNDLComParser = ndlcomParserCreate(buffer, sizeof(buffer));
+ *      NDLComParser* pNDLComParser = ndlcomParserCreate(buffer,
+ *                                                       sizeof(buffer));
  * @endcode
  *
  * To transmit at the very lowest level, create a packet by doing
@@ -107,7 +108,7 @@ struct NDLComParser {
     /** storage for a decoded payload */
     uint8_t mpData[NDLCOM_MAX_PAYLOAD_SIZE];
     /** Current write position of next data byte while receiving user data. */
-    uint8_t * mpDataWritePos;
+    uint8_t *mpDataWritePos;
     /** different states the parser may have. */
     enum NDLComParserState mState;
     /** how often a bad crc was received */
@@ -161,7 +162,8 @@ char ndlcomParserHasPacket(const struct NDLComParser *parser);
  * @param parser Pointer to the parser state-struct to be used
  * @return Pointer to a received protocol-header
  */
-const struct NDLComHeader *ndlcomParserGetHeader(const struct NDLComParser *parser);
+const struct NDLComHeader *
+ndlcomParserGetHeader(const struct NDLComParser *parser);
 
 /**
  * @brief Return pointer to data.
@@ -207,7 +209,7 @@ void ndlcomParserDestroyPacket(struct NDLComParser *parser);
  * @param parser Pointer to the parser state-struct to be used
  * @return name of the current state
  */
-const char* ndlcomParserGetState(const struct NDLComParser *parser);
+const char *ndlcomParserGetState(const struct NDLComParser *parser);
 
 /**
  * @brief Return the number of CRC failures.

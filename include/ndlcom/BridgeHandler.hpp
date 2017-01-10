@@ -78,6 +78,6 @@ class BridgeHandlerStatistics : public BridgeHandler {
     unsigned long bytesTransmitted;
     unsigned long bytesReceived;
 };
-}// namespace ndlcom
+} // namespace ndlcom
 
 #endif /*NDLCOM_BRIDGE_HANDLER_HPP*/

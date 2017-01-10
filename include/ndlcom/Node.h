@@ -65,8 +65,7 @@ struct NDLComNode {
  * @param node pointer to an NDLComNode which has to be initialized.
  * @param ownSenderId provide an deviceId during initialization
  */
-void ndlcomNodeInit(struct NDLComNode *node,
-                    const NDLComId ownSenderId);
+void ndlcomNodeInit(struct NDLComNode *node, const NDLComId ownSenderId);
 
 /**
  * @brief attach the NDLComBridgeHandler of this struct to the NDLComBridge

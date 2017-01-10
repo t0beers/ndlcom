@@ -190,7 +190,8 @@ ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &bridge,
     }
 }
 
-const std::regex ndlcom::ExternalInterfaceFpga::uri("^fpga://([^:&]*)(?:&:(.*))?$");
+const std::regex
+    ndlcom::ExternalInterfaceFpga::uri("^fpga://([^:&]*)(?:&:(.*))?$");
 ExternalInterfaceFpga::ExternalInterfaceFpga(struct NDLComBridge &_bridge,
                                              std::smatch match, uint8_t flags)
     : ExternalInterfaceFpga(_bridge, match[1], flags) {}

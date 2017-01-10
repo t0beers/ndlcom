@@ -50,9 +50,10 @@ static inline int deviceIdIsNotInternallyUsed(const struct NDLComBridge *bridge,
  * assembled externally and inserted using "ndlcomBridgeSendRaw()" they pass
  * through this function.
  */
-static void ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
-                                        const struct NDLComHeader *header,
-                                        const void *payload, void *origin) {
+static void
+ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
+                                   const struct NDLComHeader *header,
+                                   const void *payload, void *origin) {
     /* used as loop-variable for the lists */
     struct NDLComExternalInterface *externalInterface;
     /* return-value for the routing table */
@@ -343,7 +344,7 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge) {
     return bytesReadOverall;
 }
 
-/* 
+/*
  * query all interfaces for data available and process these chunks. return
  * afterwards.
  */
@@ -381,9 +382,9 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
                              NDLCOM_ROUTING_ALL_INTERFACES);
 }
 
-void ndlcomBridgeRegisterBridgeHandler(
-    struct NDLComBridge *bridge,
-    struct NDLComBridgeHandler *bridgeHandler) {
+void
+ndlcomBridgeRegisterBridgeHandler(struct NDLComBridge *bridge,
+                                  struct NDLComBridgeHandler *bridgeHandler) {
     /* check that the given handler is not yet part of the bridge */
     if (ndlcomBridgeCheckBridgeHandler(bridge, bridgeHandler)) {
         return;
@@ -405,9 +406,9 @@ void ndlcomBridgeRegisterExternalInterface(
     externalInterface->bridge = bridge;
 }
 
-void ndlcomBridgeDeregisterBridgeHandler(
-    struct NDLComBridge *bridge,
-    struct NDLComBridgeHandler *bridgeHandler) {
+void
+ndlcomBridgeDeregisterBridgeHandler(struct NDLComBridge *bridge,
+                                    struct NDLComBridgeHandler *bridgeHandler) {
     /* check that the given handler is really part of the bridge */
     if (!ndlcomBridgeCheckBridgeHandler(bridge, bridgeHandler)) {
         return;
@@ -426,11 +427,10 @@ void ndlcomBridgeDeregisterExternalInterface(
     }
     /* at first remove the known destination from the routing table */
     ndlcomRoutingTableInvalidateInterface(&bridge->routingTable,
-                                            externalInterface);
+                                          externalInterface);
     /* and now we can delete it */
     list_del_init(&externalInterface->list);
     externalInterface->bridge = 0;
-
 }
 
 uint8_t ndlcomBridgeCheckExternalInterface(
@@ -446,9 +446,9 @@ uint8_t ndlcomBridgeCheckExternalInterface(
     return 0;
 }
 
-uint8_t ndlcomBridgeCheckBridgeHandler(
-    struct NDLComBridge *bridge,
-    struct NDLComBridgeHandler *bridgeHandler) {
+uint8_t
+ndlcomBridgeCheckBridgeHandler(struct NDLComBridge *bridge,
+                               struct NDLComBridgeHandler *bridgeHandler) {
     /* iterate all handlers, check if the one in the argument is present */
     struct NDLComBridgeHandler *it;
     list_for_each_entry(it, &bridge->bridgeHandlerList, list) {

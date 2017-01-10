@@ -128,7 +128,7 @@ size_t ndlcomEncode(void *pOutputBuffer, const size_t outputBufferSize,
 }
 #endif
 
-/* internal tooling function to start a new to-be-encoded message */
+/* tooling function to start a new to-be-encoded message */
 size_t ndlcomEncodeInit(void *outputBuffer, const size_t outputBufferSize,
                         NDLComCrc *crc) {
     uint8_t *pWritePos = (uint8_t *)outputBuffer;
@@ -146,7 +146,7 @@ size_t ndlcomEncodeInit(void *outputBuffer, const size_t outputBufferSize,
     return 1;
 }
 
-/* internal tooling function to add a chunk of memory to a half-encoded message */
+/* tooling function to add a chunk of memory to a half-encoded message */
 size_t ndlcomEncodeAppendPayload(void *outputBuffer,
                                  const size_t outputBufferSize,
                                  const void *dataBuffer, size_t dataBufferSize,

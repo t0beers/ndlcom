@@ -6,8 +6,7 @@
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
                               const void *payload, const void *origin);
 
-void ndlcomNodeInit(struct NDLComNode *node,
-                    const NDLComId ownSenderId) {
+void ndlcomNodeInit(struct NDLComNode *node, const NDLComId ownSenderId) {
 
     /* initialize all the list we have */
     INIT_LIST_HEAD(&node->nodeHandlerList);
