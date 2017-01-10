@@ -8,8 +8,14 @@ extern "C" {
 /*
  *
  * taken from linux 4.1
+ * manually updated to 4.10
  *
- * slightly adopted for compiling
+ * slightly adopted for compiling:
+ * - removed WRITE_ONCE and READ_ONCE
+ * - rename variables "new" to "inew"
+ * - move some defines into this file (POISON stuff)
+ * - remove mentions of CONFIG_DEBUG_LIST
+ * - no bool, use int
  *
  * see  http://kernelnewbies.org/FAQ/LinkedLists
  *
@@ -94,31 +100,39 @@ static inline void INIT_LIST_HEAD(struct list_head *list)
 	list->prev = list;
 }
 
+static inline int __list_add_valid(struct list_head *inew,
+				struct list_head *prev,
+				struct list_head *next)
+{
+	return 1;
+}
+static inline int __list_del_entry_valid(struct list_head *entry)
+{
+	return 1;
+}
+
 /*
  * Insert a new entry between two known consecutive entries.
  *
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-#ifndef CONFIG_DEBUG_LIST
 static inline void __list_add(struct list_head *inew,
 			      struct list_head *prev,
 			      struct list_head *next)
 {
+	if (!__list_add_valid(inew, prev, next))
+		return;
+
 	next->prev = inew;
 	inew->next = next;
 	inew->prev = prev;
 	prev->next = inew;
 }
-#else
-extern void __list_add(struct list_head *inew,
-			      struct list_head *prev,
-			      struct list_head *next);
-#endif
 
 /**
  * list_add - add a new entry
- * @param new new entry to be added
+ * @param inew new entry to be added
  * @param head list head to add it after
  *
  * Insert a new entry after the specified head.
@@ -132,7 +146,7 @@ static inline void list_add(struct list_head *inew, struct list_head *head)
 
 /**
  * list_add_tail - add a new entry
- * @param new new entry to be added
+ * @param inew new entry to be added
  * @param head list head to add it before
  *
  * Insert a new entry before the specified head.
@@ -162,27 +176,25 @@ static inline void __list_del(struct list_head * prev, struct list_head * next)
  * Note: list_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
-#ifndef CONFIG_DEBUG_LIST
 static inline void __list_del_entry(struct list_head *entry)
 {
+	if (!__list_del_entry_valid(entry))
+		return;
+
 	__list_del(entry->prev, entry->next);
 }
 
 static inline void list_del(struct list_head *entry)
 {
-	__list_del(entry->prev, entry->next);
+	__list_del_entry(entry);
 	entry->next = (struct list_head*)LIST_POISON1;
 	entry->prev = (struct list_head*)LIST_POISON2;
 }
-#else
-extern void __list_del_entry(struct list_head *entry);
-extern void list_del(struct list_head *entry);
-#endif
 
 /**
  * list_replace - replace old entry by new one
  * @param old  the element to be replaced
- * @param new  the new element to insert
+ * @param inew  the new element to insert
  *
  * If @old was empty, it will be overwritten.
  */
@@ -447,8 +459,11 @@ static inline void list_splice_tail_init(struct list_head *list,
  *
  * Note that if the list is empty, it returns 0.
  */
-#define list_first_entry_or_null(ptr, type, member) \
-	(!list_empty(ptr) ? list_first_entry(ptr, type, member) : 0)
+#define list_first_entry_or_null(ptr, type, member) ({ \
+	struct list_head *head__ = (ptr); \
+	struct list_head *pos__ = head__->next; \
+	pos__ != head__ ? list_entry(pos__, type, member) : 0; \
+})
 
 /**
  * list_next_entry - get the next element in list
