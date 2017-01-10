@@ -7,7 +7,7 @@
 
 #ifndef NDLCOM_CRC16
 /* the "old" 8bit XOR */
-inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
+NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
 {
     return currentCrc ^ *c;
 }
@@ -67,7 +67,7 @@ static const uint16_t ndlcomCrc16Table[256] = {
 /*
  * Calculate a new FCS given the current FCS and a new data byte
  */
-inline NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
+NDLComCrc ndlcomDoCrc(const NDLComCrc currentCrc, const uint8_t *c)
 {
     return (currentCrc >> 8) ^ ndlcomCrc16Table[(currentCrc ^ *c) & 0xff];
 }
