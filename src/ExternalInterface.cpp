@@ -83,10 +83,10 @@ void ExternalInterfaceStream::writeEscapedBytes(const void *buf, size_t count) {
     if (!fd_write)
         return;
     size_t written = fwrite((const char *)buf, sizeof(char), count, fd_write);
-    // happens when there is a "slow" interface gettings data from a
+    // happens when there is a "slow" interface which is getting data from a
     // "fast" one. it cannot cope.
     if (written != count) {
-        out << "warning, not all bytes could be written\n";
+        out << label << ": bytes lost. slow interface?\n";
     }
     // not sure: flushing needed?
     fflush(fd_write);
