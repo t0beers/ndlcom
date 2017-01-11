@@ -29,27 +29,21 @@ void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
 }
 
 NodeHandlerStatistics::NodeHandlerStatistics(struct NDLComNode &_caller)
-    : NodeHandler(_caller, "NodeHandlerStatistics"), bytesTransmitted(0),
-      bytesReceived(0) {}
+    : NodeHandler(_caller, "NodeHandlerStatistics"), bytesReceived(0) {}
 
 void NodeHandlerStatistics::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {
     if (origin) {
         bytesReceived += sizeof(struct NDLComHeader) + header->mDataLen;
     } else {
-        bytesTransmitted += sizeof(struct NDLComHeader) + header->mDataLen;
+        /* these are package sent by some internal handler, but handled (again)
+         * by the node. either broadcast destination or (wrong?) directed at
+         * us... */
     }
-}
-
-unsigned long NodeHandlerStatistics::currentBytesTx() const {
-    return bytesTransmitted;
 }
 
 unsigned long NodeHandlerStatistics::currentBytesRx() const {
     return bytesReceived;
 }
 
-void NodeHandlerStatistics::resetBytes() {
-    bytesTransmitted = 0;
-    bytesReceived = 0;
-}
+void NodeHandlerStatistics::resetBytes() { bytesReceived = 0; }

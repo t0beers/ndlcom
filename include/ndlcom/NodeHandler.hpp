@@ -22,6 +22,22 @@ class NodeHandlerPrintOwnId final : public NodeHandler {
                 const void *origin) override;
 };
 
+/**
+ * @brief Collects statistics about data received by this node
+ *
+ * Only data received by this node!
+ *
+ * Information about data sent by this node cannot be collected centrally in a
+ * reliable way due do design quirks: The handler-function of a
+ * NDLComNodeHandler will only be called when the NDLComNode is actually
+ * supposed to handle the message. And if someone sends to some other deviceId,
+ * the message will not be seen again by the NDLComNode. Remembering the number
+ * of bytes passing through the NDLComNodeSend method itself won't really work
+ * as someone could still call NDLComBridgeSendRaw.  bridge.
+ *
+ * So this class does only provide the "transmitted bytes" information, in
+ * contrast to ndlcom::BridgeHandlerStatistics.
+ */
 class NodeHandlerStatistics : public NodeHandler {
   public:
     NodeHandlerStatistics(struct NDLComNode &_caller);
@@ -29,12 +45,10 @@ class NodeHandlerStatistics : public NodeHandler {
     void handle(const struct NDLComHeader *header, const void *payload,
                 const void *origin) override;
 
-    unsigned long currentBytesTx() const;
     unsigned long currentBytesRx() const;
     void resetBytes();
 
   private:
-    unsigned long bytesTransmitted;
     unsigned long bytesReceived;
 };
 } // namespace ndlcom

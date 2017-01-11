@@ -56,11 +56,20 @@ class BridgePrintMissEvents final : public BridgeHandler {
 };
 
 /**
- * @brief Provide statistics
+ * @brief Provide statistics about received and transmitted bytes
  *
- * Will count how many bytes are flowing through the bridge, divided by "sent
- * internally" and "received externally", depending on the "origin" value in
- * the handle function.
+ * Will count how many bytes are flowing through the NDLComBridge, divided by
+ * "sent internally" and "received externally", depending on the "origin" value
+ * passed into the handle function. Two cases:
+ *
+ * - "origin" is not zero: Bytes coming from a specific
+ *   NDCLComExternalInterface are  externally read and thus incoming or (in
+ *   case of just routing) passing through the bridge. Will only count the
+ *   bytes on the incoming direction, as the bytes itself being written to
+ *   possibly many NDLComExternalInterface can only be seen by the interface
+ *   itself.
+ * - "origin" is zero: Bytes which are not accociated with a specific
+ *   NDLComExternalInterface: Possibly sent by some internal handler.
  */
 class BridgeHandlerStatistics : public BridgeHandler {
   public:
