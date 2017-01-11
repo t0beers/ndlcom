@@ -79,10 +79,9 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
             /**
              * NDLComNodeHandler would see their own messages if this is
              * not disabled by a special config-flag... Messages from the
-             * internal side can be detected by checking "origin" to be _not_
-             * zero.
+             * internal side can be detected when "origin" is zero.
              */
-            if (!origin &&
+            if ((origin == 0) &&
                 (nodeHandler->flags &
                  NDLCOM_NODE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL)) {
                 continue;
