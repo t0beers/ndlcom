@@ -35,5 +35,5 @@ void NodeHandler::deregisterHandler() {
 }
 
 const NDLComId NodeHandler::getOwnDeviceId() const {
-    return handler.node->headerConfig.mOwnSenderId;
+    return ndlcomNodeGetOwnDeviceId(handler.node);
 }

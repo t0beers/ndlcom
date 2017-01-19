@@ -62,6 +62,11 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
                                        node->headerConfig.mOwnSenderId);
 }
 
+/* this one is rather simple, it just hides internal datastructures */
+NDLComId ndlcomNodeGetOwnDeviceId(const struct NDLComNode* node) {
+    return node->headerConfig.mOwnSenderId;
+}
+
 /**
  * Handler will be called by the NDLComBridge, here is where the filtering
  * for messages directed at "us" happens: Our receiverId and the Broadcast.

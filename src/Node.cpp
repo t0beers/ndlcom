@@ -37,7 +37,7 @@ void Node::printStatus() {
 }
 
 const NDLComId Node::getOwnDeviceId() const {
-    return node.headerConfig.mOwnSenderId;
+    return ndlcomNodeGetOwnDeviceId(&node);
 }
 
 void Node::send(const NDLComId receiverId, const void *payload,

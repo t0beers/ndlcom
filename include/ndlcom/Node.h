@@ -101,6 +101,14 @@ void ndlcomNodeSetOwnSenderId(struct NDLComNode *node,
                               const NDLComId ownSenderId);
 
 /**
+ * @brief query the current deviceId
+ *
+ * @param node the NDLComNode to query
+ * @return the currently used NDLComId of the given node
+ */
+NDLComId ndlcomNodeGetOwnDeviceId(const struct NDLComNode* node);
+
+/**
  * @brief Create a new package and send it away
  *
  * Sending messages from the internal side to whomever they may concern.
