@@ -25,6 +25,14 @@ void ExternalInterfaceBase::deregisterHandler() {
     ndlcomBridgeDeregisterExternalInterface(&caller, &handler);
 }
 
+void ExternalInterfaceBase::resetCrcFails() {
+    ndlcomParserResetNumberOfCRCFails(&external.parser);
+}
+
+size_t ExternalInterfaceBase::getCrcFails() const {
+    return ndlcomParserGetNumberOfCRCFails(&external.parser);
+}
+
 // static wrapper function for the c-callback
 void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
                                          const size_t count) {

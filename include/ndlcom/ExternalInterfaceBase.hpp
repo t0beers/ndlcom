@@ -75,6 +75,9 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     void registerHandler() final;
     void deregisterHandler() final;
 
+    void resetCrcFails();
+    size_t getCrcFails() const;
+
   protected:
     /**
      * Helper function which adds up the number of incoming bytes into
