@@ -258,6 +258,15 @@ class Bridge {
     }
 
     /**
+     * @brief lookup existing interfaces for the given label
+     *
+     * @param name the label to lookup
+     * @return either a weak pointer of zero
+     */
+    std::weak_ptr<ndlcom::ExternalInterfaceBase>
+    getInterfaceByName(const std::string name) const;
+
+    /**
      * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed
      *
      * Will create a Node and optionally add a "printer" for its own id

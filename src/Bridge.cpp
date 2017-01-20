@@ -101,6 +101,16 @@ Bridge::~Bridge() {
     }
 }
 
+std::weak_ptr<ndlcom::ExternalInterfaceBase>
+Bridge::getInterfaceByName(const std::string name) const {
+    for (auto it : externalInterfaces) {
+        if (it->label == name) {
+            return it;
+        }
+    }
+    return std::weak_ptr<ndlcom::ExternalInterfaceBase>();
+}
+
 std::weak_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {
     return createBridgeHandler<class ndlcom::BridgePrintAll>();
 }
