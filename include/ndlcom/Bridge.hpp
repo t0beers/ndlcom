@@ -289,6 +289,14 @@ class Bridge {
      */
     std::weak_ptr<class ndlcom::BridgeHandler> enablePrintMiss();
 
+    /**
+     * @brief obtain the list of currently active interfaces
+     *
+     * NOTE: This function os _not_ here to stay, just provided for backward
+     * compatibility... Using strings for idendentity checks is not safe...
+     */
+    std::vector<std::string> getInterfaceNames() const;
+
   private:
     // these datastructures are needed to be able to cleanup the created
     // classes/structs in dtor, but not earlier.
