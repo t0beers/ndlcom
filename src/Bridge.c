@@ -81,15 +81,14 @@ ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
     list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                         list) {
         /* don't echo messages back to their origin */
-        if (origin == externalInterface) {
-            continue;
+        if (origin != externalInterface) {
+            /* only debug-interfaces! */
+            if (externalInterface->flags &
+                NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR) {
+                externalInterface->write(externalInterface->context, txBuffer,
+                                         len);
+            }
         }
-        /* only debug-interfaces! */
-        if (!(externalInterface->flags &
-              NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
-            continue;
-        }
-        externalInterface->write(externalInterface->context, txBuffer, len);
     }
 
     /**
@@ -114,16 +113,14 @@ ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
         list_for_each_entry(externalInterface, &bridge->externalInterfaceList,
                             list) {
             /* don't echo messages back to their originating interface. */
-            if (origin == externalInterface) {
-                continue;
+            if (origin != externalInterface) {
+                /* No debug interfaces, they already got the message! */
+                if (!(externalInterface->flags &
+                    NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
+                    externalInterface->write(externalInterface->context,
+                                             txBuffer, len);
+                }
             }
-            /* skip debug interfaces, they already got the message! */
-            if (externalInterface->flags &
-                NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR) {
-                continue;
-            }
-            /* finally, write the shit: */
-            externalInterface->write(externalInterface->context, txBuffer, len);
         }
     }
     /**
