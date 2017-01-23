@@ -26,7 +26,7 @@ namespace ndlcom {
  */
 class Node : public BridgeHandlerBase {
   public:
-    Node(struct NDLComBridge &bridge, NDLComId ownDeviceId);
+    Node(struct NDLComBridge &bridge, const NDLComId ownDeviceId);
     /**
      * Destroys all NodeHandlerBase owned by this Node
      */

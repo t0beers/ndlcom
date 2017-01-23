@@ -75,24 +75,33 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
                               const void *payload, const void *origin) {
     struct NDLComNode *node = (struct NDLComNode *)context;
     const struct NDLComNodeHandler *nodeHandler;
-    /*
-     * calls our own handlers only for messages directed at "us"
+    /**
+     * TODO: should we check for sizes greater than zero? packages
+     * without payload don't make that much sense, but this might be
+     * too much automagic...
      */
-    if ((header->mReceiverId == node->headerConfig.mOwnSenderId) ||
-        (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
-        list_for_each_entry(nodeHandler, &node->nodeHandlerList, list) {
-            /**
-             * NDLComNodeHandler would see their own messages if this is
-             * not disabled by a special config-flag... Messages from the
-             * internal side can be detected when "origin" is zero.
-             */
-            if ((origin == 0) &&
-                (nodeHandler->flags &
-                 NDLCOM_NODE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL)) {
-                continue;
-            }
-            nodeHandler->handler(nodeHandler->context, header, payload, origin);
+    /* if (header->mDataLen == 0) { */
+    /*     return; */
+    /* } */
+    if (header->mReceiverId != node->headerConfig.mOwnSenderId) {
+        return;
+    }
+    if (header->mReceiverId == NDLCOM_ADDR_BROADCAST) {
+        return;
+    }
+    /* call our own handlers only for messages directed at "us" */
+    list_for_each_entry(nodeHandler, &node->nodeHandlerList, list) {
+        /**
+         * NDLComNodeHandler would see their own messages if this is
+         * not disabled by a special config-flag... Messages from the
+         * internal side can be detected when "origin" is zero.
+         */
+        if ((origin == 0) &&
+            (nodeHandler->flags &
+             NDLCOM_NODE_HANDLER_FLAGS_NO_MESSAGES_FROM_INTERNAL)) {
+            continue;
         }
+        nodeHandler->handler(nodeHandler->context, header, payload, origin);
     }
 }
 

@@ -6,7 +6,7 @@
 
 using namespace ndlcom;
 
-Node::Node(struct NDLComBridge &bridge, NDLComId ownDeviceId)
+Node::Node(struct NDLComBridge &bridge, const NDLComId ownDeviceId)
     : BridgeHandlerBase(bridge, node.bridgeHandler,
                         "Node-" + std::to_string(ownDeviceId)) {
     // this call will also register the node to the bridge

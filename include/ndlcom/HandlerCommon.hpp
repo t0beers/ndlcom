@@ -16,7 +16,7 @@ namespace ndlcom {
  * base-implementation much of the setup/teardown is done automatically in
  * base-classes.
  *
- * NOTE: Is does work to wrap an existing c-object into c++ using this
+ * NOTE: It does work to wrap an existing c-object into c++ using this
  * base-class! See ...
  */
 template <class Caller, class Handler> class HandlerCommon {
