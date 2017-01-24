@@ -297,6 +297,11 @@ class Bridge {
      */
     std::vector<std::string> getInterfaceNames() const;
 
+    /**
+     * @brief obtain number of currently active interfaces
+     */
+    size_t getInterfaceCount() const;
+
   private:
     // these datastructures are needed to be able to cleanup the created
     // classes/structs in dtor, but not earlier.

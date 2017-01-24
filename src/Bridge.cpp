@@ -119,6 +119,8 @@ std::vector<std::string> Bridge::getInterfaceNames() const {
     return retval;
 }
 
+size_t Bridge::getInterfaceCount() const { return externalInterfaces.size(); }
+
 std::weak_ptr<class ndlcom::BridgeHandler> Bridge::enablePrintAll() {
     return createBridgeHandler<class ndlcom::BridgePrintAll>();
 }
