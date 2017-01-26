@@ -14,6 +14,10 @@ endif(CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 
 if(NDLCOM_ENABLE_TESTING)
     add_definitions(-g -O0 -Wall -Wpedantic)
+else()
+    # this is something like "release builds"...? actually needed for the
+    # GumBrainV1, the bridge is not fast enough there...
+    add_definitions(-O3 -Wall)
 endif(NDLCOM_ENABLE_TESTING)
 
 # nothing special here
@@ -57,7 +61,7 @@ include(CheckFunctionExists)
 check_function_exists(usleep SEEMS_TO_BE_POSIX)
 if(SEEMS_TO_BE_POSIX)
 
-message("-- ${PROJECT_NAME} detected 'usleep'. enabling tools and c++ classes")
+message("-- ${PROJECT_NAME} detected 'usleep'. Adding tools, c++ wrapper, and increased rx-buffer size")
 
 list(APPEND SOURCES_lib
     src/Bridge.cpp
@@ -79,6 +83,13 @@ list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/InternalHandler.hpp
     include/${PROJECT_NAME}/HandlerCommon.hpp
     )
+
+# The buffer-size for reading bytes from an ExternalInterface is increased for
+# "real" platforms, so that our embedded targets don't run out of stack-memory
+# so easy
+set_property(SOURCE src/Bridge.c APPEND PROPERTY
+    COMPILE_FLAGS "-DNDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE=2048")
+
 endif(SEEMS_TO_BE_POSIX)
 
 # define the lib
