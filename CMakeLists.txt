@@ -14,10 +14,6 @@ endif(CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 
 if(NDLCOM_ENABLE_TESTING)
     add_definitions(-g -O0 -Wall -Wpedantic)
-else()
-    # this is something like "release builds"...? actually needed for the
-    # GumBrainV1, the bridge is not fast enough there...
-    add_definitions(-O3 -Wall)
 endif(NDLCOM_ENABLE_TESTING)
 
 # nothing special here
