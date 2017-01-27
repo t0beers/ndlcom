@@ -106,32 +106,45 @@ ExternalInterfaceSerial::ExternalInterfaceSerial(struct NDLComBridge &bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
     // save oldtio
-    int rc = tcgetattr(fd, &oldtio);
+    int rc = ioctl(fd, TCGETS2, &oldtio);
     if (rc == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
-    // exclusive access
+    // exclusive access. prevents interleaving reads
     rc = ioctl(fd, TIOCEXCL);
     if (rc == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+    /**
+     * on custom-baudrate support: pretty much a horrible state...
+     *
+     * - open debian bugreport, 2013: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=683826
+     * - "baudrate aliasing" based on old termios (what vinzenz did): http://stackoverflow.com/a/7152671/7374642
+     * - code-snippet for the idead used here: https://www.downtowndougbrown.com/2013/11/linux-custom-serial-baud-rates/
+     * - mini-program with the same idea: https://gist.githubusercontent.com/sentinelt/3f1a984533556cf890d9/raw/8a35958138b1167fce5c2301a73e2fe06aeb08d8/gistfile1.c
+     */
+
     // prepare newtio
-    struct termios newtio = oldtio;
-    cfmakeraw(&newtio);
-    // no waittimes
-    newtio.c_cc[VMIN] = 0;
-    newtio.c_cc[VTIME] = 0;
-    // set speed
-    rc = cfsetspeed(&newtio, baudrate);
-    if (rc == -1) {
-        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
-    }
-    // flush (ie: discard old) the port and set new settings
-    rc = tcflush(fd, TCIOFLUSH);
-    if (rc == -1) {
-        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
-    }
-    rc = tcsetattr(fd, TCSANOW, &newtio);
+    struct termios2 newtio = oldtio;
+    // this block is copied verbatim from the manpage for "cfmakeraw" function.
+    // it is dealing with a "struct termios", actually a subset of the newer
+    // "struct termios2". so we could cast the pointer (uha...) or just issue
+    // the same settings.
+    newtio.c_iflag &=
+        ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+    newtio.c_oflag &= ~OPOST;
+    newtio.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+    newtio.c_cflag &= ~(CSIZE | PARENB);
+    newtio.c_cflag |= CS8;
+
+    // setting custom baudrate using an integer:
+    newtio.c_cflag &= ~CBAUD;
+    newtio.c_cflag |= BOTHER;
+    newtio.c_ispeed = baudrate;
+    newtio.c_ospeed = baudrate;
+
+    // activate set new settings:
+    rc = ioctl(fd, TCSETS2, &newtio);
     if (rc == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
@@ -163,7 +176,7 @@ ExternalInterfaceSerial::~ExternalInterfaceSerial() {
     // release exclusive access
     ioctl(fd, TIOCNXCL);
     // restore old settings.
-    tcsetattr(fd, TCSANOW, &oldtio);
+    ioctl(fd, TCSETS2, &oldtio);
     close(fd);
 }
 

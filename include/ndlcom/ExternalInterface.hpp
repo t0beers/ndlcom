@@ -8,7 +8,7 @@
 #include <poll.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <termios.h>
+#include <asm-generic/termbits.h>
 #include <regex>
 #include <string>
 
@@ -71,7 +71,7 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
      * this class tries to be a good citizen: it restores the terminal setting
      * which where there before it changed them
      */
-    struct termios oldtio;
+    struct termios2 oldtio;
     int fd;
 };
 
