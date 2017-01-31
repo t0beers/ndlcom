@@ -76,7 +76,7 @@ struct NDLComBridgeHandler {
  * @param context Arbitrary pointer
  */
 void ndlcomBridgeHandlerInit(struct NDLComBridgeHandler *bridgeHandler,
-                             NDLComBridgeHandlerFkt handler,
+                             const NDLComBridgeHandlerFkt handler,
                              const uint8_t flags, void *context);
 
 /**

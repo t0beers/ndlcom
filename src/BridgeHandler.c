@@ -1,7 +1,7 @@
 #include "ndlcom/BridgeHandler.h"
 
 void ndlcomBridgeHandlerInit(struct NDLComBridgeHandler *bridgeHandler,
-                             NDLComBridgeHandlerFkt handler,
+                             const NDLComBridgeHandlerFkt handler,
                              const uint8_t flags, void *context) {
     bridgeHandler->context = context;
     bridgeHandler->handler = handler;

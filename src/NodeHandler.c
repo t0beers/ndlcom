@@ -1,7 +1,7 @@
 #include "ndlcom/NodeHandler.h"
 
 void ndlcomNodeHandlerInit(struct NDLComNodeHandler *nodeHandler,
-                           NDLComNodeHandlerFkt handler, const uint8_t flags,
+                           const NDLComNodeHandlerFkt handler, const uint8_t flags,
                            void *context) {
     nodeHandler->context = context;
     nodeHandler->handler = handler;

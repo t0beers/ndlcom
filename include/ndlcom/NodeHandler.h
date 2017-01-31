@@ -65,7 +65,7 @@ struct NDLComNodeHandler {
  * @param context Arbitrary pointer
  */
 void ndlcomNodeHandlerInit(struct NDLComNodeHandler *nodeHandler,
-                           NDLComNodeHandlerFkt handler, const uint8_t flags,
+                           const NDLComNodeHandlerFkt handler, const uint8_t flags,
                            void *context);
 
 /**
