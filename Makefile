@@ -23,8 +23,6 @@ override MAKEFLAGS+=--no-print-directory
 
 # configure cmake:
 override CMAKE_FLAGS+=-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=$(INSTALLDIR)
-# this test-flags are more project specific:
-override CMAKE_DEBUG_FLAGS+=-DNDLCOM_ENABLE_TESTING=ON
 
 ## working area ###
 
