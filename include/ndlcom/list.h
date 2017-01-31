@@ -100,13 +100,13 @@ static inline void INIT_LIST_HEAD(struct list_head *list)
 	list->prev = list;
 }
 
-static inline int __list_add_valid(struct list_head *inew,
-				struct list_head *prev,
-				struct list_head *next)
+static inline int __list_add_valid(__attribute__((unused)) struct list_head *inew,
+				   __attribute__((unused)) struct list_head *prev,
+				   __attribute__((unused)) struct list_head *next)
 {
 	return 1;
 }
-static inline int __list_del_entry_valid(struct list_head *entry)
+static inline int __list_del_entry_valid(__attribute__((unused)) struct list_head *entry)
 {
 	return 1;
 }
