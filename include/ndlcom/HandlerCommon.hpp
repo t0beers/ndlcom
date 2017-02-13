@@ -23,10 +23,8 @@ template <class Caller, class Handler> class HandlerCommon {
   public:
     HandlerCommon(Caller &_caller, Handler &_handler, std::string _label,
                   std::ostream &_out = std::cerr)
-        : label(_label), out(_out), handler(_handler), caller(_caller) {
-        out << "ctor HandlerCommon " << label << "\n";
-    }
-    virtual ~HandlerCommon() { out << "dtor HandlerCommon " << label << "\n"; }
+        : label(_label), out(_out), handler(_handler), caller(_caller) {}
+    virtual ~HandlerCommon() {}
     /**
      * Set this string in ctor of deriving classes, shall not be changed during
      * runtime. Is used to display a nice name.
