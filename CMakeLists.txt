@@ -80,11 +80,11 @@ list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/HandlerCommon.hpp
     )
 
-# The buffer-size for reading bytes from an ExternalInterface is increased for
-# "real" platforms, so that our embedded targets don't run out of stack-memory
-# so easy
-set_property(SOURCE src/Bridge.c APPEND PROPERTY
-    COMPILE_FLAGS "-DNDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE=2048")
+    # The buffer-size for reading bytes from an ExternalInterface is increased for
+    # "real" platforms, so that our embedded targets don't run out of stack-memory
+    # so easy
+    set_property(SOURCE src/Bridge.c APPEND PROPERTY
+        COMPILE_FLAGS "-DNDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE=2048")
 
 endif(SEEMS_TO_BE_POSIX)
 

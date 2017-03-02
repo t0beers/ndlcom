@@ -3,13 +3,12 @@
 Node Data Link Communication
 ----------------------------
 
-Originally written by Moritz, Tobias, Armin and Martin.
 Done for iStruct and SeeGrip, 2010-2013.
 
 functions to encode/decode simple serial communication layer2 message format
 called "ndlcom" for "Node Data Link Communication"
 
-See also README.
+See also README.md
   </description>
   <author>Armin Burchardt</author>
   <author>Moritz Schilling/moritz.schilling@dfki.de</author>

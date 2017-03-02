@@ -20,6 +20,8 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ![ndlcom_header](doc/ndlcom_header.png)
 
+For one possible definition of a common payload see [representations](https://git.hb.dfki.de/istruct/lib_representations).
+
 ## History
 
 ![DFKI](doc/dfki-logo.png)
@@ -43,11 +45,12 @@ Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Mak
 - [doc](doc) Some documentation, with [doc/tex](doc/tex) containing the tikz-sources for graphics
 - [scripts](scripts) Some tooling and testing scripts which fit nowhere else
 - [tools](tools) Contains useful ready-made tools for actual usage
-- `build/...` The default target directory used during the build process
+- `./build/...` The default build directory
+- `$HOME/DFKI.install/...` The default install directory
 
 ## Usage
 
-There are two ways to use this project, both based on pkg-config:
+There are two ways to use this library, both based on pkg-config:
 
 1. Compile and install here at first, using the provided wrapper makefile. Then
    use pkg-config inside your other project to obtain the neccessary flags
@@ -62,12 +65,15 @@ See [minimalExample.c](tools/minimalExample.c) and
 [minimalExample.cpp](tools/minimalExample.cpp) to get the idea on how an
 implementation might look like. See
 [ndlcomBridge.service](scripts/ndlcomBridge.service) for an systemd service
-skeleton and [rc-script.sh](scripts/rc-script.sh) for a SystemV based init
-system.
+skeleton and [rc-script.sh](scripts/rc-script.sh) for a SystemV based system.
+
+# Papers
+
+See [this](https://git.hb.dfki.de/istruct/documents) additional repository.
 
 ## Users
 
-The "new" ndlcomBridge approach is used in the following C-based projects:
+The library is used in the following in-house projects:
 
 - Have a look into the [minimalExample](tools/minimalExample.cpp) of this repository
 - [bgGraph templates](https://git.hb.dfki.de/esa_npi_2015/toolchain/blob/7c92f2ef/templates/bg_graph_toplvl_template.c#L60)
