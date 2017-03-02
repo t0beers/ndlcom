@@ -2,11 +2,13 @@
 
 # Introduction
 
-Complex heterogenuous systems are equipped with an increasing number of small decentralized computing devices. These are used to read sensors distributed across the system or for high-frequency control of motors. Connecting all these nodes in a packet based point-to-point network allows for flexible data transmission between all participants. NDLCom (Node Level Data Link Communication) defines a simple packet format for data exchange using serial interfaces, which needs fewer resources compared to traditional network technologies like IP. This allows microcontrollers or FPGAs with limited capabilities to communicate in a network with a PC. Point-to-point bytestream based on [UART][1] are viewed a smalled common denominator.
+Ressource efficient protocol to exchange messages in a point-to-point network.
+This repository contains a library for bare-metal usage and a POSIX based
+bridging application.
 
-_todo: draw tikz-picture with multiple heterogeneous devices connected in a tree-like network_
+Complex heterogenuous systems are equipped with an increasing number of small decentralized computing devices. These are used to read sensors or control motors distributed across the system. Connecting these nodes in a packet based point-to-point network allows for flexible data transmission between all participants. NDLCom (Node Level Data Link Communication) defines a simple packet format for data exchange, which needs fewer resources compared to more complex network technologies like IP. This allows microcontrollers or FPGAs with limited capabilities to communicate in a network with a PC. Point-to-point bytestreams based on [UART][] are viewed as the smallest common denominator.
 
-The protocol provides a communication infrastructure simiar to the OSI-Layer 3, while it uses [HDLC][2] for Layer 2 message segmentation:
+The protocol provides a communication infrastructure similar to the OSI-Layer 3, while it uses [HDLC][] for Layer 2 message segmentation:
 
 ![osi_model](doc/osi_model.png)
 
@@ -20,8 +22,11 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ## History
 
-Developed at DFKI in the iStruct and SeeGrip projects, beginning in 2010. To
-obtain something more profound like presentations and papers see the
+![DFKI](doc/dfki-logo.png)
+
+Developed at [DKFI RIC Bremen](http://robotik.dfki-bremen.de/en/startpage.html)
+during the iStruct and SeeGrip projects, starting in 2010. To obtain something
+more profound like presentations and papers see the
 [documents](https://git.hb.dfki.de/istruct/documents/blob/master) repository.
 
 The C "core" code is written with the embedded/bare-metal case in mind: There is
@@ -32,14 +37,13 @@ is provided for POSIX systems to create actually usefull software.
 
 Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Makefile acting as a cmake-wrapper, just call `make` and it will probably do the right thing. To generate doxygen-documentation call `make doc`, to install all files into the default-directory `~/DFKI.install` do `make install`.
 
-- `src` Contains all source files of the library
-- `test` Limited programs used for testing and benchmarking, called using `make test`
-- `include/ndlcom` Contains all external headers used in the library.
-- `doc` Some documentation, with `doc/tex` containing the tikz-sources for graphics
-- `scripts` Some tooling and testing scripts which fit nowhere else
-- `tools` Contains useful ready-made tools for actual usage, some are used in the folder `scripts`
-- `build/...` The default target directory used during the build process, temporary content
-- `DFKI.install` The default installation directory, set by the provided wrapper [Makefile](Makefile)
+- [src](src) Contains all source files of the library
+- [test](test) Limited programs used for testing and benchmarking
+- [include/ndlcom](include/ndlcom) Contains all external headers used in the library.
+- [doc](doc) Some documentation, with [doc/tex](doc/tex) containing the tikz-sources for graphics
+- [scripts](scripts) Some tooling and testing scripts which fit nowhere else
+- [tools](tools) Contains useful ready-made tools for actual usage
+- `build/...` The default target directory used during the build process
 
 ## Usage
 
@@ -54,7 +58,14 @@ There are two ways to use this project, both based on pkg-config:
    the files from the build-tree. This relies on the *uninstalled* variant of
    pkg-config files.
 
-## users
+See [minimalExample.c](tools/minimalExample.c) and
+[minimalExample.cpp](tools/minimalExample.cpp) to get the idea on how an
+implementation might look like. See
+[ndlcomBridge.service](scripts/ndlcomBridge.service) for an systemd service
+skeleton and [rc-script.sh](scripts/rc-script.sh) for a SystemV based init
+system.
+
+## Users
 
 The "new" ndlcomBridge approach is used in the following C-based projects:
 
@@ -66,5 +77,5 @@ The "new" ndlcomBridge approach is used in the following C-based projects:
 - [Treadmill](https://git.hb.dfki.de/hhanff/Treadmill)
 - for the *ZynqBrain* board there exists a [kernel-module](https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom) to map between data processed from the VHDL module into readable byte-streams on an user-space interface like `/dev/NDLCom`
 
-[1]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver/transmitter
-[2]: http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf
+[UART]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver/transmitter
+[HDLC]: http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf

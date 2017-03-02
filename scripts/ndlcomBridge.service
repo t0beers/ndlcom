@@ -1,0 +1,17 @@
+# never really finished, nor tested. keep all this with a grain of salt...
+#
+#     cp ./scripts/ndlcomBridge.service /etc/systemd/system/ndlcomBridge.service
+#     systemctl daemon-reload
+#     systemctl [start|stop|status|enable] ndlcomBridge.service
+
+[Unit]
+Description=ndlcomBridge
+After=network.target
+Requires=network.target
+
+[Service]
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/ndlcomBridge -u udp://localhost -u udp://localhost:35000:35001
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
