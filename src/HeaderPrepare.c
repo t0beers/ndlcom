@@ -20,7 +20,10 @@ void ndlcomHeaderPrepare(struct NDLComHeaderConfig *config,
                          const NDLComDataLen dataLength) {
     header->mReceiverId = receiverId;
     header->mSenderId = config->mOwnSenderId;
-    /* a overflowing addition for the actual counter: */
-    header->mCounter = config->mCounterForReceiver[receiverId]++;
+    /* an overflowing addition for the actual counter, iff the table for the
+     * previous counter is large enough: */
+    if (receiverId < NDLCOM_MAX_NUMBER_OF_DEVICES) {
+        header->mCounter = config->mCounterForReceiver[receiverId]++;
+    }
     header->mDataLen = dataLength;
 }

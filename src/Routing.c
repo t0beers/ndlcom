@@ -14,27 +14,27 @@ void ndlcomRoutingTableInit(struct NDLComRoutingTable *routingTable) {
 
 void *ndlcomRoutingGetDestination(const struct NDLComRoutingTable *routingTable,
                                   const NDLComId receiverId) {
-    /* The broadcast address is not handled in any special way, we rely
-     * on the initial value of NDLCOM_ROUTING_ALL_INTERFACES still present in
-     * this location.
-     *
-     * No special range-checks are needed, as the index "receiverId"
-     * cannot get bigger or smaller than the array itself */
-    return routingTable->table[receiverId];
+    /* if we can lookup the deviceId in the table do so */
+    if (receiverId < NDLCOM_MAX_NUMBER_OF_DEVICES) {
+        return routingTable->table[receiverId];
+    } else {
+        /* otherwise we have to fallback to the ALL_INTERFACES. this allows to
+         * be compiled with less available device ids, saving some memory */
+        return NDLCOM_ROUTING_ALL_INTERFACES;
+    }
 }
 
 void ndlcomRoutingTableUpdate(struct NDLComRoutingTable *routingTable,
                               const NDLComId senderId, void *pInterface) {
-    /* This does never put broadcast senderIds into the routing table. It
-     * simply does not make any sense. Note that, by never populating the
-     * entry, we automatically reply NDLCOM_ROUTING_ALL_INTERFACES in case
-     * someone queries the table for the NDLCOM_ADDR_BROADCAST.
-     *
-     * could add a check to not use our own senderId accidentally... */
-    if (senderId == NDLCOM_ADDR_BROADCAST) {
+    /* never put broadcast senderIds into the routing table. It simply does not
+     * make any sense. also, in case this library is compiled with reduced
+     * number if devices, ids outside the range will be ignored.
+     */
+    if (senderId >= NDLCOM_MAX_NUMBER_OF_DEVICES) {
         return;
+    } else {
+        routingTable->table[senderId] = pInterface;
     }
-    routingTable->table[senderId] = pInterface;
 }
 
 void

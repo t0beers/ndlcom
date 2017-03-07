@@ -78,16 +78,17 @@ struct NDLComHeader {
 /**
  * @brief The number of possible deviceIds, 256 by default
  *
- * This can be altered from outside to cut away the upper Ids from the global
+ * This can be altered at buildtime to cut away the upper Ids from the global
  * address space. This reduces static memory consumption in NDLComRoutingTable
  * and NDLComHeaderConfig.
  *
- * TODO: Is this correct?
  * - Packets exceeding these limits should not disturb the NDLComParser, they
- *   will be discarded and cannot be received. Keep in mind that outing these
- *   packages using "store and forward" will also not work!
- * - Ouou: As the BROADCAST deviceId is 255, this will also not work?
- * - The encoder does not care
+ *   will be decoded and handled. Keep in mind that routing these packages
+ *   using "store and forward" will no work, the default strategy is forwarding
+ *   them on all interfaces, like a broadcast package.
+ * - The BROADCAST deviceId is 255, special care is taken in HeaderPrepare.c
+ *   and Routing.c
+ * - It seems that the own devcieId needs to be in this range?
  */
 #ifndef NDLCOM_MAX_NUMBER_OF_DEVICES
 #define NDLCOM_MAX_NUMBER_OF_DEVICES (1 << (sizeof(NDLComId) * 8))
