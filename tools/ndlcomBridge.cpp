@@ -30,7 +30,7 @@ class ndlcom::Bridge bridge;
 
 bool stopMainLoop = false;
 
-double mainLoopFrequency_hz = 100.0;
+double mainLoopFrequency_hz = 1000.0;
 
 void signal_handler(int signal) { stopMainLoop = true; }
 
