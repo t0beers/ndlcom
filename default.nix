@@ -1,14 +1,12 @@
 { stdenv
 , cmake
-, actualSrc ? ./.
-, ...
+, package
 }:
 
 stdenv.mkDerivation rec {
 
-  name = "ndlcom";
-
-  src = actualSrc;
+  name = package.name;
+  src = package.src;
 
   nativeBuildInputs = [ cmake ];
   enableParallelBuilding = true;
