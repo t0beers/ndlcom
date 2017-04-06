@@ -110,13 +110,14 @@ class Bridge {
             typename std::tuple_element<0, std::tuple<Tail...>>::type;
         /** and the factory function */
         static std::weak_ptr<class ndlcom::ExternalInterfaceBase>
-        createInterfaceByMatch(class ndlcom::Bridge *bridge, std::string uri,
-                               std::smatch &match) {
+        createInterfaceByMatch(
+            class ndlcom::Bridge *bridge, std::string uri, std::smatch &match,
+            uint8_t flags) {
             // try to match the given uri to the regex of the Head, and
             // create interface if it matched:
             if (std::regex_match(uri, match, Head::uri)) {
                 return ExternalInterfaceCreator<Head>::createInterfaceByMatch(
-                    bridge, uri, match);
+                    bridge, uri, match, flags);
             }
             // if this didn't work _and_ we have only one type left in the Tail
             // additionally try to match this type to the uri:
@@ -124,7 +125,7 @@ class Bridge {
                 if (std::regex_match(uri, match, FirstOfTail::uri)) {
                     return ExternalInterfaceCreator<
                         FirstOfTail>::createInterfaceByMatch(bridge, uri,
-                                                             match);
+                                                             match, flags);
                 } else {
                     // and if this match did not succeed we are not able to
                     // parse the uri. this is the error-case...
@@ -134,7 +135,7 @@ class Bridge {
             // recurse into the rest of the given types, the "Tail" of the
             // template arguments
             return ExternalInterfaceCreator<Tail...>::createInterfaceByMatch(
-                bridge, uri, match);
+                bridge, uri, match, flags);
         }
     };
 
@@ -149,10 +150,10 @@ class Bridge {
     template <typename T> struct ExternalInterfaceCreator<T> {
         static std::weak_ptr<class ndlcom::ExternalInterfaceBase>
         createInterfaceByMatch(class ndlcom::Bridge *bridge, std::string uri,
-                               std::smatch &match) {
+                               std::smatch &match, uint8_t flags) {
             // reuse the bridges factory
             std::weak_ptr<class ExternalInterfaceBase> retval =
-                bridge->createExternalInterface<T>(match);
+                bridge->createExternalInterface<T>(match, flags);
             // routingtable intitialization: we just assume that each uri has
             // the routing-table stuff at the end, last match...
             setRoutingByString(retval, match[match.size() - 1].str(),
@@ -176,7 +177,7 @@ class Bridge {
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
         std::smatch match;
         return ExternalInterfaceCreator<Args...>::createInterfaceByMatch(
-            this, uri, match);
+            this, uri, match, flags);
     }
 
     /**

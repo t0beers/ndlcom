@@ -114,7 +114,7 @@ ndlcomBridgeProcessOutgoingMessage(struct NDLComBridge *bridge,
                             list) {
             /* don't echo messages back to their originating interface. */
             if (origin != externalInterface) {
-                /* No debug interfaces, they already got the message! */
+                /* do not use the mirror interfaces, they already got the message! */
                 if (!(externalInterface->flags &
                     NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEBUG_MIRROR)) {
                     externalInterface->write(externalInterface->context,
