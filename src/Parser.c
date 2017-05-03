@@ -79,14 +79,27 @@ size_t ndlcomParserReceive(struct NDLComParser *parser, const void *newData,
             /* checks for the 4 bytes of the header to have been written */
             if (parser->mpHeaderWritePos - parser->mHeader.raw ==
                 sizeof(struct NDLComHeader)) {
-                /* check if there is actual data to come... */
-                if (parser->mHeader.hdr.mDataLen) {
-                    parser->mState = mcWAIT_DATA;
+
+                /**
+                 * now there is the case where devices can (at compile time)
+                 * reduce their maximum packet length to reduce worst case
+                 * memory consumption by ignoring large packets. this allows
+                 * them to need less memory to store a full packet... to avoid
+                 * overwriting the receive buffer we'll trash these packets
+                 * here.
+                 */
+                if (parser->mHeader.hdr.mDataLen > NDLCOM_MAX_PAYLOAD_SIZE) {
+                    parser->mState = mcERROR;
                 }
-                /* ...else we have a degenerate packet with no payload, proceed
-                 * directly */
-                else {
+                /* another case is having a zero-length, where no payload is
+                 * transmitted at all. we can directly jump to the crc analysis. */
+                else if (parser->mHeader.hdr.mDataLen == 0) {
                     parser->mState = mcWAIT_FIRST_CRC_BYTE;
+                }
+                /* in the end the normal case: expect a non-zero, less than max
+                 * long payload */
+                else {
+                    parser->mState = mcWAIT_DATA;
                 }
             }
             break;
