@@ -58,7 +58,7 @@ CONSUME_COMMAND="./build/x86_64-linux-gnu/tools/ndlcomPacketConsumer"
 
 function cleanup_handler {
     # remove trap to prevent recursion
-    trap - EXIT INT TERM
+    trap - INT TERM
     # the final kill will stop this script as well
     kill 0
 }
