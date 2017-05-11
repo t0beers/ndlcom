@@ -28,7 +28,7 @@ ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &bridge,
       fd_read(nullptr), fd_write(nullptr) {
     // setting "udf.events" implicitly to zero means: listen only to the
     // error-events POLLHUP, POLLERR, and POLLNVAL
-    bzero(&ufd, sizeof(struct pollfd));
+    memset(&ufd, 0, sizeof(struct pollfd));
 }
 
 ExternalInterfaceStream::~ExternalInterfaceStream() {
