@@ -61,9 +61,9 @@ int main(int argc, char const *argv[])
 
         while (iss) {
             unsigned int temp;
-            bool success = iss >> temp;
+            iss >> temp;
             /* there is no success on the last call in the line (newline?) and on non-digits */
-            if (success)
+            if (!iss.fail())
                 addByte(temp);
         }
     }

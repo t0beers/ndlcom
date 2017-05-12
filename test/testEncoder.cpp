@@ -3,6 +3,7 @@
  * @date 2012
  */
 #include "ndlcom/Encoder.h"
+#include "ndlcom/Types.h"
 
 #include <iostream>
 #include <fstream>
@@ -41,8 +42,8 @@ bool fillContent(std::istringstream& iss, T* tgt)
 
     /* this helps catching invalid inputs, like negative numbers of too-big ones */
     int temp;
-    bool success = iss >> temp;
-    if (success)
+    iss >> temp;
+    if (!iss.fail())
     {
         if (temp > std::numeric_limits<T>::max()) {
             std::cerr << "too big: " << temp << "\n";
@@ -61,7 +62,7 @@ bool fillContent(std::istringstream& iss, T* tgt)
      * detected anymore. this condition is used further down in the loop to abort the looking for
      * further data-numbers */
 
-    return success;
+    return !iss.fail();
 }
 
 

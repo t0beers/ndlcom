@@ -1,4 +1,5 @@
 #include "ndlcom/Encoder.h"
+#include "ndlcom/Types.h"
 #include <stdio.h>
 
 /*
