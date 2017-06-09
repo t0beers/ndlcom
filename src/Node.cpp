@@ -16,8 +16,7 @@ Node::Node(struct NDLComBridge &bridge, const NDLComId ownDeviceId)
 Node::~Node() {
     /** no iterators, as the call inside the loop would invalidate them */
     while (!allHandler.empty()) {
-        destroyNodeHandler(
-            std::weak_ptr<ndlcom::NodeHandlerBase>(allHandler.front()));
+        destroyNodeHandler<ndlcom::NodeHandlerBase>(allHandler.front());
     }
     /** compare c list with c++ vector. both should be empty! */
     if (!list_empty(&node.nodeHandlerList)) {

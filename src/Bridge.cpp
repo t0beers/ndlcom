@@ -76,19 +76,18 @@ Bridge::~Bridge() {
      * objects may call into this bridge, use-after-free
      */
     while (!externalInterfaces.empty()) {
-        destroyExternalInterface(std::weak_ptr<ndlcom::ExternalInterfaceBase>(
-            externalInterfaces.front()));
+        destroyExternalInterface<ndlcom::ExternalInterfaceBase>(
+            externalInterfaces.front());
     }
     // "BridgeHandler" and "Node" are essentially the same on the c level
     // (stored in "internalHandler" list), but additionally kept in two
     // distinct datastructures on the c++ level to allow easy lookup for an
     // existing Node
     while (!bridgeHandler.empty()) {
-        destroyBridgeHandler(
-            std::weak_ptr<ndlcom::BridgeHandler>(bridgeHandler.front()));
+        destroyBridgeHandler<ndlcom::BridgeHandler>(bridgeHandler.front());
     }
     while (!nodes.empty()) {
-        destroyNode(std::weak_ptr<ndlcom::Node>(nodes.front()));
+        destroyNode<ndlcom::Node>(nodes.front());
     }
     // check that the internal c linked list is really empty
     if (!list_empty(&bridge.externalInterfaceList)) {
