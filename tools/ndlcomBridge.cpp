@@ -43,9 +43,11 @@ void help(const char *_name) {
     /* clang-format off */
     fprintf(stderr,
 "\n%s\n\n"
-"Low-level tool to create multiple NDLCom-interfaces, connect them by routing messages as needed and listen to multiple nodeIds. Can print miss-events by observing the packet-counter of pasing messages\n"
+"Low-level tool to create multiple NDLCom-interfaces, connect them by routing messages as needed and possibly listen to multiple nodeIds. Can print miss-events by observing the packet-counter of passing messages. During runtime the mainloop will listen to 'q' (quit), 's' (status) and 'r' (print routing table). Additionally, sending a SIGINT (ctrl-c) will also close the program in a orderly way.\n"
 "\n"
-"Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and allows injecting arbritrary messages without updating the routing table. To print the content of the current routingTable press 'r' during normal operation.\n"
+"Besides creating ordinary interfaces which will be used in the dynamic routing table, additional 'mirror interfaces' can requested as well. These will output a copy of _all_ passing messages and forwards incoming messages without updating the routing table.\n"
+"\n"
+"DeviceIds which are reachable behind an interfrace can be appended in the form '&id1,id2,id3' to the interface description. Thus it is possible to preconfigure the internal routing table in known environments\n"
 "\n"
 "options:\n"
 "--uri\t\t-u\tInterface to create. Possible: 'fpga', 'serial', 'pty', 'pipe', 'udp'\n"
@@ -58,6 +60,10 @@ void help(const char *_name) {
 "--realtime\t-R\ttry to obtain realtime scheduling. needs root.\n"
 "\n"
 "examples:\n"
+"\n"
+"Specify that deviceIds 2 to 6 are reachable on localhost:\n"
+"\n"
+"\t%s -u \"udp://localhost:34000:34001&2,3,4,5,6\"\n"
 "\n"
 "routing of messages from serial to udp on localhost, usable by CommonGui:\n"
 "\n"
@@ -74,20 +80,8 @@ void help(const char *_name) {
 "route from one hex-encoded pipe to another, print all passing packages:\n"
 "\n"
 "\t%s -u pipe://pipeA -u pipe://pipeB -A\n"
-"\n"
-"then create random packages and write them into the first pipe:\n"
-"\n"
-"\twhile (true); do\n"
-"\t    sleep 0.5 ; %s/ndlcomPacketProducer -H > pipeA_rx\n"
-"\tdone\n"
-"\n"
-"then read and print the packets from the second pipe:\n"
-"\n"
-"\tstdbuf -i0 %s/ndlcomPacketConsumer < pipeB_tx\n"
-"\n"
-"NOTE: Be careful about stdio-buffering...\n",
-
-actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), folder.c_str(), folder.c_str());
+,
+actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str());
 }
 /* clang-format on */
 
