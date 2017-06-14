@@ -15,16 +15,11 @@ NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
 void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
                                    const void *payload, const void *origin) {
     out << std::string("listener ");
-    out << std::showbase << std::hex;
-    out << std::setfill('0') << std::setw(4) << std::internal
-        << (int)getOwnDeviceId();
+    out << std::setfill(' ') << std::setw(3) << (int)getOwnDeviceId();
     out << std::string(" got message from ");
-    out << std::setfill('0') << std::setw(4) << std::internal
-        << (int)header->mSenderId;
+    out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
     out << std::string(" with ");
-    out << std::noshowbase << std::dec;
-    out << std::setw(3) << std::setfill(' ') << std::right
-        << (int)header->mDataLen;
+    out << std::setfill(' ') << std::setw(3) << (int)header->mDataLen;
     out << std::string(" bytes of payload\n");
 }
 

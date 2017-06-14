@@ -14,16 +14,11 @@ BridgePrintAll::BridgePrintAll(struct NDLComBridge &bridge, std::ostream &_out)
 void BridgePrintAll::handle(const struct NDLComHeader *header,
                             const void *payload, const void *origin) {
     out << std::string("bridge saw message from ");
-    out << std::showbase << std::hex;
-    out << std::setfill('0') << std::setw(4) << std::internal
-        << (int)header->mSenderId;
+    out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
     out << std::string(" to ");
-    out << std::setfill('0') << std::setw(4) << std::internal
-        << (int)header->mReceiverId;
+    out << std::setfill(' ') << std::setw(3) << (int)header->mReceiverId;
     out << std::string(" with ");
-    out << std::noshowbase << std::dec;
-    out << std::setw(3) << std::setfill(' ') << std::right
-        << (int)header->mDataLen;
+    out << std::setfill(' ') << std::setw(3) << (int)header->mDataLen;
     out << std::string(" bytes of payload\n");
 }
 
@@ -65,17 +60,12 @@ void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
                 expectedNextPacketCounter[header->mSenderId][header
                                                                  ->mReceiverId];
             // output the "event"
-            out << std::string("miss event in message from ");
-            out << std::showbase << std::hex;
-            out << std::setfill('0') << std::setw(4) << std::internal
-                << (int)header->mSenderId;
+            out << std::string("miss event message from ");
+            out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
             out << std::string(" to ");
-            out << std::setfill('0') << std::setw(4) << std::internal
-                << (int)header->mReceiverId;
+            out << std::setfill(' ') << std::setw(3) << (int)header->mReceiverId;
             out << std::string(" -- diff: ");
-            out << std::noshowbase << std::dec;
-            out << std::setw(3) << std::setfill(' ') << std::right << diff
-                << "\n";
+            out << std::setfill(' ') << std::setw(3) << diff << "\n";
         }
     }
 

@@ -60,8 +60,8 @@ ndlcom::setRoutingByString(std::weak_ptr<class ndlcom::ExternalInterfaceBase> p,
 
     for (auto it : ids) {
         out << "ParseUri: set routingTable to use '" << interface->label
-            << "' for deviceId 0x" << std::setfill('0') << std::hex
-            << std::setw(2) << (int)(it) << std::dec << "\n";
+            << "' for deviceId " << std::setfill(' ') << std::setw(3)
+            << (int)(it) << "\n";
         interface->setRoutingForDeviceId(it);
     }
 }
@@ -179,8 +179,6 @@ void Bridge::printRoutingTable() {
             << static_cast<const class ndlcom::ExternalInterfaceBase *>(
                    externalInterface->context)->label << "': ";
 
-        out << std::setfill('0') << std::showbase << std::hex
-            << std::setfill('0') << std::setw(4) << std::internal;
         bool printed = false;
         for (size_t deviceId = 0;
              deviceId < sizeof(bridge.routingTable.table) /
@@ -191,7 +189,6 @@ void Bridge::printRoutingTable() {
                 printed = true;
             }
         }
-        out << std::noshowbase << std::dec;
         if (!printed) {
             out << "<none>";
         }
