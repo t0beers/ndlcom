@@ -60,7 +60,7 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
     static const std::regex uri;
     static const speed_t defaultBaudrate;
     // ctor using provided match-argument of the given uri. we pass the
-    // match-object so that we do not have a ctor acception just a string --
+    // match-object so that we do not have a ctor accepting just a string --
     // which may be the uri or only the "ptyname"
     ExternalInterfaceSerial(
         struct NDLComBridge &_bridge, std::smatch match,
