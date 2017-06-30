@@ -225,6 +225,13 @@ static size_t ndlcomBridgeProcessExternalInterface(
     bytesRead = externalInterface->read(externalInterface->context,
                                         rawReadBuffer, sizeof(rawReadBuffer));
 
+    /**
+     * shave off some cycles in the hot-path in case we could not read
+     */
+    if (bytesRead == 0) {
+        return 0;
+    }
+
     do {
         bytesProcessed += ndlcomParserReceive(&externalInterface->parser,
                                               rawReadBuffer + bytesProcessed,
