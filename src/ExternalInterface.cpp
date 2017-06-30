@@ -58,6 +58,7 @@ again:
     // if there are any bits set in "ufd.revents", an error occured
     if (ufd.revents) {
         reportRuntimeError("connection closed itself", __FILE__, __LINE__);
+        return 0;
     }
 
     size_t bytesRead = fread(buf, sizeof(char), count, fd_read);
@@ -69,6 +70,7 @@ again:
                 reportRuntimeError("error during fread(): " +
                                        std::string(strerror(errno)),
                                    __FILE__, __LINE__);
+                return 0;
             }
         } else {
             return 0;
@@ -330,6 +332,7 @@ again:
         }
         // TODO: is this correct?
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        return 0;
     }
     /* out << "read " << bytesRead << " bytes from '" */
     /*     << inet_ntoa(addr_recv.sin_addr) << ":" << ntohs(addr_recv.sin_port)
@@ -449,6 +452,7 @@ again:
         }
         // TODO: is this correct?
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        return 0;
     }
     return bytesRead;
 }
@@ -585,6 +589,9 @@ size_t ExternalInterfacePipe::readEscapedBytes(void *buf, size_t count) {
             // error or EOF...? honestly, I don't care
             if (!ret) {
                 reportRuntimeError("fgets didn't zer0?", __FILE__, __LINE__);
+                // never return negative, in case reportRuntimeError is
+                // overloaded to _not_ throw
+                return 0;
             }
             /* std::cerr << "found nothing, destroyed: " << t << "\n"; */
         } else if (scanRet == 1) {
@@ -781,6 +788,7 @@ size_t ExternalInterfacePty::readEscapedBytes(void *buf, size_t count) {
                 reportRuntimeError("error during fread(): " +
                                        std::string(strerror(errno)),
                                    __FILE__, __LINE__);
+                return 0;
             }
         } else {
             return 0;
