@@ -100,15 +100,16 @@ struct NDLComHeader {
  * Can be overridden to restrict static memory consumption in NDLComParser and
  * stack memory consumption in ndlcomBridgeProcessExternalInterface().
  *
+ * Packets exceeding this limit do not disturb the NDLComParser, they will be
+ * silently discarded and thus can never be received. Keep in mind that routing
+ * these packages using the implemented "store and forward" will also not work!
  *
- * TODO: correct?
- * - Packets exceeding these limits should not disturb the NDLComParser, they
- *   will be discarded and cannot be received. Keep in mind that outing these
- *   packages using "store and forward" will also not work!
- * - The encoder does not care
+ * The Encoder will encode as much bytes as are able to fit into the provided
+ * buffer, thus packets bigger than this limits might only be partially
+ * transmitted.
  */
 #ifndef NDLCOM_MAX_PAYLOAD_SIZE
-#define NDLCOM_MAX_PAYLOAD_SIZE (1 << (sizeof(NDLComDataLen) * 8))
+#define NDLCOM_MAX_PAYLOAD_SIZE ((1 << (sizeof(NDLComDataLen) * 8)) - 1)
 #endif
 
 /**
