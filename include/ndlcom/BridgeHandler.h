@@ -6,6 +6,7 @@
 #include "ndlcom/list.h"
 
 struct NDLComHeader;
+struct NDLComExternalInterface;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -41,7 +42,7 @@ extern "C" {
  */
 typedef void (*NDLComBridgeHandlerFkt)(void *context,
                                        const struct NDLComHeader *header,
-                                       const void *payload, const void *origin);
+                                       const void *payload, const struct NDLComExternalInterface *origin);
 
 struct NDLComBridgeHandler {
     /**

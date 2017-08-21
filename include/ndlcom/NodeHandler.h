@@ -6,6 +6,7 @@
 #include "ndlcom/list.h"
 
 struct NDLComHeader;
+struct NDLComExternalInterface;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -25,9 +26,9 @@ extern "C" {
  * @param origin The ExternalInterface where this message came from. Can be the
  *               null if the message is originating from the internal side
  */
-typedef void (*NDLComNodeHandlerFkt)(void *context,
-                                     const struct NDLComHeader *header,
-                                     const void *payload, const void *origin);
+typedef void (*NDLComNodeHandlerFkt)(
+    void *context, const struct NDLComHeader *header, const void *payload,
+    const struct NDLComExternalInterface *origin);
 
 struct NDLComNodeHandler {
     /**

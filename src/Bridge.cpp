@@ -110,8 +110,8 @@ Bridge::getInterfaceByName(const std::string name) const {
     return std::weak_ptr<ndlcom::ExternalInterfaceBase>();
 }
 
-std::weak_ptr<class ndlcom::ExternalInterfaceBase>
-Bridge::getInterfaceByOrigin(const void *origin) const {
+std::weak_ptr<class ndlcom::ExternalInterfaceBase> Bridge::getInterfaceByOrigin(
+    const struct NDLComExternalInterface *origin) const {
     for (auto it : externalInterfaces) {
         if (&it->handler == origin) {
             return it;

@@ -274,7 +274,7 @@ class Bridge {
      * @return either a weak pointer to the ExternalInterfaceBase or zero
      */
     std::weak_ptr<class ndlcom::ExternalInterfaceBase>
-    getInterfaceByOrigin(const void *origin) const;
+    getInterfaceByOrigin(const struct NDLComExternalInterface *origin) const;
 
     /**
      * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed

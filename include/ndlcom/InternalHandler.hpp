@@ -55,7 +55,7 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
      * factory functions in ndlcom::Bridge and ndlcom::Node take care of this.
      */
     virtual void handle(const struct NDLComHeader *header, const void *payload,
-                        const void *origin) = 0;
+                        const struct NDLComExternalInterface *origin) = 0;
 
   protected:
     /**
@@ -63,7 +63,8 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
      * core and dispatches to the actual c++ function belonging to this object.
      */
     static void handleWrapper(void *context, const struct NDLComHeader *header,
-                              const void *payload, const void *origin) {
+                              const void *payload,
+                              const NDLComExternalInterface *origin) {
         class InternalHandler *self =
             static_cast<class InternalHandler *>(context);
         self->handle(header, payload, origin);

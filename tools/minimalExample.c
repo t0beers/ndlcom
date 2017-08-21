@@ -56,7 +56,8 @@ void writeFun(void *context, const void *buf, const size_t count) {
  * send replies directly from the "struct NodeHandler".
  */
 void someHandler(void *context, const struct NDLComHeader *header,
-                 const void *payload, const void *origin) {
+                 const void *payload,
+                 const struct NDLComExternalInterface *origin) {
     // obtain our context back
     struct MetaData *pCtx = (struct MetaData *)context;
     // and print it. keep in mind that nodes can see their own broadcast

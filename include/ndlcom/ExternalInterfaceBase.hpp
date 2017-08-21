@@ -139,7 +139,8 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
      * "caller", which is "protected" by the ndlcom::HandlerCommon base-class
      */
     friend std::weak_ptr<class ndlcom::ExternalInterfaceBase>
-    ndlcom::Bridge::getInterfaceByOrigin(const void *) const;
+    ndlcom::Bridge::getInterfaceByOrigin(
+        const struct NDLComExternalInterface *) const;
 };
 } // namespace ndlcom
 
