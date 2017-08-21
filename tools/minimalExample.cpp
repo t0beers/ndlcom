@@ -1,10 +1,10 @@
 /**
  * @file tools/minimalExample.cpp
  *
- * This file demonstrates a very minimal use-case of a NDLComBridge, a
- * NDLComNode and some convenience classes. It opens an udp-interface, listens
- * to messages of a certain pattern and regularly transmits an empty dummy
- * message to another device.
+ * This file demonstrates a very minimal use-case of a ndlcom::Bridge, a
+ * ndlcom::Node and some convenience classes. It opens an udp-interface,
+ * listens to messages of a certain pattern and regularly transmits an empty
+ * dummy message to another device.
  *
  * No command line parsing, no fancy implementations. This file only covers the
  * bare minimum needed.
@@ -110,14 +110,14 @@ int main(int argc, char *argv[]) {
             someFirstByteToListen);
 
     /* Little helper function, which parses the given string to create and
-     * register "ExternalInterface" at the given NDLComBridge. Status messages
+     * register "ExternalInterface" at the given ndlcom::Bridge. Status messages
      * and errors will be printed to std::cerr. A pointer to the new interface
      * is returned, but as no removing of registered interfaces is needed the
      * pointer is not stored. */
     bridge.createInterface(connectionUdp);
     /* also add the second interface. note that the "createInterface()" returns
      * a shared pointer, but keeps an internaly copy to prevent it going out of
-     * scope. */
+     * scope. to close an interface use "bridge.destroyExternalInterface". */
     {
         std::weak_ptr<class ndlcom::ExternalInterfaceBase> inter =
             bridge.createInterface(connectionPty);

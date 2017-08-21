@@ -65,11 +65,11 @@ class BridgePrintMissEvents final : public BridgeHandler {
  * - "origin" is not zero: Bytes coming from a specific
  *   NDCLComExternalInterface are  externally read and thus incoming or (in
  *   case of just routing) passing through the bridge. Will only count the
- *   bytes on the incoming direction, as the bytes itself being written to
- *   possibly many NDLComExternalInterface can only be seen by the interface
- *   itself.
+ *   decoded bytes once, as the bytes itself being written to possibly many
+ *   NDLComExternalInterface can only be seen by the instances of each
+ *   interface themselves.
  * - "origin" is zero: Bytes which are not accociated with a specific
- *   NDLComExternalInterface: Possibly sent by some internal handler.
+ *   NDLComExternalInterface: Sent by some internal handler.
  */
 class BridgeHandlerStatistics : public BridgeHandler {
   public:

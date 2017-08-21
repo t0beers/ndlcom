@@ -50,8 +50,9 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
     /**
      * This function will be called by the "Caller" to handle a package
      *
-     * Node: To prevent early call of this handler never call the
-     * "registerHandler" of the base-class before the last ctor did finish.
+     * Node: To prevent early calls of this handler never call the
+     * "registerHandler" of the base-class before the last ctor did finish. The
+     * factory functions in ndlcom::Bridge and ndlcom::Node take care of this.
      */
     virtual void handle(const struct NDLComHeader *header, const void *payload,
                         const void *origin) = 0;

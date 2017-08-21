@@ -2,7 +2,12 @@
 
 #include "ndlcom/NodeHandler.h"
 
-/* forward declaration */
+/**
+ * forward declaration of the implemented handler function
+ *
+ * this is (assured manually) the same signature as the
+ * "NDLComBridgeHandlerFkt" and the "NDLComNodeHandlerFkt"
+ */
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
                               const void *payload, const void *origin);
 
@@ -76,13 +81,10 @@ void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
     struct NDLComNode *node = (struct NDLComNode *)context;
     const struct NDLComNodeHandler *nodeHandler;
     /**
-     * TODO: should we check for sizes greater than zero? packages
-     * without payload don't make that much sense, but this might be
-     * too much automagic...
+     * there is explicitly no check for payload sizes equal to zero. packages
+     * without payload don't make that much sense, but this is too much
+     * automagic... in reality this happens
      */
-    /* if (header->mDataLen == 0) { */
-    /*     return; */
-    /* } */
     if ((header->mReceiverId == node->headerConfig.mOwnSenderId) ||
         (header->mReceiverId == NDLCOM_ADDR_BROADCAST)) {
         list_for_each_entry(nodeHandler, &node->nodeHandlerList, list) {

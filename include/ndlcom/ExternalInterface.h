@@ -70,7 +70,12 @@ typedef size_t (*NDLComExternalInterfaceReadEscapedBytes)(void *context,
 struct NDLComExternalInterface {
     /** The NDLComBridge where this interface is connected to.  */
     struct NDLComBridge *bridge;
-    /** the context will be provided in the read/write functions */
+    /**
+     * This pointer is set during "creation" of the c-struct to any
+     * user-provided value. The "context" will then be provided into each call
+     * of the read/write functions, which is for example helpful to wrap c++
+     * objects around this c-struct.
+     */
     void *context;
     /** influences the behaviour of the external interface */
     uint8_t flags;

@@ -259,12 +259,12 @@ class Bridge {
     }
 
     /**
-     * @brief lookup existing interfaces for the given label
+     * @brief try to lookup the interface with a given label
      *
      * @param name the label to lookup
      * @return either a weak pointer of zero
      */
-    std::weak_ptr<ndlcom::ExternalInterfaceBase>
+    std::weak_ptr<class ndlcom::ExternalInterfaceBase>
     getInterfaceByName(const std::string name) const;
 
     /**
@@ -311,7 +311,7 @@ class Bridge {
     // "bridgeHandler" and "nodes" have the same base-class. still kept in
     // different vectors to allow nicer lookup of existing nodes prior to
     // creating a new one
-    std::vector<std::shared_ptr<ndlcom::BridgeHandler>> bridgeHandler;
+    std::vector<std::shared_ptr<class ndlcom::BridgeHandler>> bridgeHandler;
     std::vector<std::shared_ptr<class ndlcom::Node>> nodes;
 
     /*
