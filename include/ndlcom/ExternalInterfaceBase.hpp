@@ -8,6 +8,7 @@
 
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/HandlerCommon.hpp"
+#include "ndlcom/Bridge.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -132,6 +133,13 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
      * The wrapped C-datastructure
      */
     struct NDLComExternalInterface external;
+
+    /**
+     * this will allow the bridge to look into our templated member struct
+     * "caller", which is "protected" by the ndlcom::HandlerCommon base-class
+     */
+    friend std::weak_ptr<class ndlcom::ExternalInterfaceBase>
+    ndlcom::Bridge::getInterfaceByOrigin(const void *) const;
 };
 } // namespace ndlcom
 

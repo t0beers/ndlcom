@@ -268,6 +268,15 @@ class Bridge {
     getInterfaceByName(const std::string name) const;
 
     /**
+     * @brief try to lookup the interface representing the given orgin
+     *
+     * @param origin pointer as used in the c-level NDLComRoutingTable
+     * @return either a weak pointer to the ExternalInterfaceBase or zero
+     */
+    std::weak_ptr<class ndlcom::ExternalInterfaceBase>
+    getInterfaceByOrigin(const void *origin) const;
+
+    /**
      * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed
      *
      * Will create a Node and optionally add a "printer" for its own id
