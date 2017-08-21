@@ -68,6 +68,7 @@ list(APPEND SOURCES_lib
     src/NodeHandler.cpp
     src/InternalHandler.cpp
     src/HandlerCommon.cpp
+    src/Payload.cpp
     )
 list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/Bridge.hpp
@@ -78,6 +79,7 @@ list(APPEND HEADERS_lib
     include/${PROJECT_NAME}/NodeHandler.hpp
     include/${PROJECT_NAME}/InternalHandler.hpp
     include/${PROJECT_NAME}/HandlerCommon.hpp
+    include/${PROJECT_NAME}/Payload.hpp
     )
 
     # The buffer-size for reading bytes from an ExternalInterface is increased for
