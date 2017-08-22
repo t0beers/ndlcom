@@ -329,6 +329,7 @@ class Bridge {
      */
     struct NDLComBridge bridge;
 
+  protected:
     std::ostream &out;
 };
 } // namespace ndlcom
