@@ -37,13 +37,17 @@ void setRoutingByString(std::weak_ptr<class ndlcom::ExternalInterfaceBase> p,
 
 class Bridge {
   public:
+    /**
+     * Initializes c-datastructures and stores the ostream reference.
+     */
     Bridge(std::ostream &_out = std::cerr);
     ~Bridge();
-
     /**
-     * deleting "copy" and "assignment" prevents some possibly weird behaviour
+     * Deleting "copy" and "assignment" prevents some possibly weird behaviour
      *
-     * rationale: this class provides a number of "factory" functions
+     * Rationale: this class provides a number of "factory" functions and
+     * retains ownership for things that correspond to actual hardware. Nobody
+     * wants a duplicate of a serial interface.
      */
     Bridge(const Bridge &) = delete;
     Bridge &operator=(Bridge const &) = delete;

@@ -174,8 +174,7 @@ void Bridge::printRoutingTable() {
     struct NDLComExternalInterface *externalInterface;
     if (list_empty(&bridge.externalInterfaceList)) {
         out << "printRoutingTable: No external interfaces registered. "
-               "RoutingTable "
-               "probably empty\n";
+               "RoutingTable probably empty\n";
         return;
     } else {
         out << "printRoutingTable: \n";
