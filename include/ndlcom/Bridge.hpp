@@ -14,6 +14,7 @@
 #include "ndlcom/Bridge.h"
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Payload.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -61,6 +62,17 @@ class Bridge {
 
     /**
      * @brief Transmitting a new message from the bridge
+     *
+     * Can be used to fully specify a message to be send by the bridge. This is
+     * not the normal way of sending messages, see ndlcom::Node::send().
+     */
+    void sendMessageRaw(struct ndlcom::RawPayload out);
+
+    /**
+     * @brief Transmitting a raw message from the bridge
+     *
+     * Can be used to fully specify a message to be send by the bridge. This is
+     * not the normal way of sending messages, see ndlcom::Node::send().
      */
     void sendMessageRaw(const struct NDLComHeader *header, const void *payload);
 

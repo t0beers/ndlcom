@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Payload.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -95,7 +96,16 @@ class Node : public BridgeHandlerBase {
     void setOwnDeviceId(const NDLComId ownDeviceId);
 
     /**
+     * @brief Sending a new message as wrapped "OutgoingPayload"
+     *
+     * @param out The prepared payload structure to be used for sending
+     */
+    void send(struct ndlcom::OutgoingPayload out);
+
+    /**
      * @brief Sending a new message
+     *
+     * Directly calls the internal c-function to send the data.
      *
      * @param receiverId Where to send to
      * @param payload Pointer to memory containing the payload
@@ -103,6 +113,14 @@ class Node : public BridgeHandlerBase {
      */
     void send(const NDLComId receiverId, const void *payload,
               const size_t payloadSize);
+
+    /**
+     * @brief Do not allow to send raw-messages
+     *
+     * As this class is derived from ndlcom::BridgeHandlerBase, we have to
+     * delete its send() function for good measure.
+     */
+    void send(const struct NDLComHeader *header, const void *payload) = delete;
 
     /**
      * Adds the handler-function of this Node (implemented by
