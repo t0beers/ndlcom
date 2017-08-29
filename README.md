@@ -82,6 +82,8 @@ The library is used in the following in-house projects:
 - DFKI Microcontrollerboards using [chibiOS](https://git.hb.dfki.de/team2/chibios_support/blob/2dca977c/comm.cpp#L160)
 - [Treadmill](https://git.hb.dfki.de/hhanff/Treadmill)
 - for the *ZynqBrain* board there exists a [kernel-module](https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom) to map between data processed from the VHDL module into readable byte-streams on an user-space interface like `/dev/NDLCom`
+- Charlies [HeadServoController](https://git.hb.dfki.de/charlie/HeadServoController) is
+  running on ZynqBrain as well
 
 [UART]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver/transmitter
 [HDLC]: http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf
