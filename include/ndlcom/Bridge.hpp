@@ -39,6 +39,14 @@ class Bridge {
     Bridge(std::ostream &_out = std::cerr);
     ~Bridge();
 
+    /**
+     * deleting "copy" and "assignment" prevents some possibly weird behaviour
+     *
+     * rationale: this class provides a number of "factory" functions
+     */
+    Bridge(const Bridge &) = delete;
+    Bridge &operator=(Bridge const &) = delete;
+
     /** printer functions. move outside of this class? */
     void printRoutingTable();
     void printStatus();

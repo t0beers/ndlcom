@@ -26,6 +26,15 @@ template <class Caller, class Handler> class HandlerCommon {
         : label(_label), out(_out), handler(_handler), caller(_caller) {}
     virtual ~HandlerCommon() {}
     /**
+     * delete copy and assignment operators
+     *
+     * Might help to prevent weirdness from happening. By doing this in this
+     * very base-class, all (at least for now) deriving Handlers won't have
+     * these as well -- as long as nobody implements them explicitly.
+     */
+    HandlerCommon(const HandlerCommon &) = delete;
+    HandlerCommon &operator=(HandlerCommon const &) = delete;
+    /**
      * Set this string in ctor of deriving classes, shall not be changed during
      * runtime. Is used to display a nice name.
      */
