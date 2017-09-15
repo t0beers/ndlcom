@@ -28,10 +28,12 @@ Node::~Node() {
 void Node::registerHandler() { ndlcomNodeRegister(&node, &caller); }
 void Node::deregisterHandler() { ndlcomNodeDeregister(&node); }
 
-void Node::printStatus() {
-    out << label << ":\n";
+void Node::printStatus(const std::string prefix) const {
+    HandlerCommon::printStatus(prefix);
+    std::string newPrefix = "  " + prefix;
+    out << newPrefix << "ndlcomNodeHandler:\n";
     for (auto it : allHandler) {
-        out << "- " << it->label << "\n";
+        it->printStatus(newPrefix);
     }
 }
 

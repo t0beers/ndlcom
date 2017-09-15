@@ -40,6 +40,18 @@ template <class Caller, class Handler> class HandlerCommon {
      */
     const std::string label;
     /**
+     * This base-implementation will output the prefix+"- "+label to "out"
+     *
+     * Intended to be called by the "Caller", traversing the handler-tree in
+     * downwards direction. If you inherit from this class it may make sense to
+     * call the base-class implementation at first, for consistent looks.
+     * Afterwards, add your own information -- like calling "printStatus" for
+     * all handlers owned. See ndlcom::Node::printStatus() for an example.
+     */
+    virtual void printStatus(const std::string prefix) const {
+        out << prefix << "- " << label << "\n";
+    };
+    /**
      * Used to attach the used "Handler" to the "Caller". To prevent
      * uninitialized objects this function shall be called AFTER the ctor of the
      * c++ object finished.

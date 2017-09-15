@@ -79,6 +79,15 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     void resetCrcFails();
     size_t getCrcFails() const;
 
+    /**
+     * prints to "out", calls HandlerCommon::printStatus
+     *
+     * the name of the interface on the first line, and then crcFails, bytesRx
+     * and bytesTx on the second line. If the interface is paused, it will be
+     * indicated by appending "[PAUSED]"
+     */
+    void printStatus(const std::string prefix) const final;
+
   protected:
     /**
      * Helper function which adds up the number of incoming bytes into
