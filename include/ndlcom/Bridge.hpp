@@ -211,13 +211,13 @@ class Bridge {
     }
 
     /**
-     * similar factor for the BridgeHandler
+     * similar factory for the BridgeHandler
      */
     template <class T, class... A>
     std::weak_ptr<T> createBridgeHandler(A... args) {
         static_assert(
-            std::is_base_of<ndlcom::BridgeHandlerBase, T>(),
-            "can only create classes derived from ndlcom::BridgeHandlerBase");
+            std::is_base_of<ndlcom::BridgeHandler, T>(),
+            "can only create classes derived from ndlcom::BridgeHandler");
         std::shared_ptr<T> ret = std::make_shared<T>(bridge, args...);
         ret->registerHandler();
         bridgeHandler.push_back(ret);
