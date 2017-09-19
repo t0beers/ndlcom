@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <string.h> // memset
 
 #include "ndlcom/BridgeHandler.hpp"
 
@@ -23,16 +24,40 @@ void BridgePrintAll::handle(const struct NDLComHeader *header,
     out << std::string(" bytes of payload\n");
 }
 
-BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &bridge,
-                                             std::ostream &_out)
-    : BridgeHandler(bridge, "BridgePrintMissEvents", _out) {}
+BridgeMissEvents::BridgeMissEvents(struct NDLComBridge &bridge,
+                                   std::ostream &_out)
+    : BridgeHandler(bridge, "BridgeMissEvents", _out),
+      numberOfPacketMissEvents{{0}}, expectedNextPacketCounter{{0}} {}
 
-void BridgePrintMissEvents::handle(
+void BridgeMissEvents::handle(
     const struct NDLComHeader *header, const void *payload,
     const struct NDLComExternalInterface *origin) {
-    // broadcast receiver dont make sense... skip 'em
+    // this does all the heavy lifting. nothing more to do!
+    isMiss(header);
+}
+
+void BridgeMissEvents::printStatus(const std::string prefix) const {
+    HandlerCommon::printStatus(prefix);
+    // print "miss statistics"...
+    for (int fromId = 0; fromId < NDLCOM_MAX_NUMBER_OF_DEVICES; fromId++) {
+        for (int toId = 0; toId < NDLCOM_MAX_NUMBER_OF_DEVICES; toId++) {
+            if (numberOfPacketMissEvents[fromId][toId]) {
+                out << prefix << "   from " << fromId << " to " << toId << ":  "
+                    << numberOfPacketMissEvents[fromId][toId]
+                    << " miss events\n";
+            }
+        }
+    }
+}
+
+void BridgeMissEvents::resetMissEvents() {
+    memset(numberOfPacketMissEvents, 0, sizeof numberOfPacketMissEvents);
+}
+
+int BridgeMissEvents::isMiss(const struct NDLComHeader *header) {
+    int retval = 0;
     if (header->mSenderId == NDLCOM_ADDR_BROADCAST) {
-        return;
+        return retval;
     }
 
     /* allow configuring smaller value for MAX_NUMBER_OF_DEVICES. is
@@ -40,7 +65,7 @@ void BridgePrintMissEvents::handle(
     if (NDLCOM_MAX_NUMBER_OF_DEVICES < std::numeric_limits<NDLComId>::max()) {
         if (header->mSenderId >= NDLCOM_MAX_NUMBER_OF_DEVICES ||
             header->mReceiverId >= NDLCOM_MAX_NUMBER_OF_DEVICES)
-            return;
+            return retval;
     }
 
     if (!alreadySeen.test(header->mSenderId << sizeof(NDLComId) * 8 |
@@ -56,25 +81,44 @@ void BridgePrintMissEvents::handle(
         // packet-counter matches our expectation.
         if (expectedNextPacketCounter[header->mSenderId][header->mReceiverId] !=
             header->mCounter) {
-            // calculate how many where lost (supposedly)
-            const int diff =
-                header->mCounter -
-                expectedNextPacketCounter[header->mSenderId][header
-                                                                 ->mReceiverId];
-            // output the "event"
-            out << std::string("miss event message from ");
-            out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
-            out << std::string(" to ");
-            out << std::setfill(' ') << std::setw(3) << (int)header->mReceiverId;
-            out << std::string(" -- diff: ");
-            out << std::setfill(' ') << std::setw(3) << diff << "\n";
+            retval = header->mCounter -
+                     expectedNextPacketCounter[header->mSenderId]
+                                              [header->mReceiverId];
+            // and count!
+            numberOfPacketMissEvents[header->mSenderId][header->mReceiverId]++;
         }
     }
-
     // in any case we remember the next expected packet counter of this
-    // connecetion
+    // connecetion. for the wraparound: the counter will overflow by itself...
+    // is this undefined behaviour?
     expectedNextPacketCounter[header->mSenderId][header->mReceiverId] =
         header->mCounter + 1;
+    //and done
+    return retval;
+}
+
+/**
+ * rather simple.
+ *
+ * problem: the "label" of parent class is not overriden
+ */
+BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &bridge,
+                                             std::ostream &_out)
+    : BridgeMissEvents(bridge, _out) {}
+
+void BridgePrintMissEvents::handle(
+    const struct NDLComHeader *header, const void *payload,
+    const struct NDLComExternalInterface *origin) {
+    // this does all the heavy lifting. nothing more to do!
+    if (int diff = isMiss(header)) {
+        // output the "event"
+        out << std::string("miss event message from ");
+        out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
+        out << std::string(" to ");
+        out << std::setfill(' ') << std::setw(3) << (int)header->mReceiverId;
+        out << std::string(" -- diff: ");
+        out << std::setfill(' ') << std::setw(3) << diff << "\n";
+    }
 }
 
 BridgeHandlerStatistics::BridgeHandlerStatistics(struct NDLComBridge &_caller)
