@@ -8,6 +8,7 @@
 
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/HandlerCommon.hpp"
+#include "ndlcom/Bridge.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -78,6 +79,15 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
     void resetCrcFails();
     size_t getCrcFails() const;
 
+    /**
+     * prints to "out", calls HandlerCommon::printStatus
+     *
+     * the name of the interface on the first line, and then crcFails, bytesRx
+     * and bytesTx on the second line. If the interface is paused, it will be
+     * indicated by appending "[PAUSED]"
+     */
+    void printStatus(const std::string prefix) const final;
+
   protected:
     /**
      * Helper function which adds up the number of incoming bytes into
@@ -132,6 +142,14 @@ class ExternalInterfaceBase : public ExternalInterfaceVeryBase {
      * The wrapped C-datastructure
      */
     struct NDLComExternalInterface external;
+
+    /**
+     * this will allow the bridge to look into our templated member struct
+     * "caller", which is "protected" by the ndlcom::HandlerCommon base-class
+     */
+    friend std::weak_ptr<class ndlcom::ExternalInterfaceBase>
+    ndlcom::Bridge::getInterfaceByOrigin(
+        const struct NDLComExternalInterface *) const;
 };
 } // namespace ndlcom
 

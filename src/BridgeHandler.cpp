@@ -12,7 +12,8 @@ BridgePrintAll::BridgePrintAll(struct NDLComBridge &bridge, std::ostream &_out)
     : BridgeHandler(bridge, "BridgePrintAll", _out) {}
 
 void BridgePrintAll::handle(const struct NDLComHeader *header,
-                            const void *payload, const void *origin) {
+                            const void *payload,
+                            const struct NDLComExternalInterface *origin) {
     out << std::string("bridge saw message from ");
     out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
     out << std::string(" to ");
@@ -26,8 +27,9 @@ BridgePrintMissEvents::BridgePrintMissEvents(struct NDLComBridge &bridge,
                                              std::ostream &_out)
     : BridgeHandler(bridge, "BridgePrintMissEvents", _out) {}
 
-void BridgePrintMissEvents::handle(const struct NDLComHeader *header,
-                                   const void *payload, const void *origin) {
+void BridgePrintMissEvents::handle(
+    const struct NDLComHeader *header, const void *payload,
+    const struct NDLComExternalInterface *origin) {
     // broadcast receiver dont make sense... skip 'em
     if (header->mSenderId == NDLCOM_ADDR_BROADCAST) {
         return;
@@ -79,8 +81,10 @@ BridgeHandlerStatistics::BridgeHandlerStatistics(struct NDLComBridge &_caller)
     : BridgeHandler(_caller, "BridgeHandlerStatistics"), bytesTransmitted(0),
       bytesReceived(0) {}
 
-void BridgeHandlerStatistics::handle(const struct NDLComHeader *header,
-                                     const void *payload, const void *origin) {
+void BridgeHandlerStatistics::handle(
+    const struct NDLComHeader *header, const void *payload,
+    const struct NDLComExternalInterface *origin) {
+    // when "origin" is zero the message was sent internally:
     if (origin) {
         bytesReceived += sizeof(struct NDLComHeader) + header->mDataLen;
     } else {

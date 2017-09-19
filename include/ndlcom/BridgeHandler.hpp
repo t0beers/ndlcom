@@ -11,13 +11,12 @@ namespace ndlcom {
 
 /**
  * @brief uses callback to print out information header of EVERY observed packet
- *
  */
 class BridgePrintAll final : public BridgeHandler {
   public:
     BridgePrintAll(struct NDLComBridge &bridge, std::ostream &out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin) override;
+                const struct NDLComExternalInterface *origin) override;
 };
 
 /**
@@ -31,7 +30,7 @@ class BridgePrintMissEvents final : public BridgeHandler {
     BridgePrintMissEvents(struct NDLComBridge &bridge,
                           std::ostream &out = std::cerr);
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin) override;
+                const struct NDLComExternalInterface *origin) override;
     /** clears every internal datastructure */
     void resetMissEvents();
 
@@ -77,7 +76,7 @@ class BridgeHandlerStatistics : public BridgeHandler {
     /** to make matters simple, this class is not allowed to transmit */
     void send(const struct NDLComHeader *header, const void *payload) = delete;
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin) override;
+                const struct NDLComExternalInterface *origin) override;
 
     unsigned long currentBytesTx() const;
     unsigned long currentBytesRx() const;

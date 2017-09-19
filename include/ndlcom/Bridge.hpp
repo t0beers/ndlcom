@@ -39,6 +39,14 @@ class Bridge {
     Bridge(std::ostream &_out = std::cerr);
     ~Bridge();
 
+    /**
+     * deleting "copy" and "assignment" prevents some possibly weird behaviour
+     *
+     * rationale: this class provides a number of "factory" functions
+     */
+    Bridge(const Bridge &) = delete;
+    Bridge &operator=(Bridge const &) = delete;
+
     /** printer functions. move outside of this class? */
     void printRoutingTable();
     void printStatus();
@@ -203,13 +211,13 @@ class Bridge {
     }
 
     /**
-     * similar factor for the BridgeHandler
+     * similar factory for the BridgeHandler
      */
     template <class T, class... A>
     std::weak_ptr<T> createBridgeHandler(A... args) {
         static_assert(
-            std::is_base_of<ndlcom::BridgeHandlerBase, T>(),
-            "can only create classes derived from ndlcom::BridgeHandlerBase");
+            std::is_base_of<ndlcom::BridgeHandler, T>(),
+            "can only create classes derived from ndlcom::BridgeHandler");
         std::shared_ptr<T> ret = std::make_shared<T>(bridge, args...);
         ret->registerHandler();
         bridgeHandler.push_back(ret);
@@ -268,6 +276,15 @@ class Bridge {
     getInterfaceByName(const std::string name) const;
 
     /**
+     * @brief try to lookup the interface representing the given orgin
+     *
+     * @param origin pointer as used in the c-level NDLComRoutingTable
+     * @return either a weak pointer to the ExternalInterfaceBase or zero
+     */
+    std::weak_ptr<class ndlcom::ExternalInterfaceBase>
+    getInterfaceByOrigin(const struct NDLComExternalInterface *origin) const;
+
+    /**
      * @brief Create ndlcom::NodeHandler and maybe a ndlcom::Node if needed
      *
      * Will create a Node and optionally add a "printer" for its own id
@@ -320,6 +337,7 @@ class Bridge {
      */
     struct NDLComBridge bridge;
 
+  protected:
     std::ostream &out;
 };
 } // namespace ndlcom

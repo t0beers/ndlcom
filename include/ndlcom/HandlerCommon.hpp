@@ -26,19 +26,40 @@ template <class Caller, class Handler> class HandlerCommon {
         : label(_label), out(_out), handler(_handler), caller(_caller) {}
     virtual ~HandlerCommon() {}
     /**
+     * delete copy and assignment operators
+     *
+     * Might help to prevent weirdness from happening. By doing this in this
+     * very base-class, all (at least for now) deriving Handlers won't have
+     * these as well -- as long as nobody implements them explicitly.
+     */
+    HandlerCommon(const HandlerCommon &) = delete;
+    HandlerCommon &operator=(HandlerCommon const &) = delete;
+    /**
      * Set this string in ctor of deriving classes, shall not be changed during
      * runtime. Is used to display a nice name.
      */
     const std::string label;
     /**
+     * This base-implementation will output the prefix+"- "+label to "out"
+     *
+     * Intended to be called by the "Caller", traversing the handler-tree in
+     * downwards direction. If you inherit from this class it may make sense to
+     * call the base-class implementation at first, for consistent looks.
+     * Afterwards, add your own information -- like calling "printStatus" for
+     * all handlers owned. See ndlcom::Node::printStatus() for an example.
+     */
+    virtual void printStatus(const std::string prefix) const {
+        out << prefix << "- " << label << "\n";
+    };
+    /**
      * Used to attach the used "Handler" to the "Caller". To prevent
-     * uninitialized objects this function shall be called after the ctor of
-     * the c++ object finished.
+     * uninitialized objects this function shall be called AFTER the ctor of the
+     * c++ object finished.
      */
     virtual void registerHandler() = 0;
     /**
-     * Used to remove the "Handler" from the "Caller". This function can be
-     * called on the dtor of the c++ object (?)
+     * Used to remove the "Handler" from the "Caller". This function shall be
+     * called BEFORE the dtor of the c++ object!
      */
     virtual void deregisterHandler() = 0;
 

@@ -110,6 +110,16 @@ Bridge::getInterfaceByName(const std::string name) const {
     return std::weak_ptr<ndlcom::ExternalInterfaceBase>();
 }
 
+std::weak_ptr<class ndlcom::ExternalInterfaceBase> Bridge::getInterfaceByOrigin(
+    const struct NDLComExternalInterface *origin) const {
+    for (auto it : externalInterfaces) {
+        if (&it->handler == origin) {
+            return it;
+        }
+    }
+    return std::weak_ptr<class ndlcom::ExternalInterfaceBase>();
+}
+
 std::vector<std::string> Bridge::getInterfaceNames() const {
     std::vector<std::string> retval;
     for (auto it : externalInterfaces) {
@@ -139,20 +149,23 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
 }
 
 void Bridge::printStatus() {
-    out << "Bridge status:\n";
-    for (auto it : nodes) {
-        it->printStatus();
+    out << "--- Bridge status ---\n";
+    out << "ndlcomNode:\n";
+    if (!nodes.empty()) {
+        for (auto it : nodes) {
+            it->printStatus("  ");
+        }
     }
     if (!bridgeHandler.empty()) {
-        out << "BridgeHandler:\n";
+        out << "ndlcomBridgeHandler:\n";
         for (auto it : bridgeHandler) {
-            out << "- " << it->label << "\n";
+            it->printStatus("  ");
         }
     }
     if (!externalInterfaces.empty()) {
-        out << "ExternalInterfaces:\n";
+        out << "ndlcomExternalInterface:\n";
         for (auto it : externalInterfaces) {
-            out << "- " << it->label << "\n";
+            it->printStatus("  ");
         }
     }
 }

@@ -19,7 +19,7 @@ class NodeHandlerPrintOwnId final : public NodeHandler {
                           std::ostream &_out = std::cerr);
     void send(const struct NDLComHeader *header, const void *payload) = delete;
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin) override;
+                const struct NDLComExternalInterface *origin) override;
 };
 
 /**
@@ -43,7 +43,7 @@ class NodeHandlerStatistics : public NodeHandler {
     NodeHandlerStatistics(struct NDLComNode &_caller);
     void send(const struct NDLComHeader *header, const void *payload) = delete;
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin) override;
+                const struct NDLComExternalInterface *origin) override;
 
     unsigned long currentBytesRx() const;
     void resetBytes();

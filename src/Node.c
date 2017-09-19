@@ -9,7 +9,8 @@
  * "NDLComBridgeHandlerFkt" and the "NDLComNodeHandlerFkt"
  */
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
-                              const void *payload, const void *origin);
+                              const void *payload,
+                              const struct NDLComExternalInterface *origin);
 
 void ndlcomNodeInit(struct NDLComNode *node, const NDLComId ownSenderId) {
 
@@ -77,7 +78,8 @@ NDLComId ndlcomNodeGetOwnDeviceId(const struct NDLComNode* node) {
  * for messages directed at "us" happens: Our receiverId and the Broadcast.
  */
 void ndlcomNodeMessageHandler(void *context, const struct NDLComHeader *header,
-                              const void *payload, const void *origin) {
+                              const void *payload,
+                              const struct NDLComExternalInterface *origin) {
     struct NDLComNode *node = (struct NDLComNode *)context;
     const struct NDLComNodeHandler *nodeHandler;
     /**

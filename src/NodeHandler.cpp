@@ -7,13 +7,13 @@
 #include "ndlcom/Types.h"
 
 using namespace ndlcom;
-
 NodeHandlerPrintOwnId::NodeHandlerPrintOwnId(struct NDLComNode &node,
                                              std::ostream &_out)
     : NodeHandler(node, "NodeHandlerPrintOwnId", _out) {}
 
-void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
-                                   const void *payload, const void *origin) {
+void NodeHandlerPrintOwnId::handle(
+    const struct NDLComHeader *header, const void *payload,
+    const struct NDLComExternalInterface *origin) {
     out << std::string("listener ");
     out << std::setfill(' ') << std::setw(3) << (int)getOwnDeviceId();
     out << std::string(" got message from ");
@@ -26,8 +26,9 @@ void NodeHandlerPrintOwnId::handle(const struct NDLComHeader *header,
 NodeHandlerStatistics::NodeHandlerStatistics(struct NDLComNode &_caller)
     : NodeHandler(_caller, "NodeHandlerStatistics"), bytesReceived(0) {}
 
-void NodeHandlerStatistics::handle(const struct NDLComHeader *header,
-                                   const void *payload, const void *origin) {
+void NodeHandlerStatistics::handle(
+    const struct NDLComHeader *header, const void *payload,
+    const struct NDLComExternalInterface *origin) {
     if (origin) {
         bytesReceived += sizeof(struct NDLComHeader) + header->mDataLen;
     } else {

@@ -24,6 +24,11 @@
 bool stopMainLoop = false;
 void signal_handler(int signal) { stopMainLoop = true; }
 
+/* The actual NDLComBridge, responsible to carry data between any registered
+ * "ndlcom::ExternalInterface", "ndlcom::BridgeHandler" and possibly
+ * "ndlcom::NodeHandler" */
+class ndlcom::Bridge bridge;
+
 /* Just an example */
 uint8_t ownDeviceId = 82;
 /* This will be used to filter messages in the "handle()" function of the
@@ -61,15 +66,14 @@ class ExampleHandler final : public ndlcom::NodeHandler {
     /* This function will be called when the NDLComNode received a message
      * directed at its own deviceId. */
     void handle(const struct NDLComHeader *header, const void *payload,
-                const void *origin) {
+                const struct NDLComExternalInterface *origin) {
 
         /* at first do some printing */
         printf("message from 0x%02x with %i bytes",
                header->mSenderId, (int)header->mDataLen);
         if (origin) {
             printf(" from %s\n",
-                   static_cast<const class ndlcom::ExternalInterfaceBase *>(
-                       origin)->label.c_str());
+                   bridge.getInterfaceByOrigin(origin).lock()->label.c_str());
         } else {
             printf(" from internal\n");
         }
@@ -92,12 +96,9 @@ class ExampleHandler final : public ndlcom::NodeHandler {
 /* the actual main */
 int main(int argc, char *argv[]) {
 
-    /* The actual NDLComBridge, responsible to carry data between registered
-     * "ExternalInterface" and "BridgeHandler". */
-    class ndlcom::Bridge bridge;
-
-    /* And a NDLComNode, which will register itself as an "BridgeHandler"
-     * at the bridge. Will filter messages for the given deviceId. */
+    /* And a ndlcom::Node, which will register itself as a "BridgeHandler" at
+     * the bridge to provide handling for node-specific messages: Will filter
+     * messages by the given deviceId (and broadcasts). */
     std::weak_ptr<class ndlcom::Node> node =
         bridge.createNode<class ndlcom::Node>(ownDeviceId);
 

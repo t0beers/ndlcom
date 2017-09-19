@@ -33,6 +33,13 @@ size_t ExternalInterfaceBase::getCrcFails() const {
     return ndlcomParserGetNumberOfCRCFails(&external.parser);
 }
 
+void ExternalInterfaceBase::printStatus(const std::string prefix) const {
+    HandlerCommon::printStatus(prefix);
+    out << prefix << "   crcFail: " << getCrcFails()
+        << " rawBytesRx: " << bytesReceived << " rawBytesTx: " << bytesTransmitted
+        << (paused ? " [PAUSED]" : "") << "\n";
+}
+
 // static wrapper function for the c-callback
 void ExternalInterfaceBase::writeWrapper(void *context, const void *buf,
                                          const size_t count) {
