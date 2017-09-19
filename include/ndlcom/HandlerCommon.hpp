@@ -32,13 +32,13 @@ template <class Caller, class Handler> class HandlerCommon {
     const std::string label;
     /**
      * Used to attach the used "Handler" to the "Caller". To prevent
-     * uninitialized objects this function shall be called after the ctor of
-     * the c++ object finished.
+     * uninitialized objects this function shall be called AFTER the ctor of the
+     * c++ object finished.
      */
     virtual void registerHandler() = 0;
     /**
-     * Used to remove the "Handler" from the "Caller". This function can be
-     * called on the dtor of the c++ object (?)
+     * Used to remove the "Handler" from the "Caller". This function shall be
+     * called BEFORE the dtor of the c++ object!
      */
     virtual void deregisterHandler() = 0;
 

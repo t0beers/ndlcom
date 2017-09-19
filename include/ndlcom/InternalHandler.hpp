@@ -27,18 +27,21 @@ typedef class HandlerCommon<struct NDLComBridge, struct NDLComBridgeHandler>
 /**
  * @brief Provide c++ callback with same interface as wrapped c classes
  *
- * Cannot be used to wrap things that already implement/use a c callback
+ * The InternalHandler have to cope with decoded messages, contrary to an
+ * ExternalInterfaces which only see chunks of bytes.
  *
- * Adds the wrapper-callback and its implementation. Written as a template
- * class to provide the same implementation for the two handlers used
- * internally: NodeHandler and BridgeHandler.
+ * Cannot be used to wrap things that already implement/use a c callback.
+ *
+ * Adds the wrapper-callback and its implementation. Written as a template class
+ * to provide the same implementation for the two handlers used internally:
+ * NodeHandler and BridgeHandler.
+ *
+ * Later, in another library, the represupport::PacketHandler will also use this
+ * tooling class.
  *
  * When implementing the derived class, be sure to use the static function
  * "handleWrapper()" when registering at the caller and the "this" pointer as
  * context.
- *
- * InternalHandler have to cope with decoded messages, contrary to
- * ExternalInterfaces which only see chunks of bytes.
  */
 template <class Caller, class Handler>
 class InternalHandler : public HandlerCommon<Caller, Handler> {
@@ -46,7 +49,6 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
     template <typename... Args>
     InternalHandler(Args &&... args)
         : HandlerCommon<Caller, Handler>(std::forward<Args>(args)...) {}
-
     /**
      * This function will be called by the "Caller" to handle a package
      *
@@ -65,6 +67,10 @@ class InternalHandler : public HandlerCommon<Caller, Handler> {
     static void handleWrapper(void *context, const struct NDLComHeader *header,
                               const void *payload,
                               const NDLComExternalInterface *origin) {
+    /**
+     * TODO: this might be the place to change signature of the cpp-variant of
+     * "handle" to use the ndlcom::IncomingPayload?
+     */
         class InternalHandler *self =
             static_cast<class InternalHandler *>(context);
         self->handle(header, payload, origin);
