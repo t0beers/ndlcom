@@ -396,9 +396,16 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
                                                 std::to_string(_canIdRx) + ":" +
                                                 std::to_string(_canIdTx),
                                     std::cerr, flags),
-      can_filter{_canIdRx, CAN_SFF_MASK}, canIdTx(_canIdRx),
-      err_mask(CAN_ERR_TX_TIMEOUT | CAN_ERR_BUSOFF),
-      len(sizeof(struct sockaddr_in)) {
+      /* filtering for a certain canId mask */
+      can_filter{_canIdRx, CAN_SFF_MASK},
+      /* store the value nevertheless, for future reference: */
+      canIdTx(_canIdTx), canIdRx(_canIdRx),
+      /* actually errors would be handy as well (untested): */
+      err_mask(CAN_ERR_TX_TIMEOUT | CAN_ERR_CRTL_RX_PASSIVE |
+               CAN_ERR_CRTL_TX_PASSIVE | CAN_ERR_BUSOFF),
+      addr{0}, len(sizeof(struct sockaddr_in)) {
+
+    // error is missing/not working as expected
 
     // create the socket (which is a file descriptor):
     fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
@@ -415,10 +422,17 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
 
     // the "device_name" shall contain the equivalent string of smth like "can0"
     strcpy(ifr.ifr_name, device_name.data());
-    ioctl(fd, SIOCGIFINDEX, &ifr);
+    if (ioctl(fd, SIOCGIFINDEX, &ifr)) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
 
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
+// what the hell are these for?
+#if 0
+    addr.can_addr.tp.tx_id = _canIdTx;
+    addr.can_addr.tp.rx_id = _canIdRx;
+#endif
 
     bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 
@@ -429,15 +443,25 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
     }
 
     // and only receive these can-messages which match the filter
-    if (setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, &can_filter, sizeof(can_filter)) == -1) {
+    if (setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, &can_filter,
+                   sizeof(can_filter)) == -1) {
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
+
+    // debugging, so that we see any packets at all:
+#if 0
+    int loopback = 1; /* 0 = disabled, 1 = enabled (default) */
+    setsockopt(fd, SOL_CAN_RAW, CAN_RAW_LOOPBACK, &loopback, sizeof(loopback));
+    int recv_own_msgs = 1; /* 0 = disabled (default), 1 = enabled */
+    setsockopt(fd, SOL_CAN_RAW, CAN_RAW_RECV_OWN_MSGS, &recv_own_msgs,
+               sizeof(recv_own_msgs));
+#endif
 }
 
 const canid_t ndlcom::ExternalInterfaceCan::defaultCanIdRx = 42;
 const canid_t ndlcom::ExternalInterfaceCan::defaultCanIdTx = 43;
 const std::regex ndlcom::ExternalInterfaceCan::uri(
-    "^can://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
+    "^can://([^:&]*)(?::(\\d+))?(?::(\\d+))?(?:&(.*))?$");
 ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &_bridge,
                                            std::smatch match, uint8_t flags)
     : ExternalInterfaceCan(
@@ -449,30 +473,23 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &_bridge,
 ExternalInterfaceCan::~ExternalInterfaceCan() { close(fd); }
 
 size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
-    /* out << "trying to read " << count << " bytes\n"; */
     struct can_frame frame;
-    struct sockaddr_in addr_recv;
 
     size_t alreadyRead = 0;
-    // this loop will only ready multiples of the frame-size into count
+    // this loop will only read multiples of the frame-size into count. the
+    // last read of a non-modulo-eight sized packet is chopped off?
     while (alreadyRead < (count - sizeof(frame.data))) {
-    again:
+again:
         // using recvfrom, so that we specifiy the interface from where we read
         ssize_t bytesRead = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
-                                     (struct sockaddr *)&addr_recv, &len);
+                                     (struct sockaddr *)&addr, &len);
         if (bytesRead < 0) {
             if (errno == EINTR) {
                 // ignore signals
                 goto again;
             } else if (errno == EAGAIN) {
-                // nothing to read, just return
-                return alreadyRead;
-#if 0
-            } else if (errno == ENOTCONN) {
-                // "not connected" may happen on tcp-streams. ignore this, we just
-                // assume that we know what we do...
-                return 0;
-#endif
+                // nothing more to read, just return
+                goto done;
             }
             reportRuntimeError(strerror(errno), __FILE__, __LINE__);
             return 0;
@@ -482,31 +499,41 @@ size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
             return 0;
         }
 
-        // TODO: if interface would be bound to "any" we would have to check
-        // addr_recv?
+        // TODO: if interface would be bound to "any" we would have to add
+        // additional checks?
 
-        memcpy(buf, frame.data, frame.can_dlc);
+        memcpy((char*)buf+alreadyRead, frame.data, frame.can_dlc);
 
         alreadyRead += frame.can_dlc;
     }
+done:
 
     return alreadyRead;
 }
 
 void ExternalInterfaceCan::writeEscapedBytes(const void *buf, size_t count) {
-    /* out << "trying to write " << count << " bytes\n"; */
+    out << "trying to write " << count << " bytes\n";
     size_t alreadyWritten = 0;
     struct can_frame frame;
+    // the "sockaddr_can" struct has a rx/tx field
     frame.can_id = canIdTx;
+    frame.can_dlc = sizeof(frame.data);
 again:
-    while (alreadyWritten < (count-sizeof(frame.data))) {
-        size_t frameDataSize = (count - alreadyWritten) % sizeof(frame.data);
+    while (alreadyWritten < count) {
 
-        memcpy(frame.data, (const char *)buf + alreadyWritten, frameDataSize);
+        // we'll rewrite the "size" field only for the last chunk. for all the
+        // other ones the initial value (8byte, set before the loop) is used.
+        // it might work like this?
+        if ((alreadyWritten+sizeof(frame.data)) > count) {
+            frame.can_dlc = count - alreadyWritten;
+        }
 
-        ssize_t written =
-            sendto(fd, &frame, sizeof(struct can_frame), MSG_NOSIGNAL,
-                   (struct sockaddr *)&addr, sizeof(addr));
+        memcpy(frame.data, (const char *)buf + alreadyWritten, frame.can_dlc);
+
+        std::cout << "here: " << (int)frame.can_dlc << " " << sizeof(frame.data) << "\n";
+
+        ssize_t written = sendto(fd, &frame, sizeof(struct can_frame), 0,
+                                 (struct sockaddr *)&addr, sizeof(addr));
         if (written == -1) {
             if (errno == EINTR) {
                 // ignore signals
@@ -514,7 +541,7 @@ again:
             }
             reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
-        alreadyWritten += frameDataSize;
+        alreadyWritten += frame.can_dlc;
     }
     return;
 }

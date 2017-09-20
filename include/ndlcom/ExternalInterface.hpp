@@ -176,7 +176,9 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
  * remember to bring the interface up before trying to use it:
  *
        ip link set up can0 type can bitrate 500000
-       ip link set can0 up
+       ip link set can0 txqueuelen 1000
+ *
+ * kernel queuing needs to be known: https://stackoverflow.com/a/43988554/7374642
  *
  * the uri accepted for this type of interface has the format
  * "can://$deviceName:canIdRx:canIdTx", where the device name is followed by
@@ -198,6 +200,8 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
  *
  * i would prefer to use a low-priority canId because we'll use this here as
  * tunnel for debug-tooling with "legacy" ndlcom stuff...
+ *
+ * TODO: do our fpga-based senders create packets with less than eight byte of payload?
  */
 class ExternalInterfaceCan : public ndlcom::ExternalInterfaceBase {
   public:
@@ -223,6 +227,7 @@ class ExternalInterfaceCan : public ndlcom::ExternalInterfaceBase {
   private:
     struct can_filter can_filter;
     canid_t canIdTx;
+    canid_t canIdRx;
     can_err_mask_t err_mask;
     struct sockaddr_can addr;
     int fd;
