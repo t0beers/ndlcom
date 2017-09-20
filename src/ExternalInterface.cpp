@@ -19,6 +19,8 @@
 
 #include "ndlcom/ExternalInterface.hpp"
 
+#include <linux/can/error.h>
+
 using namespace ndlcom;
 
 ExternalInterfaceStream::ExternalInterfaceStream(struct NDLComBridge &bridge,
@@ -388,10 +390,14 @@ again:
 
 ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
                                            std::string device_name,
-                                           unsigned int canId, uint8_t flags)
+                                           canid_t _canIdRx, canid_t _canIdTx,
+                                           uint8_t flags)
     : ndlcom::ExternalInterfaceBase(bridge, "can://" + device_name + ":" +
-                                                std::to_string(canId),
+                                                std::to_string(_canIdRx) + ":" +
+                                                std::to_string(_canIdTx),
                                     std::cerr, flags),
+      can_filter{_canIdRx, CAN_SFF_MASK}, canIdTx(_canIdRx),
+      err_mask(CAN_ERR_TX_TIMEOUT | CAN_ERR_BUSOFF),
       len(sizeof(struct sockaddr_in)) {
 
     // create the socket (which is a file descriptor):
@@ -416,64 +422,82 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
 
     bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 
+    // proper error detection... relax as needed!
+    if (setsockopt(fd, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask,
+                   sizeof(err_mask)) == -1) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+
+    // and only receive these can-messages which match the filter
+    if (setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, &can_filter, sizeof(can_filter)) == -1) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
 }
 
-const unsigned int ndlcom::ExternalInterfaceCan::defaultCanId = 34000;
+const canid_t ndlcom::ExternalInterfaceCan::defaultCanIdRx = 42;
+const canid_t ndlcom::ExternalInterfaceCan::defaultCanIdTx = 43;
 const std::regex ndlcom::ExternalInterfaceCan::uri(
     "^can://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
 ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &_bridge,
                                            std::smatch match, uint8_t flags)
     : ExternalInterfaceCan(
           _bridge, match[1],
-          match[2].length() ? std::stoi(match[2].str()) : defaultCanId,
+          match[2].length() ? std::stoi(match[2].str()) : defaultCanIdRx,
+          match[3].length() ? std::stoi(match[3].str()) : defaultCanIdTx,
           flags) {}
 
 ExternalInterfaceCan::~ExternalInterfaceCan() { close(fd); }
 
 size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
-    out << "trying to read " << count << " bytes\n";
+    /* out << "trying to read " << count << " bytes\n"; */
     struct can_frame frame;
     struct sockaddr_in addr_recv;
-again:
-    // TODO: this shall be a loop, we'll be called with a larger "count"
-    // buffer, which we have to fill up to a certain degree maybe...
-    //
-    // using recvfrom, so that we specifiy the interface from where we read
-    ssize_t bytesRead = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
-                                 (struct sockaddr *)&addr_recv, &len);
-    if (bytesRead < 0) {
-        if (errno == EINTR) {
-            // ignore signals
-            goto again;
-        } else if (errno == EAGAIN) {
-            // nothing to read, just return
-            return 0;
+
+    size_t alreadyRead = 0;
+    // this loop will only ready multiples of the frame-size into count
+    while (alreadyRead < (count - sizeof(frame.data))) {
+    again:
+        // using recvfrom, so that we specifiy the interface from where we read
+        ssize_t bytesRead = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
+                                     (struct sockaddr *)&addr_recv, &len);
+        if (bytesRead < 0) {
+            if (errno == EINTR) {
+                // ignore signals
+                goto again;
+            } else if (errno == EAGAIN) {
+                // nothing to read, just return
+                return alreadyRead;
 #if 0
-        } else if (errno == ENOTCONN) {
-            // "not connected" may happen on tcp-streams. ignore this, we just
-            // assume that we know what we do...
-            return 0;
+            } else if (errno == ENOTCONN) {
+                // "not connected" may happen on tcp-streams. ignore this, we just
+                // assume that we know what we do...
+                return 0;
 #endif
+            }
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+            return 0;
         }
-        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
-        return 0;
+        if (bytesRead < sizeof(struct can_frame)) {
+            reportRuntimeError("verybogus", __FILE__, __LINE__);
+            return 0;
+        }
+
+        // TODO: if interface would be bound to "any" we would have to check
+        // addr_recv?
+
+        memcpy(buf, frame.data, frame.can_dlc);
+
+        alreadyRead += frame.can_dlc;
     }
-    if (bytesRead < sizeof(struct can_frame)) {
-        reportRuntimeError("verybogus", __FILE__, __LINE__);
-        return 0;
-    }
 
-    // TODO: if interface is bound to "any" we would have to check addr_recv!
-
-    memcpy(buf, frame.data, frame.can_dlc);
-
-    return frame.can_dlc;
+    return alreadyRead;
 }
 
 void ExternalInterfaceCan::writeEscapedBytes(const void *buf, size_t count) {
-    out << "trying to write " << count << " bytes\n";
+    /* out << "trying to write " << count << " bytes\n"; */
     size_t alreadyWritten = 0;
     struct can_frame frame;
+    frame.can_id = canIdTx;
 again:
     while (alreadyWritten < (count-sizeof(frame.data))) {
         size_t frameDataSize = (count - alreadyWritten) % sizeof(frame.data);
@@ -484,22 +508,12 @@ again:
             sendto(fd, &frame, sizeof(struct can_frame), MSG_NOSIGNAL,
                    (struct sockaddr *)&addr, sizeof(addr));
         if (written == -1) {
-#if 0
             if (errno == EINTR) {
                 // ignore signals
                 goto again;
-            } else if (errno == EPIPE) {
-                // this means the connection is not set up correctly... assume
-                // that we know what we do...
-                return;
             }
-#endif
             reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
-        /* out << "wrote " << written << " bytes to '" */
-        /*     << inet_ntoa(addr_out.sin_addr) << ":" <<
-         * ntohs(addr_out.sin_port) */
-        /*     << "'\n"; */
         alreadyWritten += frameDataSize;
     }
     return;

@@ -173,32 +173,57 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
  * see https://www.kernel.org/doc/Documentation/networking/can.txt
  * and https://github.com/linux-can/can-utils/blob/master/candump.c
  *
- * - open SocketCAN interface
- * - register also for CAN error message, check them when receiving? throw
- *   runtime-error when hardware defect is detected? or just close? dunno...
- *   see include/uapi/linux/can/error.h
+ * remember to bring the interface up before trying to use it:
+ *
+       ip link set up can0 type can bitrate 500000
+       ip link set can0 up
+ *
+ * the uri accepted for this type of interface has the format
+ * "can://$deviceName:canIdRx:canIdTx", where the device name is followed by
+ * the two canIds used to send and receive frames.
+ *
+ * Additional notes:
+ *
+ * would be nice to register also for CAN error message, check them when
+ * receiving? throw runtime-error when hardware defect is detected? or just
+ * close? dunno...  see include/uapi/linux/can/error.h
+ *
+ * there are error frames and overload frames
+ *
+ * longer messages, the "can fd" type, where not considered. can be added, for
+ * sure. but is not yet.
  *
  * there is a 1microsecond timestamp generated when receiving a frame. sadly we
- * cannot use it...
+ * cannot use it in this framework in a sensible way.
+ *
+ * i would prefer to use a low-priority canId because we'll use this here as
+ * tunnel for debug-tooling with "legacy" ndlcom stuff...
  */
 class ExternalInterfaceCan : public ndlcom::ExternalInterfaceBase {
   public:
     ExternalInterfaceCan(
-        struct NDLComBridge &_bridge, std::string device_name, unsigned int canId,
+        struct NDLComBridge &_bridge, std::string device_name, canid_t canIdTx, canid_t canidRx,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceCan() override;
 
     size_t readEscapedBytes(void *buf, size_t count) override;
     void writeEscapedBytes(const void *buf, size_t count) override;
 
+    // could this be made into a more generic template-struct with std::tuple
+    // for the default-arguments...?
     static const std::regex uri;
-    static const unsigned int defaultCanId;
+    static const canid_t defaultCanIdRx;
+    static const canid_t defaultCanIdTx;
+
     // TODO: document this crap...
     ExternalInterfaceCan(
         struct NDLComBridge &_bridge, std::smatch match,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
 
   private:
+    struct can_filter can_filter;
+    canid_t canIdTx;
+    can_err_mask_t err_mask;
     struct sockaddr_can addr;
     int fd;
     socklen_t len;
