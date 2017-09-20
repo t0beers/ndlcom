@@ -143,8 +143,8 @@ Bridge::createInterface(std::string uri, uint8_t flags) {
     std::shared_ptr<class ndlcom::ExternalInterfaceBase> ret(
         createInterfaceByUri<ExternalInterfaceSerial, ExternalInterfaceUdp,
                              ExternalInterfaceFpga, ExternalInterfacePipe,
-                             ExternalInterfacePty, ExternalInterfaceTcpClient>(
-            uri, flags));
+                             ExternalInterfaceCan, ExternalInterfacePty,
+                             ExternalInterfaceTcpClient>(uri, flags));
     return ret;
 }
 

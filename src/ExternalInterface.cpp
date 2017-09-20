@@ -386,6 +386,125 @@ again:
     return;
 }
 
+ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
+                                           std::string device_name,
+                                           unsigned int canId, uint8_t flags)
+    : ndlcom::ExternalInterfaceBase(bridge, "can://" + device_name + ":" +
+                                                std::to_string(canId),
+                                    std::cerr, flags),
+      len(sizeof(struct sockaddr_in)) {
+
+    // create the socket (which is a file descriptor):
+    fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    if (fd == -1) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    // non-blocking access? error will return "-1", which is true in this if-block
+    if (fcntl(fd, F_SETFL, O_NONBLOCK)) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+
+    // add name resolution:
+    struct ifreq ifr;
+
+    // the "device_name" shall contain the equivalent string of smth like "can0"
+    strcpy(ifr.ifr_name, device_name.data());
+    ioctl(fd, SIOCGIFINDEX, &ifr);
+
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+
+    bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+
+}
+
+const unsigned int ndlcom::ExternalInterfaceCan::defaultCanId = 34000;
+const std::regex ndlcom::ExternalInterfaceCan::uri(
+    "^can://([^:&]*)(?::(\\d+))?(?:&(.*))?$");
+ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &_bridge,
+                                           std::smatch match, uint8_t flags)
+    : ExternalInterfaceCan(
+          _bridge, match[1],
+          match[2].length() ? std::stoi(match[2].str()) : defaultCanId,
+          flags) {}
+
+ExternalInterfaceCan::~ExternalInterfaceCan() { close(fd); }
+
+size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
+    out << "trying to read " << count << " bytes\n";
+    struct can_frame frame;
+    struct sockaddr_in addr_recv;
+again:
+    // TODO: this shall be a loop, we'll be called with a larger "count"
+    // buffer, which we have to fill up to a certain degree maybe...
+    //
+    // using recvfrom, so that we specifiy the interface from where we read
+    ssize_t bytesRead = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
+                                 (struct sockaddr *)&addr_recv, &len);
+    if (bytesRead < 0) {
+        if (errno == EINTR) {
+            // ignore signals
+            goto again;
+        } else if (errno == EAGAIN) {
+            // nothing to read, just return
+            return 0;
+#if 0
+        } else if (errno == ENOTCONN) {
+            // "not connected" may happen on tcp-streams. ignore this, we just
+            // assume that we know what we do...
+            return 0;
+#endif
+        }
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        return 0;
+    }
+    if (bytesRead < sizeof(struct can_frame)) {
+        reportRuntimeError("verybogus", __FILE__, __LINE__);
+        return 0;
+    }
+
+    // TODO: if interface is bound to "any" we would have to check addr_recv!
+
+    memcpy(buf, frame.data, frame.can_dlc);
+
+    return frame.can_dlc;
+}
+
+void ExternalInterfaceCan::writeEscapedBytes(const void *buf, size_t count) {
+    out << "trying to write " << count << " bytes\n";
+    size_t alreadyWritten = 0;
+    struct can_frame frame;
+again:
+    while (alreadyWritten < (count-sizeof(frame.data))) {
+        size_t frameDataSize = (count - alreadyWritten) % sizeof(frame.data);
+
+        memcpy(frame.data, (const char *)buf + alreadyWritten, frameDataSize);
+
+        ssize_t written =
+            sendto(fd, &frame, sizeof(struct can_frame), MSG_NOSIGNAL,
+                   (struct sockaddr *)&addr, sizeof(addr));
+        if (written == -1) {
+#if 0
+            if (errno == EINTR) {
+                // ignore signals
+                goto again;
+            } else if (errno == EPIPE) {
+                // this means the connection is not set up correctly... assume
+                // that we know what we do...
+                return;
+            }
+#endif
+            reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+        }
+        /* out << "wrote " << written << " bytes to '" */
+        /*     << inet_ntoa(addr_out.sin_addr) << ":" <<
+         * ntohs(addr_out.sin_port) */
+        /*     << "'\n"; */
+        alreadyWritten += frameDataSize;
+    }
+    return;
+}
+
 ExternalInterfaceTcpClient::ExternalInterfaceTcpClient(
     struct NDLComBridge &bridge, std::string hostname, unsigned int port,
     uint8_t flags)

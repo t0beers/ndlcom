@@ -12,6 +12,11 @@
 #include <regex>
 #include <string>
 
+// ouh...
+#include <linux/if.h>
+#include <linux/can.h>
+#include <linux/can/raw.h>
+
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
@@ -162,6 +167,41 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
   private:
     struct sockaddr_in addr;
     int fd;
+};
+
+/**
+ * see https://www.kernel.org/doc/Documentation/networking/can.txt
+ * and https://github.com/linux-can/can-utils/blob/master/candump.c
+ *
+ * - open SocketCAN interface
+ * - register also for CAN error message, check them when receiving? throw
+ *   runtime-error when hardware defect is detected? or just close? dunno...
+ *   see include/uapi/linux/can/error.h
+ *
+ * there is a 1microsecond timestamp generated when receiving a frame. sadly we
+ * cannot use it...
+ */
+class ExternalInterfaceCan : public ndlcom::ExternalInterfaceBase {
+  public:
+    ExternalInterfaceCan(
+        struct NDLComBridge &_bridge, std::string device_name, unsigned int canId,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceCan() override;
+
+    size_t readEscapedBytes(void *buf, size_t count) override;
+    void writeEscapedBytes(const void *buf, size_t count) override;
+
+    static const std::regex uri;
+    static const unsigned int defaultCanId;
+    // TODO: document this crap...
+    ExternalInterfaceCan(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+
+  private:
+    struct sockaddr_can addr;
+    int fd;
+    socklen_t len;
 };
 
 /**
