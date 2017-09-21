@@ -55,6 +55,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
  */
 class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
+
     ExternalInterfaceSerial(
         struct NDLComBridge &_bridge, std::string device_name,
         speed_t baudrate = defaultBaudrate,
@@ -79,6 +80,52 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
     struct termios2 oldtio;
     int fd;
 };
+
+// like this? not needed right now, but would be fun...
+template <class Of, class... V> struct UriHelper {
+    UriHelper(std::regex _uri, V... args) : uri(_uri), defaultValues(args...){};
+    typedef std::tuple<std::string, V...> tupleType;
+    const std::regex uri;
+    const std::tuple<V...> defaultValues;
+    // why cling to "tuple"? pack expansion!
+    Of generate(struct NDLComBridge &bridge, std::smatch match,
+                uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+        // then template-iterate the entries in "tupleType"... extract them,
+        // return fully constructed new object?
+    }
+    Of internal(struct NDLComBridge &bridge, std::string device, V... args,
+                uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+        // has to use the move ctor!
+        return Of(bridge, device, args..., flags);
+    }
+    // stuff this return value into ctor...
+    tupleType fillFromMatch(std::smatch match) {
+        // bla...
+        //
+        // fill "V..." using stringstream from "match[2 to sizeof(V...)+2]" or
+        // the respective default value. pass the expanded tuple to the actual
+        // ctor of the class
+        //
+        // needs a templated ctor which accepts and unpacks a tuple? too much
+        // template magic for me right now... or invoke the other way around:
+        // pass any ctor into this function, and apply template magic? like a
+        // static factory function...
+        //
+        // this is a demo-impl for "serial":
+        return tupleType(match[1], match[2].length()
+                                       ? std::stoi(match[2])
+                                       : std::get<1>(defaultValues));
+    }
+};
+// then just putting in the regex and default values into the ctor if the helper
+struct UriHelperSerial : UriHelper<ndlcom::ExternalInterfaceSerial, speed_t> {
+    UriHelperSerial(std::regex uri, speed_t b)
+        : UriHelper<ndlcom::ExternalInterfaceSerial, speed_t>(uri, b){};
+};
+// should be static const... cannot be part of the class!
+const UriHelperSerial h = UriHelperSerial(
+    std::regex("^serial://([^:&]*)(?::(\\d+))?(?:&(.*))?$"), 115200);
+
 
 /**
  * use NDLCom-fpga-kernel module, usable on ZynqBrain for example
