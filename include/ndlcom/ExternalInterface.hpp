@@ -222,8 +222,14 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
  *
  * remember to bring the interface up before trying to use it:
  *
-       ip link set up can0 type can bitrate 500000
-       ip link set can0 txqueuelen 1000
+
+       echo "Configuring CAN I/f"
+       sudo sh -c "ip link set down can0
+                   ip link set up can0 type can bitrate 500000 triple-sampling on
+                   ip link set can0 txqueuelen 1000"
+       echo "Done"
+
+
  *
  * kernel queuing needs to be known: https://stackoverflow.com/a/43988554/7374642
  *
