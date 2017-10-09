@@ -14,6 +14,7 @@
 #include "ndlcom/Bridge.h"
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Payload.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -36,13 +37,17 @@ void setRoutingByString(std::weak_ptr<class ndlcom::ExternalInterfaceBase> p,
 
 class Bridge {
   public:
+    /**
+     * Initializes c-datastructures and stores the ostream reference.
+     */
     Bridge(std::ostream &_out = std::cerr);
     ~Bridge();
-
     /**
-     * deleting "copy" and "assignment" prevents some possibly weird behaviour
+     * Deleting "copy" and "assignment" prevents some possibly weird behaviour
      *
-     * rationale: this class provides a number of "factory" functions
+     * Rationale: this class provides a number of "factory" functions and
+     * retains ownership for things that correspond to actual hardware. Nobody
+     * wants a duplicate of a serial interface.
      */
     Bridge(const Bridge &) = delete;
     Bridge &operator=(Bridge const &) = delete;
@@ -61,6 +66,17 @@ class Bridge {
 
     /**
      * @brief Transmitting a new message from the bridge
+     *
+     * Can be used to fully specify a message to be send by the bridge. This is
+     * not the normal way of sending messages, see ndlcom::Node::send().
+     */
+    void sendMessageRaw(struct ndlcom::RawPayload out);
+
+    /**
+     * @brief Transmitting a raw message from the bridge
+     *
+     * Can be used to fully specify a message to be send by the bridge. This is
+     * not the normal way of sending messages, see ndlcom::Node::send().
      */
     void sendMessageRaw(const struct NDLComHeader *header, const void *payload);
 

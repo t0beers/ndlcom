@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "ndlcom/InternalHandler.hpp"
+#include "ndlcom/Payload.hpp"
+#include "ndlcom/Bridge.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -95,7 +97,16 @@ class Node : public BridgeHandlerBase {
     void setOwnDeviceId(const NDLComId ownDeviceId);
 
     /**
+     * @brief Sending a new message as wrapped "OutgoingPayload"
+     *
+     * @param out The prepared payload structure to be used for sending
+     */
+    void send(struct ndlcom::OutgoingPayload out);
+
+    /**
      * @brief Sending a new message
+     *
+     * Directly calls the internal c-function to send the data.
      *
      * @param receiverId Where to send to
      * @param payload Pointer to memory containing the payload
@@ -103,6 +114,14 @@ class Node : public BridgeHandlerBase {
      */
     void send(const NDLComId receiverId, const void *payload,
               const size_t payloadSize);
+
+    /**
+     * @brief Do not allow to send raw-messages
+     *
+     * As this class is derived from ndlcom::BridgeHandlerBase, we have to
+     * delete its send() function for good measure.
+     */
+    void send(const struct NDLComHeader *header, const void *payload) = delete;
 
     /**
      * Adds the handler-function of this Node (implemented by
@@ -131,6 +150,28 @@ class Node : public BridgeHandlerBase {
      */
     std::vector<std::shared_ptr<ndlcom::NodeHandlerBase>> allHandler;
 };
+
+/**
+ * @brief Wrapped ndlcom::Node directly attached to an ndlcom::Bridge
+ *
+ * This provides encapsulation for the initialization of the internal weak_ptr,
+ * which can be referenced directly after the ctor finishes.
+ *
+ * I cannot forsee yet (!) that this is a bad way to do, so use with care. But
+ * it feels natural to combine the two. Normally nobody wants more than one
+ * ndlcom::Node (eg: receiving deviceId, aka: personality) to be attached to an
+ * ndlcom::Bridge.
+ *
+ * As always: The name is kinda stupid and provides room for improvement...
+ */
+class ActualNode : public Bridge {
+  public:
+    const std::weak_ptr<class ndlcom::Node> node;
+
+    ActualNode(const NDLComId ownReceiverId)
+        : node(createNode<class ndlcom::Node>(ownReceiverId)){};
+};
+
 } // namespace ndlcom
 
 #endif /*NDLCOM_NODE_HPP*/

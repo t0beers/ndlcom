@@ -7,6 +7,12 @@ using namespace ndlcom;
  */
 void BridgeHandler::sendRaw(const struct NDLComHeader *header,
                             const void *payload) {
+    // TODO: would need a check if this class is actually registered at the
+    // "caller" as there is a small time-window during the creation of this
+    // class in the factory, where it is not registered.
+    //
+    // but this might not be a problem in this class, assuming the type of
+    // "caller" is an actual "struct NDLComBridge"
     ndlcomBridgeSendRaw(&caller, header, payload);
 }
 

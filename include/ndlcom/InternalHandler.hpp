@@ -5,10 +5,11 @@
 #include <algorithm>
 
 #include "ndlcom/Bridge.h"
-#include "ndlcom/HandlerCommon.hpp"
 #include "ndlcom/Node.h"
+#include "ndlcom/BridgeHandler.h"
 #include "ndlcom/NodeHandler.h"
 #include "ndlcom/Types.h"
+#include "ndlcom/HandlerCommon.hpp"
 
 namespace ndlcom {
 

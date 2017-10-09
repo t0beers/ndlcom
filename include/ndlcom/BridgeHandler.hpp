@@ -25,18 +25,29 @@ class BridgePrintAll final : public BridgeHandler {
  * this class hooks looks at every received pacakge and checks the packet
  * counter for a miss-event; prints a message but never sends messages itself.
  */
-class BridgePrintMissEvents final : public BridgeHandler {
+class BridgeMissEvents : public BridgeHandler {
   public:
-    BridgePrintMissEvents(struct NDLComBridge &bridge,
+    BridgeMissEvents(struct NDLComBridge &bridge,
                           std::ostream &out = std::cerr);
+    /** called for every passing packet! */
     void handle(const struct NDLComHeader *header, const void *payload,
-                const struct NDLComExternalInterface *origin) override;
-    /** clears every internal datastructure */
+                        const struct NDLComExternalInterface *origin) override;
+    /** resets the counter of observed miss events */
     void resetMissEvents();
+    /** prints its own name and the information on observed missevents */
+    void printStatus(const std::string prefix) const final;
 
+  protected:
+    /**
+     * consult and update the "alreadySeen" bitset, possibly count up
+     * numberOfPacketMissEvents.
+     *
+     * returns diff between expected and observed packet counter.
+     */
+    int isMiss(const struct NDLComHeader *);
   private:
     /**
-     * keep this matrix for miss-events between all possible combinations of
+     * keep this matrix to count miss-events between all possible combinations of
      * known deviceIds
      */
     unsigned int numberOfPacketMissEvents[NDLCOM_MAX_NUMBER_OF_DEVICES]
@@ -49,9 +60,24 @@ class BridgePrintMissEvents final : public BridgeHandler {
                                            [NDLCOM_MAX_NUMBER_OF_DEVICES];
     /**
      * On the calculation of the size of the bitset: for each combination of
-     * sender+receive we have to remember if we saw it before.
+     * sender+receiver we have to remember if we saw it before. this is
+     * essentially a 16bit number of boolean flags. something like this one,
+     * with 65536 flags. we need less, as we ignore BROADCASTS, but this is
+     * well... yes?
      */
-    std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES << 8> alreadySeen;
+    std::bitset<NDLCOM_MAX_NUMBER_OF_DEVICES * NDLCOM_MAX_NUMBER_OF_DEVICES>
+        alreadySeen;
+};
+
+/**
+ * not only counts, but also outputs live to the "out" stream
+ */
+class BridgePrintMissEvents final : public BridgeMissEvents {
+  public:
+    BridgePrintMissEvents(struct NDLComBridge &bridge,
+                          std::ostream &out = std::cerr);
+    void handle(const struct NDLComHeader *header, const void *payload,
+                const struct NDLComExternalInterface *origin) override;
 };
 
 /**

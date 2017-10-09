@@ -109,18 +109,19 @@ void ndlcomBridgeSetFlags(struct NDLComBridge *bridge, const uint8_t flags);
  *
  * Uses the routing table to determine which interface to use. If the
  * destination for the "receiverId" in the given NDLComHeader is unknown, the
- * message will be sent on every external interface.
+ * message will be sent on every external interfaces.
  *
  * NOTE: The messages written here will be seen by the NDLComBridgeHandler as
  * well (after they where written out to the correct external interfaces). Be
  * carefull to not have a handler responding to its own message!
  *
- * NOTE: The packet length in the given header is used to copy data from the
- * given pointer.
+ * NOTE: The packet length in the given header is used to copy bytes from the
+ * given void pointer.
  *
  * @param bridge The bridge to use
- * @param header The message header, prepared with packet counter and length
- * @param payload The memory containing actual payload
+ * @param header The message header, fully valid and prepared with packet
+ *               counter and length
+ * @param payload Memory containing the actual payload
  */
 void ndlcomBridgeSendRaw(struct NDLComBridge *bridge,
                          const struct NDLComHeader *header,
