@@ -46,8 +46,8 @@ void Node::send(const NDLComId receiverId, const void *payload,
     ndlcomNodeSend(&node, receiverId, payload, payloadSize);
 }
 
-void Node::send(struct ndlcom::OutgoingPayload out) {
-    ndlcomNodeSend(&node, out.destinationId, out.data(), out.dataLen());
+void Node::send(struct ndlcom::OutgoingPayload msg) {
+    ndlcomNodeSend(&node, msg.destinationId, msg.data(), msg.dataLen());
 }
 
 void Node::setOwnDeviceId(const NDLComId ownDeviceId) {
