@@ -12,6 +12,11 @@
 #include <regex>
 #include <string>
 
+// ouh...
+#include <linux/if.h>
+#include <linux/can.h>
+#include <linux/can/raw.h>
+
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/ExternalInterfaceBase.hpp"
 
@@ -50,6 +55,7 @@ class ExternalInterfaceStream : public ndlcom::ExternalInterfaceBase {
  */
 class ExternalInterfaceSerial : public ExternalInterfaceStream {
   public:
+
     ExternalInterfaceSerial(
         struct NDLComBridge &_bridge, std::string device_name,
         speed_t baudrate = defaultBaudrate,
@@ -74,6 +80,52 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
     struct termios2 oldtio;
     int fd;
 };
+
+// like this? not needed right now, but would be fun...
+template <class Of, class... V> struct UriHelper {
+    UriHelper(std::regex _uri, V... args) : uri(_uri), defaultValues(args...){};
+    typedef std::tuple<std::string, V...> tupleType;
+    const std::regex uri;
+    const std::tuple<V...> defaultValues;
+    // why cling to "tuple"? pack expansion!
+    Of generate(struct NDLComBridge &bridge, std::smatch match,
+                uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+        // then template-iterate the entries in "tupleType"... extract them,
+        // return fully constructed new object?
+    }
+    Of internal(struct NDLComBridge &bridge, std::string device, V... args,
+                uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT) {
+        // has to use the move ctor!
+        return Of(bridge, device, args..., flags);
+    }
+    // stuff this return value into ctor...
+    tupleType fillFromMatch(std::smatch match) {
+        // bla...
+        //
+        // fill "V..." using stringstream from "match[2 to sizeof(V...)+2]" or
+        // the respective default value. pass the expanded tuple to the actual
+        // ctor of the class
+        //
+        // needs a templated ctor which accepts and unpacks a tuple? too much
+        // template magic for me right now... or invoke the other way around:
+        // pass any ctor into this function, and apply template magic? like a
+        // static factory function...
+        //
+        // this is a demo-impl for "serial":
+        return tupleType(match[1], match[2].length()
+                                       ? std::stoi(match[2])
+                                       : std::get<1>(defaultValues));
+    }
+};
+// then just putting in the regex and default values into the ctor if the helper
+struct UriHelperSerial : UriHelper<ndlcom::ExternalInterfaceSerial, speed_t> {
+    UriHelperSerial(std::regex uri, speed_t b)
+        : UriHelper<ndlcom::ExternalInterfaceSerial, speed_t>(uri, b){};
+};
+// should be static const... cannot be part of the class!
+const UriHelperSerial h = UriHelperSerial(
+    std::regex("^serial://([^:&]*)(?::(\\d+))?(?:&(.*))?$"), 115200);
+
 
 /**
  * use NDLCom-fpga-kernel module, usable on ZynqBrain for example
@@ -162,6 +214,77 @@ class ExternalInterfaceTcpClient : public ndlcom::ExternalInterfaceBase {
   private:
     struct sockaddr_in addr;
     int fd;
+};
+
+/**
+ * see https://www.kernel.org/doc/Documentation/networking/can.txt
+ * and https://github.com/linux-can/can-utils/blob/master/candump.c
+ *
+ * remember to bring the interface up before trying to use it:
+ *
+
+       echo "Configuring CAN I/f"
+       sudo sh -c "ip link set down can0
+                   ip link set up can0 type can bitrate 500000 triple-sampling on
+                   ip link set can0 txqueuelen 1000"
+       echo "Done"
+
+
+ *
+ * kernel queuing needs to be known: https://stackoverflow.com/a/43988554/7374642
+ *
+ * the uri accepted for this type of interface has the format
+ * "can://$deviceName:canIdRx:canIdTx", where the device name is followed by
+ * the two canIds used to send and receive frames.
+ *
+ * Additional notes:
+ *
+ * would be nice to register also for CAN error message, check them when
+ * receiving? throw runtime-error when hardware defect is detected? or just
+ * close? dunno...  see include/uapi/linux/can/error.h
+ *
+ * there are error frames and overload frames
+ *
+ * longer messages, the "can fd" type, where not considered. can be added, for
+ * sure. but is not yet.
+ *
+ * there is a 1microsecond timestamp generated when receiving a frame. sadly we
+ * cannot use it in this framework in a sensible way.
+ *
+ * i would prefer to use a low-priority canId because we'll use this here as
+ * tunnel for debug-tooling with "legacy" ndlcom stuff...
+ *
+ * TODO: do our fpga-based senders create packets with less than eight byte of payload?
+ */
+class ExternalInterfaceCan : public ndlcom::ExternalInterfaceBase {
+  public:
+    ExternalInterfaceCan(
+        struct NDLComBridge &_bridge, std::string device_name, canid_t canIdTx, canid_t canidRx,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+    ~ExternalInterfaceCan() override;
+
+    size_t readEscapedBytes(void *buf, size_t count) override;
+    void writeEscapedBytes(const void *buf, size_t count) override;
+
+    // could this be made into a more generic template-struct with std::tuple
+    // for the default-arguments...?
+    static const std::regex uri;
+    static const canid_t defaultCanIdRx;
+    static const canid_t defaultCanIdTx;
+
+    // TODO: document this crap...
+    ExternalInterfaceCan(
+        struct NDLComBridge &_bridge, std::smatch match,
+        uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
+
+  private:
+    struct can_filter can_filter;
+    canid_t canIdTx;
+    canid_t canIdRx;
+    can_err_mask_t err_mask;
+    struct sockaddr_can addr;
+    int fd;
+    socklen_t len;
 };
 
 /**
