@@ -10,6 +10,7 @@
 
 #include "ndlcom/InternalHandler.hpp"
 #include "ndlcom/Payload.hpp"
+#include "ndlcom/Bridge.hpp"
 #include "ndlcom/Types.h"
 
 namespace ndlcom {
@@ -149,6 +150,28 @@ class Node : public BridgeHandlerBase {
      */
     std::vector<std::shared_ptr<ndlcom::NodeHandlerBase>> allHandler;
 };
+
+/**
+ * @brief Wrapped ndlcom::Node directly attached to an ndlcom::Bridge
+ *
+ * This provides encapsulation for the initialization of the internal weak_ptr,
+ * which can be referenced directly after the ctor finishes.
+ *
+ * I cannot forsee yet (!) that this is a bad way to do, so use with care. But
+ * it feels natural to combine the two. Normally nobody wants more than one
+ * ndlcom::Node (eg: receiving deviceId, aka: personality) to be attached to an
+ * ndlcom::Bridge.
+ *
+ * As always: The name is kinda stupid and provides room for improvement...
+ */
+class ActualNode : public Bridge {
+  public:
+    const std::weak_ptr<class ndlcom::Node> node;
+
+    ActualNode(const NDLComId ownReceiverId)
+        : node(createNode<class ndlcom::Node>(ownReceiverId)){};
+};
+
 } // namespace ndlcom
 
 #endif /*NDLCOM_NODE_HPP*/
