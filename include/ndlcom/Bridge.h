@@ -23,59 +23,63 @@ extern "C" {
 /**
  * @brief Encapsulate sending, receiving and routing of NDLCom messages
  *
- * A NDLComBridge has one RoutingTable and a number of ExternalInterfaces as
- * well as BridgeHandlers.
+ * A NDLComBridge contains one global NDLComRoutingTable and a number of
+ * NDLComExternalInterface for communication with the outside as well as
+ * NDLComBridgeHandler for internal handling. The task of a bridge is to decode
+ * incoming messages, handle them internally if needed and forward them to the
+ * correct outgoing interface if needed. If the routing table has no entry for
+ * a given NDLComHeader::mReceiverId, the message is transmitted on all known
+ * external interfaces.
  *
- * All processing is done after calling a single-point-of-entry. Implementers
- * have to provide function-pointers to non-blocking IO for actually reading
- * and writing the escaped byte-streams from the hardware.
+ * All processing is done after calling ndlcomBridgeProcess(), which is the
+ * single point of entry.
  *
- * ExternalInterfaces use their "write" and "read" functions to handle a raw
- * byte-stream consisting of fully escaped NDLCom messages. BridgeHandlers
- * provide a "handle" function which is called for each decoded message with
- * the "header,payload".
+ * For each type of interface implementers have to provide function pointers for
+ * NDLComExternalInterface::read and NDLComExternalInterface::write to facilitate
+ * non-blocking IO of raw (escaped) byte-streams from hardware. Each
+ * NDLComBridgeHandler has to provide a "handle" function which is called for
+ * each passing decoded message with the "header"+"payload" of the decoded
+ * message.
  *
- * There are special ExternalInterfaces called "mirrors" which get a copy
+ * There are special NDLComExternalInterface called "mirrors" which get a copy
  * of every message passing through the bridge. Messages originating from a
  * "mirror" are not used for updating the RoutingTable. They are useful for
  * debugging the complete data streaming through a bridge or for log file
  * record/replay.
  *
- * Each valid message received by one of the ExternalInterfaces is seen by
- * every BridgeHandler. To give a bridge a "personality" so that it only
- * listens to messages directed at its own "deviceId" (and all broadcasts) use
- * a NDLComNode, see "ndlcom/Node.h".
+ * A special kind of NDLComBridgeHandler is the NDLComNode which gives a bridge
+ * a "personality". It filters the passing messages and only messages directed
+ * at its own deviceId (and broadcasts) are passed to its own
+ * NDLComNodeHandler. The handle function of every node handler is called for
+ * each message directed at the owning NDLComNode.
  *
- * NOTE: No cut-through, no forwarding of still escaped bytes! Routing and
- * handling of messages _always_ leads to complete de-escaping them, and the
- * routing and forwarding is then done in the "header,payload" form. After the
- * destination is known, the messages is escaped again and then transmitted on
- * the respective interface(s).
+ * ---
  *
- * If the routing table has no entry for a given "receiverId", the
- * message is transmitted on all known external interfaces.
- *
- * NOTE: The routing table will contain pointers to the respective
- * ExternalInterface data structure, to be able to call the provided function
- * pointers. There is the additional special-case for messages directed at the
- * bridge itself which store the "bridge" pointer inside the routing table.
- * This is a hack at best.
+ * NOTE: No cut-through routing is performed, there is no forwarding of still
+ * escaped bytes! Routing and handling of a message _always_ leads to complete
+ * de-escaping, and the routing and forwarding is then done in the
+ * "header"+"payload" form.  After the destination is known, the messages is
+ * escaped again and then transmitted on the respective interface(s). This is
+ * inefficient, but makes the implementation way easier.
  */
 struct NDLComBridge {
-    /** The whole bridge has one RoutingTable */
+    /**
+     * The whole bridge has one RoutingTable
+     */
     struct NDLComRoutingTable routingTable;
     /**
      * These handlers are called for _each_ single message after it was
-     * decoded, prior to being forwarded.
+     * decoded, prior to possibly being forwarded to external interfaces.
      */
     struct list_head bridgeHandlerList;
     /**
      * These are the actual hardware interfaces which are used to
-     * receive/transmit an escaped byte stream to/from the real world. The
-     * "senderId" of messages received on one of these interfaces is used to
-     * update the routing table.
+     * receive/transmit a stream of escaped bytes to/from the real world. When
+     * a message is received and successfully decoded its NDLCom::mSenderId is
+     * used to update the routing table with the external interface where it
+     * was being read.
      *
-     * Contains entries for debug-interfaces and normal interfaces.
+     * Contains entries for mirror interfaces as well as normal interfaces.
      */
     struct list_head externalInterfaceList;
     /**
@@ -87,7 +91,7 @@ struct NDLComBridge {
 /**
  * @brief Initializes the bridge data structure
  *
- * Clears out the linked-lists and initializes the RoutingTable.
+ * Clears out the linked-lists and initializes the routing table.
  * NOTE: Per default, forwarding is enabled
  *
  * @param bridge Pointer to the bridge which shall be initialized.
@@ -107,16 +111,20 @@ void ndlcomBridgeSetFlags(struct NDLComBridge *bridge, const uint8_t flags);
 /**
  * @brief Encode and transmit messages to the outside
  *
- * Uses the routing table to determine which interface to use. If the
- * destination for the "receiverId" in the given NDLComHeader is unknown, the
- * message will be sent on every external interfaces.
+ * Uses the NDLComRoutingTable to determine which NDLComExternalInterface to
+ * use. If the destination named in the NDLComHeader::mReceiverId is unknown,
+ * the message will be sent on every external interface.
  *
  * NOTE: The messages written here will be seen by the NDLComBridgeHandler as
  * well (after they where written out to the correct external interfaces). Be
  * carefull to not have a handler responding to its own message!
  *
- * NOTE: The packet length in the given header is used to copy bytes from the
- * given void pointer.
+ * NOTE: The packet length in the NDLComHeader::mDataLen field is used to copy
+ * bytes from the given void pointer.
+ *
+ * NOTE: For messages sent with this function the packet counter in the header
+ * will not be prepared correctly. The normal way to send messages is to the
+ * ndlcomNodeSend()
  *
  * @param bridge The bridge to use
  * @param header The message header, fully valid and prepared with packet
@@ -142,7 +150,7 @@ size_t ndlcomBridgeProcess(struct NDLComBridge *bridge);
 /**
  * @brief Process each interface of the bridge once
  *
- * Calls "read()" for every interface and processes eventually resulting
+ * Calls "read()" for every interface once and processes eventually resulting
  * packets. This function will return in a finite amount of time, but there
  * might still be data available.
  *
@@ -178,11 +186,11 @@ void ndlcomBridgeAddRoutingInformationForDeviceId(
 /**
  * @brief Tell the bridge about deviceIds used to send messages from internal
  *
- * Messages to this deviceId are not longer considered as having an "unknown
- * destination" and not forwarded to existing NDLComExternalInterface anymore.
- * They are supposed to not be transmitted to the outside. This effectivly
- * disables routing messages for this deviceId to the outside and they will
- * hopefully be handled on the inside.
+ * Messages directed as this deviceId are not longer considered as having an
+ * "unknown destination" and are hence not forwarded to all existing
+ * NDLComExternalInterface anymore. This effectivly disables routing of
+ * messages for this deviceId to the outside as they will hopefully be handled
+ * on the inside. To be used by an NDLComNode.
  *
  * @param bridge The bridge to work on
  * @param deviceId The deviceId which belongs to the internal side
@@ -193,10 +201,10 @@ void ndlcomBridgeMarkDeviceIdAsInternal(struct NDLComBridge *bridge,
 /**
  * @brief Clear a previously internally used deviceId
  *
- * The given deviceId was used by internal code, probably via an NDLComNode,
- * and will no longer be used. This function will set the destination in the
- * RoutingTable from "internal" to "unknown" again. Messages for this
- * deviceId will be forwarded again.
+ * The given deviceId was used by an internal node like NDLComNode, but is no
+ * longer be used. This function will set the destination in the RoutingTable
+ * from "internal" to "unknown" again. Messages for this deviceId will be
+ * forwarded again.
  *
  * @param bridge The bridge to work on
  * @param deviceId The previously "internally" used deviceId
@@ -207,22 +215,24 @@ void ndlcomBridgeClearInternalDeviceId(struct NDLComBridge *bridge,
 /**
  * @brief Register additional BridgeHandler
  *
- * Does nothing if the interface is already part of the bridge
+ * Adds the given handler to the internal NDLComBridge::bridgeHandlerList. Does
+ * nothing if the handler is already part of the bridge.
  *
  * @param bridge The bridge to use
- * @param bridgeHandler The BridgeHandler to register
+ * @param bridgeHandler The handler to register
  */
 void
 ndlcomBridgeRegisterBridgeHandler(struct NDLComBridge *bridge,
                                   struct NDLComBridgeHandler *bridgeHandler);
 
 /**
- * @brief Register additional ExternalInterfaces
+ * @brief Register additional NDLComExternalInterface
  *
- * Does nothing if the ExternalInterface is already part of the bridge
+ * Adds the given handler to the internal NDLComBridge::externalInterfaceList.
+ * Does nothing if the NDLComExternalInterface is already part of the bridge
  *
  * @param bridge The bridge to use
- * @param externalInterface The ExternalInterface to register
+ * @param externalInterface The interface to register
  */
 void ndlcomBridgeRegisterExternalInterface(
     struct NDLComBridge *bridge,
@@ -231,29 +241,33 @@ void ndlcomBridgeRegisterExternalInterface(
 /**
  * @brief Remove existing BridgeHandler
  *
- * does nothing if the handler is not part of the bridge
+ * Clears the handler from the linked list. Does nothing if the handler is not
+ * part of the bridge
  *
  * @param bridge The bridge to use
- * @param bridgeHandler The BridgeHandler to deregister
+ * @param bridgeHandler The handler to deregister
  */
 void
 ndlcomBridgeDeregisterBridgeHandler(struct NDLComBridge *bridge,
                                     struct NDLComBridgeHandler *bridgeHandler);
 
 /**
- * @brief Remove existing ExternalInterface
+ * @brief Remove existing NDLComExternalInterface
  *
- * does nothing if the interface is not part of the bridge
+ * Clears the handler from the linked list. Does nothing if the interface is
+ * not part of the bridge
  *
  * @param bridge The bridge to use
- * @param externalInterface The ExternalInterface to deregister
+ * @param externalInterface The interface to deregister
  */
 void ndlcomBridgeDeregisterExternalInterface(
     struct NDLComBridge *bridge,
     struct NDLComExternalInterface *externalInterface);
 
 /**
- * @brief Check if an BridgeHandler is part of a bridge
+ * @brief Check if a handler is part of a bridge
+ *
+ * Checks if the given handler is contained in NDLComBridge::bridgeHandlerList
  *
  * @param bridge The bridge to use
  * @param bridgeHandler The handler to check
@@ -264,11 +278,14 @@ ndlcomBridgeCheckBridgeHandler(struct NDLComBridge *bridge,
                                struct NDLComBridgeHandler *bridgeHandler);
 
 /**
- * @brief Check if an ExternalInterface is part of a bridge
+ * @brief Check if an NDLComExternalInterface is part of a bridge
+ *
+ * Checks if the given interface is contained in
+ * NDLComBridge::externalInterfaceList
  *
  * @param bridge The bridge to use
  * @param externalInterface The interface to check
- * @return true if ExternalInterface is already registered
+ * @return true if NDLComExternalInterface is already registered
  */
 uint8_t ndlcomBridgeCheckExternalInterface(
     struct NDLComBridge *bridge,

@@ -13,22 +13,29 @@ extern "C" {
 /**
  * Dynamic routing table stores a "void*" identifier for every known deviceId.
  *
- * In reality, each distinct pointer represents a specific ExternalInterface.
- * Upon lookup of a deviceId in the table, the corresponding interface
- * identifier is returned.
+ * The NDLComRoutingTable will store for every possible NDLComId a pointer to
+ * the respective NDLComExternalInterface where this deviceId was last seen.
+ * This allows to directly call the provided function pointers to write on the
+ * interface.
  *
- * For unknown deviceIds, the value NDLCOM_ROUTING_ALL_INTERFACES is stored.
+ * For unknown NDLComId, where the id was not yet observed in the header of a
+ * passing message, the value NDLCOM_ROUTING_ALL_INTERFACES is stored.
  * Additionally, the (special) broadcastId uses the same identifier. After
  * initialization, the whole table contains this value.
+ *
+ * NOTE: There is the additional special-case for messages directed at the
+ * bridge itself which store the pointer to the NDLComBridge inside the routing
+ * table.  This is a hack at best.
  */
 struct NDLComRoutingTable {
     void *table[NDLCOM_MAX_NUMBER_OF_DEVICES];
 };
 
 /**
- * This is the default interface id to be used while a certain senderId has not
- * been observed yet. This means we have no knowledge where to route for a
- * given receiverId until we observer a proper specimen.
+ * This is the default interface identifier to be used while a certain NDLComId
+ * has not been observed yet. This means we have no knowledge where to route
+ * for a given receiverId until we observer a proper specimen in a passing
+ * message.
  *
  * NOTE: This is also the value which is implicitly returned for broadcast
  * packages

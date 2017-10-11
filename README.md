@@ -31,11 +31,12 @@ during the iStruct and SeeGrip projects, starting in 2010. To obtain something
 more profound like presentations and papers see the
 [documents](https://git.hb.dfki.de/istruct/documents/blob/master) repository.
 
+## Structure
+
 The C "core" code is written with the embedded/bare-metal case in mind: There is
 no dynamic memory involved, no C++, no locking and no multi threading. C++ code
-is provided for POSIX systems to create actually usefull software.
-
-## Structure
+is provided for POSIX systems to create actually usefull software. For a
+high-level overview of the contained classes see [here](doc/concepts.md)
 
 Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Makefile acting as a cmake-wrapper, just call `make` and it will probably do the right thing. To generate doxygen-documentation call `make doc`, to install all files into the default-directory `~/DFKI.install` do `make install`.
 
