@@ -39,14 +39,21 @@ void BridgeMissEvents::handle(
 void BridgeMissEvents::printStatus(const std::string prefix) const {
     HandlerCommon::printStatus(prefix);
     // print "miss statistics"...
+    bool printed = false;
     for (int fromId = 0; fromId < NDLCOM_MAX_NUMBER_OF_DEVICES; fromId++) {
         for (int toId = 0; toId < NDLCOM_MAX_NUMBER_OF_DEVICES; toId++) {
             if (numberOfPacketMissEvents[fromId][toId]) {
-                out << prefix << "   from " << fromId << " to " << toId << ":  "
-                    << numberOfPacketMissEvents[fromId][toId]
-                    << " miss events\n";
+                printed = true;
+                out << prefix << "    from " << fromId << " to " << toId
+                    << ":  " << numberOfPacketMissEvents[fromId][toId]
+                    << " miss event"
+                    << (numberOfPacketMissEvents[fromId][toId] > 1 ? "s" : "")
+                    << "\n";
             }
         }
+    }
+    if (!printed) {
+        out << "    no missevents observed yet\n";
     }
 }
 
