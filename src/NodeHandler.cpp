@@ -18,6 +18,8 @@ void NodeHandlerPrintOwnId::handle(
     out << std::setfill(' ') << std::setw(3) << (int)getOwnDeviceId();
     out << std::string(" got message from ");
     out << std::setfill(' ') << std::setw(3) << (int)header->mSenderId;
+    out << std::string(" to ");
+    out << std::setfill(' ') << std::setw(3) << (int)header->mReceiverId;
     out << std::string(" with ");
     out << std::setfill(' ') << std::setw(3) << (int)header->mDataLen;
     out << std::string(" bytes of payload\n");
