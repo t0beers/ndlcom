@@ -45,18 +45,20 @@ struct Payload : protected std::vector<uint8_t> {
      */
     NDLComDataLen dataLen() const;
     /**
-     * This allows to access the internal data for reading... deliberately only
-     * as a "const pointer", so that nobody (tm) can change the data once it
-     * was initialized.
-     *
-     * Implementation detail: Later deriving classes can choose to provide a
-     * non-const accessor function, see represupport::TypedOutgoingPayload for
-     * example.
+     * This allows to access the internal data for reading... deliberately
+     * providing the implementation with a "const pointer", so that nobody (tm)
+     * can change the data once it was initialized.
      *
      * Internally the data is stored in std::vector<uint8_t>, but casted to a
      * void pointer by this accessor.
      */
-    const void* data() const;
+    const void *data() const;
+    /**
+     * As nice as it would be...
+     *
+     * In the end we gonna need the non-const accessor anyways...
+     */
+    void *data();
 };
 
 /**

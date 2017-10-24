@@ -11,6 +11,9 @@ NDLComDataLen Payload::dataLen() const { return std::vector<uint8_t>::size(); }
 const void *Payload::data() const {
     return static_cast<const void *>(std::vector<uint8_t>::data());
 }
+void *Payload::data() {
+    return static_cast<void *>(std::vector<uint8_t>::data());
+}
 
 IncomingPayload::IncomingPayload(
     const struct NDLComHeader *_header, const void *_payload,
