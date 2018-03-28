@@ -14,6 +14,7 @@ See also README.md
   <author>Moritz Schilling/moritz.schilling@dfki.de</author>
   <author>Tobias Stark/tobias.stark@dfki.de</author>
   <author>Martin Zenzes/martin.zenzes@dfki.de</author>
+  <maintainer>Martin Zenzes/martin.zenzes@dfki.de</maintainer>
   <logo>./doc/ndlcom_logo.png</logo>
   <keywords><keyword>Communication</keyword></keywords>
   <stage>0</stage>
