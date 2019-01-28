@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <netinet/ip.h>
 
 #include "ndlcom/ExternalInterface.hpp"
 
@@ -218,10 +219,13 @@ ExternalInterfaceFpga::~ExternalInterfaceFpga() { close(fd); }
 ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
                                            std::string hostname,
                                            unsigned int in_port,
-                                           unsigned int out_port, uint8_t flags)
+                                           unsigned int out_port,
+                                           unsigned int socket_priority, uint8_t flags)
     : ndlcom::ExternalInterfaceBase(bridge, "udp://" + hostname + ":" +
                                                 std::to_string(in_port) + ":" +
-                                                std::to_string(out_port),
+                                                std::to_string(out_port) +
+                                                " Socket priority: " +
+                                                std::to_string(socket_priority),
                                     std::cerr, flags),
       len(sizeof(struct sockaddr_in)) {
 
@@ -230,7 +234,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
         reportRuntimeError("inport and outport are the same", __FILE__,
                            __LINE__);
     }
-
+    
     // "AF_INET" for ipv4-only
     struct addrinfo hints = {0};
     // conversion to ipv6 needs more than changing this... also convert all
@@ -249,6 +253,22 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
+    int option_value = 0;
+    socklen_t option_len = sizeof(option_value);
+    
+    if(setsockopt(fd, SOL_SOCKET, SO_PRIORITY, (void *)&socket_priority, sizeof(socket_priority)) == -1) {
+	reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    else {
+	// check if the socket priority level was set properly
+	getsockopt(fd, SOL_SOCKET, SO_PRIORITY, (void *)&option_value, &option_len);
+	out << "Set UDP socket priority to:" << option_value << "\n"; 
+	if (option_value != socket_priority)
+	{
+	  out << "Setting socket priority failed\n";
+	}
+    }
+    
     // NOTE: the structure returned into this pointer needs to be freed later!
     struct addrinfo *result;
     // try to resolve the hostname-string
@@ -302,14 +322,16 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
 
 const unsigned int ndlcom::ExternalInterfaceUdp::defaultInPort = 34000;
 const unsigned int ndlcom::ExternalInterfaceUdp::defaultOutPort = 34001;
+const unsigned int ndlcom::ExternalInterfaceUdp::defaultSocketPriority = 0;
 const std::regex ndlcom::ExternalInterfaceUdp::uri(
-    "^udp://([^:&]*)(?::(\\d+))?(?::(\\d+))?(?:&(.*))?$");
+    "^udp://([^:&]*)(?::(\\d+))?(?::(\\d+))?(?::(\[0-9]|1[0-5]))?(?:&(.*))?$");
 ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &_bridge,
                                            std::smatch match, uint8_t flags)
     : ExternalInterfaceUdp(
           _bridge, match[1],
           match[2].length() ? std::stoi(match[2].str()) : defaultInPort,
           match[3].length() ? std::stoi(match[3].str()) : defaultOutPort,
+	  match[4].length() ? std::stoi(match[4].str()) : defaultSocketPriority,
           flags) {}
 
 ExternalInterfaceUdp::~ExternalInterfaceUdp() { close(fd); }

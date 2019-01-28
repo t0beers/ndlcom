@@ -117,6 +117,7 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
         struct NDLComBridge &_bridge, std::string hostname,
         unsigned int in_port = defaultInPort,
         unsigned int out_port = defaultOutPort,
+        unsigned int socket_priority = defaultSocketPriority,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
     ~ExternalInterfaceUdp() override;
 
@@ -126,6 +127,8 @@ class ExternalInterfaceUdp : public ndlcom::ExternalInterfaceBase {
     static const std::regex uri;
     static const unsigned int defaultInPort;
     static const unsigned int defaultOutPort;
+    static const unsigned int defaultSocketPriority;
+    
     ExternalInterfaceUdp(
         struct NDLComBridge &_bridge, std::smatch match,
         uint8_t flags = NDLCOM_EXTERNAL_INTERFACE_FLAGS_DEFAULT);
