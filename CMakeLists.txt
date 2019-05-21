@@ -86,7 +86,7 @@ list(APPEND HEADERS_lib
     # "real" platforms, so that our embedded targets don't run out of stack-memory
     # so easy
     set_property(SOURCE src/Bridge.c APPEND PROPERTY
-        COMPILE_FLAGS "-DNDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE=2048")
+        COMPILE_FLAGS "-DNDLCOM_BRIDGE_TEMPORARY_RXBUFFER_SIZE=4096")
 
 endif(SEEMS_TO_BE_POSIX)
 
