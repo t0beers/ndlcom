@@ -16,7 +16,7 @@ HDLC segments a continuous bytestream into individual messages by replacing ever
 
 ![bytestream_encoding](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/bytestream_encoding.png)
 
-The header of each packet consists of 4 byte: One byte for sender and receiver respectively allow for up to 254 different addresses plus the additional "broadcast" address. The third byte is a packet-counter to enable detection of lost packages. The payload with a maximum capacity of 255 bytes is following the specification of the packet length. At the end, each packet is guarded by a 16Bit [AUG-CCITT](doc/crc.md) checksum to detect transmission errors:
+The header of each packet consists of 4 byte: One byte for sender and receiver respectively allow for up to 254 different addresses plus the additional "broadcast" address. The third byte is a packet-counter to enable detection of lost packages. The payload with a maximum capacity of 255 bytes is following the specification of the packet length. At the end, each packet is guarded by a 16Bit [AUG-CCITT](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/crc.md) checksum to detect transmission errors:
 
 ![ndlcom_header](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/ndlcom_header.png)
 
