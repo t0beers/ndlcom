@@ -253,7 +253,7 @@ ExternalInterfaceUdp::ExternalInterfaceUdp(struct NDLComBridge &bridge,
         reportRuntimeError(strerror(errno), __FILE__, __LINE__);
     }
 
-    int option_value = 0;
+    unsigned int option_value = 0;
     socklen_t option_len = sizeof(option_value);
     
     if(setsockopt(fd, SOL_SOCKET, SO_PRIORITY, (void *)&socket_priority, sizeof(socket_priority)) == -1) {
