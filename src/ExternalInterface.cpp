@@ -503,9 +503,11 @@ size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
     while (alreadyRead < (count - sizeof(frame.data))) {
 again:
         // using recvfrom, so that we specifiy the interface from where we read
-        ssize_t bytesRead = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
+        const ssize_t retVal = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
                                      (struct sockaddr *)&addr, &len);
-        if (bytesRead < 0) {
+        const size_t bytesRead = retVal > 0 ? retVal : 0;
+
+        if (retVal < 0) {
             if (errno == EINTR) {
                 // ignore signals
                 goto again;
