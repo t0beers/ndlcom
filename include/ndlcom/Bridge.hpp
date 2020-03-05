@@ -65,6 +65,14 @@ class Bridge {
     void process();
 
     /**
+     * @brief Alternative entry to data processing
+     *
+     * Unlike process(), processOnce() is guaranteed to return after handling
+     * at most one incoming message at each registered interface
+     */
+    void processOnce();
+
+    /**
      * @brief Transmitting a new message from the bridge
      *
      * Can be used to fully specify a message to be send by the bridge. This is

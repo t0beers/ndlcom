@@ -218,6 +218,7 @@ Bridge::enableOwnId(const NDLComId nodeDeviceId, bool print) {
 }
 
 void Bridge::process() { ndlcomBridgeProcess(&bridge); }
+void Bridge::processOnce() { ndlcomBridgeProcessOnce(&bridge); }
 
 void Bridge::sendMessageRaw(struct ndlcom::RawPayload msg) {
     ndlcomBridgeSendRaw(&bridge, &msg.header, msg.data());
