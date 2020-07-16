@@ -97,7 +97,7 @@ void help(const char *_name) {
 "\n"
 "\t%s -u pipe://pipeA -u pipe://pipeB -A\n"
 ,
-actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str());
+actualName.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str());
 }
 /* clang-format on */
 

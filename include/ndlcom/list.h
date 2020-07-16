@@ -52,8 +52,10 @@ extern "C" {
 * @param type the type of the container struct this is embedded in.
 * @param member the name of the member within the struct.
 *
+* 2020-03-05: ({}) is a GCC/clang extension, so we mark it as such
+*
 */
-#define container_of(ptr, type, member) ({ \
+#define container_of(ptr, type, member) __extension__ ({ \
         const typeof( ((type *)0)->member ) *__mptr = (ptr); \
         (type *)( (char *)__mptr - offsetof(type,member) );})
 
