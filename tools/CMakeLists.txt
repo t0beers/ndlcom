@@ -37,6 +37,7 @@ if(SEEMS_TO_BE_POSIX)
 
     # also install the tools
     install(TARGETS ndlcomBridge ndlcomPacketConsumer ndlcomPacketProducer
+        EXPORT ${PROJECT_NAME}-targets
         RUNTIME DESTINATION bin)
 
 endif(SEEMS_TO_BE_POSIX)
