@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(ndlcom)
 
+include(GNUInstallDirs)
+
+
 option(NDLCOM_ENABLE_TESTING
     "will enable testing, add the 'test' subdirectory and add some additional
     compiler-flags for debugging"
@@ -15,9 +18,6 @@ endif(CMAKE_CROSSCOMPILING AND NDLCOM_ENABLE_TESTING)
 if(NDLCOM_ENABLE_TESTING)
     add_definitions(-g -O0 -Wall -Wpedantic)
 endif(NDLCOM_ENABLE_TESTING)
-
-# nothing special here
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # the usual create-library-blocks
 set(SOURCES_lib
@@ -94,12 +94,19 @@ endif(SEEMS_TO_BE_POSIX)
 add_library(${PROJECT_NAME}
     ${SOURCES_lib}
     )
+target_include_directories(${PROJECT_NAME}
+	PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 #
 # installing:
+
 install(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION bin
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
+    EXPORT ${PROJECT_NAME}-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if (NOT CMAKE_CROSSCOMPILING)
@@ -142,7 +149,30 @@ configure_file(${PROJECT_NAME}-uninstalled.pc.in
 
 # all the headers to be installed (this includes the generated one)
 install(FILES ${HEADERS_lib}
-    DESTINATION include/${PROJECT_NAME})
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 # the pkg-config for external use has also to be installed
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc
-    DESTINATION lib/pkgconfig)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+
+
+#cmake-config setup
+#install the export of the library interface
+install(
+    EXPORT ${PROJECT_NAME}-targets
+	#NAMESPACE ndlcom::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+# Create and install the version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(${PROJECT_NAME}-version.cmake
+	VERSION 1.0.0
+	COMPATIBILITY SameMajorVersion
+)
+
+install(
+	FILES
+        ${PROJECT_NAME}-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-version.cmake
+	DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
