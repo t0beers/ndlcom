@@ -36,10 +36,7 @@ add_test(NAME testCrc COMMAND testCrc)
 add_executable(printTable printTable.c)
 add_test(NAME printTable COMMAND printTable)
 
-# i hate cmake nowadays, their "language" is broken as shit and trying to
-# formulate a "task" such as these trivally done in bash is hard... since that,
-# i hacked together this mini-shell script which does exactly the same as the
-# test-macro...
+# configure and install a mini-shell script to simplify executing the tests
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testEncoderDecoder.sh.in
     ${CMAKE_CURRENT_BINARY_DIR}/testEncoderDecoder.sh @ONLY)
 add_test(NAME testEncoderDecoder
