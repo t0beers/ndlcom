@@ -81,7 +81,7 @@ The library is used in the following in-house projects:
 - PSoC based [microDMSBoard](https://git.hb.dfki.de/team2/microDMSBoard/blob/61ec03ac/common_src/comm.cpp#L94)
 - [mdaq2](https://git.hb.dfki.de/istruct/stm32_mdaq2) via [lib_stm32common](https://git.hb.dfki.de/istruct/lib_stm32common/blob/a7d97f7f/src/usart.cpp#L72)
 - DFKI Microcontrollerboards using [chibiOS](https://git.hb.dfki.de/team2/chibios_support/blob/2dca977c/comm.cpp#L160)
-- [Treadmill](https://git.hb.dfki.de/hhanff/Treadmill)
+- [Treadmill](https://git.hb.dfki.de/dfki-drivers/facility_equipment/treadmill_control)
 - for the *ZynqBrain* board there exists a [kernel-module](https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom) to map between data processed from the VHDL module into readable byte-streams on an user-space interface like `/dev/NDLCom`
 - Charlies [HeadServoController](https://git.hb.dfki.de/charlie/HeadServoController) is
   running on ZynqBrain as well
