@@ -8,7 +8,7 @@ bridging application.
 
 Complex heterogenuous systems are equipped with an increasing number of small decentralized computing devices. These are used to read sensors or control motors distributed across the system. Connecting these nodes in a packet based point-to-point network allows for flexible data transmission between all participants. NDLCom (Node Level Data Link Communication) defines a simple packet format for data exchange, which needs fewer resources compared to more complex network technologies like IP. This allows microcontrollers or FPGAs with limited capabilities to communicate in a network with a PC. Point-to-point bytestreams based on [UART][] are viewed as the smallest common denominator.
 
-The protocol provides a communication infrastructure similar to the OSI-Layer 3, while it uses [HDLC][] for Layer 2 message segmentation:
+The protocol provides a communication infrastructure similar to the OSI-Layer 3, while it uses [HDLC](https://www.iso.org/standard/37010.html) for Layer 2 message segmentation:
 
 ![osi_model](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/osi_model.png)
 
@@ -87,4 +87,3 @@ The library is used in the following in-house projects:
   running on ZynqBrain as well
 
 [UART]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver/transmitter
-[HDLC]: http://read.pudn.com/downloads138/sourcecode/others/589576/ISO13239.pdf
