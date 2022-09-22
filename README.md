@@ -20,7 +20,7 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ![ndlcom_header](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/ndlcom_header.png)
 
-For one possible definition of a common payload see [representations](https://git.hb.dfki.de/istruct/lib_representations).
+For one possible definition of a common payload see [representations](https://git.hb.dfki.de/ndlcom/ndlcom/representations).
 
 ## History
 
@@ -29,7 +29,7 @@ For one possible definition of a common payload see [representations](https://gi
 Developed at [DKFI RIC Bremen](http://robotik.dfki-bremen.de/en/startpage.html)
 during the iStruct and SeeGrip projects, starting in 2010. To obtain something
 more profound like presentations and papers see the
-[documents](https://git.hb.dfki.de/istruct/documents/blob/master) repository.
+[documents](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/paper) folder.
 
 ## Structure
 
@@ -70,7 +70,7 @@ skeleton and [rc-script.sh](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/scr
 
 # Papers
 
-See [this](https://git.hb.dfki.de/istruct/documents) additional repository.
+Have a look into [this](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/paper) folder.
 
 ## Users
 
