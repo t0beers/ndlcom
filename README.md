@@ -20,7 +20,7 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ![ndlcom_header](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/ndlcom_header.png)
 
-For one possible definition of a common payload see [representations](https://git.hb.dfki.de/ndlcom/ndlcom/representations).
+For one possible definition of a common payload see [representations](https://git.hb.dfki.de/ndlcom/representations).
 
 ## History
 
