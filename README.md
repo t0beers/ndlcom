@@ -20,7 +20,7 @@ The header of each packet consists of 4 byte: One byte for sender and receiver r
 
 ![ndlcom_header](doc/ndlcom_header.png)
 
-For one possible definition of a common payload see [representations](https://git.hb.dfki.de/ndlcom/representations).
+[For one possible definition of a common payload see [representations](https://git.hb.dfki.de/ndlcom/representations).]: #
 
 ## History
 
@@ -72,7 +72,7 @@ skeleton and [rc-script.sh](scripts/rc-script.sh) for a SystemV based system.
 
 Have a look into [this](doc/paper) folder.
 
-## Users
+[## Users
 
 The library is used in the following in-house projects:
 
@@ -85,5 +85,5 @@ The library is used in the following in-house projects:
 - for the *ZynqBrain* board there exists a [kernel-module](https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom) to map between data processed from the VHDL module into readable byte-streams on an user-space interface like `/dev/NDLCom`
 - Charlies [HeadServoController](https://git.hb.dfki.de/charlie/HeadServoController) is
   running on ZynqBrain as well
-
+]: #
 [UART]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver/transmitter
