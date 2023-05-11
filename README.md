@@ -1,4 +1,4 @@
-![ndlcom_logo](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/ndlcom_logo.png)
+![ndlcom_logo](doc/ndlcom_logo.png)
 
 # Introduction
 
@@ -10,42 +10,42 @@ Complex heterogenuous systems are equipped with an increasing number of small de
 
 The protocol provides a communication infrastructure similar to the OSI-Layer 3, while it uses [HDLC](https://www.iso.org/standard/37010.html) for Layer 2 message segmentation:
 
-![osi_model](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/osi_model.png)
+![osi_model](doc/osi_model.png)
 
 HDLC segments a continuous bytestream into individual messages by replacing every `0x7e` and `0x7d` with special escape-sequences (red) and sorounding each message with the previously replaced `0x7e` (blue), thereby marking the boundaries in a unique way. Of course, the decoder has to undo this.
 
-![bytestream_encoding](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/bytestream_encoding.png)
+![bytestream_encoding](doc/bytestream_encoding.png)
 
-The header of each packet consists of 4 byte: One byte for sender and receiver respectively allow for up to 254 different addresses plus the additional "broadcast" address. The third byte is a packet-counter to enable detection of lost packages. The payload with a maximum capacity of 255 bytes is following the specification of the packet length. At the end, each packet is guarded by a 16Bit [AUG-CCITT](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/crc.md) checksum to detect transmission errors:
+The header of each packet consists of 4 byte: One byte for sender and receiver respectively allow for up to 254 different addresses plus the additional "broadcast" address. The third byte is a packet-counter to enable detection of lost packages. The payload with a maximum capacity of 255 bytes is following the specification of the packet length. At the end, each packet is guarded by a 16Bit [AUG-CCITT](doc/crc.md) checksum to detect transmission errors:
 
-![ndlcom_header](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/ndlcom_header.png)
+![ndlcom_header](doc/ndlcom_header.png)
 
 For one possible definition of a common payload see [representations](https://git.hb.dfki.de/ndlcom/representations).
 
 ## History
 
-![DFKI](https://git.hb.dfki.de/ndlcom/ndlcom/raw/master/doc/dfki-logo.png)
+![DFKI](doc/dfki-logo.png)
 
 Developed at [DKFI RIC Bremen](http://robotik.dfki-bremen.de/en/startpage.html)
 during the iStruct and SeeGrip projects, starting in 2010. To obtain something
 more profound like presentations and papers see the
-[documents](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/paper) folder.
+[documents](doc/paper) folder.
 
 ## Structure
 
 The C "core" code is written with the embedded/bare-metal case in mind: There is
 no dynamic memory involved, no C++, no locking and no multi threading. C++ code
 is provided for POSIX systems to create actually usefull software. For a
-high-level overview of the contained classes see [here](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/concepts.md)
+high-level overview of the contained classes see [here](doc/concepts.md)
 
 Comes with a cmake-based buildsystem and pkg-config files. Provides a simple Makefile acting as a cmake-wrapper, just call `make` and it will probably do the right thing. To generate doxygen-documentation call `make doc`, to install all files into the default-directory `~/DFKI.install` do `make install`.
 
-- [src](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/src) Contains all source files of the library
-- [test](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/test) Limited programs used for testing and benchmarking
-- [include/ndlcom](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/include/ndlcom) Contains all external headers used in the library.
-- [doc](doc) Some documentation, with [doc/tex](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/tex) containing the tikz-sources for graphics
-- [scripts](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/scripts) Some tooling and testing scripts which fit nowhere else
-- [tools](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/tools) Contains useful ready-made tools for actual usage
+- [src](src) Contains all source files of the library
+- [test](test) Limited programs used for testing and benchmarking
+- [include/ndlcom](hinclude/ndlcom) Contains all external headers used in the library.
+- [doc](doc) Some documentation, with [doc/tex](doc/tex) containing the tikz-sources for graphics
+- [scripts](scripts) Some tooling and testing scripts which fit nowhere else
+- [tools](tools) Contains useful ready-made tools for actual usage
 - `./build/...` The default build directory
 - `$HOME/DFKI.install/...` The default install directory
 
@@ -62,21 +62,21 @@ There are two ways to use this library, both based on pkg-config:
    the files from the build-tree. This relies on the *uninstalled* variant of
    pkg-config files.
 
-See [minimalExample.c](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/tools/minimalExample.c) and
-[minimalExample.cpp](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/tools/minimalExample.cpp) to get the idea on how an
+See [minimalExample.c](tools/minimalExample.c) and
+[minimalExample.cpp](tools/minimalExample.cpp) to get the idea on how an
 implementation might look like. See
-[ndlcomBridge.service](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/scripts/ndlcomBridge.service) for an systemd service
-skeleton and [rc-script.sh](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/scripts/rc-script.sh) for a SystemV based system.
+[ndlcomBridge.service](scripts/ndlcomBridge.service) for an systemd service
+skeleton and [rc-script.sh](scripts/rc-script.sh) for a SystemV based system.
 
 # Papers
 
-Have a look into [this](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/doc/paper) folder.
+Have a look into [this](doc/paper) folder.
 
 ## Users
 
 The library is used in the following in-house projects:
 
-- Have a look into the [minimalExample](https://git.hb.dfki.de/ndlcom/ndlcom/tree/master/tools/minimalExample.cpp) of this repository
+- Have a look into the [minimalExample](tools/minimalExample.cpp) of this repository
 - [bgGraph templates](https://git.hb.dfki.de/esa_npi_2015/toolchain/blob/7c92f2ef/templates/bg_graph_toplvl_template.c#L60)
 - PSoC based [microDMSBoard](https://git.hb.dfki.de/team2/microDMSBoard/blob/61ec03ac/common_src/comm.cpp#L94)
 - [mdaq2](https://git.hb.dfki.de/istruct/stm32_mdaq2) via [lib_stm32common](https://git.hb.dfki.de/istruct/lib_stm32common/blob/a7d97f7f/src/usart.cpp#L72)
