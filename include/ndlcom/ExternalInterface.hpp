@@ -85,8 +85,6 @@ class ExternalInterfaceSerial : public ExternalInterfaceStream {
  *
  * this is basically a device where encoded messages can be read and written
  * to.
- *
- * @see https://git.hb.dfki.de/zynq-kernel-modules/driver-ndlcom
  */
 class ExternalInterfaceFpga : public ExternalInterfaceStream {
   public:

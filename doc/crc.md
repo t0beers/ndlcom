@@ -1,7 +1,7 @@
 # Checksum
 
 Various notes used during development of the new crc16 functionality.
-The old variant used a XOR-based checksum which was not good enough. It can still be enabled at compile time by removing the C-language define `NDLCOM_CRC16` in [Types.h](https://git.hb.dfki.de/istruct/lib_ndlcom/blob/master/include/ndlcom/Crc.h#L14).
+The old variant used a XOR-based checksum which was not good enough. It can still be enabled at compile time by removing the C-language define `NDLCOM_CRC16` in [Types.h](include/ndlcom/Crc.h#L14).
 
 ## CRC16
 
