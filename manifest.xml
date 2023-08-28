@@ -19,4 +19,5 @@ See also README.md
   <logo>./doc/ndlcom_logo.png</logo>
   <keywords><keyword>Communication</keyword></keywords>
   <stage>0</stage>
+  <license>3-Clause BSD<\license>
 </package>
