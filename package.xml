@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model
+    href="http://download.ros.org/schema/package_format3.xsd"
+    schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+    <name>ndlcom</name>
+    <version>0.0.0</version>
+    <description>
+Node Data Link Communication
+----------------------------
+
+Done for iStruct and SeeGrip, 2010-2013.
+
+functions to encode/decode simple serial communication layer2 message format
+called "ndlcom" for "Node Data Link Communication"
+
+See also README.md
+    </description>
+    <author>Armin Burchardt</author>
+    <author email="moritz.schilling@dfki.de">Moritz Schilling</author>
+    <author email="tobias.stark@dfki.de">Tobias Stark</author>
+    <author>Martin Zenzes</author>
+    <maintainer email="benjamin.huelsen@dfki.de">Benjamin Hülsen</maintainer>
+    <maintainer email="moritz.schilling@dfki.de">Moritz Schilling</maintainer>
+    <license>3-Clause BSD</license>
+
+    <buildtool_depend>cmake</buildtool_depend>
+
+    <export>
+        <build_type>cmake</build_type>
+    </export>
+</package>
+
