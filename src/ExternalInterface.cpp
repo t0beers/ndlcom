@@ -536,7 +536,7 @@ done:
 }
 
 void ExternalInterfaceCan::writeEscapedBytes(const void *buf, size_t count) {
-    out << "trying to write " << count << " bytes\n";
+    //out << "trying to write " << count << " bytes\n";
     size_t alreadyWritten = 0;
     struct can_frame frame;
     // the "sockaddr_can" struct has a rx/tx field
@@ -554,7 +554,7 @@ again:
 
         memcpy(frame.data, (const char *)buf + alreadyWritten, frame.can_dlc);
 
-        std::cout << "here: " << (int)frame.can_dlc << " " << sizeof(frame.data) << "\n";
+        //std::cout << "here: " << (int)frame.can_dlc << " " << sizeof(frame.data) << "\n";
 
         ssize_t written = sendto(fd, &frame, sizeof(struct can_frame), 0,
                                  (struct sockaddr *)&addr, sizeof(addr));
