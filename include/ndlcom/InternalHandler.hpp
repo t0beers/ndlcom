@@ -2,6 +2,7 @@
 #define NDLCOM_INTERNAL_HANDLER_HPP
 
 #include <stddef.h>
+#include <utility>
 #include <algorithm>
 
 #include "ndlcom/Bridge.h"

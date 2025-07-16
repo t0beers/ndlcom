@@ -1,6 +1,7 @@
 #ifndef NDLCOM_PAYLOAD_HPP
 #define NDLCOM_PAYLOAD_HPP
 
+#include <stdint.h>
 #include "ndlcom/Types.h"
 
 #include <chrono>
