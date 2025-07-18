@@ -4,6 +4,9 @@
  * - SA_RESTART http://www.gnu.org/software/libc/manual/html_node/Flags-for-Sigaction.html
  * - add message queue https://www.cs.cf.ac.uk/Dave/C/node25.html
  */
+
+#include "ndlcom/ExternalInterface.hpp"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -17,10 +20,11 @@
 #include <cstring>
 #include <iostream>
 #include <netinet/ip.h>
+#include <arpa/inet.h>
 
-#include "ndlcom/ExternalInterface.hpp"
-
+#include <linux/if.h>
 #include <linux/can/error.h>
+#include <linux/can/raw.h>
 
 using namespace ndlcom;
 

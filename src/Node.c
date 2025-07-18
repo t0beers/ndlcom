@@ -1,6 +1,7 @@
 #include "ndlcom/Node.h"
 
 #include "ndlcom/NodeHandler.h"
+#include "ndlcom/Bridge.h"
 
 /**
  * forward declaration of the implemented handler function

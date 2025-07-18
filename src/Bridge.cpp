@@ -1,8 +1,9 @@
+#include "ndlcom/Bridge.hpp"
+
 #include <stddef.h>
 #include <iomanip>
 #include <limits>
 
-#include "ndlcom/Bridge.hpp"
 #include "ndlcom/BridgeHandler.hpp"
 #include "ndlcom/ExternalInterface.hpp"
 #include "ndlcom/ExternalInterfaceBase.hpp"
