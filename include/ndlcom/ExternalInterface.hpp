@@ -3,17 +3,21 @@
 
 // for "struct sockaddr_in" and "socklen_t":
 #include <arpa/inet.h>
+// for "socklen_t" and "struct sockaddr_in":
+#include <unistd.h>
 #include <netinet/in.h>
 // detecting closed interfaces
 #include <poll.h>
 #include <stdint.h>
 #include <stdio.h>
+// for "speed_t"
 #include <asm-generic/termbits.h>
 #include <regex>
 #include <string>
 
 // ouh...
 #include <linux/if.h>
+// for "canid_t"
 #include <linux/can.h>
 #include <linux/can/raw.h>
 

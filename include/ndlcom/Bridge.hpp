@@ -21,6 +21,7 @@ namespace ndlcom {
 
 class ExternalInterfaceBase;
 class Node;
+struct RawPayload;
 
 // tooling:
 //

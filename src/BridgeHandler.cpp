@@ -1,11 +1,11 @@
+#include "ndlcom/BridgeHandler.hpp"
+
 #include <iomanip>
 // input/output
 #include <iostream>
 #include <limits>
 #include <string>
 #include <string.h> // memset
-
-#include "ndlcom/BridgeHandler.hpp"
 
 using namespace ndlcom;
 

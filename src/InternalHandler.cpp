@@ -1,5 +1,8 @@
 #include "ndlcom/InternalHandler.hpp"
 
+#include "ndlcom/Bridge.h"
+#include "ndlcom/Node.h"
+
 using namespace ndlcom;
 
 /**

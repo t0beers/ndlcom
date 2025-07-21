@@ -1,9 +1,10 @@
+#include "ndlcom/ExternalInterfaceBase.hpp"
+
 #include <cstdio>
 #include <iosfwd>
 #include <stdexcept>
 
 #include "ndlcom/Bridge.h"
-#include "ndlcom/ExternalInterfaceBase.hpp"
 
 using namespace ndlcom;
 

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include "ndlcom/ExternalInterface.h"
 #include "ndlcom/HandlerCommon.hpp"
