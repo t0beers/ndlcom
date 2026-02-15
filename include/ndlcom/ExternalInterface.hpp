@@ -243,6 +243,7 @@ class ExternalInterfaceCan : public ndlcom::ExternalInterfaceBase {
     struct sockaddr_can addr;
     int fd;
     socklen_t len;
+    size_t max_data_len;
 };
 
 /**
