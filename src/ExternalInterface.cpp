@@ -467,13 +467,13 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
     }
     if (ifr.ifr_mtu == CAN_MTU) {
         std::cout << "Detected Classical CAN interface " << device_name << std::endl;
-	max_data_len = CAN_MAX_DLEN;
+        max_data_len = CAN_MAX_DLEN;
     } else if (ifr.ifr_mtu == CANFD_MTU) {
-        std::cout << "Detected FDCAN interface " << device_name << std::endl;
+      std::cout << "Detected FDCAN interface " << device_name << std::endl;
         max_data_len = CANFD_MAX_DLEN;
         int en_sockopt=1;
         if (setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &en_sockopt, sizeof(en_sockopt))) {
-	    reportRuntimeError("setsockopt", __FILE__, __LINE__);
+            reportRuntimeError("setsockopt", __FILE__, __LINE__);
         }
     } else {
         reportRuntimeError("could not determine CAN type", __FILE__, __LINE__);
