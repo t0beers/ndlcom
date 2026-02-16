@@ -526,7 +526,7 @@ size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
 again:
         // using recvfrom, so that we specifiy the interface from where we read
         const ssize_t retVal = recvfrom(fd, &frame, sizeof(struct canfd_frame), 0,
-					(struct sockaddr *)&addr, &len);
+                                     (struct sockaddr *)&addr, &len);
         const size_t bytesRead = retVal > 0 ? retVal : 0;
 
         if (retVal < 0) {
@@ -542,7 +542,7 @@ again:
         }
 
         if ((bytesRead != sizeof(struct can_frame)) &&
-	    (bytesRead != sizeof(struct canfd_frame))) {
+            (bytesRead != sizeof(struct canfd_frame))) {
             reportRuntimeError("verybogus", __FILE__, __LINE__);
             return 0;
 	}
