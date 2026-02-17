@@ -429,7 +429,8 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
       /* actually errors would be handy as well (untested): */
       err_mask(CAN_ERR_TX_TIMEOUT | CAN_ERR_CRTL_RX_PASSIVE |
                CAN_ERR_CRTL_TX_PASSIVE | CAN_ERR_BUSOFF),
-      addr{0}, len(sizeof(struct sockaddr_in)) {
+      addr{0}, len(sizeof(struct sockaddr_in)),
+      max_data_len(CAN_MAX_DLEN) {
 
     // error is missing/not working as expected
 
@@ -459,6 +460,24 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &bridge,
     addr.can_addr.tp.tx_id = _canIdTx;
     addr.can_addr.tp.rx_id = _canIdRx;
 #endif
+
+    // check if we have 'classical' or an fd-can interface
+    if (ioctl(fd, SIOCGIFMTU, &ifr)) {
+        reportRuntimeError(strerror(errno), __FILE__, __LINE__);
+    }
+    if (ifr.ifr_mtu == CAN_MTU) {
+        std::cout << "Detected Classical CAN interface " << device_name << std::endl;
+        max_data_len = CAN_MAX_DLEN;
+    } else if (ifr.ifr_mtu == CANFD_MTU) {
+      std::cout << "Detected FDCAN interface " << device_name << std::endl;
+        max_data_len = CANFD_MAX_DLEN;
+        int en_sockopt=1;
+        if (setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &en_sockopt, sizeof(en_sockopt))) {
+            reportRuntimeError("setsockopt", __FILE__, __LINE__);
+        }
+    } else {
+        reportRuntimeError("could not determine CAN type", __FILE__, __LINE__);
+    }
 
     bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 
@@ -499,15 +518,14 @@ ExternalInterfaceCan::ExternalInterfaceCan(struct NDLComBridge &_bridge,
 ExternalInterfaceCan::~ExternalInterfaceCan() { close(fd); }
 
 size_t ExternalInterfaceCan::readEscapedBytes(void *buf, size_t count) {
-    struct can_frame frame;
 
+    struct canfd_frame frame;
     size_t alreadyRead = 0;
-    // this loop will only read multiples of the frame-size into count. the
-    // last read of a non-modulo-eight sized packet is chopped off?
+
     while (alreadyRead < (count - sizeof(frame.data))) {
 again:
         // using recvfrom, so that we specifiy the interface from where we read
-        const ssize_t retVal = recvfrom(fd, &frame, sizeof(struct can_frame), 0,
+        const ssize_t retVal = recvfrom(fd, &frame, sizeof(struct canfd_frame), 0,
                                      (struct sockaddr *)&addr, &len);
         const size_t bytesRead = retVal > 0 ? retVal : 0;
 
@@ -522,17 +540,19 @@ again:
             reportRuntimeError(strerror(errno), __FILE__, __LINE__);
             return 0;
         }
-        if (bytesRead < sizeof(struct can_frame)) {
+
+        if ((bytesRead != sizeof(struct can_frame)) &&
+            (bytesRead != sizeof(struct canfd_frame))) {
             reportRuntimeError("verybogus", __FILE__, __LINE__);
             return 0;
-        }
+	}
 
         // TODO: if interface would be bound to "any" we would have to add
         // additional checks?
 
-        memcpy((char*)buf+alreadyRead, frame.data, frame.can_dlc);
+        memcpy((char*)buf+alreadyRead, frame.data, frame.len);
 
-        alreadyRead += frame.can_dlc;
+        alreadyRead += frame.len;
     }
 done:
 
@@ -540,27 +560,25 @@ done:
 }
 
 void ExternalInterfaceCan::writeEscapedBytes(const void *buf, size_t count) {
-    //out << "trying to write " << count << " bytes\n";
+
     size_t alreadyWritten = 0;
-    struct can_frame frame;
+    struct canfd_frame frame;
     // the "sockaddr_can" struct has a rx/tx field
     frame.can_id = canIdTx;
-    frame.can_dlc = sizeof(frame.data);
+    frame.len = max_data_len;
 again:
     while (alreadyWritten < count) {
 
         // we'll rewrite the "size" field only for the last chunk. for all the
         // other ones the initial value (8byte, set before the loop) is used.
         // it might work like this?
-        if ((alreadyWritten+sizeof(frame.data)) > count) {
-            frame.can_dlc = count - alreadyWritten;
+        if (alreadyWritten+max_data_len > count) {
+            frame.len = count - alreadyWritten;
         }
 
-        memcpy(frame.data, (const char *)buf + alreadyWritten, frame.can_dlc);
+        memcpy(frame.data, (const char *)buf + alreadyWritten, frame.len);
 
-        //std::cout << "here: " << (int)frame.can_dlc << " " << sizeof(frame.data) << "\n";
-
-        ssize_t written = sendto(fd, &frame, sizeof(struct can_frame), 0,
+        ssize_t written = sendto(fd, &frame, max_data_len+8, 0,
                                  (struct sockaddr *)&addr, sizeof(addr));
         if (written == -1) {
             if (errno == EINTR) {
@@ -569,7 +587,7 @@ again:
             }
             reportRuntimeError(strerror(errno), __FILE__, __LINE__);
         }
-        alreadyWritten += frame.can_dlc;
+        alreadyWritten += frame.len;
     }
     return;
 }
