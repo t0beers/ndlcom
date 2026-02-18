@@ -131,6 +131,7 @@ void ndlcomNodeRegisterNodeHandler(struct NDLComNode *node,
 
 void ndlcomNodeDeregisterNodeHandler(struct NDLComNode *node,
                                      struct NDLComNodeHandler *nodeHandler) {
+    (void)node;
 
     list_del_init(&nodeHandler->list);
     nodeHandler->node = 0;
